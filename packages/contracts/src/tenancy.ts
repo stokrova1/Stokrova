@@ -8,6 +8,8 @@ export interface UserIdentity {
   email: string;
   full_name: string;
   is_platform_admin?: boolean;
+  tenant_ids?: string[];
+  tenant_id?: string;
 }
 
 export interface TenantContext {

@@ -9,6 +9,7 @@ import {
 import type { Request, Response } from 'express';
 import { AppError } from './api-error.js';
 import type { ApiErrorShape } from './api-error.js';
+import { sanitizeUrl } from '../utils/url-sanitizer.js';
 
 @Catch()
 export class GlobalHttpExceptionFilter implements ExceptionFilter {
@@ -50,14 +51,18 @@ export class GlobalHttpExceptionFilter implements ExceptionFilter {
       }
     } else if (exception instanceof Error) {
       // Diagnostic logging for unexpected internal errors
+      const safeUrl = sanitizeUrl(request.originalUrl || request.url || '');
       this.logger.error(
-        `Unhandled exception for request [${requestId}] on ${request.method} ${request.url}: ${exception.message}`,
+        `Unhandled exception for request [${requestId}] on ${request.method} ${safeUrl}: ${exception.message}`,
         exception.stack,
       );
 
       // In production, never expose raw internal/SQL errors
       if (process.env['NODE_ENV'] !== 'production') {
-        message = exception.message;
+        // Redact any database connection strings or secret keys even in dev
+        message = exception.message.replace(/postgres:\/\/[^@]+@/g, 'postgres://[REDACTED]@');
+      } else {
+        message = 'An internal server error occurred.';
       }
     }
 

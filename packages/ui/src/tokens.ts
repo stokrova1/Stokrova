@@ -232,8 +232,12 @@ export function isWcagAaaCompliant(fgHex: string, bgHex: string, isLargeText = f
 // CSS Variables Generator
 // ==========================================
 
-export function generateCssVariables(theme: 'light' | 'dark'): Record<string, string> {
+export function generateCssVariables(
+  theme: 'light' | 'dark',
+  customPrimaryColor?: string,
+): Record<string, string> {
   const tokens = themeTokens[theme];
+  const primaryColor = customPrimaryColor || tokens.primary;
   return {
     '--stokrova-bg': tokens.background,
     '--stokrova-surface': tokens.surface,
@@ -244,18 +248,21 @@ export function generateCssVariables(theme: 'light' | 'dark'): Record<string, st
     '--stokrova-text-primary': tokens.textPrimary,
     '--stokrova-text-secondary': tokens.textSecondary,
     '--stokrova-text-muted': tokens.textMuted,
-    '--stokrova-primary': tokens.primary,
-    '--stokrova-primary-hover': tokens.primaryHover,
+    '--stokrova-primary': primaryColor,
+    '--stokrova-primary-hover': customPrimaryColor || tokens.primaryHover,
     '--stokrova-primary-fg': tokens.primaryForeground,
     '--stokrova-accent': tokens.accent,
-    '--stokrova-ring': tokens.ring,
+    '--stokrova-ring': primaryColor,
     '--stokrova-font-sans': typography.fontFamilies.sans,
     '--stokrova-font-mono': typography.fontFamilies.mono,
   };
 }
 
-export function generateCssVariableString(theme: 'light' | 'dark'): string {
-  const vars = generateCssVariables(theme);
+export function generateCssVariableString(
+  theme: 'light' | 'dark',
+  customPrimaryColor?: string,
+): string {
+  const vars = generateCssVariables(theme, customPrimaryColor);
   const entries = Object.entries(vars)
     .map(([k, v]) => `  ${k}: ${v};`)
     .join('\n');

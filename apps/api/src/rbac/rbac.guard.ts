@@ -14,6 +14,7 @@ import {
   REQUIRE_PERMISSION_KEY,
   type RequiredPermissionMetadata,
 } from './decorators/require-permission.decorator.js';
+import { IS_PUBLIC_KEY } from '../auth/decorators/public.decorator.js';
 
 interface ScopedRequest extends Request {
   user?: UserIdentity;
@@ -35,6 +36,13 @@ export class RbacGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const classTarget = typeof context.getClass === 'function' ? context.getClass() : undefined;
+    const targets = [context.getHandler(), classTarget].filter(Boolean) as any[];
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, targets);
+    if (isPublic === true) {
+      return true;
+    }
+
     const metadata = this.reflector.get<RequiredPermissionMetadata | undefined>(
       REQUIRE_PERMISSION_KEY,
       context.getHandler(),

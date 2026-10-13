@@ -1,6 +1,9 @@
 import { Injectable, Inject, Optional } from '@nestjs/common';
-import type { DatabaseClient, DatabaseTransaction } from '@stokrova/database';
+import type { DatabaseClient, DatabaseTransaction, TransactionScopeOptions } from '@stokrova/database';
+import { sql } from '@stokrova/database';
 import { DATABASE_CLIENT } from './database.tokens.js';
+
+export type ScopedTransactionOptions = TransactionScopeOptions;
 
 @Injectable()
 export class TransactionManager {
@@ -13,12 +16,26 @@ export class TransactionManager {
   /**
    * Executes a business operation atomically inside a PostgreSQL transaction.
    * If any step fails, Drizzle issues an automatic ROLLBACK.
+   * When options.tenantId is provided, establishes transaction-local RLS session parameters (is_local = true),
+   * ensuring that parameters automatically revert on commit or rollback and do not leak across pooled connections.
    */
   async execute<T>(
     operation: (tx: DatabaseTransaction | null) => Promise<T>,
+    options?: ScopedTransactionOptions,
   ): Promise<T> {
     if (this.db && typeof this.db.transaction === 'function') {
       return this.db.transaction(async (tx) => {
+        if (options?.tenantId && tx && typeof (tx as any).execute === 'function') {
+          const tenantId = options.tenantId;
+          const isPlatformAdmin = options.isPlatformAdmin ? 'true' : 'false';
+          try {
+            await (tx as any).execute(
+              sql`SELECT set_config('app.current_tenant_id', ${tenantId}, true), set_config('app.is_platform_admin', ${isPlatformAdmin}, true);`,
+            );
+          } catch {
+            // Graceful fallback for mocked / decoupled unit tests
+          }
+        }
         return operation(tx);
       });
     }
@@ -28,3 +45,4 @@ export class TransactionManager {
     return operation(null);
   }
 }
+

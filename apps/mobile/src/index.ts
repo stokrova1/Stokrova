@@ -21,7 +21,29 @@ export interface MobileShellConfig {
   operatorId: string;
   operatorName: string;
   initialTab?: 'scan' | 'pick' | 'receive' | 'audit';
+  companyName?: string;
+  companyLogoUrl?: string;
+  primaryColor?: string;
+  roleCode?: string;
+  deviceFingerprint?: string;
 }
+
+export interface MobilePairingPayload {
+  tenantId: string;
+  branchId: string;
+}
+
+export function parseMobilePairingQrCode(qrPayload: string): MobilePairingPayload | null {
+  const match = qrPayload.match(/\[STOKROVA-PAIR:TEN=([^:]+):BR=([^\]]+)\]/);
+  if (!match || !match[1] || !match[2]) {
+    return null;
+  }
+  return {
+    tenantId: match[1],
+    branchId: match[2],
+  };
+}
+
 
 export class MobileWarehouseShell {
   private config: MobileShellConfig;
@@ -155,14 +177,17 @@ export class MobileWarehouseShell {
 
   public renderMobileShellHtml(): string {
     const tokens = themeTokens.dark;
+    const primary = this.config.primaryColor || tokens.primary;
     const nextTask = this.getNextActivePickTask();
     const tabs = this.getNavigationTabs();
+    const companyPrefix = this.config.companyName ? `${this.config.companyName} • ` : '';
+    const roleSuffix = this.config.roleCode ? ` (${this.config.roleCode})` : '';
 
     const tabsHtml = tabs
       .map((tab) => {
         const isActive = tab.id === this.currentTab;
         const activeStyle = isActive
-          ? `color: ${tokens.primary}; font-weight: 700; border-top: 3px solid ${tokens.primary};`
+          ? `color: ${primary}; font-weight: 700; border-top: 3px solid ${primary};`
           : `color: ${tokens.textSecondary};`;
         const badgeHtml = tab.badgeCount ? `<span class="tab-badge">${tab.badgeCount}</span>` : '';
         return `
@@ -191,8 +216,8 @@ export class MobileWarehouseShell {
       <div class="stokrova-mobile-shell" style="background: ${tokens.background}; color: ${tokens.textPrimary};">
         <header class="mobile-header" style="background: ${tokens.surface}; border-bottom: 1px solid ${tokens.border};">
           <div class="operator-badge">
-            <span class="warehouse-title">${this.config.warehouseName}</span>
-            <span class="operator-name">${this.config.operatorName}</span>
+            <span class="warehouse-title">${companyPrefix}${this.config.warehouseName}</span>
+            <span class="operator-name">${this.config.operatorName}${roleSuffix}</span>
           </div>
           <div class="outbox-chip ${this.pendingOutboxMutationsCount > 0 ? 'pending' : 'synced'}">
             ⚡ Outbox: ${this.pendingOutboxMutationsCount}

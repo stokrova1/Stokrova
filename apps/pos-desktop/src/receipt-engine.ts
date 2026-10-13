@@ -33,6 +33,24 @@ export interface ReceiptData {
   footerNotes?: string[];
 }
 
+export interface PackingSlipHeader {
+  storeName: string;
+  storeAddress: string;
+  ticketNumber: string;
+  orderReference?: string;
+  stationName: string;
+  packerName: string;
+  timestampIso: string;
+}
+
+export interface PackingSlipData {
+  header: PackingSlipHeader;
+  items: PosCartItem[];
+  totalUnits: number;
+  notes?: string[];
+}
+
+
 function encodeUtf8(str: string): Uint8Array {
   const bytes: number[] = [];
   for (let i = 0; i < str.length; i++) {
@@ -120,11 +138,12 @@ export class PosReceiptEngine {
 
     // Footer
     lines.push(this.centerText('THANK YOU FOR YOUR PATRONAGE!'));
-    lines.push(this.centerText('ALL GOODS ARE COVERED BY STOKROVA'));
-    if (data.footerNotes) {
+    if (data.footerNotes && data.footerNotes.length > 0) {
       for (const note of data.footerNotes) {
         lines.push(this.centerText(note));
       }
+    } else {
+      lines.push(this.centerText(`THANK YOU FOR SHOPPING AT ${data.header.storeName.toUpperCase()}`));
     }
 
     return lines.join('\n');
@@ -172,4 +191,57 @@ ${text}
       </div>
     `.trim();
   }
+
+  public renderPackingSlipText(data: PackingSlipData): string {
+    const lines: string[] = [];
+    const divider = '-'.repeat(this.charsPerLine);
+    const doubleDivider = '='.repeat(this.charsPerLine);
+
+    lines.push(this.centerText(data.header.storeName));
+    lines.push(this.centerText(data.header.storeAddress));
+    lines.push(divider);
+    lines.push(this.centerText('GOODS PACKING SLIP & COLLECTION'));
+    lines.push(divider);
+    lines.push(this.formatJustifiedLine(`TICKET: ${data.header.ticketNumber}`, `STN: ${data.header.stationName}`));
+    if (data.header.orderReference) {
+      lines.push(this.formatJustifiedLine(`REF: ${data.header.orderReference}`, `PACKER: ${data.header.packerName}`));
+    } else {
+      lines.push(this.formatJustifiedLine(`PACKER: ${data.header.packerName}`, ''));
+    }
+    lines.push(this.formatJustifiedLine(`DATE: ${data.header.timestampIso.split('T')[0]}`, `UNITS: ${data.totalUnits}`));
+
+    lines.push(divider);
+    lines.push(this.formatJustifiedLine('QTY  DESCRIPTION', 'STATUS'));
+    lines.push(divider);
+
+    for (const item of data.items) {
+      const left = `${item.quantity}x ${item.title}`;
+      lines.push(this.formatJustifiedLine(left, '[PACKED]'));
+    }
+
+    lines.push(doubleDivider);
+    lines.push(this.centerText('STATUS: VERIFIED & PACKED'));
+    lines.push(doubleDivider);
+    if (data.notes && data.notes.length > 0) {
+      for (const note of data.notes) {
+        lines.push(this.centerText(note));
+      }
+    } else {
+      lines.push(this.centerText('PRESENT WITH CASHIER PAYMENT RECEIPT'));
+      lines.push(this.centerText('FOR FINAL EXIT RELEASE'));
+    }
+
+    return lines.join('\n');
+  }
+
+  public renderVisualPackingSlipHtml(data: PackingSlipData): string {
+    const text = this.renderPackingSlipText(data);
+
+    return `
+      <div class="thermal-packing-slip-preview" style="background: #FFFDF9; color: #111; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.35; padding: 24px 20px; width: 340px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border-radius: 4px; border: 1px dashed #64748B; margin: 0 auto; white-space: pre; overflow-x: auto;">
+${text}
+      </div>
+    `.trim();
+  }
 }
+

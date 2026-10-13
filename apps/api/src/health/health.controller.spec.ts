@@ -25,17 +25,35 @@ describe('HealthController', () => {
     expect(result.timestamp).toBeDefined();
   });
 
-  it('returns ready status on /health/ready', () => {
-    const result = controller.readinessCheck();
+  it('returns ready status on /health/ready when database is healthy', async () => {
+    const mockPool = { query: async () => ({ rows: [{ '?column?': 1 }] }) } as any;
+    const healthyController = new HealthController(undefined, undefined, mockPool);
+    const result = await healthyController.readinessCheck();
     expect(result.status).toBe('ready');
     expect(result.checks.api).toBe('up');
     expect(result.checks.database).toBe('ready');
     expect(result.timestamp).toBeDefined();
   });
 
-  it('preserves legacy /health/readiness compatibility', () => {
-    const result = controller.readiness();
+  it('fails readiness and throws ServiceUnavailableException when database probe fails', async () => {
+    const mockFailingPool = {
+      query: async () => {
+        throw new Error('Connection refused to postgresql:5432');
+      },
+    } as any;
+    const failingController = new HealthController(undefined, undefined, mockFailingPool);
+    await expect(failingController.readinessCheck()).rejects.toThrow();
+  });
+
+  it('preserves legacy /health/readiness compatibility', async () => {
+    const result = await controller.readiness();
     expect(result.status).toBe('ready');
     expect(result.checks.api).toBe('up');
+  });
+
+  it('exposes metrics snapshot on /health/metrics', () => {
+    const result = controller.metrics();
+    expect(result.status).toBe('ok');
+    expect(result.uptimeSeconds).toBeGreaterThanOrEqual(0);
   });
 });

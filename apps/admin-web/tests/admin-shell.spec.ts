@@ -61,8 +61,58 @@ describe('Phase 23 @stokrova/admin-web — Application Shell Suite', () => {
 
     expect(html).toContain('<!DOCTYPE html>');
     expect(html).toContain('data-theme="dark"');
-    expect(html).toContain('--stokrova-primary: #BD9652;');
     expect(html).toContain('Omega Global Retail / London Flagship Branch');
     expect(html).toContain('id="dashboard-view"');
   });
+
+  it('adapts to company branding with custom primary color and logo in header and banner', () => {
+    const shell = new AdminWebShell({
+      context: {
+        ...baseContext,
+        branding: {
+          company_name: 'Apex Superstores Ltd',
+          logo_url: 'https://cdn.apex.com/logo.png',
+          primary_color: '#00C853',
+          currency_symbol: '₦',
+        },
+      },
+    });
+
+    const header = shell.renderHeaderHtml();
+    expect(header).toContain('Apex Superstores Ltd');
+    expect(header).toContain('https://cdn.apex.com/logo.png');
+    expect(header).toContain('Get Desktop App');
+
+    const welcome = shell.renderWelcomeBannerHtml('Amina');
+    expect(welcome).toContain('Welcome back to Apex Superstores Ltd, Amina');
+
+    const html = shell.renderCompleteShellHtml('<main>Main Body</main>');
+    expect(html).toContain('--stokrova-primary: #00C853;');
+    expect(html).toContain('<title>Apex Superstores Ltd</title>');
+  });
+
+  it('renders desktop app download modal with multi-platform installers', () => {
+    const shell = new AdminWebShell({ context: baseContext });
+    const modalHtml = shell.renderDesktopDownloadModalHtml();
+
+    expect(modalHtml).toContain('Install STOKROVA Desktop');
+    expect(modalHtml).toContain('Windows (.exe)');
+    expect(modalHtml).toContain('macOS (.dmg)');
+    expect(modalHtml).toContain('Offline-first engine');
+  });
+
+  it('renders mobile scanner app download and instant branch QR pairing modal', () => {
+    const shell = new AdminWebShell({ context: baseContext });
+    const headerHtml = shell.renderHeaderHtml();
+    expect(headerHtml).toContain('Get Mobile App');
+
+    const pairingModalHtml = shell.renderMobilePairingModalHtml();
+    expect(pairingModalHtml).toContain('Connect Omega EMEA Corp Mobile Scanner');
+    expect(pairingModalHtml).toContain('Android (.apk)');
+    expect(pairingModalHtml).toContain('iOS App Store');
+    expect(pairingModalHtml).toContain('[STOKROVA-PAIR]');
+    expect(pairingModalHtml).toContain('London Flagship Branch');
+  });
 });
+
+

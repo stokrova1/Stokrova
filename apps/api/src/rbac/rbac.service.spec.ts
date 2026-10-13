@@ -84,4 +84,74 @@ describe('RbacService', () => {
     expect(activeAssignments.length).toBe(1);
     expect(activeAssignments[0]?.scope.register_id).toBe('reg_pos_02');
   });
+
+  it('generates shareable link and email invitations for staff onboarding', async () => {
+    const roles = await service.getRoleTemplates();
+    const cashierRole = roles.find((r) => r.code === 'CASHIER')!;
+
+    // 1. Create invitation for cashier with shareable link (e.g. for WhatsApp)
+    const invitation = await service.inviteStaff(tenantId, 'usr_owner_01', {
+      email: 'cashier.amina@stokrova.test',
+      full_name: 'Amina Bello',
+      role_id: cashierRole.id,
+      scope: { branch_id: 'branch_lagos_main' },
+      delivery_channel: 'SHAREABLE_LINK',
+    });
+
+    expect(invitation.invitation_id).toBeDefined();
+    expect(invitation.delivery_channel).toBe('SHAREABLE_LINK');
+    expect(invitation.invite_url).toContain('/invite?token=');
+    expect(invitation.status).toBe('PENDING');
+
+    // 2. List tenant invitations
+    const list = await service.listInvitations(tenantId);
+    expect(list.some((inv) => inv.invitation_id === invitation.invitation_id)).toBe(true);
+
+    // 3. Accept invitation
+    const acceptance = await service.acceptInvitation({
+      invite_token: invitation.invite_token,
+      password: 'SecurePassword123!',
+      cashier_pin: '1234',
+    });
+
+    expect(acceptance.status).toBe('ACTIVE');
+    expect(acceptance.email).toBe('cashier.amina@stokrova.test');
+    expect(acceptance.primary_role_code).toBe('CASHIER');
+    expect(acceptance.target_destination_path).toBe('/pos');
+
+    // 4. Verify user has active assigned role in tenant
+    const assignments = await service.getUserActiveAssignments(tenantId, acceptance.user_id);
+    expect(assignments.length).toBe(1);
+    expect(assignments[0]?.role_code).toBe('CASHIER');
+    expect(assignments[0]?.scope.branch_id).toBe('branch_lagos_main');
+
+    await expect(
+      service.acceptInvitation({
+        invite_token: invitation.invite_token,
+        password: 'AnotherPassword123!',
+      }),
+    ).rejects.toThrow('Invitation has already been accepted.');
+  });
+
+
+  it('routes accepted accountant staff to /finance/ledger workspace', async () => {
+    const roles = await service.getRoleTemplates();
+    const accountantRole = roles.find((r) => r.code === 'ACCOUNTANT')!;
+
+    const invitation = await service.inviteStaff(tenantId, 'usr_owner_01', {
+      email: 'cfo@stokrova.test',
+      full_name: 'David Okafor',
+      role_id: accountantRole.id,
+      delivery_channel: 'EMAIL',
+    });
+
+    const acceptance = await service.acceptInvitation({
+      invite_token: invitation.invite_token,
+      password: 'AccountantPass123!',
+    });
+
+    expect(acceptance.primary_role_code).toBe('ACCOUNTANT');
+    expect(acceptance.target_destination_path).toBe('/finance/ledger');
+  });
 });
+

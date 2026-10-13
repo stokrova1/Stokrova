@@ -53,3 +53,44 @@ export interface AssignRoleRequest {
   role_id: string;
   scope?: ScopeTarget;
 }
+
+export interface InviteStaffRequest {
+  email: string;
+  full_name: string;
+  role_id: string;
+  scope?: ScopeTarget;
+  delivery_channel?: 'EMAIL' | 'SHAREABLE_LINK';
+}
+
+export interface StaffInvitationResponse {
+  invitation_id: string;
+  tenant_id: string;
+  email: string;
+  full_name: string;
+  role_id: string;
+  role_name: string;
+  role_code: string;
+  scope: ScopeTarget;
+  invite_token: string;
+  invite_url: string;
+  delivery_channel: 'EMAIL' | 'SHAREABLE_LINK';
+  status: 'PENDING' | 'ACCEPTED' | 'EXPIRED';
+  created_at: string;
+  expires_at: string;
+}
+
+export interface AcceptStaffInvitationRequest {
+  invite_token: string;
+  password: string;
+  cashier_pin?: string;
+}
+
+export interface AcceptStaffInvitationResponse {
+  user_id: string;
+  tenant_id: string;
+  email: string;
+  full_name: string;
+  primary_role_code: string;
+  target_destination_path: string;
+  status: 'ACTIVE';
+}

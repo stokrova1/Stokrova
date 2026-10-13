@@ -473,6 +473,10 @@ export function generateCsvExportString(
       return '';
     }
     const str = String(val);
+    const triggerChars = ['=', '+', '-', '@', '\t', '\r'];
+    if (str.length > 0 && triggerChars.includes(str[0]!)) {
+      return `'${str.replace(/"/g, '""')}`;
+    }
     if (str.includes(',') || str.includes('"') || str.includes('\n')) {
       return `"${str.replace(/"/g, '""')}"`;
     }

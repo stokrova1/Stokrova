@@ -19,6 +19,33 @@ describe('Configuration Foundation (@stokrova/config)', () => {
     }).toThrowError(ConfigValidationError);
   });
 
+  it('fails validation when production mode has DATABASE_URL but missing or short JWT_SECRET', () => {
+    expect(() => {
+      validateConfig({
+        NODE_ENV: 'production',
+        DATABASE_URL: 'postgresql://admin:pass@db.stokrova.internal:5432/stokrova_prod',
+      });
+    }).toThrowError(ConfigValidationError);
+
+    expect(() => {
+      validateConfig({
+        NODE_ENV: 'production',
+        DATABASE_URL: 'postgresql://admin:pass@db.stokrova.internal:5432/stokrova_prod',
+        JWT_SECRET: 'short_secret',
+      });
+    }).toThrowError(ConfigValidationError);
+  });
+
+  it('succeeds validation when production mode has all required production secrets', () => {
+    const config = validateConfig({
+      NODE_ENV: 'production',
+      DATABASE_URL: 'postgresql://admin:pass@db.stokrova.internal:5432/stokrova_prod',
+      JWT_SECRET: 'a_very_strong_production_jwt_secret_with_at_least_32_characters!',
+    });
+    expect(config.nodeEnv).toBe('production');
+    expect(config.jwtSecret).toBeDefined();
+  });
+
   it('fails validation on invalid port number', () => {
     expect(() => {
       validateConfig({

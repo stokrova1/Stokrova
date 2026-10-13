@@ -92,6 +92,13 @@
       "when": 1792151392862,
       "tag": "0012_integration_hub",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1792237792862,
+      "tag": "0013_security_hardening_rls",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { MobileWarehouseShell } from '../src/index.js';
+import {
+  MobileWarehouseShell,
+  parseMobilePairingQrCode,
+} from '../src/index.js';
+
 
 describe('Phase 23 @stokrova/mobile — Warehouse Handheld Suite', () => {
   const baseConfig = {
@@ -114,4 +118,32 @@ describe('Phase 23 @stokrova/mobile — Warehouse Handheld Suite', () => {
     expect(html).toContain('ZONE-A-RACK-01-BIN-2');
     expect(html).toContain('thumb-zone-bottom-bar');
   });
+
+  it('parses branch setup QR code for instant mobile station pairing', () => {
+    const pairingPayload = parseMobilePairingQrCode(
+      '[STOKROVA-PAIR:TEN=ten_apex_retail:BR=br_lagos_main]',
+    );
+
+    expect(pairingPayload).not.toBeNull();
+    expect(pairingPayload?.tenantId).toBe('ten_apex_retail');
+    expect(pairingPayload?.branchId).toBe('br_lagos_main');
+
+    // Invalid format returns null
+    expect(parseMobilePairingQrCode('INVALID-QR-STRING')).toBeNull();
+  });
+
+  it('adapts mobile shell to company branding and operator role tag', () => {
+    const brandedMobile = new MobileWarehouseShell({
+      ...baseConfig,
+      companyName: 'Apex Superstores Ltd',
+      roleCode: 'WAREHOUSE_PICKER',
+      primaryColor: '#00C853',
+    });
+
+    const html = brandedMobile.renderMobileShellHtml();
+    expect(html).toContain('Apex Superstores Ltd • Central Logistics Hub');
+    expect(html).toContain('Marcus Cole (WAREHOUSE_PICKER)');
+    expect(html).toContain('color: #00C853;');
+  });
 });
+

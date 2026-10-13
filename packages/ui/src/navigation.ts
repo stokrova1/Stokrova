@@ -19,6 +19,27 @@ export interface NavigationSection {
   items: NavigationItem[];
 }
 
+export interface CompanyBranding {
+  companyLogoUrl?: string;
+  logo_url?: string;
+  companyName?: string;
+  company_name?: string;
+  brandPrimaryColor?: string;
+  primary_color?: string;
+  brandAccentColor?: string;
+  accent_color?: string;
+  currencySymbol?: string;
+  currency_symbol?: string;
+  receiptHeader?: {
+    storeName?: string;
+    storeAddress?: string;
+    phone?: string;
+    taxId?: string;
+  };
+  receiptFooter?: string;
+}
+
+
 export interface WorkspaceContext {
   tenantId: string;
   tenantName: string;
@@ -29,6 +50,7 @@ export interface WorkspaceContext {
   activeTillSessionId?: string | null;
   userRoleCodes: string[];
   userPermissions: string[];
+  branding?: CompanyBranding;
 }
 
 export const MASTER_NAVIGATION_SECTIONS: NavigationSection[] = [

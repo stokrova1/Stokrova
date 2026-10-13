@@ -106,6 +106,15 @@ export function validateConfig(
         },
       ]);
     }
+    if (!rawEnv['JWT_SECRET'] || rawEnv['JWT_SECRET'].trim().length < 32) {
+      throw new ConfigValidationError([
+        {
+          code: z.ZodIssueCode.custom,
+          path: ['jwtSecret'],
+          message: 'JWT_SECRET is strictly mandatory in production environment and must be at least 32 characters.',
+        },
+      ]);
+    }
   }
 
   const result = AppConfigSchema.safeParse(parsedInput);

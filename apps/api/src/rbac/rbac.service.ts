@@ -6,6 +6,10 @@ import type {
   CreateCustomRoleRequest,
   AssignRoleRequest,
   ScopeTarget,
+  InviteStaffRequest,
+  StaffInvitationResponse,
+  AcceptStaffInvitationRequest,
+  AcceptStaffInvitationResponse,
 } from '@stokrova/contracts';
 import {
   SystemRoleTemplates,
@@ -32,10 +36,25 @@ interface StoredRoleAssignment {
   created_at: string;
 }
 
+interface StoredInvitation {
+  id: string;
+  tenant_id: string;
+  email: string;
+  full_name: string;
+  role_id: string;
+  scope: ScopeTarget;
+  invite_token: string;
+  delivery_channel: 'EMAIL' | 'SHAREABLE_LINK';
+  status: 'PENDING' | 'ACCEPTED' | 'EXPIRED';
+  created_at: string;
+  expires_at: string;
+}
+
 @Injectable()
 export class RbacService {
   private rolesStore = new Map<string, StoredRole>();
   private assignmentsStore = new Map<string, StoredRoleAssignment>();
+  private invitationsStore = new Map<string, StoredInvitation>();
 
   constructor() {
     this.seedSystemTemplates();
@@ -151,6 +170,143 @@ export class RbacService {
     });
   }
 
+  async inviteStaff(
+    tenantId: string,
+    invitedByOrReq: string | InviteStaffRequest,
+    maybeReq?: InviteStaffRequest,
+  ): Promise<StaffInvitationResponse> {
+    const req = typeof invitedByOrReq === 'string' ? maybeReq! : invitedByOrReq;
+    const role = this.rolesStore.get(req.role_id);
+    if (!role || (role.tenant_id !== null && role.tenant_id !== tenantId)) {
+      throw new NotFoundException(`Role '${req.role_id}' not found.`);
+    }
+
+    const invitationId = `inv_${randomUUID().replace(/-/g, '')}`;
+    const inviteToken = `tok_${randomUUID().replace(/-/g, '')}`;
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const channel = req.delivery_channel || 'SHAREABLE_LINK';
+    const inviteUrl = `https://app.stokrova.com/auth/invite?token=${inviteToken}`;
+
+    const invitation: StoredInvitation = {
+      id: invitationId,
+      tenant_id: tenantId,
+      email: req.email.toLowerCase().trim(),
+      full_name: req.full_name.trim(),
+      role_id: role.id,
+      scope: req.scope || {},
+      invite_token: inviteToken,
+      delivery_channel: channel,
+      status: 'PENDING',
+      created_at: now.toISOString(),
+      expires_at: expiresAt,
+    };
+
+    this.invitationsStore.set(invitationId, invitation);
+
+    return {
+      invitation_id: invitation.id,
+      tenant_id: invitation.tenant_id,
+      email: invitation.email,
+      full_name: invitation.full_name,
+      role_id: role.id,
+      role_name: role.name,
+      role_code: role.code,
+      scope: invitation.scope,
+      invite_token: invitation.invite_token,
+      invite_url: inviteUrl,
+      delivery_channel: invitation.delivery_channel,
+      status: invitation.status,
+      created_at: invitation.created_at,
+      expires_at: invitation.expires_at,
+    };
+  }
+
+  async listInvitations(tenantId: string): Promise<StaffInvitationResponse[]> {
+    const invites = Array.from(this.invitationsStore.values()).filter(
+      (inv) => inv.tenant_id === tenantId,
+    );
+
+    return invites.map((inv) => {
+      const role = this.rolesStore.get(inv.role_id);
+      return {
+        invitation_id: inv.id,
+        tenant_id: inv.tenant_id,
+        email: inv.email,
+        full_name: inv.full_name,
+        role_id: inv.role_id,
+        role_name: role?.name || 'Unknown Role',
+        role_code: role?.code || 'UNKNOWN',
+        scope: inv.scope,
+        invite_token: inv.invite_token,
+        invite_url: `https://app.stokrova.com/auth/invite?token=${inv.invite_token}`,
+        delivery_channel: inv.delivery_channel,
+        status: inv.status,
+        created_at: inv.created_at,
+        expires_at: inv.expires_at,
+      };
+    });
+  }
+
+  async acceptInvitation(
+    req: AcceptStaffInvitationRequest,
+  ): Promise<AcceptStaffInvitationResponse> {
+    const existing = Array.from(this.invitationsStore.values()).find(
+      (inv) => inv.invite_token === req.invite_token,
+    );
+
+    if (!existing) {
+      throw new NotFoundException('Invalid invitation token.');
+    }
+
+    if (existing.status === 'ACCEPTED') {
+      throw new ConflictException('Invitation has already been accepted.');
+    }
+
+    const now = new Date();
+    if (existing.status === 'EXPIRED' || new Date(existing.expires_at) < now) {
+      existing.status = 'EXPIRED';
+      throw new ConflictException('Invitation token has expired.');
+    }
+
+    const invitation = existing;
+    invitation.status = 'ACCEPTED';
+
+
+    const userId = `usr_${randomUUID().replace(/-/g, '')}`;
+    const role = this.rolesStore.get(invitation.role_id);
+    const roleCode = role?.code || 'STAFF';
+
+    await this.assignRole(invitation.tenant_id, {
+      user_id: userId,
+      role_id: invitation.role_id,
+      scope: invitation.scope,
+    });
+
+    let destinationPath = '/analytics/dashboards';
+    if (roleCode === 'CASHIER') {
+      destinationPath = '/pos';
+    } else if (roleCode === 'WAREHOUSE_PICKER') {
+      destinationPath = '/logistics/picking';
+    } else if (roleCode.includes('ACCOUNTANT') || roleCode.includes('CONTROLLER')) {
+      destinationPath = '/finance/ledger';
+    } else if (roleCode === 'BRANCH_MANAGER') {
+      destinationPath = '/registers';
+    } else if (roleCode === 'DELIVERY_DRIVER') {
+      destinationPath = '/logistics/fleet';
+    }
+
+    return {
+      user_id: userId,
+      tenant_id: invitation.tenant_id,
+      email: invitation.email,
+      full_name: invitation.full_name,
+      primary_role_code: roleCode,
+      target_destination_path: destinationPath,
+      status: 'ACTIVE',
+    };
+  }
+
   private toRoleResponse(role: StoredRole): RoleResponse {
     return {
       id: role.id,
@@ -167,6 +323,7 @@ export class RbacService {
   clearStore(): void {
     this.rolesStore.clear();
     this.assignmentsStore.clear();
+    this.invitationsStore.clear();
     this.seedSystemTemplates();
   }
 }

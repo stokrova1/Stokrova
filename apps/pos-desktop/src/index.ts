@@ -156,6 +156,8 @@ export class PosDesktopShell {
   public completeCheckout(): {
     transactionId: string;
     tillSessionId: string;
+    cashierId: string;
+    cashierName: string;
     summary: PosCartSummary;
     tenders: PosTenderSplit[];
     changeDueMinor: bigint;
@@ -171,6 +173,8 @@ export class PosDesktopShell {
     const receipt = {
       transactionId: `pos_tx_${Date.now()}`,
       tillSessionId: this.config.tillSessionId,
+      cashierId: this.config.cashierId,
+      cashierName: this.config.cashierName,
       summary: this.getCartSummary(),
       tenders: [...this.tenders],
       changeDueMinor: payment.changeDueMinor,
@@ -179,6 +183,7 @@ export class PosDesktopShell {
     this.clearCart();
     return receipt;
   }
+
 
   // ==========================================
   // Hardware Telemetry
@@ -262,6 +267,84 @@ export class PosDesktopShell {
       </div>
     `.trim();
   }
+}
+
+export interface DesktopUserSession {
+  userId: string;
+  userName: string;
+  userRoleCodes: string[];
+  tenantName: string;
+  companyName: string;
+  branchName: string;
+  companyLogoUrl?: string;
+  primaryColor?: string;
+}
+
+/**
+ * Renders adaptive desktop shell wrapper tailored to the authenticated role:
+ * - Cashiers launch into High-Speed Checkout Till
+ * - Accountants launch into Finance & General Ledger
+ * - Managers / Owners launch into Branch Management & Operational KPIs
+ */
+export function renderAdaptiveDesktopLauncherHtml(
+  session: DesktopUserSession,
+  posShellHtml?: string,
+): string {
+  const isCashier = session.userRoleCodes.includes('CASHIER');
+  const isAccountant = session.userRoleCodes.some(
+    (r) => r.includes('ACCOUNTANT') || r.includes('CONTROLLER'),
+  );
+  const isManager =
+    session.userRoleCodes.includes('BRANCH_MANAGER') ||
+    session.userRoleCodes.includes('BUSINESS_OWNER');
+
+  const primary = session.primaryColor || brandColors.gold[500];
+  const companyName = session.companyName || session.tenantName;
+
+  if (isCashier && posShellHtml) {
+    return posShellHtml;
+  }
+
+  const workspaceTitle = isAccountant
+    ? 'Finance & General Ledger Workspace'
+    : isManager
+    ? 'Branch Management & Operations Console'
+    : 'Enterprise Business Operating Workspace';
+
+  const logoHtml = session.companyLogoUrl
+    ? `<img src="${session.companyLogoUrl}" alt="${companyName}" style="height: 28px; max-width: 140px; object-fit: contain; margin-right: 10px;" />`
+    : `<span style="color: ${primary}; font-size: 1.2rem; margin-right: 8px;">◆</span>`;
+
+  return `
+    <div class="stokrova-native-desktop-window" style="background: #161B1E; color: #F8FAFC; min-height: 100vh; font-family: 'Inter', sans-serif;">
+      <header class="desktop-titlebar" style="background: #1E2428; border-bottom: 1px solid #333D46; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center;">
+          ${logoHtml}
+          <span style="font-weight: 700; font-size: 1rem; color: #F8FAFC;">${companyName}</span>
+          <span style="border: 1px solid #414F5A; color: #ACB8C3; font-size: 0.75rem; padding: 2px 8px; border-radius: 9999px; margin-left: 10px;">${session.branchName}</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px; font-size: 0.8125rem; color: #ACB8C3;">
+          <span>👤 ${session.userName} (${session.userRoleCodes.join(', ')})</span>
+          <span style="color: #16A34A; font-weight: 600;">● Desktop Sync Online</span>
+        </div>
+      </header>
+
+      <main style="padding: 24px 30px;">
+        <div style="background: #242A2F; border: 1px solid #333D46; border-radius: 8px; padding: 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <h2 style="margin: 0 0 6px 0; font-size: 1.25rem; color: #F8FAFC;">Welcome to your ${workspaceTitle}</h2>
+            <p style="margin: 0; font-size: 0.875rem; color: #ACB8C3;">Connected locally with offline resilience and secure device encryption.</p>
+          </div>
+          <div style="background: #1E2428; border: 1px solid #414F5A; padding: 8px 14px; border-radius: 6px; font-size: 0.8125rem; color: ${primary}; font-weight: 600;">
+            Status: Active Shift
+          </div>
+        </div>
+        <div class="desktop-workspace-viewport">
+          <!-- Desktop Workspace Modules & Financial Ledgers -->
+        </div>
+      </main>
+    </div>
+  `.trim();
 }
 
 export * from './register-view.js';

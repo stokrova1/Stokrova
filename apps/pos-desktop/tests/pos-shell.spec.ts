@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { PosDesktopShell } from '../src/index.js';
+import {
+  PosDesktopShell,
+  renderAdaptiveDesktopLauncherHtml,
+  PosReceiptEngine,
+} from '../src/index.js';
 
 describe('Phase 23 @stokrova/pos-desktop — High-Speed Terminal Suite', () => {
   const baseConfig = {
@@ -124,9 +128,12 @@ describe('Phase 23 @stokrova/pos-desktop — High-Speed Terminal Suite', () => {
 
     const checkout = pos.completeCheckout();
     expect(checkout.transactionId).toBeDefined();
+    expect(checkout.cashierId).toBe('user_cashier_7');
+    expect(checkout.cashierName).toBe('Alex Vance');
     expect(checkout.changeDueMinor).toBe(500n); // $5.00 change
     expect(pos.getCartItems()).toHaveLength(0); // Cart cleared
   });
+
 
   it('renders POS terminal HTML layout with hardware indicators and quick keys', () => {
     const pos = new PosDesktopShell(baseConfig);
@@ -139,4 +146,104 @@ describe('Phase 23 @stokrova/pos-desktop — High-Speed Terminal Suite', () => {
     expect(html).toContain('Total Due:');
     expect(html).toContain('F12');
   });
+
+  it('adapts desktop launcher to accountant role workspace', () => {
+    const accountantHtml = renderAdaptiveDesktopLauncherHtml({
+      userId: 'usr_acc_1',
+      userName: 'David Okafor',
+      tenantId: 'ten_001',
+      tenantName: 'Apex Holdings',
+      companyName: 'Apex Superstores Ltd',
+      branchName: 'Headquarters',
+      userRoleCodes: ['ACCOUNTANT'],
+      primaryColor: '#00C853',
+    });
+
+    expect(accountantHtml).toContain('Apex Superstores Ltd');
+    expect(accountantHtml).toContain('Finance & General Ledger Workspace');
+    expect(accountantHtml).toContain('David Okafor (ACCOUNTANT)');
+    expect(accountantHtml).toContain('Desktop Sync Online');
+  });
+
+  it('renders thermal receipt with custom store branding and return policy', () => {
+    const engine = new PosReceiptEngine();
+    const receiptText = engine.renderMonospaceText({
+      header: {
+        storeName: 'Metro Mart Lagos',
+        storeAddress: '14 Victoria Island, Lagos',
+        phone: '+234 800 123 4567',
+        taxRegistrationNumber: 'TIN-987654321',
+        registerId: 'REG-01',
+        cashierName: 'Amina',
+        receiptNumber: 'REC-2026-0001',
+        timestampIso: '2026-10-13T10:00:00Z',
+      },
+      items: [
+        {
+          variantId: 'v1',
+          sku: 'SKU-RICE',
+          title: 'Premium Basmati Rice 5kg',
+          unitPriceMinor: 850000n,
+          quantity: 1,
+          discountMinor: 0n,
+          taxMinor: 63750n,
+        },
+      ],
+      subtotalMinor: 850000n,
+      taxMinor: 63750n,
+      grandTotalMinor: 913750n,
+      tenders: [{ tenderType: 'CASH', amountMinor: 1000000n }],
+      changeDueMinor: 86250n,
+      currencyCode: 'NGN',
+      footerNotes: [
+        'Goods sold in good condition',
+        'can be returned within 7 days',
+        'THANK YOU FOR SHOPPING AT METRO MART LAGOS',
+      ],
+    });
+
+    expect(receiptText).toContain('Metro Mart Lagos');
+    expect(receiptText).toContain('14 Victoria Island, Lagos');
+    expect(receiptText).toContain('TIN-987654321');
+    expect(receiptText).toContain('Goods sold in good condition');
+    expect(receiptText).toContain('THANK YOU FOR SHOPPING AT METRO MART LAGOS');
+    expect(receiptText).not.toContain('STOKROVA');
+  });
+
+  it('renders goods packing slip & collection ticket for packaging station', () => {
+    const engine = new PosReceiptEngine();
+    const slipText = engine.renderPackingSlipText({
+      header: {
+        storeName: 'Metro Mart Lagos',
+        storeAddress: '14 Victoria Island, Lagos',
+        ticketNumber: 'TKT-2026-0042',
+        orderReference: 'ORD-8891',
+        stationName: 'BAY-01',
+        packerName: 'Paul Bassey',
+        timestampIso: '2026-10-13T10:05:00Z',
+      },
+      items: [
+        {
+          variantId: 'v1',
+          sku: 'SKU-RICE',
+          title: 'Premium Basmati Rice 5kg',
+          unitPriceMinor: 850000n,
+          quantity: 2,
+          discountMinor: 0n,
+          taxMinor: 0n,
+        },
+      ],
+      totalUnits: 2,
+    });
+
+    expect(slipText).toContain('GOODS PACKING SLIP & COLLECTION');
+    expect(slipText).toContain('TICKET: TKT-2026-0042');
+    expect(slipText).toContain('REF: ORD-8891');
+    expect(slipText).toContain('PACKER: Paul Bassey');
+    expect(slipText).toContain('2x Premium Basmati Rice 5kg');
+    expect(slipText).toContain('[PACKED]');
+    expect(slipText).toContain('STATUS: VERIFIED & PACKED');
+  });
 });
+
+

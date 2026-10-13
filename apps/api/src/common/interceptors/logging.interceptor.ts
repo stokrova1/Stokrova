@@ -9,6 +9,8 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import type { Request, Response } from 'express';
 
+import { sanitizeUrl } from '../utils/url-sanitizer.js';
+
 @Injectable()
 export class StructuredLoggingInterceptor implements NestInterceptor {
   private readonly logger = new Logger('HTTP');
@@ -21,6 +23,8 @@ export class StructuredLoggingInterceptor implements NestInterceptor {
     const requestId = (req.headers['x-request-id'] as string) || (req as any).requestId || 'unknown';
     const tenantId = (req as any).tenantId || (req as any).tenantContext?.tenantId;
     const userId = (req as any).userId || (req as any).user?.id;
+    const rawPath = req.originalUrl || req.url || '';
+    const safePath = sanitizeUrl(rawPath);
 
     return next.handle().pipe(
       tap({
@@ -35,7 +39,7 @@ export class StructuredLoggingInterceptor implements NestInterceptor {
             tenantId,
             userId,
             method: req.method,
-            path: req.originalUrl || req.url,
+            path: safePath,
             statusCode,
             durationMs,
           };
@@ -53,7 +57,7 @@ export class StructuredLoggingInterceptor implements NestInterceptor {
             tenantId,
             userId,
             method: req.method,
-            path: req.originalUrl || req.url,
+            path: safePath,
             statusCode,
             durationMs,
             errorMessage: err?.message,

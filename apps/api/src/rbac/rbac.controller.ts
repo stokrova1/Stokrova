@@ -13,15 +13,22 @@ import { RbacGuard } from './rbac.guard.js';
 import { RequirePermission } from './decorators/require-permission.decorator.js';
 import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
 import { CurrentTenant } from '../auth/decorators/current-tenant.decorator.js';
+import { Public } from '../auth/decorators/public.decorator.js';
 import {
   CreateCustomRoleRequestSchema,
   AssignRoleRequestSchema,
+  InviteStaffRequestSchema,
+  AcceptStaffInvitationRequestSchema,
 } from '@stokrova/validation';
 import type {
   RoleResponse,
   RoleAssignmentResponse,
   CreateCustomRoleRequest,
   AssignRoleRequest,
+  InviteStaffRequest,
+  StaffInvitationResponse,
+  AcceptStaffInvitationRequest,
+  AcceptStaffInvitationResponse,
   UserIdentity,
 } from '@stokrova/contracts';
 import { StandardPermissions } from '@stokrova/domain';
@@ -94,4 +101,59 @@ export class RbacController {
   ) {
     return this.rbacService.getUserActiveAssignments(tenantId, user.id);
   }
+
+  @Post('invitations')
+  @RequirePermission(StandardPermissions.STAFF_MANAGE)
+  async inviteStaff(
+    @CurrentTenant() tenantId: string,
+    @CurrentUser() user: UserIdentity,
+    @Body() body: unknown,
+  ): Promise<StaffInvitationResponse> {
+    const parseResult = InviteStaffRequestSchema.safeParse(body);
+    if (!parseResult.success) {
+      throw new BadRequestException({
+        error: {
+          code: 'VALIDATION_FAILED',
+          message: 'Invalid staff invitation payload.',
+          details: parseResult.error.format(),
+        },
+      });
+    }
+
+    return this.rbacService.inviteStaff(
+      tenantId,
+      user.id,
+      parseResult.data as InviteStaffRequest,
+    );
+  }
+
+  @Get('invitations')
+  @RequirePermission(StandardPermissions.STAFF_MANAGE)
+  async listInvitations(
+    @CurrentTenant() tenantId: string,
+  ): Promise<StaffInvitationResponse[]> {
+    return this.rbacService.listInvitations(tenantId);
+  }
+
+  @Public()
+  @Post('invitations/accept')
+  async acceptInvitation(
+    @Body() body: unknown,
+  ): Promise<AcceptStaffInvitationResponse> {
+    const parseResult = AcceptStaffInvitationRequestSchema.safeParse(body);
+    if (!parseResult.success) {
+      throw new BadRequestException({
+        error: {
+          code: 'VALIDATION_FAILED',
+          message: 'Invalid invitation acceptance payload.',
+          details: parseResult.error.format(),
+        },
+      });
+    }
+
+    return this.rbacService.acceptInvitation(
+      parseResult.data as AcceptStaffInvitationRequest,
+    );
+  }
 }
+

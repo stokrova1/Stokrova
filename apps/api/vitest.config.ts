@@ -4,12 +4,8 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true,
-      },
-    },
+    include: ['src/**/*.spec.ts'],
+    exclude: ['dist/**', 'node_modules/**'],
     teardownTimeout: 30000,
     testTimeout: 30000,
     hookTimeout: 30000,
