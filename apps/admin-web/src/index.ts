@@ -352,4 +352,5 @@ export * from './inventory-view.js';
 export * from './orders-view.js';
 export * from './workflows-view.js';
 export * from './dashboard-view.js';
+export * from './api-client.js';
 

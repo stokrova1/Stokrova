@@ -1,0 +1,49 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "admin-web": {
+      "root": "apps/admin-web",
+      "runtime": "container",
+      "bindings": [
+        {
+          "type": "service",
+          "service": "api",
+          "format": "url",
+          "env": "API_URL"
+        }
+      ]
+    },
+    "api": {
+      "root": "apps/api",
+      "framework": "nestjs"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/v1/(.*)",
+      "destination": {
+        "service": "api",
+        "path": "/v1/$1"
+      }
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": {
+        "service": "api",
+        "path": "/$1"
+      }
+    },
+    {
+      "source": "/v1/(.*)",
+      "destination": {
+        "service": "api"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "admin-web"
+      }
+    }
+  ]
+}
