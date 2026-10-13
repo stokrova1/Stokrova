@@ -1,0 +1,178 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "STOKROVA Enterprise Core API",
+    "version": "1.0.0",
+    "description": "Comprehensive REST and Sync API for STOKROVA — World-Class Business Operations, Inventory, Commerce & Enterprise Platform.",
+    "contact": {
+      "name": "STOKROVA Developer Platform",
+      "url": "https://stokrova.com/developers",
+      "email": "api-support@stokrova.com"
+    },
+    "license": {
+      "name": "Proprietary Commercial",
+      "url": "https://stokrova.com/terms"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.stokrova.com/v1",
+      "description": "Production API Gateway"
+    },
+    {
+      "url": "http://localhost:3000/api/v1",
+      "description": "Local Development Node"
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Tenant-scoped RFC 7519 JSON Web Token."
+      },
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Stokrova-Api-Key",
+        "description": "High-throughput server-to-server scoped API token."
+      }
+    },
+    "schemas": {
+      "ErrorEnvelope": {
+        "type": "object",
+        "required": ["statusCode", "errorCode", "message", "timestamp", "requestId"],
+        "properties": {
+          "statusCode": { "type": "integer", "example": 400 },
+          "errorCode": { "type": "string", "example": "VALIDATION_FAILED" },
+          "message": { "type": "string", "example": "Invalid payload format" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "requestId": { "type": "string", "example": "req_01924b11-92b8-7c1e-84bc-2a6c1110e52b" },
+          "details": { "type": "object", "additionalProperties": true }
+        }
+      },
+      "CurrencyMinor": {
+        "type": "integer",
+        "format": "int64",
+        "description": "Monetary value stored in pure integer minor units (e.g., $10.50 = 1050). Floats are strictly prohibited by Golden Rule 26.",
+        "example": 1050
+      },
+      "ProductItem": {
+        "type": "object",
+        "required": ["sku", "barcode", "name", "category", "retailPriceMinor", "costPriceMinor"],
+        "properties": {
+          "id": { "type": "string", "example": "prod_01924b11" },
+          "sku": { "type": "string", "example": "LAPTOP-PRO-16" },
+          "barcode": { "type": "string", "example": "5011000000018" },
+          "name": { "type": "string", "example": "Apex Pro 16 Laptop" },
+          "category": { "type": "string", "example": "Electronics" },
+          "retailPriceMinor": { "$ref": "#/components/schemas/CurrencyMinor" },
+          "costPriceMinor": { "$ref": "#/components/schemas/CurrencyMinor" },
+          "wholesalePriceMinor": { "$ref": "#/components/schemas/CurrencyMinor" },
+          "stockOnHand": { "type": "integer", "example": 40 }
+        }
+      },
+      "SyncPushRequest": {
+        "type": "object",
+        "required": ["client_id", "operations"],
+        "properties": {
+          "client_id": { "type": "string", "example": "pos_terminal_london_01" },
+          "operations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["operation_id", "client_sequence", "command_type", "payload"],
+              "properties": {
+                "operation_id": { "type": "string", "format": "uuid", "example": "01924b11-92b8-7c1e-84bc-2a6c1110e52b" },
+                "client_sequence": { "type": "integer", "example": 1 },
+                "command_type": { "type": "string", "example": "SALE_CHECKOUT" },
+                "clock": { "type": "object", "additionalProperties": { "type": "integer" } },
+                "payload": { "type": "object", "additionalProperties": true }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Platform Cluster Health Check",
+        "responses": {
+          "200": {
+            "description": "Cluster is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "ok" },
+                    "timestamp": { "type": "string", "format": "date-time" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/catalog/products": {
+      "get": {
+        "summary": "Search and list master catalog products",
+        "parameters": [
+          { "name": "q", "in": "query", "schema": { "type": "string" } },
+          { "name": "category", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of matched products",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ProductItem" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sync/push": {
+      "post": {
+        "summary": "Push offline client mutation batch to multi-master sync feed",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SyncPushRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operations processed and committed to monotonic change stream",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "acknowledged": { "type": "array", "items": { "type": "string" } },
+                    "conflicts": { "type": "array", "items": { "type": "object" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "project_status": "approved-architecture-baseline",
+  "platform_name": "STOKROVA",
+  "vision": "World-Class Inventory, Commerce & Business Operations Platform",
+  "date": "2026-10-08",
+  "infrastructure": {
+    "provider": "Supabase",
+    "database": "Supabase PostgreSQL 18.x compatible",
+    "auth": "Supabase Auth (JWT + Custom Claims)",
+    "local_dev": "Supabase CLI + Docker"
+  },
+  "server": {
+    "framework": "NestJS",
+    "language": "TypeScript",
+    "orm": "Drizzle ORM",
+    "business_layer": "Domain/Application Layer (Authoritative Brain)"
+  },
+  "clients": {
+    "admin": "React + Vite",
+    "desktop_pos": "React + Tauri 2 + SQLite",
+    "mobile": "React Native + Expo + SQLite"
+  },
+  "capability_domains": [
+    "Commerce & Sales",
+    "Deep Inventory Core",
+    "Operations & Workflows",
+    "Procurement & Suppliers",
+    "Finance, Cash Truth & Accounting",
+    "Logistics & Fulfillment",
+    "Manufacturing & Assembly",
+    "Analytics & Replenishment Intelligence",
+    "Platform, Tenancy & Security",
+    "Offline-First & Synchronization",
+    "Device & Integration Ecosystem",
+    "Cross-Cutting Enterprise Engines"
+  ],
+  "location_hierarchy": [
+    "Tenant",
+    "Company",
+    "Branch",
+    "Warehouse",
+    "Zone",
+    "Aisle",
+    "Rack",
+    "Shelf",
+    "Bin"
+  ],
+  "reference_systems": [
+    "ERPNext",
+    "Odoo",
+    "InvenTree",
+    "OpenBoxes",
+    "TetherPOS",
+    "QuickStock Sync"
+  ],
+  "authorization": {
+    "model": "Scoped Dynamic RBAC",
+    "hierarchy": "Identity -> Membership -> Role -> Permissions -> Scope",
+    "defense_in_depth": "Supabase RLS"
+  },
+  "operations": {
+    "workflow_engine": "Declarative Graph-Based DAG",
+    "rules_engine": "Declarative Policy Evaluation",
+    "cash_management": "Register/Till Sessions with Variance Reconciliation",
+    "work_centers": "Station & Queue-based fulfillment"
+  },
+  "offline": {
+    "model": "local-first",
+    "protocol": "command + outbox + idempotent server inbox + ordered change cursor",
+    "conflicts": "domain-specific, not global last-write-wins"
+  },
+  "storage": {
+    "primary": "Cloudflare R2",
+    "abstraction": "S3-compatible StorageProvider interface"
+  },
+  "observability": [
+    "Sentry",
+    "OpenTelemetry"
+  ],
+  "architecture": "modular monolith with progressive complexity",
+  "microservices": "deferred"
+}

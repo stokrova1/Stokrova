@@ -1,0 +1,52 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: stokrova-alert-rules
+  namespace: stokrova
+  labels:
+    role: alert-rules
+    app.kubernetes.io/part-of: stokrova
+spec:
+  groups:
+    - name: stokrova.enterprise.alerts
+      rules:
+        - alert: HighApiErrorRate
+          expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) * 100 > 1.0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "STOKROVA API 5xx error rate exceeds 1% (current: {{ $value }}%)"
+            runbook_url: "https://docs.stokrova.com/ops/runbook#high-error-rate"
+
+        - alert: ApiP99LatencyDegradation
+          expr: histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 0.500
+          for: 3m
+          labels:
+            severity: warning
+          annotations:
+            summary: "STOKROVA API P99 latency exceeded 500ms (current: {{ $value }}s)"
+
+        - alert: OfflineOutboxReplicationLag
+          expr: stokrova_sync_outbox_queue_depth > 1000
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Offline outbox backlog exceeded 1,000 uncommitted mutations"
+
+        - alert: TillCashierVarianceSpike
+          expr: sum(stokrova_till_reconciliation_variance_minor) > 50000
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Till cash reconciliation variance detected across registers > $500.00"
+
+        - alert: DatabaseConnectionPoolSaturation
+          expr: pg_stat_activity_count / pg_settings_max_connections * 100 > 85
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "PostgreSQL active connections exceed 85% of pool capacity"
