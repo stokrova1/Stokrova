@@ -74,7 +74,7 @@ RELEASE_TAG="v0.1.0-${COMMIT_SHA}"
 docker build -t stokrova/api:${RELEASE_TAG} -t stokrova/api:latest -f apps/api/Dockerfile .
 
 # 2. Build Admin Web Static Nginx Container
-docker build -t stokrova/admin-web:${RELEASE_TAG} -t stokrova/admin-web:latest -f apps/admin-web/Dockerfile .
+docker build -t stokrova/admin-web:${RELEASE_TAG} -t stokrova/admin-web:latest -f apps/admin-web/Dockerfile.docker .
 
 # 3. Push to Private Container Registry
 docker push stokrova/api:${RELEASE_TAG}

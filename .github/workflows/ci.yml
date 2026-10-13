@@ -76,7 +76,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: apps/admin-web/Dockerfile
+          file: apps/admin-web/Dockerfile.docker
           push: false
           tags: stokrova/admin-web:latest
           cache-from: type=gha
