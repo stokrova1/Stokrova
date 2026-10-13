@@ -3,7 +3,8 @@
   "services": {
     "admin-web": {
       "root": "apps/admin-web",
-      "runtime": "container",
+      "outputDirectory": "dist",
+      "buildCommand": "pnpm build",
       "bindings": [
         {
           "type": "service",
