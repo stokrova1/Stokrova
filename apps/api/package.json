@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "prebuild": "pnpm --filter @stokrova/config --filter @stokrova/contracts --filter @stokrova/database --filter @stokrova/domain --filter @stokrova/sync --filter @stokrova/validation build",
     "build": "nest build",
     "start": "nest start",
     "start:dev": "nest start --watch",

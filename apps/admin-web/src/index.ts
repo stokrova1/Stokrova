@@ -248,9 +248,9 @@ export class AdminWebShell {
     const sections = this.getNavigationSections();
 
     const sectionsHtml = sections
-      .map((sec) => {
+      .map((sec: NavigationSection) => {
         const itemsHtml = sec.items
-          .map((item) => {
+          .map((item: NavigationItem) => {
             const isActive = item.path === this.currentPath;
             const activeStyle = isActive
               ? `background: ${tokens.cardHover}; color: ${tokens.primary}; font-weight: 600; border-left: 3px solid ${tokens.primary};`
