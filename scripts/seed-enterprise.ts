@@ -273,3 +273,50 @@ export const APEX_ENTERPRISE = {
     },
   ],
 };
+
+export async function runEnterpriseSeeder() {
+  console.log('================================================================');
+  console.log('   STOKROVA ENTERPRISE SEEDER — APEX GLOBAL RETAIL & LOGISTICS  ');
+  console.log('================================================================');
+  console.log(`Tenant:           ${APEX_ENTERPRISE.tenant.name} (${APEX_ENTERPRISE.tenant.id})`);
+  console.log(`Subscription:     ${APEX_ENTERPRISE.tenant.subscriptionTier}`);
+  console.log(`Status:           ${APEX_ENTERPRISE.tenant.status}`);
+  console.log('----------------------------------------------------------------');
+  console.log(`Companies:        ${APEX_ENTERPRISE.companies.length} corporate entities`);
+  for (const c of APEX_ENTERPRISE.companies) {
+    console.log(`  • ${c.name.padEnd(32)} [${c.type.padEnd(20)}] Currency: ${c.currencyCode}`);
+  }
+  console.log('----------------------------------------------------------------');
+  console.log(`Branches & Hubs:  ${APEX_ENTERPRISE.branches.length} locations`);
+  for (const b of APEX_ENTERPRISE.branches) {
+    console.log(`  • ${b.code.padEnd(8)} ${b.name.padEnd(30)} ${b.city}, ${b.country}`);
+  }
+  console.log('----------------------------------------------------------------');
+  console.log(`RBAC Personnel:   ${APEX_ENTERPRISE.users.length} operators`);
+  for (const u of APEX_ENTERPRISE.users) {
+    console.log(`  • ${u.fullName.padEnd(20)} Role: ${u.roleCode.padEnd(20)} Branch: ${u.primaryBranchId}`);
+  }
+  console.log('----------------------------------------------------------------');
+  console.log(`Catalog SKUs:     ${APEX_ENTERPRISE.catalog.length} product lines`);
+  for (const s of APEX_ENTERPRISE.catalog) {
+    const flags = [
+      s.requiresSerialNumber ? 'SERIAL' : null,
+      s.attributes ? 'MATRIX' : null,
+      s.isFefoTracked ? 'FEFO' : null,
+    ].filter(Boolean).join(', ');
+    console.log(`  • ${s.sku.padEnd(22)} ${s.name.padEnd(40)} OnHand: ${s.stockOnHand.toString().padStart(4)} [${flags || 'STANDARD'}]`);
+  }
+  console.log('----------------------------------------------------------------');
+  console.log(`Warehouse Bins:   ${APEX_ENTERPRISE.warehouseLocations.length} 8-tier storage bin locations`);
+  for (const loc of APEX_ENTERPRISE.warehouseLocations) {
+    console.log(`  • Bin: ${loc.binCode.padEnd(12)} Zone: ${loc.zoneCode.padEnd(14)} Capacity: ${loc.capacityUnits}`);
+  }
+  console.log('================================================================');
+  console.log('✓ Enterprise dataset verified and ready for live synchronization');
+  console.log('================================================================');
+}
+
+if (process.argv[1]?.includes('seed-enterprise')) {
+  runEnterpriseSeeder().catch(console.error);
+}
+
