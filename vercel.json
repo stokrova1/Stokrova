@@ -3,7 +3,6 @@
   "services": {
     "admin-web": {
       "root": "apps/admin-web",
-      "framework": null,
       "outputDirectory": "dist",
       "buildCommand": "pnpm build",
       "bindings": [

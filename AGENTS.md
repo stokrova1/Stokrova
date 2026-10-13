@@ -122,3 +122,4 @@ The ADR records:
 26. Always benchmark against reference systems and design every feature, capability, and UX to surpass them in elegance, speed, type safety, and correctness.
 27. Never delete or discard existing features when receiving overlapping requirements—merge, combine, connect, and enhance to build a superior, unified system.
 28. Always keep project checklists, documentation, and feature statuses synchronized across all agents and sessions.
+29. Always use the dedicated STOKROVA GitHub repository and credentials (`stokrova1` / `stokrova1@gmail.com`) with the project's authorized access token for all git operations and pushes. Never use external or IDE-global GitHub accounts/emails for STOKROVA.
