@@ -13,8 +13,14 @@ out/
 .env.local
 .env.*.local
 
-# Research / Reference clones (kept local, not tracked in product repo)
+# Research / Reference clones & Third-Party Codebases (strictly local, never pushed)
 reference/
+references/
+reference-*/
+*.reference/
+reference-repos/
+repos/
+vendor/
 
 # Database local storage
 postgres_data/

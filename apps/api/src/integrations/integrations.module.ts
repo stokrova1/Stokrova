@@ -6,6 +6,14 @@ import { InterCompanyService } from './inter-company.service.js';
 import { WebhooksService } from './webhooks.service.js';
 import { DocumentEngineService } from './document-engine.service.js';
 import { NotificationsService } from './notifications.service.js';
+import { ConnectorCatalogService } from './connector-catalog.service.js';
+import { IntegrationInstancesService } from './integration-instances.service.js';
+import { DeveloperPlatformService } from './developer-platform.service.js';
+import { CredentialReferenceService } from './credential-reference.service.js';
+import { InboundWebhookGatewayService } from './inbound-webhook-gateway.service.js';
+import { IntegrationSyncService } from './integration-sync.service.js';
+import { ReconciliationService } from './reconciliation.service.js';
+import { IntegrationAuditService } from './integration-audit.service.js';
 import { IntegrationsController } from './integrations.controller.js';
 
 @Module({
@@ -17,6 +25,14 @@ import { IntegrationsController } from './integrations.controller.js';
     WebhooksService,
     DocumentEngineService,
     NotificationsService,
+    ConnectorCatalogService,
+    IntegrationInstancesService,
+    DeveloperPlatformService,
+    CredentialReferenceService,
+    InboundWebhookGatewayService,
+    IntegrationSyncService,
+    ReconciliationService,
+    IntegrationAuditService,
   ],
   exports: [
     ConsolidationService,
@@ -24,6 +40,14 @@ import { IntegrationsController } from './integrations.controller.js';
     WebhooksService,
     DocumentEngineService,
     NotificationsService,
+    ConnectorCatalogService,
+    IntegrationInstancesService,
+    DeveloperPlatformService,
+    CredentialReferenceService,
+    InboundWebhookGatewayService,
+    IntegrationSyncService,
+    ReconciliationService,
+    IntegrationAuditService,
   ],
 })
 export class IntegrationsModule {}

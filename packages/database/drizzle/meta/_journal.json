@@ -85,6 +85,13 @@
       "when": 1792064992862,
       "tag": "0011_reporting_analytics",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792151392862,
+      "tag": "0012_integration_hub",
+      "breakpoints": true
     }
   ]
 }
