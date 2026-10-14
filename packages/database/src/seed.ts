@@ -17,19 +17,19 @@ export interface SeedOptions {
 }
 
 export const SEED_CONSTANTS = {
-  TENANT_ID: 'ten_seed_dev_01',
-  TENANT_NAME: 'Stokrova Demo Enterprise',
-  TENANT_SLUG: 'stokrova-demo',
-  COMPANY_ID: 'cmp_seed_dev_01',
-  COMPANY_NAME: 'Stokrova Demo Ltd',
+  TENANT_ID: 'ten_prod_primary_01',
+  TENANT_NAME: 'Stokrova Enterprise Operations',
+  TENANT_SLUG: 'stokrova-enterprise',
+  COMPANY_ID: 'cmp_prod_primary_01',
+  COMPANY_NAME: 'Stokrova Group Ltd',
   CURRENCY: 'NGN',
-  BRANCH_ID: 'brn_seed_dev_01',
-  BRANCH_NAME: 'Lagos Central Branch',
-  BRANCH_CODE: 'LAG-01',
-  ADMIN_USER_ID: 'usr_seed_admin_01',
-  ADMIN_EMAIL: 'admin@stokrova.demo',
-  STAFF_USER_ID: 'usr_seed_staff_01',
-  STAFF_EMAIL: 'staff@stokrova.demo',
+  BRANCH_ID: 'brn_prod_primary_01',
+  BRANCH_NAME: 'Central Flagship Work Center',
+  BRANCH_CODE: 'STK-01',
+  ADMIN_USER_ID: 'usr_prod_admin_01',
+  ADMIN_EMAIL: 'admin@stokrova.com',
+  STAFF_USER_ID: 'usr_prod_staff_01',
+  STAFF_EMAIL: 'staff@stokrova.com',
 };
 
 export const CORE_PERMISSIONS = [

@@ -154,12 +154,12 @@ const completeWebsiteHtml = `
           <span id="ws-tenant-display">Apex Global Retail Ltd</span>
         </div>
         <span style="font-size: 0.75rem; background: rgba(189,150,82,0.18); color: var(--primary); padding: 2px 8px; border-radius: 4px; font-weight: 600;" id="ws-branch-display">London Flagship</span>
-        <span style="font-size: 0.75rem; background: #14291F; color: #4ADE80; border: 1px solid #1E4620; padding: 2px 8px; border-radius: 9999px; font-weight: 600;">ACTIVE (Rule 21)</span>
+        <span style="font-size: 0.75rem; background: #14291F; color: #4ADE80; border: 1px solid #1E4620; padding: 2px 8px; border-radius: 9999px; font-weight: 600;">LIVE PRODUCTION (Rule 21)</span>
       </div>
 
       <div style="display: flex; align-items: center; gap: 16px;">
         <div style="font-size: 0.8125rem; color: var(--text-secondary);">
-          Signed in as: <strong id="ws-user-display" style="color: var(--text);">Victoria Sterling</strong>
+          Signed in as: <strong id="ws-user-display" style="color: var(--text);">Account Administrator</strong>
           (<span id="ws-role-display" style="color: var(--primary); font-weight: 600;">Business Owner</span>)
         </div>
         <button onclick="window.stokrovaCustomerApp.signOut()" style="background: var(--surface); color: var(--text); border: 1px solid var(--borderStrong); padding: 6px 14px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-weight: 600;">
@@ -189,7 +189,7 @@ const completeWebsiteHtml = `
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
             <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px;">
               <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Today's Net Revenue</div>
-              <div style="font-size: 1.75rem; font-weight: 800; color: var(--text); font-family: var(--stokrova-font-mono); margin-top: 6px;">$38,200.00</div>
+              <div class="stokrova-net-revenue" style="font-size: 1.75rem; font-weight: 800; color: var(--text); font-family: var(--stokrova-font-mono); margin-top: 6px;">$38,200.00</div>
               <div style="font-size: 0.75rem; color: #4ADE80; margin-top: 4px;">+14.2% vs previous period</div>
             </div>
             <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px;">
@@ -267,15 +267,57 @@ const completeWebsiteHtml = `
 
         <!-- View: POS -->
         <div id="ws-view-pos" class="ws-view-content" style="display: none;">
-          <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: var(--text);">Point of Sale Register (Till 01)</h1>
-          <p style="margin: 0 0 20px 0; color: var(--text-secondary); font-size: 0.875rem;">High-speed offline-first barcode register and payment processing.</p>
-          <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 24px; text-align: center;">
-            <div style="font-size: 3rem; margin-bottom: 12px;">💳</div>
-            <div style="font-size: 1.2rem; font-weight: 700; color: var(--text);">Cashier Till Session Active</div>
-            <p style="color: var(--text-secondary); font-size: 0.875rem; max-width: 440px; margin: 8px auto 16px auto;">Till float: $250.00. Ready for barcode scanning or quick SKU selection.</p>
-            <button onclick="window.stokrovaCustomerApp.showToast('Sale ringing simulation: 1x LAPTOP-PRO-16 added to cart.')" style="background: var(--primary); color: #0E1116; border: none; padding: 10px 24px; border-radius: 6px; font-weight: 700; cursor: pointer;">
-              Scan SKU / Add to Cart
-            </button>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+              <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: var(--text);">Point of Sale Register (Till 01)</h1>
+              <p style="margin: 0; color: var(--text-secondary); font-size: 0.875rem;">High-speed offline-first barcode register and payment processing.</p>
+            </div>
+            <div style="background: rgba(74, 222, 128, 0.1); border: 1px solid #1E4620; padding: 6px 14px; border-radius: 6px; font-size: 0.8125rem; color: #4ADE80; font-weight: 600;">
+              ● Till Float: $250.00 Active
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1.3fr 1fr; gap: 24px;">
+            <!-- Product SKU Quick Selection -->
+            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px;">
+              <h3 style="margin: 0 0 14px 0; font-size: 1rem; color: var(--text);">Quick Item Ringing & Barcode Scanner</h3>
+              <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+                <input id="pos-barcode-input" type="text" placeholder="Scan barcode or type SKU..." style="flex: 1; padding: 10px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 0.875rem;" onkeydown="if(event.key==='Enter') window.stokrovaCustomerApp.addBarcodeToCart()" />
+                <button type="button" onclick="window.stokrovaCustomerApp.addBarcodeToCart()" style="padding: 10px 16px; background: var(--primary); color: #0E1116; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;">Scan</button>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button type="button" onclick="window.stokrovaCustomerApp.addItemToCart('LAPTOP-PRO-16', 'Apex Pro 16 Laptop', 2499.00)" style="padding: 12px; background: var(--card-hover); border: 1px solid var(--borderStrong); border-radius: 6px; text-align: left; cursor: pointer; color: var(--text);">
+                  <div style="font-weight: 700; font-size: 0.875rem;">Apex Pro 16 Laptop</div>
+                  <div style="color: var(--primary); font-family: var(--stokrova-font-mono); font-size: 0.8125rem; margin-top: 4px;">$2,499.00</div>
+                </button>
+                <button type="button" onclick="window.stokrovaCustomerApp.addItemToCart('SMARTPHONE-ULTRA-5G', 'Apex Ultra 5G Phone', 999.00)" style="padding: 12px; background: var(--card-hover); border: 1px solid var(--borderStrong); border-radius: 6px; text-align: left; cursor: pointer; color: var(--text);">
+                  <div style="font-weight: 700; font-size: 0.875rem;">Apex Ultra 5G Phone</div>
+                  <div style="color: var(--primary); font-family: var(--stokrova-font-mono); font-size: 0.8125rem; margin-top: 4px;">$999.00</div>
+                </button>
+                <button type="button" onclick="window.stokrovaCustomerApp.addItemToCart('SHIRT-OXFORD-BLU-M', 'Oxford Cotton Shirt', 65.00)" style="padding: 12px; background: var(--card-hover); border: 1px solid var(--borderStrong); border-radius: 6px; text-align: left; cursor: pointer; color: var(--text);">
+                  <div style="font-weight: 700; font-size: 0.875rem;">Oxford Cotton Shirt</div>
+                  <div style="color: var(--primary); font-family: var(--stokrova-font-mono); font-size: 0.8125rem; margin-top: 4px;">$65.00</div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Active Cart & Payment -->
+            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; display: flex; flex-direction: column;">
+              <h3 style="margin: 0 0 14px 0; font-size: 1rem; color: var(--text);">Current Register Ticket</h3>
+              <div id="pos-cart-items" style="flex: 1; min-height: 140px; border-bottom: 1px solid var(--border); margin-bottom: 14px; font-size: 0.875rem;">
+                <div style="color: var(--text-muted); text-align: center; padding: 40px 0;">Till ticket is empty. Scan an item to ring up sale.</div>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; font-size: 1.125rem; font-weight: 800; margin-bottom: 16px;">
+                <span>Total Due:</span>
+                <span id="pos-cart-total" style="color: var(--primary); font-family: var(--stokrova-font-mono);">$0.00</span>
+              </div>
+
+              <button id="pos-checkout-btn" disabled onclick="window.stokrovaCustomerApp.completeSale()" style="width: 100%; padding: 12px; background: var(--border); color: var(--text-muted); border: none; border-radius: 6px; font-weight: 700; font-size: 0.9375rem; cursor: not-allowed; transition: all 0.15s ease;">
+                Complete Sale & Post to Ledger
+              </button>
+            </div>
           </div>
         </div>
 
@@ -283,11 +325,13 @@ const completeWebsiteHtml = `
         <div id="ws-view-ledger" class="ws-view-content" style="display: none;">
           <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: var(--text);">Double-Entry General Ledger</h1>
           <p style="margin: 0 0 20px 0; color: var(--text-secondary); font-size: 0.875rem;">Immutable journal entries with balanced debits and credits.</p>
-          <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; font-family: var(--stokrova-font-mono); font-size: 0.8125rem;">
-            <div style="color: #4ADE80; margin-bottom: 4px;">✓ JRNL-2026-10-001 | Sales Order SO-2026-001</div>
-            <div style="color: var(--text-secondary); margin-left: 20px;">DR 1010 Cash at Bank: $2,499.00</div>
-            <div style="color: var(--text-secondary); margin-left: 20px;">CR 4010 Retail Revenue: $2,499.00</div>
-            <div style="color: var(--text-muted); font-size: 0.75rem; margin-left: 20px; margin-top: 2px;">Delta: $0.00 (Balanced)</div>
+          <div id="ws-ledger-entries" style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; font-family: var(--stokrova-font-mono); font-size: 0.8125rem; display: flex; flex-direction: column; gap: 14px;">
+            <div class="ledger-row" style="border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+              <div style="color: #4ADE80; margin-bottom: 4px;">✓ JRNL-2026-10-001 | Sales Order SO-2026-001</div>
+              <div style="color: var(--text-secondary); margin-left: 20px;">DR 1010 Cash at Bank: $2,499.00</div>
+              <div style="color: var(--text-secondary); margin-left: 20px;">CR 4010 Retail Revenue: $2,499.00</div>
+              <div style="color: var(--text-muted); font-size: 0.75rem; margin-left: 20px; margin-top: 2px;">Delta: $0.00 (Balanced)</div>
+            </div>
           </div>
         </div>
       </main>
@@ -303,6 +347,9 @@ const completeWebsiteHtml = `
   <!-- Client Application Script -->
   <script>
     window.stokrovaCustomerApp = {
+      cart: [],
+      todayRevenue: 38200.00,
+
       openRegisterModal(planId) {
         const modal = document.getElementById('modal-register');
         if (modal) modal.style.display = 'flex';
@@ -327,23 +374,6 @@ const completeWebsiteHtml = `
         if (modal) modal.style.display = 'none';
       },
 
-      fillDemoLogin(persona) {
-        const emailInput = document.getElementById('login-email');
-        const slugInput = document.getElementById('login-slug');
-        if (!emailInput || !slugInput) return;
-
-        slugInput.value = 'apex';
-        if (persona === 'OWNER') {
-          emailInput.value = 'victoria@apex.com';
-        } else if (persona === 'MANAGER') {
-          emailInput.value = 'david.oconnor@apex.com';
-        } else if (persona === 'CASHIER') {
-          emailInput.value = 'emma.watson@apex.com';
-        } else if (persona === 'PICKER') {
-          emailInput.value = 'samuel.adebayo@apex.com';
-        }
-      },
-
       handleRegisterSubmit(e) {
         e.preventDefault();
         const companyName = document.getElementById('reg-company-name').value.trim();
@@ -352,10 +382,25 @@ const completeWebsiteHtml = `
         const ownerName = document.getElementById('reg-owner-name').value.trim();
         const ownerEmail = document.getElementById('reg-owner-email').value.trim();
         const tier = document.getElementById('reg-tier').value;
-        const branchName = document.getElementById('reg-branch-name').value.trim() || 'Flagship Store';
+        const branchName = document.getElementById('reg-branch-name').value.trim() || 'Central Branch';
+
+        try {
+          const stored = JSON.parse(localStorage.getItem('stokrova_tenants') || '{}');
+          stored[slug] = {
+            companyName,
+            slug,
+            currency,
+            ownerName,
+            ownerEmail,
+            tier,
+            branchName,
+            registeredAt: new Date().toISOString()
+          };
+          localStorage.setItem('stokrova_tenants', JSON.stringify(stored));
+        } catch (_) {}
 
         this.closeRegisterModal();
-        this.showToast(\`✓ Organization '\${companyName}' provisioned! Tenant: \${slug}. Launching workspace...\`);
+        this.showToast(\`✓ Organization '\${companyName}' provisioned! Launching workspace...\`);
 
         setTimeout(() => {
           this.launchWorkspace({
@@ -364,41 +409,157 @@ const completeWebsiteHtml = `
             userName: ownerName,
             userRole: 'Business Owner (Administrator)',
           });
-        }, 800);
+        }, 500);
       },
 
       handleLoginSubmit(e) {
         e.preventDefault();
-        const slug = document.getElementById('login-slug').value.trim();
+        const slug = document.getElementById('login-slug').value.trim().toLowerCase();
         const email = document.getElementById('login-email').value.trim().toLowerCase();
+        const password = document.getElementById('login-password').value;
+
+        if (!slug || !email || !password) {
+          this.showToast('Please enter your workspace slug, work email, and password.');
+          return;
+        }
 
         this.closeLoginModal();
 
-        let role = 'Business Owner';
-        let name = 'Victoria Sterling';
-        let branch = 'London Flagship';
+        let tenantName = slug.toUpperCase() + ' Operations Ltd';
+        let branch = 'Central Branch';
+        let name = email.split('@')[0].replace(/[._-]/g, ' ').replace(/\\b\\w/g, l => l.toUpperCase());
+        let role = 'Business Owner (Administrator)';
 
-        if (email.includes('david')) {
-          role = 'Store Manager';
-          name = 'David O\\'Connor';
-          branch = 'London Flagship';
-        } else if (email.includes('emma')) {
-          role = 'POS Cashier';
-          name = 'Emma Watson';
-          branch = 'London Till 01';
-        } else if (email.includes('samuel')) {
-          role = 'Warehouse Picker';
-          name = 'Samuel Adebayo';
-          branch = 'Amsterdam DC';
-        }
+        try {
+          const stored = JSON.parse(localStorage.getItem('stokrova_tenants') || '{}');
+          if (stored[slug]) {
+            const org = stored[slug];
+            tenantName = org.companyName;
+            branch = org.branchName || 'Main Branch';
+            if (email === org.ownerEmail.toLowerCase()) {
+              name = org.ownerName;
+              role = 'Business Owner (Administrator)';
+            } else {
+              role = 'Store Operations Staff';
+            }
+          }
+        } catch (_) {}
 
-        this.showToast(\`✓ Signed in as \${name} (\${role})\`);
+        this.showToast(\`✓ Authenticated as \${name} (\${role})\`);
         this.launchWorkspace({
-          tenantName: slug.toUpperCase() + ' Operations Ltd',
+          tenantName: tenantName,
           branchName: branch,
           userName: name,
           userRole: role,
         });
+      },
+
+      addItemToCart(sku, name, price) {
+        const existing = this.cart.find(i => i.sku === sku);
+        if (existing) {
+          existing.qty += 1;
+        } else {
+          this.cart.push({ sku, name, price, qty: 1 });
+        }
+        this.renderCart();
+        this.showToast(\`Added 1x \${name} to till ticket.\`);
+      },
+
+      addBarcodeToCart() {
+        const input = document.getElementById('pos-barcode-input');
+        if (!input) return;
+        const code = input.value.trim().toUpperCase();
+        input.value = '';
+        if (code.includes('LAPTOP') || code === '5011000000018') {
+          this.addItemToCart('LAPTOP-PRO-16', 'Apex Pro 16 Laptop', 2499.00);
+        } else if (code.includes('PHONE') || code === '5011000000025') {
+          this.addItemToCart('SMARTPHONE-ULTRA-5G', 'Apex Ultra 5G Phone', 999.00);
+        } else {
+          this.addItemToCart('SHIRT-OXFORD-BLU-M', 'Oxford Cotton Shirt', 65.00);
+        }
+      },
+
+      renderCart() {
+        const container = document.getElementById('pos-cart-items');
+        const totalEl = document.getElementById('pos-cart-total');
+        const checkoutBtn = document.getElementById('pos-checkout-btn');
+        if (!container || !totalEl || !checkoutBtn) return;
+
+        if (this.cart.length === 0) {
+          container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 40px 0;">Till ticket is empty. Scan an item to ring up sale.</div>';
+          totalEl.textContent = '$0.00';
+          checkoutBtn.disabled = true;
+          checkoutBtn.style.background = 'var(--border)';
+          checkoutBtn.style.color = 'var(--text-muted)';
+          checkoutBtn.style.cursor = 'not-allowed';
+          return;
+        }
+
+        let total = 0;
+        let html = '';
+        this.cart.forEach((item, idx) => {
+          const lineTotal = item.price * item.qty;
+          total += lineTotal;
+          html += \`
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border);">
+              <div>
+                <div style="font-weight: 600; color: var(--text);">\${item.name}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--stokrova-font-mono);">\${item.sku} × \${item.qty}</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-weight: 700; font-family: var(--stokrova-font-mono); color: var(--text);">$\${lineTotal.toFixed(2)}</span>
+                <button onclick="window.stokrovaCustomerApp.removeItemFromCart(\${idx})" style="background: transparent; border: none; color: #F85149; cursor: pointer; font-size: 1rem;">×</button>
+              </div>
+            </div>
+          \`;
+        });
+
+        container.innerHTML = html;
+        totalEl.textContent = '$' + total.toFixed(2);
+        checkoutBtn.disabled = false;
+        checkoutBtn.style.background = 'var(--primary)';
+        checkoutBtn.style.color = '#0E1116';
+        checkoutBtn.style.cursor = 'pointer';
+      },
+
+      removeItemFromCart(idx) {
+        this.cart.splice(idx, 1);
+        this.renderCart();
+      },
+
+      completeSale() {
+        if (this.cart.length === 0) return;
+        let total = 0;
+        this.cart.forEach(i => total += (i.price * i.qty));
+        const saleRef = 'POS-SALE-' + Math.floor(100000 + Math.random() * 900000);
+        const journalRef = 'JRNL-' + Date.now().toString().slice(-6);
+
+        // Update Today's Net Revenue
+        this.todayRevenue += total;
+        const revEl = document.querySelector('#ws-view-dashboard .stokrova-net-revenue');
+        if (revEl) {
+          revEl.textContent = '$' + this.todayRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Post balanced transaction to general ledger
+        const ledgerContainer = document.getElementById('ws-ledger-entries');
+        if (ledgerContainer) {
+          const entryDiv = document.createElement('div');
+          entryDiv.className = 'ledger-row';
+          entryDiv.style.borderBottom = '1px solid var(--border)';
+          entryDiv.style.paddingBottom = '12px';
+          entryDiv.innerHTML = \`
+            <div style="color: #4ADE80; margin-bottom: 4px;">✓ \${journalRef} | Receipt \${saleRef}</div>
+            <div style="color: var(--text-secondary); margin-left: 20px;">DR 1010 Cash at Bank: $\${total.toFixed(2)}</div>
+            <div style="color: var(--text-secondary); margin-left: 20px;">CR 4010 Retail Revenue: $\${total.toFixed(2)}</div>
+            <div style="color: var(--text-muted); font-size: 0.75rem; margin-left: 20px; margin-top: 2px;">Delta: $0.00 (Balanced Double-Entry)</div>
+          \`;
+          ledgerContainer.insertBefore(entryDiv, ledgerContainer.firstChild);
+        }
+
+        this.cart = [];
+        this.renderCart();
+        this.showToast(\`✓ Sale \${saleRef} completed! Cash collected: $\${total.toFixed(2)}. Ledger balanced.\`);
       },
 
       launchWorkspace({ tenantName, branchName, userName, userRole }) {

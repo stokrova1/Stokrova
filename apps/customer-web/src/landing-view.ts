@@ -120,10 +120,10 @@ export class LandingViewModel {
         </p>
         <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
           <button onclick="window.stokrovaCustomerApp.openRegisterModal()" style="background: ${tokens.primary}; color: #0E1116; border: none; padding: 14px 28px; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(189,150,82,0.4);">
-            Start 14-Day Free Trial →
+            Register Your Business Workspace →
           </button>
           <button onclick="window.stokrovaCustomerApp.openLoginModal()" style="background: ${tokens.surface}; color: ${tokens.textPrimary}; border: 1px solid ${tokens.borderStrong}; padding: 14px 24px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">
-            Explore Live Demo Business
+            Staff Sign In to Workspace
           </button>
         </div>
 
@@ -322,7 +322,7 @@ export class LandingViewModel {
 
             <div style="margin-bottom: 24px;">
               <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">INITIAL FLAGSHIP / STORE BRANCH NAME</label>
-              <input id="reg-branch-name" type="text" placeholder="Main Street Flagship" value="Flagship Store" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
+              <input id="reg-branch-name" type="text" placeholder="e.g. London Central Flagship" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 12px;">
@@ -344,47 +344,28 @@ export class LandingViewModel {
     return `
       <div id="modal-login" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; border-radius: 12px; width: 100%; max-width: 480px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); padding: 32px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
             <div>
-              <h2 style="margin: 0; font-size: 1.4rem; color: ${tokens.textPrimary};">Universal Staff Sign In</h2>
-              <p style="margin: 4px 0 0 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">Access your tenant workspace with your assigned role</p>
+              <h2 style="margin: 0; font-size: 1.4rem; color: ${tokens.textPrimary};">Staff Sign In</h2>
+              <p style="margin: 4px 0 0 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">Enter your business slug and credentials to access your live workspace</p>
             </div>
             <button onclick="window.stokrovaCustomerApp.closeLoginModal()" style="background: none; border: none; font-size: 1.5rem; color: ${tokens.textMuted}; cursor: pointer;">&times;</button>
           </div>
 
-          <!-- Quick Persona Presets -->
-          <div style="margin-bottom: 20px; padding: 14px; background: ${tokens.cardHover}; border-radius: 8px; border: 1px solid ${tokens.border};">
-            <div style="font-size: 0.75rem; font-weight: 700; color: ${tokens.primary}; margin-bottom: 8px; text-transform: uppercase;">⚡ Quick Demo Login:</div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-              <button type="button" onclick="window.stokrovaCustomerApp.fillDemoLogin('OWNER')" style="padding: 6px 10px; border-radius: 4px; font-size: 0.75rem; background: ${tokens.surface}; color: ${tokens.textPrimary}; border: 1px solid ${tokens.borderStrong}; cursor: pointer; text-align: left;">
-                👑 <strong>Owner</strong> (Victoria)
-              </button>
-              <button type="button" onclick="window.stokrovaCustomerApp.fillDemoLogin('MANAGER')" style="padding: 6px 10px; border-radius: 4px; font-size: 0.75rem; background: ${tokens.surface}; color: ${tokens.textPrimary}; border: 1px solid ${tokens.borderStrong}; cursor: pointer; text-align: left;">
-                🏪 <strong>Manager</strong> (David)
-              </button>
-              <button type="button" onclick="window.stokrovaCustomerApp.fillDemoLogin('CASHIER')" style="padding: 6px 10px; border-radius: 4px; font-size: 0.75rem; background: ${tokens.surface}; color: ${tokens.textPrimary}; border: 1px solid ${tokens.borderStrong}; cursor: pointer; text-align: left;">
-                💳 <strong>Cashier</strong> (Emma)
-              </button>
-              <button type="button" onclick="window.stokrovaCustomerApp.fillDemoLogin('PICKER')" style="padding: 6px 10px; border-radius: 4px; font-size: 0.75rem; background: ${tokens.surface}; color: ${tokens.textPrimary}; border: 1px solid ${tokens.borderStrong}; cursor: pointer; text-align: left;">
-                📦 <strong>Picker</strong> (Samuel)
-              </button>
-            </div>
-          </div>
-
           <form id="form-login-customer" onsubmit="window.stokrovaCustomerApp.handleLoginSubmit(event)">
-            <div style="margin-bottom: 14px;">
+            <div style="margin-bottom: 16px;">
               <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">BUSINESS WORKSPACE / SLUG *</label>
-              <input id="login-slug" type="text" required placeholder="e.g. apex" value="apex" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
+              <input id="login-slug" type="text" required placeholder="e.g. acme-retail" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
             </div>
 
-            <div style="margin-bottom: 14px;">
+            <div style="margin-bottom: 16px;">
               <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">STAFF WORK EMAIL *</label>
-              <input id="login-email" type="email" required placeholder="victoria@apex.com" value="victoria@apex.com" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
+              <input id="login-email" type="email" required placeholder="name@company.com" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
             </div>
 
-            <div style="margin-bottom: 20px;">
+            <div style="margin-bottom: 24px;">
               <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">PASSWORD / PIN *</label>
-              <input id="login-password" type="password" required placeholder="••••••••" value="demo1234" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
+              <input id="login-password" type="password" required placeholder="••••••••••••" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 12px;">

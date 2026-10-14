@@ -27,12 +27,15 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     expect(html).toContain('window.stokrovaCustomerApp.openRegisterModal()');
   });
 
-  it('renders hero section with multi-tenant assurance and free trial CTA', () => {
+  it('renders hero section with multi-tenant assurance and enterprise workspace CTA', () => {
     const view = new LandingViewModel('dark');
     const html = view.renderHeroHtml();
 
     expect(html).toContain('One Unified Operating System for Stores, Warehouses & Finance');
-    expect(html).toContain('Start 14-Day Free Trial');
+    expect(html).toContain('Register Your Business Workspace →');
+    expect(html).toContain('Staff Sign In to Workspace');
+    expect(html).not.toContain('Start 14-Day Free Trial');
+    expect(html).not.toContain('Explore Live Demo Business');
     expect(html).toContain('Rule 21');
     expect(html).toContain('Offline-First POS');
   });
@@ -60,16 +63,17 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     expect(html).toContain('.stokrova.com');
   });
 
-  it('renders staff login modal with role presets for quick demo access', () => {
+  it('renders staff login modal with live credential fields and no demo presets', () => {
     const view = new LandingViewModel('dark');
     const html = view.renderLoginModalHtml();
 
-    expect(html).toContain('Universal Staff Sign In');
-    expect(html).toContain('Quick Demo Login');
-    expect(html).toContain('Victoria');
-    expect(html).toContain('David');
-    expect(html).toContain('Emma');
-    expect(html).toContain('Samuel');
+    expect(html).toContain('Staff Sign In');
+    expect(html).toContain('BUSINESS WORKSPACE / SLUG');
+    expect(html).toContain('STAFF WORK EMAIL');
+    expect(html).toContain('PASSWORD / PIN');
     expect(html).toContain('form-login-customer');
+    expect(html).not.toContain('Quick Demo Login');
+    expect(html).not.toContain('Victoria');
+    expect(html).not.toContain('demo1234');
   });
 });

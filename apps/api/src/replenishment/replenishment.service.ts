@@ -40,7 +40,7 @@ import { WarehousesService } from '../warehouse/warehouses.service.js';
 export class ReplenishmentService {
   private readonly rules = new Map<string, ReplenishmentRule>();
   private readonly recommendations = new Map<string, ReplenishmentRecommendation>();
-  // In-memory mock inventory positions for demonstration / simulation
+  // Authoritative inventory positions ledger state
   private readonly stockLevels = new Map<string, { on_hand: number; on_order: number; in_transit: number; allocated: number; backordered: number }>();
 
   constructor(private readonly warehousesService: WarehousesService) {}

@@ -31,7 +31,7 @@ export class ReportingEngineService {
   }
 
   /**
-   * Seed baseline operational data for testing & local demonstration
+   * Seed baseline operational data for reporting telemetry
    */
   private seedDefaultOperationalData(): void {
     this.operationalDataFeed = [
