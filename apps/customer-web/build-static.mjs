@@ -529,8 +529,191 @@ const completeWebsiteHtml = `
           toast.style.display = 'flex';
           setTimeout(() => { toast.style.display = 'none'; }, 4000);
         }
+      },
+
+      // ==========================================
+      // Rebranding & Custom Corporate Identity
+      // ==========================================
+      selectBrandAccent(hex) {
+        const picker = document.getElementById('rebrand-color-picker');
+        const textInput = document.getElementById('rebrand-hex-input');
+        if (picker) picker.value = hex;
+        if (textInput) textInput.value = hex;
+        this.updateBrandPreview();
+      },
+
+      updateBrandPreview() {
+        const hex = document.getElementById('rebrand-hex-input')?.value || '#BD9652';
+        const name = document.getElementById('rebrand-company-name')?.value || 'Apex Global Retail Ltd';
+        const slogan = document.getElementById('rebrand-receipt-slogan')?.value || 'Luxury Lifestyle & Electronics';
+        const logo = document.getElementById('rebrand-logo-text')?.value || '◆ APEX';
+
+        const headEl = document.getElementById('preview-brand-header');
+        if (headEl) {
+          headEl.textContent = logo;
+          headEl.style.color = hex;
+        }
+        const badgeEl = document.getElementById('preview-branch-badge');
+        if (badgeEl) {
+          badgeEl.style.color = hex;
+        }
+        const posBtn = document.getElementById('preview-pos-btn');
+        if (posBtn) posBtn.style.background = hex;
+        const scanBox = document.getElementById('preview-scanner-box');
+        if (scanBox) scanBox.style.borderColor = hex;
+        const scanTxt = document.getElementById('preview-scanner-text');
+        if (scanTxt) scanTxt.style.color = hex;
+        const pickBtn = document.getElementById('preview-pick-btn');
+        if (pickBtn) pickBtn.style.background = hex;
+        const rcptName = document.getElementById('preview-receipt-name');
+        if (rcptName) rcptName.textContent = name;
+        const rcptSlogan = document.getElementById('preview-receipt-slogan');
+        if (rcptSlogan) rcptSlogan.textContent = slogan;
+        const saveBtn = document.getElementById('btn-save-rebranding');
+        if (saveBtn) saveBtn.style.background = hex;
+      },
+
+      saveCompanyRebranding() {
+        const hex = document.getElementById('rebrand-hex-input')?.value || '#BD9652';
+        const name = document.getElementById('rebrand-company-name')?.value || 'Apex Global Retail Ltd';
+        const slogan = document.getElementById('rebrand-receipt-slogan')?.value || 'Luxury Lifestyle & Electronics';
+        const logo = document.getElementById('rebrand-logo-text')?.value || '◆ APEX';
+
+        document.documentElement.style.setProperty('--primary', hex);
+        document.documentElement.style.setProperty('--primary-hover', hex);
+        
+        const tenantDisplay = document.getElementById('ws-tenant-display');
+        if (tenantDisplay) tenantDisplay.textContent = name;
+
+        try {
+          localStorage.setItem('stokrova_tenant_brand', JSON.stringify({ hex, name, slogan, logo }));
+        } catch (_) {}
+
+        this.showToast(\`✓ Corporate rebrand saved! Brand accent (\${hex}) & company logo updated across all staff terminals, POS registers, and mobile devices.\`);
+      },
+
+      loadBrandSettings() {
+        try {
+          const raw = localStorage.getItem('stokrova_tenant_brand');
+          if (!raw) return;
+          const { hex, name, slogan, logo } = JSON.parse(raw);
+          if (hex) {
+            document.documentElement.style.setProperty('--primary', hex);
+            document.documentElement.style.setProperty('--primary-hover', hex);
+            const picker = document.getElementById('rebrand-color-picker');
+            const textInput = document.getElementById('rebrand-hex-input');
+            if (picker) picker.value = hex;
+            if (textInput) textInput.value = hex;
+          }
+          if (name) {
+            const tenantDisplay = document.getElementById('ws-tenant-display');
+            if (tenantDisplay) tenantDisplay.textContent = name;
+            const compInput = document.getElementById('rebrand-company-name');
+            if (compInput) compInput.value = name;
+          }
+          if (slogan) {
+            const slogInput = document.getElementById('rebrand-receipt-slogan');
+            if (slogInput) slogInput.value = slogan;
+          }
+          if (logo) {
+            const logoInput = document.getElementById('rebrand-logo-text');
+            if (logoInput) logoInput.value = logo;
+          }
+          this.updateBrandPreview();
+        } catch (_) {}
+      },
+
+      // ==========================================
+      // Staff Roster & Invitation Management
+      // ==========================================
+      openStaffInviteModal() {
+        const modal = document.getElementById('modal-invite-staff');
+        if (modal) modal.style.display = 'flex';
+      },
+
+      closeStaffInviteModal() {
+        const modal = document.getElementById('modal-invite-staff');
+        if (modal) modal.style.display = 'none';
+      },
+
+      handleStaffInviteSubmit(e) {
+        e.preventDefault();
+        const name = document.getElementById('invite-staff-name').value.trim();
+        const email = document.getElementById('invite-staff-email').value.trim();
+        const role = document.getElementById('invite-staff-role').value;
+        const branch = document.getElementById('invite-staff-branch').value;
+        const pin = document.getElementById('invite-staff-pin').value.trim();
+
+        if (!name || !email) {
+          this.showToast('Please enter both staff member name and work email.');
+          return;
+        }
+
+        const tableBody = document.getElementById('staff-table-body');
+        if (tableBody) {
+          const row = document.createElement('tr');
+          row.style.borderBottom = '1px solid var(--border)';
+          row.innerHTML = \`
+            <td style="padding: 12px 16px; font-weight: 600;">
+              <div>\${name}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">\${email}</div>
+            </td>
+            <td style="padding: 12px 16px;">
+              <span style="background: rgba(189,150,82,0.18); color: var(--primary); border: 1px solid var(--primary); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">\${role}</span>
+            </td>
+            <td style="padding: 12px 16px; color: var(--text-secondary); font-size: 0.8125rem;">\${branch}</td>
+            <td style="padding: 12px 16px; text-align: center;">
+              <span style="background: #14291F; color: #4ADE80; border: 1px solid #1E4620; padding: 2px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">ACTIVE</span>
+            </td>
+            <td style="padding: 12px 16px; text-align: right;">
+              <span style="font-size: 0.75rem; color: var(--primary); font-weight: 600;">PIN: \${pin}</span>
+            </td>
+          \`;
+          tableBody.appendChild(row);
+        }
+
+        const countBadge = document.getElementById('staff-count-badge');
+        if (countBadge && tableBody) {
+          countBadge.textContent = \`\${tableBody.querySelectorAll('tr').length} Staff Members Active\`;
+        }
+
+        const inviteList = document.getElementById('pending-invitations-list');
+        if (inviteList) {
+          const invToken = \`tok_invite_\${Date.now()}\`;
+          const invDiv = document.createElement('div');
+          invDiv.style.display = 'flex';
+          invDiv.style.justifyContent = 'space-between';
+          invDiv.style.alignItems = 'center';
+          invDiv.style.borderBottom = '1px solid var(--border)';
+          invDiv.style.paddingBottom = '10px';
+          invDiv.style.marginBottom = '10px';
+          invDiv.innerHTML = \`
+            <div>
+              <div style="font-weight: 600; font-size: 0.875rem;">\${name} (\${email})</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Role: <strong>\${role}</strong> • Scope: <strong>\${branch}</strong></div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button onclick="navigator.clipboard?.writeText('https://stokrova.com/invite/\${invToken}'); window.stokrovaCustomerApp.showToast('Copied secure invitation link to clipboard!')" style="padding: 5px 10px; border-radius: 4px; background: var(--card-hover); border: 1px solid var(--border-strong); color: var(--text); font-size: 0.75rem; cursor: pointer;">Copy Link</button>
+            </div>
+          \`;
+          inviteList.insertBefore(invDiv, inviteList.firstChild);
+        }
+
+        this.closeStaffInviteModal();
+        this.showToast(\`✓ Staff member '\${name}' invited and added to workspace roster!\`);
       }
     };
+
+    // Attach globals for inline events
+    window.selectBrandAccent = (hex) => window.stokrovaCustomerApp.selectBrandAccent(hex);
+    window.updateBrandPreview = () => window.stokrovaCustomerApp.updateBrandPreview();
+    window.saveCompanyRebranding = () => window.stokrovaCustomerApp.saveCompanyRebranding();
+    window.openStaffInviteModal = () => window.stokrovaCustomerApp.openStaffInviteModal();
+    window.closeStaffInviteModal = () => window.stokrovaCustomerApp.closeStaffInviteModal();
+    window.handleStaffInviteSubmit = (e) => window.stokrovaCustomerApp.handleStaffInviteSubmit(e);
+
+    // Initialize brand settings
+    window.stokrovaCustomerApp.loadBrandSettings();
   </script>
 </body>
 </html>

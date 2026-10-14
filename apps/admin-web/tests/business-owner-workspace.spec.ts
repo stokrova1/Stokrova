@@ -403,6 +403,36 @@ describe('Phase BO — Business Owner Workspace Certification Suite', () => {
       expect(html).toContain('Victoria Sterling');
       expect(html).toContain('Business Owner');
       expect(html).toContain('Alexander Wright');
+      expect(html).toContain('id="modal-invite-staff"');
+      expect(html).toContain('+ Invite Staff Member');
+      expect(html).toContain('id="form-invite-staff"');
+      expect(html).toContain('id="invite-staff-name"');
+      expect(html).toContain('id="invite-staff-email"');
+      expect(html).toContain('id="invite-staff-role"');
+      expect(html).toContain('id="invite-staff-pin"');
+    });
+
+    it('provides white-label company rebranding studio with dynamic accent palette and multi-device preview', () => {
+      const { renderAllWorkspaceViewsHtml } = require('@stokrova/ui');
+      const html = renderAllWorkspaceViewsHtml({
+        tenantName: 'Apex Global Retail Ltd',
+        branchName: 'London Flagship',
+        theme: 'dark',
+      });
+
+      expect(html).toContain('id="ws-view-rebranding"');
+      expect(html).toContain('Company Rebranding & White-Label Studio');
+      expect(html).toContain('id="rebrand-company-name"');
+      expect(html).toContain('id="rebrand-color-picker"');
+      expect(html).toContain('id="rebrand-hex-input"');
+      expect(html).toContain('id="preview-brand-header"');
+      expect(html).toContain('id="preview-pos-btn"');
+      expect(html).toContain('id="preview-scanner-box"');
+      expect(html).toContain('id="preview-receipt-name"');
+      expect(html).toContain('STOKROVA Gold');
+      expect(html).toContain('Emerald Green');
+      expect(html).toContain('Sapphire Blue');
+      expect(html).toContain('Save & Apply Rebrand to All Workspaces');
     });
   });
 });

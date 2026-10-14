@@ -130,6 +130,7 @@ export const MASTER_NAVIGATION_SECTIONS: NavigationSection[] = [
     title: 'Platform Administration',
     items: [
       { id: 'nav_org', label: 'Tenant & Companies', path: '/settings/organization', icon: 'briefcase', requiredPermission: 'branches.manage' },
+      { id: 'nav_rebranding', label: 'Company Rebranding & Theme', path: '/settings/rebranding', icon: 'palette', requiredPermission: 'tenancy.manage' },
       { id: 'nav_rbac', label: 'Scoped RBAC & Staff Roles', path: '/settings/roles', icon: 'user-check', requiredPermission: 'roles.manage' },
       { id: 'nav_devices', label: 'Hardware Peripherals & ESC/POS', path: '/settings/devices', icon: 'printer', requiredPermission: 'devices.manage' },
       { id: 'nav_integrations', label: 'Webhooks & EDI Exchange', path: '/settings/integrations', icon: 'git-pull-request', requiredPermission: 'integration.manage' },

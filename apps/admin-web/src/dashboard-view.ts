@@ -179,7 +179,7 @@ export class DashboardViewModel {
               <h4 style="margin: 0; font-size: 1rem; font-weight: 700;">Operational Alerts</h4>
               <span style="background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textMuted}; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px;">Live Stream</span>
             </div>
-            ${alertsHtml || `<div style="color: ${tokens.textMuted}; font-size: 0.85rem; padding: 16px 0; text-align: center;">All systems operational — zero active discrepancies</div>`}
+            ${alertsHtml || `<div style="color: ${tokens.textMuted}; font-size: 0.85rem; padding: 16px 0; text-align: center;">All systems operational — zero alerts (zero active discrepancies)</div>`}
           </div>
         </div>
       </div>

@@ -55,6 +55,7 @@ export function getViewIdFromNavId(navId: string): string {
     nav_audit: 'audit',
     nav_compliance: 'compliance',
     nav_org: 'org',
+    nav_rebranding: 'rebranding',
     nav_rbac: 'rbac',
     nav_devices: 'devices',
     nav_integrations: 'integrations',
@@ -92,6 +93,7 @@ export const MODULE_EMOJIS: Record<string, string> = {
   nav_audit: '🛡️',
   nav_compliance: '🔒',
   nav_org: '🏛️',
+  nav_rebranding: '🎨',
   nav_rbac: '👤',
   nav_devices: '🖨️',
   nav_integrations: '🔌',
@@ -191,6 +193,8 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
   const tokens = themeTokens[theme];
   const st = semanticTokens;
   const toastFn = options.onActionToastFnName || 'window.stokrovaCustomerApp.showToast';
+  const tenantName = options.tenantName || 'Apex Global Retail Ltd';
+  const branchName = options.branchName || 'London Flagship';
 
   return `
     <!-- ========================================== -->
@@ -862,30 +866,313 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
     </div>
 
     <!-- ========================================== -->
-    <!-- 26. SCOPED RBAC & ROLES (/settings/roles) -->
+    <!-- 26. WHITE-LABEL & REBRANDING STUDIO (/settings/rebranding) -->
     <!-- ========================================== -->
-    <div id="ws-view-rbac" class="ws-view-content" style="display: none;">
-      <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Scoped Dynamic RBAC & Staff Accounts</h1>
-      <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Assign roles across specific branches, warehouses, or registers with cryptographic security PINs.</p>
-      <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
-        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.875rem;">
-          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid ${tokens.border}; padding-bottom: 8px;">
-            <span>Victoria Sterling (victoria@apex.com)</span>
-            <span style="color: ${brandColors.gold[400]}; font-weight: 700;">Business Owner (Full Wildcard Access)</span>
+    <div id="ws-view-rebranding" class="ws-view-content" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Company Rebranding & White-Label Studio</h1>
+          <p style="margin: 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Customize corporate identity, accent palette, and receipt typography. Changes cascade dynamically to every worker, till, and mobile device under this company.</p>
+        </div>
+        <button id="btn-save-rebranding" onclick="window.saveCompanyRebranding ? window.saveCompanyRebranding() : (window.stokrovaCustomerApp?.saveCompanyRebranding ? window.stokrovaCustomerApp.saveCompanyRebranding() : window.stokrovaApp?.saveCompanyRebranding())" style="padding: 10px 20px; border-radius: 6px; background: var(--primary, ${brandColors.gold[500]}); color: #0E1116; border: none; font-weight: 700; font-size: 0.875rem; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+          💾 Save & Apply Rebrand to All Workspaces
+        </button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; align-items: start;">
+        <!-- Left Column: Branding Controls -->
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 24px;">
+          <h3 style="margin: 0 0 16px 0; font-size: 1.1rem; color: ${tokens.textPrimary};">1. Corporate Identity & Receipt Headers</h3>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">COMPANY LEGAL & DISPLAY NAME</label>
+            <input id="rebrand-company-name" type="text" value="${tenantName}" placeholder="e.g. Apex Global Retail Ltd" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.875rem;" oninput="window.updateBrandPreview && window.updateBrandPreview()" />
           </div>
-          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid ${tokens.border}; padding-bottom: 8px;">
-            <span>David O'Connor (david@apex.com)</span>
-            <span style="color: #3B82F6; font-weight: 600;">Store Manager (London Flagship)</span>
+
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">RECEIPT & INVOICE SUBTITLE</label>
+            <input id="rebrand-receipt-slogan" type="text" value="Luxury Lifestyle & Electronics • Flagship Branch" placeholder="e.g. Authorized Premium Retailer" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.875rem;" oninput="window.updateBrandPreview && window.updateBrandPreview()" />
           </div>
-          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid ${tokens.border}; padding-bottom: 8px;">
-            <span>Emma Watson (emma@apex.com)</span>
-            <span style="color: #10B981; font-weight: 600;">Cashier (Register 01)</span>
+
+          <div style="margin-bottom: 24px;">
+            <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">BRAND MONOGRAM / LOGO TEXT</label>
+            <div style="display: flex; gap: 10px;">
+              <input id="rebrand-logo-text" type="text" value="◆ APEX" placeholder="e.g. ❖ BRAND" style="flex: 1; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.875rem;" oninput="window.updateBrandPreview && window.updateBrandPreview()" />
+            </div>
           </div>
-          <div style="display: flex; justify-content: space-between;">
-            <span>Samuel Adebayo (samuel@apex.com)</span>
-            <span style="color: #F59E0B; font-weight: 600;">Warehouse Operator (Zone A & B)</span>
+
+          <h3 style="margin: 0 0 16px 0; font-size: 1.1rem; color: ${tokens.textPrimary};">2. Primary Brand Color Palette</h3>
+          <p style="margin: 0 0 12px 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">Select a corporate preset or define custom HEX color for all worker interfaces.</p>
+
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;">
+            <button type="button" onclick="window.selectBrandAccent('#BD9652')" style="padding: 10px; border-radius: 6px; background: #1F242C; border: 2px solid #BD9652; color: #BD9652; font-size: 0.75rem; font-weight: 700; cursor: pointer; text-align: center;">
+              <div style="width: 18px; height: 18px; border-radius: 50%; background: #BD9652; margin: 0 auto 6px auto;"></div>
+              STOKROVA Gold
+            </button>
+            <button type="button" onclick="window.selectBrandAccent('#10B981')" style="padding: 10px; border-radius: 6px; background: #1F242C; border: 1px solid ${tokens.borderStrong}; color: #10B981; font-size: 0.75rem; font-weight: 700; cursor: pointer; text-align: center;">
+              <div style="width: 18px; height: 18px; border-radius: 50%; background: #10B981; margin: 0 auto 6px auto;"></div>
+              Emerald Green
+            </button>
+            <button type="button" onclick="window.selectBrandAccent('#2563EB')" style="padding: 10px; border-radius: 6px; background: #1F242C; border: 1px solid ${tokens.borderStrong}; color: #2563EB; font-size: 0.75rem; font-weight: 700; cursor: pointer; text-align: center;">
+              <div style="width: 18px; height: 18px; border-radius: 50%; background: #2563EB; margin: 0 auto 6px auto;"></div>
+              Sapphire Blue
+            </button>
+            <button type="button" onclick="window.selectBrandAccent('#6366F1')" style="padding: 10px; border-radius: 6px; background: #1F242C; border: 1px solid ${tokens.borderStrong}; color: #6366F1; font-size: 0.75rem; font-weight: 700; cursor: pointer; text-align: center;">
+              <div style="width: 18px; height: 18px; border-radius: 50%; background: #6366F1; margin: 0 auto 6px auto;"></div>
+              Deep Indigo
+            </button>
+            <button type="button" onclick="window.selectBrandAccent('#8B5CF6')" style="padding: 10px; border-radius: 6px; background: #1F242C; border: 1px solid ${tokens.borderStrong}; color: #8B5CF6; font-size: 0.75rem; font-weight: 700; cursor: pointer; text-align: center;">
+              <div style="width: 18px; height: 18px; border-radius: 50%; background: #8B5CF6; margin: 0 auto 6px auto;"></div>
+              Royal Violet
+            </button>
+            <button type="button" onclick="window.selectBrandAccent('#E11D48')" style="padding: 10px; border-radius: 6px; background: #1F242C; border: 1px solid ${tokens.borderStrong}; color: #E11D48; font-size: 0.75rem; font-weight: 700; cursor: pointer; text-align: center;">
+              <div style="width: 18px; height: 18px; border-radius: 50%; background: #E11D48; margin: 0 auto 6px auto;"></div>
+              Crimson Rose
+            </button>
+            <button type="button" onclick="window.selectBrandAccent('#0D9488')" style="padding: 10px; border-radius: 6px; background: #1F242C; border: 1px solid ${tokens.borderStrong}; color: #0D9488; font-size: 0.75rem; font-weight: 700; cursor: pointer; text-align: center;">
+              <div style="width: 18px; height: 18px; border-radius: 50%; background: #0D9488; margin: 0 auto 6px auto;"></div>
+              Cyber Teal
+            </button>
+            <button type="button" onclick="window.selectBrandAccent('#F59E0B')" style="padding: 10px; border-radius: 6px; background: #1F242C; border: 1px solid ${tokens.borderStrong}; color: #F59E0B; font-size: 0.75rem; font-weight: 700; cursor: pointer; text-align: center;">
+              <div style="width: 18px; height: 18px; border-radius: 50%; background: #F59E0B; margin: 0 auto 6px auto;"></div>
+              Solar Amber
+            </button>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 14px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; padding: 12px 16px; border-radius: 6px;">
+            <label style="font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary};">CUSTOM HEX:</label>
+            <input id="rebrand-color-picker" type="color" value="#BD9652" onchange="window.selectBrandAccent(this.value)" style="width: 38px; height: 38px; border: none; border-radius: 4px; cursor: pointer; background: transparent;" />
+            <input id="rebrand-hex-input" type="text" value="#BD9652" maxlength="7" oninput="window.selectBrandAccent(this.value)" style="width: 110px; padding: 6px 10px; border-radius: 4px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-family: var(--stokrova-font-mono); font-size: 0.8125rem;" />
+            <span style="font-size: 0.75rem; color: ${tokens.textMuted};">Live CSS Variable Cascade</span>
           </div>
         </div>
+
+        <!-- Right Column: Live Multi-Surface Preview -->
+        <div>
+          <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 24px; margin-bottom: 20px;">
+            <h3 style="margin: 0 0 16px 0; font-size: 1.1rem; color: ${tokens.textPrimary};">3. Real-Time Worker Surface Previews</h3>
+
+            <!-- Preview 1: POS Screen Header & Buttons -->
+            <div style="background: #090B0E; border: 1px solid ${tokens.borderStrong}; border-radius: 6px; padding: 14px; margin-bottom: 14px;">
+              <div style="font-size: 0.7rem; color: ${tokens.textMuted}; text-transform: uppercase; font-weight: 700; margin-bottom: 8px;">Cashier POS Terminal Appearance</div>
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid ${tokens.border}; padding-bottom: 8px; margin-bottom: 10px;">
+                <span id="preview-brand-header" style="font-weight: 800; color: #BD9652; font-size: 0.85rem;">◆ APEX</span>
+                <span style="font-size: 0.7rem; background: rgba(189,150,82,0.18); color: #BD9652; padding: 2px 6px; border-radius: 4px; font-weight: 600;" id="preview-branch-badge">${branchName}</span>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button type="button" id="preview-pos-btn" style="flex: 1; padding: 8px; background: #BD9652; color: #0E1116; border: none; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">Complete Cashier Sale ($2,499.00)</button>
+              </div>
+            </div>
+
+            <!-- Preview 2: Mobile Handheld Scanner -->
+            <div style="background: #090B0E; border: 1px solid ${tokens.borderStrong}; border-radius: 6px; padding: 14px; margin-bottom: 14px;">
+              <div style="font-size: 0.7rem; color: ${tokens.textMuted}; text-transform: uppercase; font-weight: 700; margin-bottom: 8px;">Warehouse Handheld Scanner Viewfinder</div>
+              <div style="border: 2px dashed #BD9652; border-radius: 6px; padding: 16px; text-align: center; margin-bottom: 8px;" id="preview-scanner-box">
+                <span style="font-size: 0.75rem; color: #BD9652; font-weight: 700;" id="preview-scanner-text">⚡ ALIGN BARCODE [AISLE 04 - BIN B-12]</span>
+              </div>
+              <button type="button" id="preview-pick-btn" style="width: 100%; padding: 6px; background: #BD9652; color: #0E1116; border: none; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">Confirm Picked Units (20/20)</button>
+            </div>
+
+            <!-- Preview 3: Thermal Receipt Output -->
+            <div style="background: #FFFFFF; color: #0E1116; border-radius: 6px; padding: 14px; font-family: var(--stokrova-font-mono); font-size: 0.7rem; line-height: 1.4;">
+              <div style="text-align: center; font-weight: 800; font-size: 0.85rem;" id="preview-receipt-name">${tenantName}</div>
+              <div style="text-align: center; font-size: 0.65rem; color: #555555; margin-bottom: 6px;" id="preview-receipt-slogan">Luxury Lifestyle & Electronics • Flagship Branch</div>
+              <div style="border-top: 1px dashed #000000; border-bottom: 1px dashed #000000; padding: 4px 0; margin: 4px 0;">
+                1x Apex Pro 16 Laptop Workstation ........... $2,499.00
+              </div>
+              <div style="display: flex; justify-content: space-between; font-weight: 700;">
+                <span>TOTAL PAID (CASH):</span>
+                <span>$2,499.00</span>
+              </div>
+              <div style="text-align: center; margin-top: 6px; font-size: 0.6rem; color: #444444;">
+                QR CRYPTOGRAPHIC VERIFICATION • RULE 21
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 27. SCOPED RBAC & STAFF MANAGEMENT (/settings/roles) -->
+    <!-- ========================================== -->
+    <div id="ws-view-rbac" class="ws-view-content" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Staff Roster & Scoped Dynamic RBAC</h1>
+          <p style="margin: 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Manage employee accounts, assign granular role boundaries, and dispatch instant onboarding invitations.</p>
+        </div>
+        <button onclick="window.openStaffInviteModal ? window.openStaffInviteModal() : (window.stokrovaCustomerApp?.openStaffInviteModal ? window.stokrovaCustomerApp.openStaffInviteModal() : window.stokrovaApp?.openStaffInviteModal())" style="padding: 10px 20px; border-radius: 6px; background: var(--primary, ${brandColors.gold[500]}); color: #0E1116; border: none; font-weight: 700; font-size: 0.875rem; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+          + Invite / Add Staff Member
+        </button>
+      </div>
+
+      <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; overflow: hidden; margin-bottom: 24px;">
+        <div style="padding: 14px 18px; background: ${tokens.cardHover}; border-bottom: 1px solid ${tokens.border}; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-weight: 700; font-size: 0.9rem; color: ${tokens.textPrimary};">Active Company Staff Directory</span>
+          <span style="font-size: 0.75rem; color: ${tokens.textMuted};" id="staff-count-badge">4 Staff Members Active</span>
+        </div>
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left;">
+            <thead>
+              <tr style="border-bottom: 1px solid ${tokens.borderStrong}; color: ${tokens.textMuted}; text-transform: uppercase; font-size: 0.7rem;">
+                <th style="padding: 12px 16px;">Staff Member & Email</th>
+                <th style="padding: 12px 16px;">Assigned Role</th>
+                <th style="padding: 12px 16px;">Operational Scope</th>
+                <th style="padding: 12px 16px; text-align: center;">Status</th>
+                <th style="padding: 12px 16px; text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="staff-table-body">
+              <tr style="border-bottom: 1px solid ${tokens.border};">
+                <td style="padding: 12px 16px; font-weight: 600;">
+                  <div>Victoria Sterling</div>
+                  <div style="font-size: 0.75rem; color: ${tokens.textMuted};">victoria@apex.com</div>
+                </td>
+                <td style="padding: 12px 16px;">
+                  <span style="background: rgba(189,150,82,0.18); color: var(--primary, #BD9652); border: 1px solid var(--primary, #BD9652); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">Business Owner</span>
+                </td>
+                <td style="padding: 12px 16px; color: ${tokens.textSecondary}; font-size: 0.8125rem;">Tenant-Wide Wildcard (All Entities)</td>
+                <td style="padding: 12px 16px; text-align: center;">
+                  <span style="background: #14291F; color: #4ADE80; border: 1px solid #1E4620; padding: 2px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">ACTIVE</span>
+                </td>
+                <td style="padding: 12px 16px; text-align: right;">
+                  <span style="font-size: 0.75rem; color: ${tokens.textMuted};">Primary Owner</span>
+                </td>
+              </tr>
+              <tr style="border-bottom: 1px solid ${tokens.border};">
+                <td style="padding: 12px 16px; font-weight: 600;">
+                  <div>David O'Connor</div>
+                  <div style="font-size: 0.75rem; color: ${tokens.textMuted};">david@apex.com</div>
+                </td>
+                <td style="padding: 12px 16px;">
+                  <span style="background: rgba(59,130,246,0.15); color: #3B82F6; border: 1px solid #3B82F6; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">Store Manager</span>
+                </td>
+                <td style="padding: 12px 16px; color: ${tokens.textSecondary}; font-size: 0.8125rem;">Branch: London Flagship</td>
+                <td style="padding: 12px 16px; text-align: center;">
+                  <span style="background: #14291F; color: #4ADE80; border: 1px solid #1E4620; padding: 2px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">ACTIVE</span>
+                </td>
+                <td style="padding: 12px 16px; text-align: right;">
+                  <button onclick="${toastFn}('PIN reset email sent to david@apex.com')" style="padding: 4px 8px; border-radius: 4px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.75rem; cursor: pointer;">Reset PIN</button>
+                </td>
+              </tr>
+              <tr style="border-bottom: 1px solid ${tokens.border};">
+                <td style="padding: 12px 16px; font-weight: 600;">
+                  <div>Emma Watson</div>
+                  <div style="font-size: 0.75rem; color: ${tokens.textMuted};">emma@apex.com</div>
+                </td>
+                <td style="padding: 12px 16px;">
+                  <span style="background: rgba(16,185,129,0.15); color: #10B981; border: 1px solid #10B981; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">Head Cashier</span>
+                </td>
+                <td style="padding: 12px 16px; color: ${tokens.textSecondary}; font-size: 0.8125rem;">London Flagship: Till REG-01</td>
+                <td style="padding: 12px 16px; text-align: center;">
+                  <span style="background: #14291F; color: #4ADE80; border: 1px solid #1E4620; padding: 2px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">ACTIVE</span>
+                </td>
+                <td style="padding: 12px 16px; text-align: right;">
+                  <button onclick="${toastFn}('Cash drawer permissions audited for Emma Watson')" style="padding: 4px 8px; border-radius: 4px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.75rem; cursor: pointer;">Permissions</button>
+                </td>
+              </tr>
+              <tr style="border-bottom: 1px solid ${tokens.border};">
+                <td style="padding: 12px 16px; font-weight: 600;">
+                  <div>Samuel Adebayo</div>
+                  <div style="font-size: 0.75rem; color: ${tokens.textMuted};">samuel@apex.com</div>
+                </td>
+                <td style="padding: 12px 16px;">
+                  <span style="background: rgba(245,158,11,0.15); color: #F59E0B; border: 1px solid #F59E0B; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">Warehouse Operator</span>
+                </td>
+                <td style="padding: 12px 16px; color: ${tokens.textSecondary}; font-size: 0.8125rem;">Birmingham DC: Zones A & B</td>
+                <td style="padding: 12px 16px; text-align: center;">
+                  <span style="background: #14291F; color: #4ADE80; border: 1px solid #1E4620; padding: 2px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">ACTIVE</span>
+                </td>
+                <td style="padding: 12px 16px; text-align: right;">
+                  <button onclick="${toastFn}('Scanner device fingerprint verified for Samuel Adebayo')" style="padding: 4px 8px; border-radius: 4px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.75rem; cursor: pointer;">Device Auth</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pending Invitations Section -->
+      <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; overflow: hidden;">
+        <div style="padding: 14px 18px; background: ${tokens.cardHover}; border-bottom: 1px solid ${tokens.border};">
+          <span style="font-weight: 700; font-size: 0.9rem; color: ${tokens.textPrimary};">Pending Single-Sign-On Staff Invitations</span>
+        </div>
+        <div id="pending-invitations-list" style="padding: 16px 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid ${tokens.border}; padding-bottom: 10px; margin-bottom: 10px;">
+            <div>
+              <div style="font-weight: 600; font-size: 0.875rem;">Sarah Jenkins (sarah.j@apex.com)</div>
+              <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Role: <strong>Inventory Specialist</strong> • Scope: <strong>Birmingham DC</strong></div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button onclick="navigator.clipboard?.writeText('https://stokrova.com/invite/tok_sso_sarah9912'); ${toastFn}('Copied secure invitation link to clipboard!')" style="padding: 5px 10px; border-radius: 4px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.75rem; cursor: pointer;">Copy Invite Link</button>
+              <button onclick="${toastFn}('Invitation resent to sarah.j@apex.com')" style="padding: 5px 10px; border-radius: 4px; background: transparent; border: 1px solid ${tokens.border}; color: ${tokens.textSecondary}; font-size: 0.75rem; cursor: pointer;">Resend</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- STAFF INVITATION MODAL DIALOG -->
+    <!-- ========================================== -->
+    <div id="modal-invite-staff" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+      <div style="background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; border-radius: 12px; width: 100%; max-width: 520px; padding: 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div>
+            <h3 style="margin: 0; font-size: 1.25rem; color: ${tokens.textPrimary}; font-weight: 700;">Invite & Add Staff Member</h3>
+            <p style="margin: 4px 0 0 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">Provision worker account with role-scoped operational permissions</p>
+          </div>
+          <button onclick="window.closeStaffInviteModal ? window.closeStaffInviteModal() : (window.stokrovaCustomerApp?.closeStaffInviteModal ? window.stokrovaCustomerApp.closeStaffInviteModal() : window.stokrovaApp?.closeStaffInviteModal())" style="background: none; border: none; font-size: 1.4rem; color: ${tokens.textMuted}; cursor: pointer;">&times;</button>
+        </div>
+
+        <form id="form-invite-staff" onsubmit="window.handleStaffInviteSubmit ? window.handleStaffInviteSubmit(event) : (window.stokrovaCustomerApp?.handleStaffInviteSubmit ? window.stokrovaCustomerApp.handleStaffInviteSubmit(event) : window.stokrovaApp?.handleStaffInviteSubmit(event))">
+          <div style="margin-bottom: 14px;">
+            <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">STAFF FULL NAME *</label>
+            <input id="invite-staff-name" type="text" required placeholder="e.g. Alex Morgan" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
+          </div>
+
+          <div style="margin-bottom: 14px;">
+            <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">WORK EMAIL ADDRESS *</label>
+            <input id="invite-staff-email" type="email" required placeholder="alex@apex.com" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+            <div>
+              <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">ASSIGNED ROLE *</label>
+              <select id="invite-staff-role" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;">
+                <option value="Store Manager">Store Manager</option>
+                <option value="Head Cashier" selected>Head Cashier</option>
+                <option value="Warehouse Operator">Warehouse Operator</option>
+                <option value="Procurement Officer">Procurement Officer</option>
+                <option value="Financial Controller">Financial Controller</option>
+              </select>
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">BRANCH / FACILITY *</label>
+              <select id="invite-staff-branch" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;">
+                <option value="London Flagship" selected>London Flagship</option>
+                <option value="Birmingham DC">Birmingham DC</option>
+                <option value="New York Distribution Center">New York Distribution Center</option>
+                <option value="All Branches (Tenant Wide)">All Branches (Tenant Wide)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 24px;">
+            <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">TEMPORARY ACCESS PIN / PASSWORD *</label>
+            <input id="invite-staff-pin" type="text" required value="7788" placeholder="e.g. 7788" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem; font-family: var(--stokrova-font-mono);" />
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 12px;">
+            <button type="button" onclick="window.closeStaffInviteModal ? window.closeStaffInviteModal() : (window.stokrovaCustomerApp?.closeStaffInviteModal ? window.stokrovaCustomerApp.closeStaffInviteModal() : window.stokrovaApp?.closeStaffInviteModal())" style="padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
+              Cancel
+            </button>
+            <button type="submit" style="padding: 10px 22px; border-radius: 6px; border: none; background: var(--primary, ${brandColors.gold[500]}); color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer;">
+              Send Invite & Add Staff →
+            </button>
+          </div>
+        </form>
       </div>
     </div>
 

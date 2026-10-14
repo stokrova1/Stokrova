@@ -135,14 +135,15 @@ export class RbacViewModel {
             <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700;">Staff Members & Scoped Dynamic RBAC</h3>
             <p style="margin: 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">Multi-dimensional operational boundaries: Branch, Warehouse, and Register scopes</p>
           </div>
-          <button onclick="window.stokrovaApp?.showToast('Staff invitation modal triggered.')" style="padding: 8px 16px; border-radius: 6px; background: ${tokens.primary}; color: ${tokens.primaryForeground}; border: none; font-weight: 600; font-size: 0.8125rem; cursor: pointer;">
+          <button onclick="window.openStaffInviteModal ? window.openStaffInviteModal() : (window.stokrovaApp?.openStaffInviteModal ? window.stokrovaApp.openStaffInviteModal() : null)" style="padding: 8px 16px; border-radius: 6px; background: ${tokens.primary}; color: ${tokens.primaryForeground}; border: none; font-weight: 600; font-size: 0.8125rem; cursor: pointer;">
             + Invite Staff Member
           </button>
         </div>
 
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; overflow: hidden; margin-bottom: 24px;">
-          <div style="padding: 12px 16px; background: ${tokens.cardHover}; border-bottom: 1px solid ${tokens.border}; font-weight: 700; font-size: 0.85rem;">
-            Active Team Members
+          <div style="padding: 12px 16px; background: ${tokens.cardHover}; border-bottom: 1px solid ${tokens.border}; font-weight: 700; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
+            <span>Active Team Members</span>
+            <span style="font-size: 0.75rem; color: ${tokens.textMuted};" id="staff-count-badge">${staff.length} Staff Members Active</span>
           </div>
           <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
             <thead>
@@ -154,7 +155,7 @@ export class RbacViewModel {
                 <th style="padding: 10px 14px; text-align: right;">Action</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody id="staff-table-body">
               ${staffRows || `<tr><td colspan="5" style="padding: 20px; text-align: center; color: ${tokens.textMuted};">No active staff members</td></tr>`}
             </tbody>
           </table>
@@ -174,10 +175,71 @@ export class RbacViewModel {
                 <th style="padding: 10px 14px; text-align: right;">Action</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody id="pending-invitations-list">
               ${inviteRows || `<tr><td colspan="5" style="padding: 20px; text-align: center; color: ${tokens.textMuted};">No pending invitations</td></tr>`}
             </tbody>
           </table>
+        </div>
+
+        <!-- Staff Invitation Modal -->
+        <div id="modal-invite-staff" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+          <div style="background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; border-radius: 12px; width: 100%; max-width: 520px; padding: 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+              <div>
+                <h3 style="margin: 0; font-size: 1.25rem; color: ${tokens.textPrimary}; font-weight: 700;">Invite & Add Staff Member</h3>
+                <p style="margin: 4px 0 0 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">Provision worker account with role-scoped operational permissions</p>
+              </div>
+              <button onclick="window.closeStaffInviteModal ? window.closeStaffInviteModal() : (window.stokrovaApp?.closeStaffInviteModal ? window.stokrovaApp.closeStaffInviteModal() : null)" style="background: none; border: none; font-size: 1.4rem; color: ${tokens.textMuted}; cursor: pointer;">&times;</button>
+            </div>
+
+            <form id="form-invite-staff" onsubmit="window.handleStaffInviteSubmit ? window.handleStaffInviteSubmit(event) : (window.stokrovaApp?.handleStaffInviteSubmit ? window.stokrovaApp.handleStaffInviteSubmit(event) : null)">
+              <div style="margin-bottom: 14px;">
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">STAFF FULL NAME *</label>
+                <input id="invite-staff-name" type="text" required placeholder="e.g. Alex Morgan" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
+              </div>
+
+              <div style="margin-bottom: 14px;">
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">WORK EMAIL ADDRESS *</label>
+                <input id="invite-staff-email" type="email" required placeholder="alex@apex.com" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                  <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">ASSIGNED ROLE *</label>
+                  <select id="invite-staff-role" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;">
+                    <option value="Store Manager">Store Manager</option>
+                    <option value="Head Cashier" selected>Head Cashier</option>
+                    <option value="Warehouse Operator">Warehouse Operator</option>
+                    <option value="Procurement Officer">Procurement Officer</option>
+                    <option value="Financial Controller">Financial Controller</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">BRANCH / FACILITY *</label>
+                  <select id="invite-staff-branch" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;">
+                    <option value="London Flagship" selected>London Flagship</option>
+                    <option value="Birmingham DC">Birmingham DC</option>
+                    <option value="New York Distribution Center">New York Distribution Center</option>
+                    <option value="All Branches (Tenant Wide)">All Branches (Tenant Wide)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="margin-bottom: 24px;">
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">TEMPORARY ACCESS PIN / PASSWORD *</label>
+                <input id="invite-staff-pin" type="text" required value="7788" placeholder="e.g. 7788" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem; font-family: var(--stokrova-font-mono);" />
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                <button type="button" onclick="window.closeStaffInviteModal ? window.closeStaffInviteModal() : (window.stokrovaApp?.closeStaffInviteModal ? window.stokrovaApp.closeStaffInviteModal() : null)" style="padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
+                  Cancel
+                </button>
+                <button type="submit" style="padding: 10px 22px; border-radius: 6px; border: none; background: ${tokens.primary}; color: ${tokens.primaryForeground}; font-weight: 700; font-size: 0.875rem; cursor: pointer;">
+                  Send Invite & Add Staff →
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     `.trim();
