@@ -76,4 +76,28 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     expect(html).not.toContain('Victoria');
     expect(html).not.toContain('demo1234');
   });
+
+  it('renders multi-branch architecture section with holding hierarchy and Rule 21 isolation', () => {
+    const view = new LandingViewModel('dark');
+    const html = view.renderArchitectureSectionHtml();
+
+    expect(html).toContain('id="architecture"');
+    expect(html).toContain('Multi-Company & Multi-Branch Topology');
+    expect(html).toContain('Multi-Entity Holding Hierarchy');
+    expect(html).toContain('Two-Step In-Transit Transfers');
+    expect(html).toContain('Rule 21 Multi-Tenant Isolation');
+  });
+
+  it('renders offline POS showcase section with sub-50ms scanner buffer and split tender', () => {
+    const view = new LandingViewModel('dark');
+    const html = view.renderPosSectionHtml();
+
+    expect(html).toContain('id="pos"');
+    expect(html).toContain('Offline-Tolerant Point of Sale Architecture');
+    expect(html).toContain('Sub-50ms Scans');
+    expect(html).toContain('Multi-Payment Splitting');
+    expect(html).toContain('Zero-Drop Local Queue');
+    expect(html).toContain('Thermal Receipts');
+    expect(html).toContain('Launch Interactive Workspace →');
+  });
 });

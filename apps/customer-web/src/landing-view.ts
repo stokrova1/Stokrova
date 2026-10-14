@@ -197,6 +197,105 @@ export class LandingViewModel {
     `;
   }
 
+  public renderArchitectureSectionHtml(): string {
+    const tokens = themeTokens[this.theme];
+    return `
+      <section id="architecture" style="padding: 72px 32px; max-width: 1120px; margin: 0 auto; border-top: 1px solid ${tokens.border};">
+        <div style="text-align: center; margin-bottom: 48px;">
+          <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(189,150,82,0.12); border: 1px solid ${tokens.primary}; padding: 4px 14px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; color: ${tokens.primary}; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px;">
+            <span>Multi-Company & Multi-Branch Topology</span>
+          </div>
+          <h2 style="font-size: 2.25rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 0 0 12px 0;">Authoritative Inventory Across Every Location</h2>
+          <p style="font-size: 1rem; color: ${tokens.textSecondary}; max-width: 680px; margin: 0 auto;">
+            From parent holding companies and bonded regional warehouses to high-street retail stores and pop-up locations, STOKROVA maintains unified inventory integrity and real-time in-transit tracking.
+          </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 40px;">
+          <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 12px; padding: 28px;">
+            <div style="font-size: 1.5rem; margin-bottom: 12px;">🏛️</div>
+            <h3 style="font-size: 1.1rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 8px 0;">Multi-Entity Holding Hierarchy</h3>
+            <p style="font-size: 0.85rem; line-height: 1.5; color: ${tokens.textSecondary}; margin: 0 0 16px 0;">Manage multiple trading entities, legal subsidiaries, and operating currencies under a single tenant with automatic intercompany elimination.</p>
+            <div style="font-size: 0.75rem; font-family: var(--stokrova-font-mono); color: ${tokens.primary}; background: ${tokens.cardHover}; padding: 8px 12px; border-radius: 6px; border: 1px solid ${tokens.border};">
+              Holding Co → Operating Entities → Local Currencies (USD, GBP, EUR, NGN)
+            </div>
+          </div>
+
+          <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 12px; padding: 28px;">
+            <div style="font-size: 1.5rem; margin-bottom: 12px;">🚚</div>
+            <h3 style="font-size: 1.1rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 8px 0;">Two-Step In-Transit Transfers</h3>
+            <p style="font-size: 0.85rem; line-height: 1.5; color: ${tokens.textSecondary}; margin: 0 0 16px 0;">Zero phantom stock. When goods leave a central distribution center, they sit in an audited IN-TRANSIT GL account until received and verified by the destination branch.</p>
+            <div style="font-size: 0.75rem; font-family: var(--stokrova-font-mono); color: ${tokens.primary}; background: ${tokens.cardHover}; padding: 8px 12px; border-radius: 6px; border: 1px solid ${tokens.border};">
+              Dispatch Verification → In-Transit Custody → Receiving Blind Inspection
+            </div>
+          </div>
+
+          <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 12px; padding: 28px;">
+            <div style="font-size: 1.5rem; margin-bottom: 12px;">🛡️</div>
+            <h3 style="font-size: 1.1rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 8px 0;">Rule 21 Multi-Tenant Isolation</h3>
+            <p style="font-size: 0.85rem; line-height: 1.5; color: ${tokens.textSecondary}; margin: 0 0 16px 0;">Every subscriber's catalog, ledger, orders, and customer data are cryptographically quarantined. No cross-tenant bleed, no shared unencrypted state.</p>
+            <div style="font-size: 0.75rem; font-family: var(--stokrova-font-mono); color: #4ADE80; background: ${tokens.cardHover}; padding: 8px 12px; border-radius: 6px; border: 1px solid #1E4620;">
+              Tenant-Scoped Row Security + Branch-Scoped RBAC Enforcement
+            </div>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  public renderPosSectionHtml(): string {
+    const tokens = themeTokens[this.theme];
+    return `
+      <section id="pos" style="padding: 72px 32px; max-width: 1120px; margin: 0 auto; border-top: 1px solid ${tokens.border};">
+        <div style="text-align: center; margin-bottom: 48px;">
+          <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(189,150,82,0.12); border: 1px solid ${tokens.primary}; padding: 4px 14px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; color: ${tokens.primary}; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px;">
+            <span>High-Speed Retail Checkout</span>
+          </div>
+          <h2 style="font-size: 2.25rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 0 0 12px 0;">Offline-Tolerant Point of Sale Architecture</h2>
+          <p style="font-size: 1rem; color: ${tokens.textSecondary}; max-width: 680px; margin: 0 auto;">
+            Engineered for high-volume retail counters. Ring up sales at the speed of light with hardware laser scanner detection, split tenders, and continuous offline operation.
+          </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 36px;">
+          <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 22px;">
+            <div style="font-size: 1.3rem; margin-bottom: 10px; color: ${tokens.primary};">⚡ Sub-50ms Scans</div>
+            <h4 style="margin: 0 0 6px 0; font-size: 0.95rem; color: ${tokens.textPrimary}; font-weight: 700;">Hardware Scanner Buffer</h4>
+            <p style="margin: 0; font-size: 0.8rem; color: ${tokens.textSecondary}; line-height: 1.4;">Automatic distinction between keyboard input and laser barcode scanner bursts without dropping focus.</p>
+          </div>
+
+          <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 22px;">
+            <div style="font-size: 1.3rem; margin-bottom: 10px; color: ${tokens.primary};">💳 Split Tender</div>
+            <h4 style="margin: 0 0 6px 0; font-size: 0.95rem; color: ${tokens.textPrimary}; font-weight: 700;">Multi-Payment Splitting</h4>
+            <p style="margin: 0; font-size: 0.8rem; color: ${tokens.textSecondary}; line-height: 1.4;">Accept multiple payment methods per ticket (cash + card + gift card) computed in pure integer minor units.</p>
+          </div>
+
+          <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 22px;">
+            <div style="font-size: 1.3rem; margin-bottom: 10px; color: ${tokens.primary};">📴 Offline Outbox</div>
+            <h4 style="margin: 0 0 6px 0; font-size: 0.95rem; color: ${tokens.textPrimary}; font-weight: 700;">Zero-Drop Local Queue</h4>
+            <p style="margin: 0; font-size: 0.8rem; color: ${tokens.textSecondary}; line-height: 1.4;">Transactions persist to local indexed storage with UUID idempotency keys, syncing seamlessly upon reconnect.</p>
+          </div>
+
+          <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 22px;">
+            <div style="font-size: 1.3rem; margin-bottom: 10px; color: ${tokens.primary};">🧾 Thermal Receipts</div>
+            <h4 style="margin: 0 0 6px 0; font-size: 0.95rem; color: ${tokens.textPrimary}; font-weight: 700;">ESC/POS & Verification</h4>
+            <p style="margin: 0; font-size: 0.8rem; color: ${tokens.textSecondary}; line-height: 1.4;">Standard 80mm & 58mm thermal output featuring tamper-evident QR verification and itemized tax breakdowns.</p>
+          </div>
+        </div>
+
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; border-radius: 12px; padding: 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+          <div>
+            <h3 style="margin: 0 0 4px 0; font-size: 1.15rem; color: ${tokens.textPrimary}; font-weight: 700;">Experience the POS in Action</h3>
+            <p style="margin: 0; font-size: 0.85rem; color: ${tokens.textSecondary};">Open the interactive workspace to ring items, test barcode scans, and inspect the double-entry ledger in real time.</p>
+          </div>
+          <button onclick="window.stokrovaCustomerApp.launchWorkspace({ tenantName: 'Apex Global Retail Ltd', branchName: 'London Flagship', userName: 'Victoria Sterling', userRole: 'Business Owner (Administrator)' })" style="background: ${tokens.primary}; color: #0E1116; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 700; font-size: 0.875rem; cursor: pointer; box-shadow: 0 2px 8px rgba(189,150,82,0.3);">
+            Launch Interactive Workspace →
+          </button>
+        </div>
+      </section>
+    `;
+  }
+
   public renderPricingSectionHtml(): string {
     const tokens = themeTokens[this.theme];
     const plans = this.getPricingPlans();

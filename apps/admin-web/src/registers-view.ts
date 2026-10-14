@@ -83,9 +83,9 @@ export class RegistersViewModel {
               <div style="font-weight: 600;">${s.registerName}</div>
               <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Cashier: <strong>${s.cashierName}</strong> (${s.branchName})</div>
             </td>
-            <td style="padding: 12px 14px; text-align: right; font-family: var(--stokrova-font-mono);">${formatCurrencyMinor(s.openingFloatMinor, currency)}</td>
-            <td style="padding: 12px 14px; text-align: right; font-family: var(--stokrova-font-mono);">${formatCurrencyMinor(s.cashSalesMinor, currency)}</td>
-            <td style="padding: 12px 14px; text-align: right; font-family: var(--stokrova-font-mono); font-weight: 600;">${formatCurrencyMinor(s.expectedClosingCashMinor, currency)}</td>
+            <td style="padding: 12px 14px; text-align: right; font-family: var(--stokrova-font-mono);">${formatCurrencyMinor(s.openingFloatMinor ?? 0n, currency)}</td>
+            <td style="padding: 12px 14px; text-align: right; font-family: var(--stokrova-font-mono);">${formatCurrencyMinor(s.cashSalesMinor ?? 0n, currency)}</td>
+            <td style="padding: 12px 14px; text-align: right; font-family: var(--stokrova-font-mono); font-weight: 600;">${formatCurrencyMinor(s.expectedClosingCashMinor ?? 0n, currency)}</td>
             <td style="padding: 12px 14px; text-align: right; font-family: var(--stokrova-font-mono); font-weight: 700; color: ${(s.varianceMinor ?? 0n) < 0n ? st.error[this.theme].text : 'inherit'};">
               ${varianceStr}
             </td>

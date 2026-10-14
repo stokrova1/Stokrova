@@ -4,6 +4,12 @@ import { fileURLToPath } from 'node:url';
 import {
   AdminWebShell,
   PlatformFounderView,
+  DashboardViewModel,
+  ProcurementViewModel,
+  FinanceViewModel,
+  RegistersViewModel,
+  RbacViewModel,
+  OrganizationViewModel,
 } from './dist/index.js';
 import {
   renderMasterSidebarHtml,
@@ -29,6 +35,234 @@ const defaultContext = {
 
 const shell = new AdminWebShell({ context: defaultContext, theme: 'dark' });
 
+const dashboardModel = new DashboardViewModel({
+  grossMerchandiseValueMinor: 485000000n, // $4,850,000.00
+  netRevenueMinor: 38200000n, // $382,000.00
+  grossMarginBps: 3850, // 38.50%
+  stockoutRiskIndex: 4,
+  warehouseUtilizationPct: 78.5,
+  openTillSessionsCount: 6,
+  cashierVarianceAlertsMinor: 0n,
+  activeWorkflowsRunning: 3,
+  currencyCode: 'USD',
+}, 'dark');
+
+dashboardModel.addAlert({
+  id: 'alt_01',
+  severity: 'INFO',
+  title: 'Inter-Branch Stock Dispatched',
+  message: 'TR-LON-BIR-042 dispatched to Birmingham DC (20 units in-transit).',
+  timestampIso: '2026-10-14T14:15:00Z',
+});
+dashboardModel.addAlert({
+  id: 'alt_02',
+  severity: 'WARNING',
+  title: 'Discount Override Requested',
+  message: 'B2B Quote QT-2026-042 requested 14% discount (exceeds 10% manager threshold).',
+  timestampIso: '2026-10-14T13:50:00Z',
+});
+dashboardModel.addAlert({
+  id: 'alt_03',
+  severity: 'INFO',
+  title: 'Daily Register Reconciled',
+  message: 'All London store tills balanced with 0 float discrepancies.',
+  timestampIso: '2026-10-14T12:00:00Z',
+});
+
+const procurementModel = new ProcurementViewModel('dark');
+procurementModel.addSupplier({
+  id: 'supp_intel',
+  name: 'Intel Corporation UK Ltd',
+  code: 'SUPP-INTEL',
+  contactEmail: 'orders@intel.co.uk',
+  paymentTermsDays: 30,
+  leadTimeDays: 5,
+  currencyCode: 'USD',
+  isActive: true,
+});
+procurementModel.addSupplier({
+  id: 'supp_samsung',
+  name: 'Samsung Electronics Logistics Europe',
+  code: 'SUPP-SAMSUNG',
+  contactEmail: 'b2b@samsung.de',
+  paymentTermsDays: 14,
+  leadTimeDays: 7,
+  currencyCode: 'EUR',
+  isActive: true,
+});
+procurementModel.addPurchaseOrder({
+  id: 'po_089',
+  poNumber: 'PO-2026-089',
+  supplierId: 'supp_intel',
+  supplierName: 'Intel Corporation UK Ltd',
+  status: 'PARTIALLY_RECEIVED',
+  createdAtIso: '2026-10-10T09:00:00Z',
+  currencyCode: 'USD',
+  lines: [
+    {
+      id: 'pol_1',
+      sku: 'LAPTOP-PRO-16',
+      productName: 'Apex Pro 16 Laptop Workstation',
+      orderedQty: 40,
+      receivedQty: 20,
+      invoicedQty: 20,
+      unitCostMinor: 120000n,
+      invoicedUnitCostMinor: 120000n,
+    },
+  ],
+});
+
+const financeModel = new FinanceViewModel('dark');
+[
+  { code: '1010', name: 'Cash at Bank', type: 'ASSET', normalBalance: 'DEBIT', currentBalanceMinor: 45000000n },
+  { code: '1200', name: 'Accounts Receivable', type: 'ASSET', normalBalance: 'DEBIT', currentBalanceMinor: 1440000n },
+  { code: '1400', name: 'Inventory Asset', type: 'ASSET', normalBalance: 'DEBIT', currentBalanceMinor: 124000000n },
+  { code: '2010', name: 'Accounts Payable', type: 'LIABILITY', normalBalance: 'CREDIT', currentBalanceMinor: 4800000n },
+  { code: '4010', name: 'Retail & Wholesale Revenue', type: 'REVENUE', normalBalance: 'CREDIT', currentBalanceMinor: 38200000n },
+  { code: '5010', name: 'Cost of Goods Sold (COGS)', type: 'EXPENSE', normalBalance: 'DEBIT', currentBalanceMinor: 23493000n },
+].forEach(acc => financeModel.addAccount(acc));
+
+financeModel.addJournalEntry({
+  id: 'jrnl_001',
+  entryNumber: 'JRNL-2026-10-001',
+  reference: 'SO-2026-001',
+  description: 'B2B Wholesale Order SO-2026-001 settlement',
+  dateIso: '2026-10-14T10:00:00Z',
+  status: 'POSTED',
+  currencyCode: 'USD',
+  lines: [
+    { accountCode: '1010', accountName: 'Cash at Bank', debitMinor: 249900n, creditMinor: 0n },
+    { accountCode: '4010', accountName: 'Retail Revenue', debitMinor: 0n, creditMinor: 249900n },
+  ],
+});
+
+const registersModel = new RegistersViewModel('dark');
+registersModel.addSession({
+  id: 'reg_lon_01',
+  registerCode: 'REG-LON-01',
+  registerName: 'Counter Till 01 (Flagship)',
+  branchId: 'brn_london_flagship',
+  branchName: 'London Flagship',
+  cashierId: 'usr_emma',
+  cashierName: 'Emma Watson',
+  status: 'OPEN',
+  openingFloatMinor: 25000n,
+  cashSalesMinor: 345000n,
+  currentCashExpectedMinor: 370000n,
+  salesCount: 14,
+  cashInMinor: 345000n,
+  cashOutMinor: 0n,
+  expectedClosingCashMinor: 370000n,
+  openedAtIso: '2026-10-14T08:00:00Z',
+});
+registersModel.addSession({
+  id: 'reg_lon_02',
+  registerCode: 'REG-LON-02',
+  registerName: 'Counter Till 02 (Flagship)',
+  branchId: 'brn_london_flagship',
+  branchName: 'London Flagship',
+  cashierId: 'usr_liam',
+  cashierName: 'Liam Vance',
+  status: 'RECONCILED',
+  openingFloatMinor: 25000n,
+  cashSalesMinor: 289000n,
+  currentCashExpectedMinor: 314000n,
+  actualClosingCashMinor: 314000n,
+  cashInMinor: 289000n,
+  cashOutMinor: 0n,
+  expectedClosingCashMinor: 314000n,
+  varianceMinor: 0n,
+  salesCount: 11,
+  openedAtIso: '2026-10-14T08:00:00Z',
+  closedAtIso: '2026-10-14T16:00:00Z',
+});
+
+const rbacModel = new RbacViewModel('dark');
+rbacModel.addStaffMember({
+  id: 'usr_victoria',
+  fullName: 'Victoria Sterling',
+  email: 'victoria@apex.com',
+  roleCode: 'BUSINESS_OWNER',
+  roleName: 'Business Owner',
+  scope: { tenantId: 'ten_apex_global' },
+  status: 'ACTIVE',
+  joinedDateIso: '2026-01-01T00:00:00Z',
+});
+rbacModel.addStaffMember({
+  id: 'usr_david',
+  fullName: "David O'Connor",
+  email: 'david@apex.com',
+  roleCode: 'BRANCH_MANAGER',
+  roleName: 'Store Manager',
+  scope: { tenantId: 'ten_apex_global', branchId: 'brn_london_flagship', branchName: 'London Flagship' },
+  status: 'ACTIVE',
+  joinedDateIso: '2026-02-15T00:00:00Z',
+});
+rbacModel.addStaffMember({
+  id: 'usr_emma',
+  fullName: 'Emma Watson',
+  email: 'emma@apex.com',
+  roleCode: 'CASHIER',
+  roleName: 'Head Cashier',
+  scope: { tenantId: 'ten_apex_global', branchId: 'brn_london_flagship', branchName: 'London Flagship' },
+  status: 'ACTIVE',
+  joinedDateIso: '2026-03-01T00:00:00Z',
+});
+rbacModel.addStaffMember({
+  id: 'usr_samuel',
+  fullName: 'Samuel Adebayo',
+  email: 'samuel@apex.com',
+  roleCode: 'WAREHOUSE_PICKER',
+  roleName: 'Warehouse Operator',
+  scope: { tenantId: 'ten_apex_global', branchId: 'brn_london_flagship', branchName: 'London DC' },
+  status: 'ACTIVE',
+  joinedDateIso: '2026-03-10T00:00:00Z',
+});
+
+const organizationModel = new OrganizationViewModel('dark');
+organizationModel.addCompany({
+  id: 'cmp_apex_uk',
+  name: 'Apex Retail UK Ltd',
+  legalName: 'Apex Retail UK Limited',
+  currency: 'GBP',
+  timezone: 'Europe/London',
+  isHolding: true,
+  branchesCount: 2,
+});
+organizationModel.addCompany({
+  id: 'cmp_apex_us',
+  name: 'Apex US Distribution Inc',
+  legalName: 'Apex US Distribution Incorporated',
+  currency: 'USD',
+  timezone: 'America/New_York',
+  isHolding: false,
+  branchesCount: 1,
+});
+organizationModel.addBranch({
+  id: 'brn_london_flagship',
+  companyId: 'cmp_apex_uk',
+  name: 'London Flagship Store',
+  code: 'LON-FLG',
+  type: 'STORE',
+  isActive: true,
+});
+organizationModel.addBranch({
+  id: 'brn_birmingham_dc',
+  companyId: 'cmp_apex_uk',
+  name: 'Birmingham Logistics Hub',
+  code: 'BIR-DC',
+  type: 'WAREHOUSE',
+  isActive: true,
+});
+organizationModel.addBranch({
+  id: 'brn_ny_hub',
+  companyId: 'cmp_apex_us',
+  name: 'New York Distribution Center',
+  code: 'NYC-DC',
+  type: 'WAREHOUSE',
+  isActive: true,
+});
+
 // 2. Render View HTML Blocks
 const founderHtml = founderView.renderPlatformFounderPortalHtml();
 
@@ -40,13 +274,31 @@ const masterBusinessSidebarHtml = renderMasterSidebarHtml({
   onItemClickFnName: 'window.stokrovaApp.showView',
 });
 
-const allBusinessViewsHtml = renderAllWorkspaceViewsHtml({
+const baseBusinessViewsHtml = renderAllWorkspaceViewsHtml({
   theme: 'dark',
   tenantName: 'Apex Global Retail & Logistics Ltd',
   branchName: 'London Flagship Store',
   currencyCode: 'USD',
   onActionToastFnName: 'window.stokrovaApp.showToast',
 });
+
+function replaceViewBlock(html, viewId, innerHtml) {
+  const pattern = new RegExp(
+    `<!-- =+ -->\\s*<!-- \\d+\\.[^>]* -->\\s*<!-- =+ -->\\s*<div id="ws-view-${viewId}" class="ws-view-content"[^>]*>[\\s\\S]*?(?=(?:<!-- =+ -->|\\s*</main>|$))`,
+    'g'
+  );
+  const replacement = `<!-- ========================================== -->\n    <div id="ws-view-${viewId}" class="ws-view-content" style="${viewId === 'dashboard' ? 'display: block;' : 'display: none;'}">\n      ${innerHtml}\n    </div>\n\n    `;
+  return html.replace(pattern, replacement);
+}
+
+let allBusinessViewsHtml = baseBusinessViewsHtml;
+allBusinessViewsHtml = replaceViewBlock(allBusinessViewsHtml, 'dashboard', dashboardModel.renderDashboardHtml());
+allBusinessViewsHtml = replaceViewBlock(allBusinessViewsHtml, 'suppliers', procurementModel.renderSuppliersTableHtml());
+allBusinessViewsHtml = replaceViewBlock(allBusinessViewsHtml, 'receiving', procurementModel.renderThreeWayMatchAuditHtml());
+allBusinessViewsHtml = replaceViewBlock(allBusinessViewsHtml, 'registers', registersModel.renderSessionsTableHtml('USD'));
+allBusinessViewsHtml = replaceViewBlock(allBusinessViewsHtml, 'gl', `${financeModel.renderJournalLedgerHtml()}\n<div style="margin-top: 24px;">\n${financeModel.renderChartOfAccountsHtml()}\n</div>`);
+allBusinessViewsHtml = replaceViewBlock(allBusinessViewsHtml, 'org', organizationModel.renderOrganizationHtml());
+allBusinessViewsHtml = replaceViewBlock(allBusinessViewsHtml, 'rbac', rbacModel.renderStaffManagementHtml());
 
 // 3. Assemble Complete Interactive Application HTML
 const completeAppHtml = `

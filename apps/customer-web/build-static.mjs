@@ -12,6 +12,8 @@ const landingView = new LandingViewModel('dark');
 const headerHtml = landingView.renderHeaderHtml();
 const heroHtml = landingView.renderHeroHtml();
 const featuresHtml = landingView.renderFeaturesGridHtml();
+const architectureHtml = landingView.renderArchitectureSectionHtml();
+const posHtml = landingView.renderPosSectionHtml();
 const pricingHtml = landingView.renderPricingSectionHtml();
 const registerModalHtml = landingView.renderRegisterModalHtml();
 const loginModalHtml = landingView.renderLoginModalHtml();
@@ -173,6 +175,8 @@ const completeWebsiteHtml = `
     <main>
       ${heroHtml}
       ${featuresHtml}
+      ${architectureHtml}
+      ${posHtml}
       ${pricingHtml}
     </main>
     ${footerHtml}
