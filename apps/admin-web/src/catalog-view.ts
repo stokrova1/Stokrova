@@ -46,7 +46,7 @@ export class CatalogViewModel {
   }
 
   public addProduct(item: ProductVariantItem): void {
-    this.products.set(item.sku, { ...item });
+    this.products.set(item.sku, { ...item, barcodeAliases: item.barcodeAliases ?? [] });
   }
 
   public getProductBySku(sku: string): ProductVariantItem | undefined {
@@ -56,7 +56,7 @@ export class CatalogViewModel {
 
   public getProductByBarcode(barcode: string): ProductVariantItem | undefined {
     for (const item of this.products.values()) {
-      if (item.barcode === barcode || item.barcodeAliases.includes(barcode)) {
+      if (item.barcode === barcode || (item.barcodeAliases ?? []).includes(barcode)) {
         return { ...item };
       }
     }
@@ -86,7 +86,7 @@ export class CatalogViewModel {
 
       const matchSku = p.sku.toLowerCase().includes(q);
       const matchName = p.name.toLowerCase().includes(q);
-      const matchBarcode = p.barcode.toLowerCase().includes(q) || p.barcodeAliases.some((a) => a.toLowerCase().includes(q));
+      const matchBarcode = p.barcode.toLowerCase().includes(q) || (p.barcodeAliases ?? []).some((a) => a.toLowerCase().includes(q));
       const matchAttr = Object.values(p.attributes).some((val) => val.toLowerCase().includes(q));
 
       if (matchSku || matchName || matchBarcode || matchAttr) {
@@ -110,6 +110,9 @@ export class CatalogViewModel {
     const item = this.products.get(sku);
     if (!item) {
       throw new Error(`Product SKU ${sku} not found`);
+    }
+    if (!item.barcodeAliases) {
+      item.barcodeAliases = [];
     }
     if (!item.barcodeAliases.includes(alias)) {
       item.barcodeAliases.push(alias);
@@ -161,7 +164,7 @@ export class CatalogViewModel {
         const attrBadges = Object.entries(item.attributes)
           .map(([k, v]) => `<span class="attr-pill" style="border: 1px solid ${tokens.borderStrong}; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin-right: 4px;">${k}: ${v}</span>`)
           .join('');
-        const aliases = item.barcodeAliases.length > 0 ? `<div style="font-size: 0.7rem; color: ${tokens.textMuted};">Aliases: ${item.barcodeAliases.join(', ')}</div>` : '';
+        const aliases = (item.barcodeAliases?.length ?? 0) > 0 ? `<div style="font-size: 0.7rem; color: ${tokens.textMuted};">Aliases: ${item.barcodeAliases.join(', ')}</div>` : '';
 
         return `
           <tr style="border-bottom: 1px solid ${tokens.border};">

@@ -263,6 +263,25 @@ importers:
         specifier: '>=5.0.3'
         version: 5.0.3(@types/node@24.19.1)(vite@7.3.6(@types/node@24.19.1)(terser@5.51.2)(tsx@4.23.15))
 
+  apps/customer-web:
+    dependencies:
+      '@stokrova/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@stokrova/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
+      '@stokrova/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+    devDependencies:
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+      vitest:
+        specifier: '>=5.0.3'
+        version: 5.0.3(@types/node@24.19.1)(vite@7.3.6(@types/node@24.19.1)(terser@5.51.2)(tsx@4.23.15))
+
   apps/mobile:
     dependencies:
       '@stokrova/contracts':
