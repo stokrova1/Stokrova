@@ -9,6 +9,9 @@
     "typecheck": "tsc --noEmit",
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
+    "migrate:live": "node run-migrate.cjs",
+    "test:connectivity": "node test-connectivity.cjs",
+    "test:rls": "node test-permissive-rls.cjs",
     "clean": "rm -rf dist"
   },
   "dependencies": {

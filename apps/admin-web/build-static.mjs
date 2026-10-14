@@ -14,13 +14,16 @@ import {
 import {
   renderMasterSidebarHtml,
   renderAllWorkspaceViewsHtml,
+  generateCssVariableString,
+  themeTokens,
+  brandColors,
 } from '@stokrova/ui';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 1. Initialize View Models
-const founderView = new PlatformFounderView('dark');
+// 1. Initialize View Models in Light Mode (Default)
+const founderView = new PlatformFounderView('light');
 
 const defaultContext = {
   tenantId: 'ten_apex_global',
@@ -29,11 +32,11 @@ const defaultContext = {
   companyName: 'Apex Retail UK Ltd',
   branchId: 'brn_london_flagship',
   branchName: 'London Flagship Store',
-  userRoleCodes: ['PLATFORM_FOUNDER', 'SUPER_ADMIN'],
+  userRoleCodes: ['BUSINESS_OWNER', 'SUPER_ADMIN'],
   userPermissions: ['*'], // Super user
 };
 
-const shell = new AdminWebShell({ context: defaultContext, theme: 'dark' });
+const shell = new AdminWebShell({ context: defaultContext, theme: 'light' });
 
 const dashboardModel = new DashboardViewModel({
   grossMerchandiseValueMinor: 485000000n, // $4,850,000.00
@@ -45,7 +48,7 @@ const dashboardModel = new DashboardViewModel({
   cashierVarianceAlertsMinor: 0n,
   activeWorkflowsRunning: 3,
   currencyCode: 'USD',
-}, 'dark');
+}, 'light');
 
 dashboardModel.addAlert({
   id: 'alt_01',
@@ -69,7 +72,7 @@ dashboardModel.addAlert({
   timestampIso: '2026-10-14T12:00:00Z',
 });
 
-const procurementModel = new ProcurementViewModel('dark');
+const procurementModel = new ProcurementViewModel('light');
 procurementModel.addSupplier({
   id: 'supp_intel',
   name: 'Intel Corporation UK Ltd',
@@ -112,7 +115,7 @@ procurementModel.addPurchaseOrder({
   ],
 });
 
-const financeModel = new FinanceViewModel('dark');
+const financeModel = new FinanceViewModel('light');
 [
   { code: '1010', name: 'Cash at Bank', type: 'ASSET', normalBalance: 'DEBIT', currentBalanceMinor: 45000000n },
   { code: '1200', name: 'Accounts Receivable', type: 'ASSET', normalBalance: 'DEBIT', currentBalanceMinor: 1440000n },
@@ -136,7 +139,7 @@ financeModel.addJournalEntry({
   ],
 });
 
-const registersModel = new RegistersViewModel('dark');
+const registersModel = new RegistersViewModel('light');
 registersModel.addSession({
   id: 'reg_lon_01',
   registerCode: 'REG-LON-01',
@@ -177,7 +180,7 @@ registersModel.addSession({
   closedAtIso: '2026-10-14T16:00:00Z',
 });
 
-const rbacModel = new RbacViewModel('dark');
+const rbacModel = new RbacViewModel('light');
 rbacModel.addStaffMember({
   id: 'usr_victoria',
   fullName: 'Victoria Sterling',
@@ -219,7 +222,7 @@ rbacModel.addStaffMember({
   joinedDateIso: '2026-03-10T00:00:00Z',
 });
 
-const organizationModel = new OrganizationViewModel('dark');
+const organizationModel = new OrganizationViewModel('light');
 organizationModel.addCompany({
   id: 'cmp_apex_uk',
   name: 'Apex Retail UK Ltd',
@@ -270,12 +273,12 @@ const masterBusinessSidebarHtml = renderMasterSidebarHtml({
   activeViewId: 'dashboard',
   tenantName: 'Apex Global Retail & Logistics Ltd',
   branchName: 'London Flagship Store',
-  theme: 'dark',
+  theme: 'light',
   onItemClickFnName: 'window.stokrovaApp.showView',
 });
 
 const baseBusinessViewsHtml = renderAllWorkspaceViewsHtml({
-  theme: 'dark',
+  theme: 'light',
   tenantName: 'Apex Global Retail & Logistics Ltd',
   branchName: 'London Flagship Store',
   currencyCode: 'USD',
@@ -303,7 +306,7 @@ allBusinessViewsHtml = replaceViewBlock(allBusinessViewsHtml, 'rbac', rbacModel.
 // 3. Assemble Complete Interactive Application HTML
 const completeAppHtml = `
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -313,22 +316,29 @@ const completeAppHtml = `
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+${generateCssVariableString('light')}
+${generateCssVariableString('dark')}
+
     :root {
-      --bg: #0D1117;
-      --surface: #161B22;
-      --card: #1F242C;
-      --border: #30363D;
-      --border-strong: #484F58;
-      --primary: #BD9652;
-      --primary-fg: #000000;
-      --text-primary: #F0F6FC;
-      --text-secondary: #8B949E;
-      --text-muted: #6E7681;
-      --success: #3FB950;
-      --error: #F85149;
-      --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-      --stokrova-font-mono: 'JetBrains Mono', monospace;
+      --bg: var(--stokrova-bg);
+      --surface: var(--stokrova-surface);
+      --card: var(--stokrova-card);
+      --card-hover: var(--stokrova-card-hover);
+      --border: var(--stokrova-border);
+      --border-strong: var(--stokrova-border-strong);
+      --borderStrong: var(--stokrova-border-strong);
+      --primary: var(--stokrova-primary);
+      --primary-hover: var(--stokrova-primary-hover);
+      --primary-fg: var(--stokrova-primary-fg);
+      --text-primary: var(--stokrova-text-primary);
+      --text-secondary: var(--stokrova-text-secondary);
+      --text-muted: var(--stokrova-text-muted);
+      --success: var(--stokrova-status-success-text);
+      --error: var(--stokrova-status-error-text);
+      --font-sans: var(--stokrova-font-sans);
+      --stokrova-font-mono: var(--stokrova-font-mono);
     }
+
     * { box-sizing: border-box; }
     body {
       margin: 0; padding: 0;
@@ -340,38 +350,42 @@ const completeAppHtml = `
       flex-direction: column;
       overflow: hidden;
     }
+
     /* Top Mode & Persona Switcher Bar */
     .top-mode-bar {
-      background: #090D12;
+      background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: 8px 20px;
+      padding: 6px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       font-size: 0.8125rem;
+      min-height: 40px;
+      z-index: 999;
     }
     .mode-pills { display: flex; gap: 8px; align-items: center; }
     .mode-pill {
-      padding: 5px 14px;
+      padding: 4px 14px;
       border-radius: 9999px;
       cursor: pointer;
       font-weight: 600;
+      font-size: 0.75rem;
       transition: all 0.15s ease;
       border: 1px solid transparent;
     }
     .mode-pill.active {
       background: var(--primary);
       color: var(--primary-fg);
-      box-shadow: 0 0 10px rgba(189,150,82,0.3);
+      box-shadow: 0 0 10px rgba(189,150,82,0.25);
     }
     .mode-pill:not(.active) {
-      background: var(--surface);
+      background: var(--card);
       color: var(--text-secondary);
       border-color: var(--border);
     }
     .mode-pill:hover:not(.active) {
       color: var(--text-primary);
-      border-color: var(--text-muted);
+      border-color: var(--border-strong);
     }
     .persona-selector {
       display: flex;
@@ -379,15 +393,16 @@ const completeAppHtml = `
       gap: 8px;
     }
     .persona-select {
-      background: var(--surface);
-      border: 1px solid var(--borderStrong);
+      background: var(--card);
+      border: 1px solid var(--border-strong);
       color: var(--text-primary);
-      padding: 5px 12px;
+      padding: 4px 10px;
       border-radius: 6px;
       font-size: 0.75rem;
       font-weight: 600;
       cursor: pointer;
     }
+
     /* App Layout */
     .app-layout {
       display: flex;
@@ -395,7 +410,8 @@ const completeAppHtml = `
       overflow: hidden;
     }
     .sidebar {
-      width: 275px;
+      width: 272px;
+      min-width: 272px;
       background: var(--surface);
       border-right: 1px solid var(--border);
       display: flex;
@@ -403,7 +419,7 @@ const completeAppHtml = `
       overflow-y: auto;
     }
     .sidebar-section-title {
-      padding: 16px 16px 6px 16px;
+      padding: 14px 16px 6px 16px;
       font-size: 0.6875rem;
       font-weight: 700;
       color: var(--text-muted);
@@ -414,7 +430,7 @@ const completeAppHtml = `
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 16px;
+      padding: 8px 14px;
       margin: 2px 8px;
       border-radius: 6px;
       color: var(--text-secondary);
@@ -425,11 +441,11 @@ const completeAppHtml = `
       transition: all 0.12s ease;
     }
     .nav-item:hover {
-      background: rgba(255,255,255,0.04);
+      background: var(--card-hover);
       color: var(--text-primary);
     }
     .nav-item.active {
-      background: rgba(189,150,82,0.15);
+      background: rgba(189,150,82,0.12);
       color: var(--primary);
       font-weight: 600;
       border-left: 3px solid var(--primary);
@@ -443,30 +459,56 @@ const completeAppHtml = `
     .view-panel { display: none; }
     .view-panel.active { display: block; }
 
+    /* Palette item hover */
+    .palette-item:hover {
+      background: var(--surface) !important;
+    }
+
+    /* Modal Animation */
+    @keyframes modalIn {
+      from { transform: scale(0.97) translateY(-8px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     /* Toast Notification */
     #toast-notification {
       position: fixed;
       bottom: 24px;
       right: 24px;
-      background: #1F242C;
+      background: var(--card);
       border: 1px solid var(--primary);
-      color: #F0F6FC;
-      padding: 14px 20px;
+      color: var(--text-primary);
+      padding: 12px 18px;
       border-radius: 8px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       display: none;
       align-items: center;
       gap: 10px;
       font-size: 0.875rem;
+      font-weight: 500;
       z-index: 10000;
       animation: slideIn 0.2s ease-out;
     }
     @keyframes slideIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
+    /* Accessibility: Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
     /* Custom Scrollbars */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
   </style>
 </head>
 <body>
@@ -480,11 +522,11 @@ const completeAppHtml = `
         <span style="font-size: 0.65rem; background: var(--surface); color: var(--text-muted); border: 1px solid var(--border); padding: 1px 6px; border-radius: 4px;">v1.0.0</span>
       </div>
       <div class="mode-pills">
-        <div id="pill-founder" class="mode-pill active" onclick="window.stokrovaApp.switchMode('FOUNDER')">
-          👑 Platform Founder Console
+        <div id="pill-business" class="mode-pill active" onclick="window.stokrovaApp.switchMode('BUSINESS')">
+          🏢 Business Operations Console (31 Pages / 9 Domains)
         </div>
-        <div id="pill-business" class="mode-pill" onclick="window.stokrovaApp.switchMode('BUSINESS')">
-          🏢 Business Operations Console (28 Modules)
+        <div id="pill-founder" class="mode-pill" onclick="window.stokrovaApp.switchMode('FOUNDER')">
+          👑 Platform Founder Console
         </div>
       </div>
     </div>
@@ -492,8 +534,8 @@ const completeAppHtml = `
     <div class="persona-selector">
       <span style="color: var(--text-muted); font-size: 0.75rem;">Simulated Active Persona:</span>
       <select id="persona-select" class="persona-select" onchange="window.stokrovaApp.handlePersonaChange(this.value)">
+        <option value="OWNER" selected>🏢 Business Owner (Victoria Sterling - Full Access)</option>
         <option value="FOUNDER">👑 Platform Founder (Global Super-Admin)</option>
-        <option value="OWNER">🏢 Business Owner (Victoria Sterling - Full Access)</option>
         <option value="MANAGER">🏪 Store Manager (David O'Connor - Operations)</option>
         <option value="CASHIER">💳 Head Cashier (Emma Watson - POS Terminal)</option>
         <option value="PICKER">📦 Warehouse Operator (Samuel Adebayo - Wave Picking)</option>
@@ -501,12 +543,17 @@ const completeAppHtml = `
     </div>
   </div>
 
+  <!-- Business Executive Shell Header (Rendered for Business Operations) -->
+  <div id="business-header" style="display: block;">
+    ${shell.renderHeaderHtml()}
+  </div>
+
   <!-- Main App Shell -->
   <div class="app-layout">
     <!-- Sidebar -->
     <aside class="sidebar">
-      <!-- 1. Founder Menu -->
-      <div id="sidebar-founder-menu">
+      <!-- 1. Founder Menu (Hidden by default) -->
+      <div id="sidebar-founder-menu" style="display: none;">
         <div class="sidebar-section-title">Platform Super-Admin</div>
         <div class="nav-item active" onclick="window.stokrovaApp.showView('founder')">
           <span>🏛️ Tenant Organizations</span>
@@ -523,28 +570,55 @@ const completeAppHtml = `
         </div>
       </div>
 
-      <!-- 2. Master Business Navigation Menu (All 8 Sections & 28 Modules) -->
-      <div id="sidebar-business-menu" style="display: none; height: 100%;">
+      <!-- 2. Master Business Navigation Menu (9 Canonical Domains & 31 Pages) -->
+      <div id="sidebar-business-menu" style="display: block; height: 100%;">
         ${masterBusinessSidebarHtml}
       </div>
 
       <div style="margin-top: auto; padding: 16px; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-muted);">
-        <div>Active Tenant: <strong id="sidebar-tenant-name" style="color: var(--text-primary);">Platform Root</strong></div>
+        <div>Active Tenant: <strong id="sidebar-tenant-name" style="color: var(--text-primary);">Apex Global Ltd</strong></div>
         <div style="margin-top: 2px;">Multi-Tenant Rule 21 Active</div>
       </div>
     </aside>
 
     <!-- Content Viewport -->
     <main class="content-viewport">
-      <!-- 1. Founder Portal View -->
-      <div id="view-founder" class="view-panel active">
+      <!-- 1. Founder Portal View (Hidden by default) -->
+      <div id="view-founder" class="view-panel" style="display: none;">
         ${founderHtml}
       </div>
 
-      <!-- 2. Business Operations Views (All 28 Modules + DAG Workflows) -->
+      <!-- 2. Business Operations Views (All Canonical Domains + DAG Workflows) -->
       ${allBusinessViewsHtml}
     </main>
   </div>
+
+  <!-- Command Palette Modal (Cmd+K / Ctrl+K) -->
+  <div id="command-palette-backdrop" class="modal-backdrop" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.55); backdrop-filter: blur(4px); z-index: 10000; align-items: flex-start; justify-content: center; padding-top: 12vh;" onclick="if(event.target === this) window.stokrovaApp.closeQuickSearch()">
+    <div class="command-palette-modal" style="background: var(--card); border: 1px solid var(--border-strong); border-radius: 12px; width: 560px; max-width: 90%; box-shadow: 0 20px 50px rgba(0,0,0,0.25); overflow: hidden; animation: modalIn 0.15s ease-out;">
+      <div style="display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--border);">
+        <span style="font-size: 1.1rem; color: var(--text-muted);">🔍</span>
+        <input id="palette-search-input" type="text" placeholder="Type a page, command, or module (e.g. products, ledger, pos, orders)..." oninput="window.stokrovaApp.filterCommandPalette(this.value)" onkeydown="window.stokrovaApp.handlePaletteKeydown(event)" style="flex: 1; background: transparent; border: none; outline: none; font-size: 0.9375rem; color: var(--text-primary); font-family: var(--font-sans);" autofocus />
+        <kbd style="border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-muted); padding: 2px 6px; border-radius: 4px; font-size: 0.6875rem; font-family: var(--stokrova-font-mono);">ESC</kbd>
+      </div>
+      <div id="palette-results-list" style="max-height: 340px; overflow-y: auto; padding: 8px;">
+        <!-- Populated dynamically -->
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-top: 1px solid var(--border); background: var(--surface); font-size: 0.75rem; color: var(--text-muted);">
+        <div style="display: flex; gap: 12px;">
+          <span><kbd style="border: 1px solid var(--border-strong); padding: 1px 4px; border-radius: 3px;">↑</kbd> <kbd style="border: 1px solid var(--border-strong); padding: 1px 4px; border-radius: 3px;">↓</kbd> Navigate</span>
+          <span><kbd style="border: 1px solid var(--border-strong); padding: 1px 4px; border-radius: 3px;">↵</kbd> Select</span>
+        </div>
+        <span>STOKROVA Quick Actions</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Native Desktop App Download Modal -->
+  ${shell.renderDesktopDownloadModalHtml()}
+
+  <!-- Mobile Scanner QR Pairing Modal -->
+  ${shell.renderMobilePairingModalHtml()}
 
   <!-- Toast Notification -->
   <div id="toast-notification">
@@ -555,10 +629,45 @@ const completeAppHtml = `
   <!-- Interactive Client Controller Script -->
   <script>
     window.stokrovaApp = {
-      currentMode: 'FOUNDER',
-      currentView: 'founder',
+      currentMode: 'BUSINESS',
+      currentView: 'dashboard',
       cart: [],
       todayRevenue: 382000.00,
+
+      paletteCommands: [
+        { id: 'dashboard', title: 'Executive Operations Command Center', group: 'Overview', icon: '📊', shortcut: 'D' },
+        { id: 'velocity', title: 'ABC Velocity & Dead Stock Analysis', group: 'Overview', icon: '📈' },
+        { id: 'pos', title: 'POS Register Terminal (Cashier Till)', group: 'Sell', icon: '💳', shortcut: 'P' },
+        { id: 'orders', title: 'Sales Orders & Fulfillment', group: 'Sell', icon: '🛒', shortcut: 'O' },
+        { id: 'quotations', title: 'Quotations & B2B Proformas', group: 'Sell', icon: '📝' },
+        { id: 'invoices', title: 'Fiscal Invoices & AR Receipts', group: 'Sell', icon: '🧾' },
+        { id: 'crm', title: 'Customer Accounts & Credit Limits', group: 'Sell', icon: '👥' },
+        { id: 'pricing', title: 'Tiered Price Lists & Rules', group: 'Sell', icon: '🏷️' },
+        { id: 'promotions', title: 'Campaigns & Basket Promotions', group: 'Sell', icon: '🎁' },
+        { id: 'loyalty', title: 'Loyalty Tiers & Reward Points', group: 'Sell', icon: '⭐' },
+        { id: 'catalog', title: 'Products, Variants & Matrix Grid', group: 'Stock', icon: '📦' },
+        { id: 'ledger', title: 'Inventory Valuation Ledger', group: 'Stock', icon: '📑' },
+        { id: 'inventory', title: 'Multi-Location Stock Availability', group: 'Stock', icon: '🏢', shortcut: 'S' },
+        { id: 'suppliers', title: 'Vendor Directory & Scorecards', group: 'Buy', icon: '🏭' },
+        { id: 'receiving', title: 'Purchase Orders & 3-Way Match', group: 'Buy', icon: '📥' },
+        { id: 'picking', title: 'Wave, Batch & Zone Picking', group: 'Move', icon: '⚡' },
+        { id: 'bol', title: 'Containerization & Bills of Lading', group: 'Move', icon: '🚢' },
+        { id: 'fleet', title: 'Fleet Tracking & Proof of Delivery', group: 'Move', icon: '🚚' },
+        { id: 'bom', title: 'Bills of Materials (BOM)', group: 'Make', icon: '⚙️' },
+        { id: 'production', title: 'Production Work Orders & Assembly', group: 'Make', icon: '🏭' },
+        { id: 'registers', title: 'Till Sessions, Floats & Cash Count', group: 'Money', icon: '💰' },
+        { id: 'gl', title: 'Double-Entry General Ledger & Accounts', group: 'Money', icon: '⚖️' },
+        { id: 'compliance', title: 'Fiscal E-Invoicing & VAT/Tax Audit', group: 'Money', icon: '🛡️' },
+        { id: 'consolidation', title: 'Multi-Entity Group Consolidation', group: 'Money', icon: '🌐' },
+        { id: 'treasury', title: 'Treasury & Bank Feed Reconciliation', group: 'Money', icon: '🏦' },
+        { id: 'forensics', title: 'Audit Forensics & Immutable Trail', group: 'Control', icon: '🔍' },
+        { id: 'workflows', title: 'DAG Workflows Studio & Rules Engine', group: 'Control', icon: '🔀' },
+        { id: 'org', title: 'Organization Topology & Branch Tree', group: 'Settings', icon: '🏛️' },
+        { id: 'rebranding', title: 'Corporate Identity & White-Label Theme', group: 'Settings', icon: '🎨' },
+        { id: 'rbac', title: 'Staff Roster & Granular Permissions', group: 'Settings', icon: '🔐' },
+        { id: 'peripherals', title: 'Hardware Peripherals & ESC/POS Devices', group: 'Settings', icon: '🖨️' },
+        { id: 'webhooks', title: 'Webhooks, EDI & Event Subscriptions', group: 'Settings', icon: '🔌' },
+      ],
 
       switchMode(mode) {
         this.currentMode = mode;
@@ -567,20 +676,23 @@ const completeAppHtml = `
         const sidebarFounder = document.getElementById('sidebar-founder-menu');
         const sidebarBusiness = document.getElementById('sidebar-business-menu');
         const sidebarTenantName = document.getElementById('sidebar-tenant-name');
+        const businessHeader = document.getElementById('business-header');
 
         if (mode === 'FOUNDER') {
-          pillFounder.classList.add('active');
-          pillBusiness.classList.remove('active');
-          sidebarFounder.style.display = 'block';
-          sidebarBusiness.style.display = 'none';
-          sidebarTenantName.textContent = 'Platform Root';
+          if (pillFounder) pillFounder.classList.add('active');
+          if (pillBusiness) pillBusiness.classList.remove('active');
+          if (sidebarFounder) sidebarFounder.style.display = 'block';
+          if (sidebarBusiness) sidebarBusiness.style.display = 'none';
+          if (businessHeader) businessHeader.style.display = 'none';
+          if (sidebarTenantName) sidebarTenantName.textContent = 'Platform Root';
           this.showView('founder');
         } else {
-          pillFounder.classList.remove('active');
-          pillBusiness.classList.add('active');
-          sidebarFounder.style.display = 'none';
-          sidebarBusiness.style.display = 'block';
-          sidebarTenantName.textContent = 'Apex Global Ltd';
+          if (pillFounder) pillFounder.classList.remove('active');
+          if (pillBusiness) pillBusiness.classList.add('active');
+          if (sidebarFounder) sidebarFounder.style.display = 'none';
+          if (sidebarBusiness) sidebarBusiness.style.display = 'block';
+          if (businessHeader) businessHeader.style.display = 'block';
+          if (sidebarTenantName) sidebarTenantName.textContent = 'Apex Global Ltd';
           this.showView('dashboard');
         }
       },
@@ -609,8 +721,9 @@ const completeAppHtml = `
         if (activeNav) {
           activeNav.classList.add('active');
           if (activeNav.classList.contains('workspace-nav-item')) {
-            activeNav.style.background = 'rgba(189,150,82,0.15)';
-            activeNav.style.color = '#E0CB9F';
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            activeNav.style.background = isDark ? 'rgba(189,150,82,0.15)' : '#FDFBF7';
+            activeNav.style.color = isDark ? '#E0CB9F' : '#85642D';
             activeNav.style.fontWeight = '600';
             activeNav.style.borderLeft = '3px solid #BD9652';
           }
@@ -618,6 +731,137 @@ const completeAppHtml = `
 
         const viewport = document.querySelector('.content-viewport');
         if (viewport) viewport.scrollTop = 0;
+      },
+
+      toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', nextTheme);
+        try {
+          localStorage.setItem('stokrova_theme', nextTheme);
+        } catch (_) {}
+        const themeBtn = document.querySelector('.theme-toggle-btn span');
+        if (themeBtn) {
+          themeBtn.textContent = nextTheme === 'dark' ? '☀️' : '🌙';
+        }
+        // Refresh active nav item colors for theme
+        const activeNav = document.querySelector('.workspace-nav-item.active');
+        if (activeNav) {
+          activeNav.style.background = nextTheme === 'dark' ? 'rgba(189,150,82,0.15)' : '#FDFBF7';
+          activeNav.style.color = nextTheme === 'dark' ? '#E0CB9F' : '#85642D';
+        }
+        this.showToast('Theme switched to ' + (nextTheme === 'dark' ? 'Dark' : 'Light') + ' mode');
+      },
+
+      toggleBranchDropdown(e) {
+        if (e && e.stopPropagation) e.stopPropagation();
+        const dd = document.getElementById('branch-switcher-dropdown');
+        if (dd) {
+          dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+        }
+      },
+
+      selectBranch(cmpId, cmpName, brnId, brnName) {
+        const pill = document.querySelector('.workspace-pill');
+        if (pill) {
+          pill.textContent = cmpName + ' / ' + brnName;
+        }
+        const compTitle = document.querySelector('.company-brand-name');
+        if (compTitle) {
+          compTitle.textContent = cmpName;
+        }
+        const dd = document.getElementById('branch-switcher-dropdown');
+        if (dd) dd.style.display = 'none';
+        this.showToast('Switched branch to ' + brnName + ' (' + cmpName + ')');
+      },
+
+      toggleNotificationsDropdown(e) {
+        if (e && e.stopPropagation) e.stopPropagation();
+        this.showToast('3 operational notifications: 1 stock transfer in-transit, 1 discount approval pending, 1 tax batch ready.');
+      },
+
+      openQuickSearch() {
+        const modal = document.getElementById('command-palette-backdrop');
+        if (modal) {
+          modal.style.display = 'flex';
+          const input = document.getElementById('palette-search-input');
+          if (input) {
+            input.value = '';
+            input.focus();
+          }
+          this.filterCommandPalette('');
+        }
+      },
+
+      closeQuickSearch() {
+        const modal = document.getElementById('command-palette-backdrop');
+        if (modal) modal.style.display = 'none';
+      },
+
+      filterCommandPalette(q) {
+        const query = (q || '').toLowerCase().trim();
+        const container = document.getElementById('palette-results-list');
+        if (!container) return;
+        const matches = this.paletteCommands.filter(c => 
+          !query || 
+          c.title.toLowerCase().includes(query) || 
+          c.group.toLowerCase().includes(query) ||
+          c.id.toLowerCase().includes(query)
+        );
+        if (matches.length === 0) {
+          container.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 0.875rem;">No matching pages or commands found.</div>';
+          return;
+        }
+        let html = '';
+        matches.forEach((cmd, idx) => {
+          const shortcutBadge = cmd.shortcut ? '<kbd style="border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-secondary); padding: 2px 6px; border-radius: 4px; font-size: 0.6875rem; font-family: var(--stokrova-font-mono);">' + cmd.shortcut + '</kbd>' : '';
+          const activeBg = idx === 0 ? 'background: var(--surface);' : '';
+          html += '<div class="palette-item" onclick="window.stokrovaApp.executePaletteCommand(\\'' + cmd.id + '\\')" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-radius: 8px; cursor: pointer; transition: background 0.1s ease; ' + activeBg + '">' +
+            '<div style="display: flex; align-items: center; gap: 12px;">' +
+              '<span style="font-size: 1.15rem;">' + cmd.icon + '</span>' +
+              '<div>' +
+                '<div style="font-weight: 600; color: var(--text-primary); font-size: 0.875rem;">' + cmd.title + '</div>' +
+                '<div style="font-size: 0.75rem; color: var(--text-muted);">' + cmd.group + '</div>' +
+              '</div>' +
+            '</div>' +
+            shortcutBadge +
+          '</div>';
+        });
+        container.innerHTML = html;
+      },
+
+      executePaletteCommand(viewId) {
+        this.closeQuickSearch();
+        this.showView(viewId);
+      },
+
+      handlePaletteKeydown(e) {
+        if (e.key === 'Escape') {
+          this.closeQuickSearch();
+        } else if (e.key === 'Enter') {
+          const firstItem = document.querySelector('.palette-item');
+          if (firstItem) firstItem.click();
+        }
+      },
+
+      openDesktopModal() {
+        const modal = document.getElementById('desktop-modal-backdrop');
+        if (modal) modal.style.display = 'flex';
+      },
+
+      closeDesktopModal() {
+        const modal = document.getElementById('desktop-modal-backdrop');
+        if (modal) modal.style.display = 'none';
+      },
+
+      openMobileModal() {
+        const modal = document.getElementById('mobile-modal-backdrop');
+        if (modal) modal.style.display = 'flex';
+      },
+
+      closeMobileModal() {
+        const modal = document.getElementById('mobile-modal-backdrop');
+        if (modal) modal.style.display = 'none';
       },
 
       openEnrollModal() {
@@ -724,7 +968,7 @@ const completeAppHtml = `
           } else if (isManager) {
             item.style.display = (vId === 'org' || vId === 'compliance') ? 'none' : 'flex';
           } else {
-            // Owner has FULL wildcard access across all 28 views!
+            // Owner has FULL wildcard access across all views!
             item.style.display = 'flex';
           }
         });
@@ -808,7 +1052,7 @@ const completeAppHtml = `
         totalEl.textContent = '$' + total.toFixed(2);
         checkoutBtn.disabled = false;
         checkoutBtn.style.background = 'var(--primary)';
-        checkoutBtn.style.color = '#0E1116';
+        checkoutBtn.style.color = 'var(--primary-fg)';
         checkoutBtn.style.cursor = 'pointer';
       },
 
@@ -1046,6 +1290,67 @@ const completeAppHtml = `
       inspectTenant: (id) => window.stokrovaApp.inspectTenant(id),
       switchToBusinessMode: () => window.stokrovaApp.switchMode('BUSINESS'),
     };
+
+    // Global keyboard listener
+    document.addEventListener('keydown', (e) => {
+      // Cmd+K / Ctrl+K
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        window.stokrovaApp.openQuickSearch();
+        return;
+      }
+      // Escape
+      if (e.key === 'Escape') {
+        window.stokrovaApp.closeQuickSearch();
+        window.stokrovaApp.closeDesktopModal();
+        window.stokrovaApp.closeMobileModal();
+        window.stokrovaApp.closeEnrollModal();
+        window.stokrovaApp.closeStaffInviteModal();
+        const dd = document.getElementById('branch-switcher-dropdown');
+        if (dd) dd.style.display = 'none';
+        return;
+      }
+      // Skip single keys if typing in input / textarea
+      const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+      if (activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select') {
+        return;
+      }
+      if (e.key === 'F1') {
+        e.preventDefault();
+        window.stokrovaApp.openQuickSearch();
+      } else if (e.key === 'd' || e.key === 'D') {
+        window.stokrovaApp.showView('dashboard');
+      } else if (e.key === 'o' || e.key === 'O') {
+        window.stokrovaApp.showView('orders');
+      } else if (e.key === 'p' || e.key === 'P') {
+        window.stokrovaApp.showView('pos');
+      } else if (e.key === 'm' || e.key === 'M') {
+        window.stokrovaApp.openMobileModal();
+      } else if (e.key === 's' || e.key === 'S') {
+        window.stokrovaApp.showView('inventory');
+      }
+    });
+
+    // Outside click dismiss for dropdowns
+    document.addEventListener('click', (e) => {
+      const dd = document.getElementById('branch-switcher-dropdown');
+      const btn = document.getElementById('branch-switcher-btn');
+      if (dd && dd.style.display === 'block') {
+        if (!dd.contains(e.target) && (!btn || !btn.contains(e.target))) {
+          dd.style.display = 'none';
+        }
+      }
+    });
+
+    // Theme initialization
+    try {
+      const savedTheme = localStorage.getItem('stokrova_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      const themeBtn = document.querySelector('.theme-toggle-btn span');
+      if (themeBtn) {
+        themeBtn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+      }
+    } catch (_) {}
   </script>
 </body>
 </html>

@@ -93,27 +93,43 @@ export const themeTokens = {
   },
 } as const;
 
+export const chartColors = {
+  series1: '#BD9652', // gold-500
+  series2: '#414F5A', // slate-600
+  series3: '#E0CB9F', // gold-300
+  series4: '#7E919F', // slate-400
+  series5: '#2D8A9E', // teal accent
+} as const;
+
+export const gradients = {
+  goldSheen: 'linear-gradient(135deg, #CEB274, #BD9652 55%, #A47E3D)',
+  goldGhost: 'linear-gradient(180deg, rgba(189, 150, 82, 0.35) 0%, rgba(189, 150, 82, 0.0) 100%)',
+  surfaceGhost: 'linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent)',
+} as const;
+
 export const typography = {
   fontFamilies: {
-    sans: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif',
-    mono: 'JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-    display: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    sans: "'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    mono: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+    display: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
   },
   fontWeights: {
     regular: 400,
     medium: 500,
     semibold: 600,
     bold: 700,
+    extraBold: 800,
   },
   fontSizes: {
     micro: '0.625rem',  // 10px (barcode labels, status indicators)
     xs: '0.75rem',      // 12px (table headers, metadata)
-    sm: '0.875rem',     // 14px (compact interface body)
+    caption: '0.8125rem', // 13px (compact descriptions, shortcut pills)
+    sm: '0.875rem',     // 14px (compact interface body, inputs)
     base: '1rem',       // 16px (standard reading body)
-    lg: '1.125rem',     // 18px (card titles, subtotals)
-    xl: '1.25rem',      // 20px (section headers)
-    '2xl': '1.5rem',    // 24px (POS totals, modal headers)
-    '3xl': '1.875rem',  // 30px (grand totals, primary KPIs)
+    lg: '1.25rem',      // 20px (card titles, subtotals)
+    xl: '1.5rem',       // 24px (section headers, modal titles)
+    '2xl': '2rem',      // 32px (POS totals, primary KPIs)
+    '3xl': '2.75rem',   // 44px (hero metric displays)
   },
   lineHeights: {
     none: 1,
@@ -127,6 +143,7 @@ export const typography = {
     normal: '0',
     wide: '0.025em',
     wider: '0.05em',
+    widest: '0.08em',
   },
 } as const;
 
@@ -153,16 +170,20 @@ export const radii = {
   sm: '4px',
   md: '6px',
   lg: '8px',
+  control: '8px',
+  card: '10px',
   xl: '12px',
   '2xl': '16px',
   full: '9999px',
+  pill: '9999px',
 } as const;
 
 export const shadows = {
-  sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-  md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
-  lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
-  xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+  sm: '0 1px 3px rgba(30, 36, 40, 0.06)',
+  md: '0 4px 14px rgba(30, 36, 40, 0.08)',
+  lg: '0 12px 28px rgba(30, 36, 40, 0.12)',
+  xl: '0 20px 32px rgba(30, 36, 40, 0.16)',
+  goldGlow: '0 0 20px rgba(189, 150, 82, 0.25)',
   darkElevated: '0 4px 20px 0 rgba(0, 0, 0, 0.45)',
 } as const;
 
@@ -255,6 +276,37 @@ export function generateCssVariables(
     '--stokrova-ring': primaryColor,
     '--stokrova-font-sans': typography.fontFamilies.sans,
     '--stokrova-font-mono': typography.fontFamilies.mono,
+    '--stokrova-font-display': typography.fontFamilies.display,
+    '--stokrova-chart-1': chartColors.series1,
+    '--stokrova-chart-2': chartColors.series2,
+    '--stokrova-chart-3': chartColors.series3,
+    '--stokrova-chart-4': chartColors.series4,
+    '--stokrova-chart-5': chartColors.series5,
+    '--stokrova-gold-sheen': gradients.goldSheen,
+    '--stokrova-gold-ghost': gradients.goldGhost,
+    '--stokrova-surface-ghost': gradients.surfaceGhost,
+    '--stokrova-radius-sm': radii.sm,
+    '--stokrova-radius-md': radii.md,
+    '--stokrova-radius-control': radii.control,
+    '--stokrova-radius-card': radii.card,
+    '--stokrova-radius-pill': radii.pill,
+    '--stokrova-shadow-sm': shadows.sm,
+    '--stokrova-shadow-md': shadows.md,
+    '--stokrova-shadow-lg': shadows.lg,
+    '--stokrova-shadow-xl': shadows.xl,
+    '--stokrova-shadow-gold-glow': shadows.goldGlow,
+    '--stokrova-status-success-bg': semanticTokens.success[theme].bg,
+    '--stokrova-status-success-text': semanticTokens.success[theme].text,
+    '--stokrova-status-success-border': semanticTokens.success[theme].border,
+    '--stokrova-status-warning-bg': semanticTokens.warning[theme].bg,
+    '--stokrova-status-warning-text': semanticTokens.warning[theme].text,
+    '--stokrova-status-warning-border': semanticTokens.warning[theme].border,
+    '--stokrova-status-error-bg': semanticTokens.error[theme].bg,
+    '--stokrova-status-error-text': semanticTokens.error[theme].text,
+    '--stokrova-status-error-border': semanticTokens.error[theme].border,
+    '--stokrova-status-info-bg': semanticTokens.info[theme].bg,
+    '--stokrova-status-info-text': semanticTokens.info[theme].text,
+    '--stokrova-status-info-border': semanticTokens.info[theme].border,
   };
 }
 

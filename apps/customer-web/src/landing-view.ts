@@ -1,6 +1,18 @@
 /**
  * STOKROVA Customer Web — Public Marketing Website & Universal Business Workspace Portal
  * Self-service business onboarding, role-based staff login, and tenant workspace launcher.
+ * 
+ * Non-negotiables preserved:
+ * - Brand Colours: Imperial Gold #BD9652, Wordmark Charcoal #293136, Midnight background #161B1E, Slate surface #1E2428, Border #333D46.
+ * - Supporting Colours: Reconciliation Teal #2D8A9E, Success/Balanced Green #4ADE80.
+ * - Typography: Plus Jakarta Sans for UI, JetBrains Mono for monetary/GL/SKU values.
+ * - Mobile Sizing Discipline:
+ *   - Headings: H1 26–30px, H2 20–24px, H3 15–17px.
+ *   - Body: 14–16px (16px on inputs to prevent iOS auto-zoom).
+ *   - Touch targets >= 44x44px on all controls.
+ *   - Section spacing 24–36px, page gutters 12–16px.
+ * - Integer minor currency math, Rule 21 multi-tenant cryptographic quarantine.
+ * - Pure TypeScript + inline SVG and CSS (zero third-party chart/framework bloat).
  */
 
 import { formatCurrencyMinor, themeTokens } from '@stokrova/ui';
@@ -76,62 +88,554 @@ export class LandingViewModel {
     ];
   }
 
+  /**
+   * Crisp, thin-line SVG icons rendered with Imperial Gold stroke and subtle rounded backing.
+   */
+  public renderSvgIcon(name: string, size = 20): string {
+    const stroke = '#BD9652';
+    const s = size;
+    switch (name) {
+      case 'branch':
+      case 'store':
+        return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`;
+      case 'pos':
+      case 'bolt':
+        return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>`;
+      case 'box':
+      case 'fefo':
+        return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>`;
+      case 'ledger':
+      case 'scales':
+        return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18"></path><path d="M3 7l9-4 9 4"></path><path d="M6 13a3 3 0 0 0 6 0l-3-6-3 6z"></path><path d="M15 13a3 3 0 0 0 6 0l-3-6-3 6z"></path></svg>`;
+      case 'dag':
+      case 'workflow':
+        return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="6" r="3"></circle><circle cx="19" cy="6" r="3"></circle><circle cx="12" cy="18" r="3"></circle><path d="M7.5 7.5L10 15"></path><path d="M16.5 7.5L14 15"></path></svg>`;
+      case 'shield':
+      case 'security':
+        return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>`;
+      case 'holding':
+        return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="2" y1="22" x2="22" y2="22"></line><line x1="12" y1="2" x2="12" y2="6"></line><path d="M4 18V9l8-4 8 4v9"></path><line x1="8" y1="18" x2="8" y2="12"></line><line x1="12" y1="18" x2="12" y2="12"></line><line x1="16" y1="18" x2="16" y2="12"></line></svg>`;
+      case 'truck':
+      case 'transfer':
+        return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>`;
+      case 'lock':
+      case 'isolation':
+        return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
+      case 'scanner':
+      case 'barcode':
+        return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5v4M3 5h4M21 5v4M21 5h-4M3 19v-4M3 19h4M21 19v-4M21 19h-4"></path><line x1="7" y1="8" x2="7" y2="16"></line><line x1="11" y1="8" x2="11" y2="16"></line><line x1="13" y1="8" x2="13" y2="16"></line><line x1="17" y1="8" x2="17" y2="16"></line><line x1="4" y1="12" x2="20" y2="12" stroke="#4ADE80" stroke-width="1.5"></line></svg>`;
+      case 'card':
+      case 'split':
+        return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>`;
+      case 'offline':
+      case 'queue':
+        return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path><path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>`;
+      case 'receipt':
+      case 'thermal':
+        return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z"></path><line x1="8" y1="7" x2="16" y2="7"></line><line x1="8" y1="11" x2="16" y2="11"></line><line x1="8" y1="15" x2="12" y2="15"></line></svg>`;
+      case 'profit':
+        return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>`;
+      default:
+        return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle></svg>`;
+    }
+  }
+
+  /**
+   * Helper to render mini SVG sparklines for telemetry tiles.
+   */
+  public renderSparklineSvg(data: number[], color = '#BD9652', width = 64, height = 20): string {
+    const min = Math.min(...data);
+    const max = Math.max(...data);
+    const range = max - min || 1;
+    const pts = data
+      .map((val, idx) => {
+        const x = (idx / (data.length - 1)) * width;
+        const y = height - ((val - min) / range) * (height - 4) - 2;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      })
+      .join(' ');
+
+    return `
+      <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none" style="overflow: visible;" aria-hidden="true">
+        <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    `;
+  }
+
   public renderHeaderHtml(): string {
     const tokens = themeTokens[this.theme];
     return `
-      <header style="background: ${tokens.surface}; border-bottom: 1px solid ${tokens.border}; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100;">
+      <header id="main-header" style="background: ${tokens.surface}; border-bottom: 1px solid ${tokens.border}; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; transition: all 0.2s ease;">
         <div style="display: flex; align-items: center; gap: 28px;">
-          <a href="#" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
-            <span style="color: ${tokens.primary}; font-size: 1.3rem; font-weight: 800;">◆</span>
-            <span style="color: ${tokens.textPrimary}; font-size: 1.25rem; font-weight: 800; letter-spacing: 0.05em;">STOKROVA</span>
+          <a href="#" onclick="window.scrollTo({ top: 0, behavior: 'smooth' }); return false;" aria-label="STOKROVA Home" style="text-decoration: none; display: flex; align-items: center; gap: 10px; min-height: 44px;">
+            <img src="./assets/stokrova-symbol.png" alt="" width="26" height="26" style="display: block; object-fit: contain;" onerror="this.style.display='none'; document.getElementById('hdr-fallback-sym').style.display='inline-block';" />
+            <span id="hdr-fallback-sym" style="display: none; color: ${tokens.primary}; font-size: 1.3rem; font-weight: 800;">◆</span>
+            <span style="color: ${tokens.textPrimary}; font-size: 1.25rem; font-weight: 800; letter-spacing: 0.05em; font-family: var(--font-sans);">STOKROVA</span>
           </a>
-          <nav style="display: flex; gap: 20px; font-size: 0.875rem;">
+          <nav class="desktop-nav" style="display: flex; gap: 20px; font-size: 0.875rem;">
             <a href="#features" style="color: ${tokens.textSecondary}; text-decoration: none; font-weight: 500;">Features</a>
+            <a href="#money-flow" style="color: ${tokens.textSecondary}; text-decoration: none; font-weight: 500;">Money Flow</a>
             <a href="#architecture" style="color: ${tokens.textSecondary}; text-decoration: none; font-weight: 500;">Multi-Branch</a>
             <a href="#pos" style="color: ${tokens.textSecondary}; text-decoration: none; font-weight: 500;">Offline POS</a>
             <a href="#pricing" style="color: ${tokens.textSecondary}; text-decoration: none; font-weight: 500;">Pricing</a>
+            <a href="#faq" style="color: ${tokens.textSecondary}; text-decoration: none; font-weight: 500;">FAQ</a>
           </nav>
         </div>
 
         <div style="display: flex; align-items: center; gap: 12px;">
-          <button onclick="window.stokrovaCustomerApp.openLoginModal()" style="background: transparent; color: ${tokens.textPrimary}; border: 1px solid ${tokens.borderStrong}; padding: 8px 18px; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.15s ease;">
-            Staff Sign In
-          </button>
-          <button onclick="window.stokrovaCustomerApp.openRegisterModal()" style="background: ${tokens.primary}; color: #0E1116; border: none; padding: 8px 20px; border-radius: 6px; font-size: 0.875rem; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(189,150,82,0.3); transition: all 0.15s ease;">
-            Register Your Business
+          <div class="desktop-auth-actions" style="display: flex; align-items: center; gap: 12px;">
+            <button onclick="window.stokrovaCustomerApp.openLoginModal()" style="background: transparent; color: ${tokens.textPrimary}; border: 1px solid ${tokens.borderStrong}; padding: 8px 18px; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.15s ease;">
+              Staff Sign In
+            </button>
+            <button onclick="window.stokrovaCustomerApp.openRegisterModal()" style="background: ${tokens.primary}; color: #0E1116; border: none; padding: 8px 20px; border-radius: 6px; font-size: 0.875rem; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(189,150,82,0.3); transition: all 0.15s ease;">
+              Register Your Business
+            </button>
+          </div>
+
+          <!-- Mobile Hamburger Toggle (44x44px touch target) -->
+          <button id="nav-hamburger-btn" class="mobile-hamburger" onclick="window.stokrovaCustomerApp.toggleMobileMenu()" aria-label="Toggle navigation menu" style="display: none; background: transparent; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; width: 44px; height: 44px; min-width: 44px; min-height: 44px; border-radius: 6px; cursor: pointer; align-items: center; justify-content: center; padding: 0;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
           </button>
         </div>
       </header>
+
+      <!-- Full-Height Mobile Slate Drawer -->
+      <div id="mobile-nav-drawer" style="display: none; position: fixed; inset: 0; background: rgba(14, 17, 22, 0.98); backdrop-filter: blur(12px); z-index: 10000; padding: 20px 16px; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid ${tokens.border}; padding-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="color: ${tokens.primary}; font-size: 1.3rem; font-weight: 800;">◆</span>
+              <span style="color: ${tokens.textPrimary}; font-size: 1.25rem; font-weight: 800; letter-spacing: 0.05em;">STOKROVA</span>
+            </div>
+            <button onclick="window.stokrovaCustomerApp.toggleMobileMenu()" aria-label="Close navigation menu" style="background: transparent; border: none; width: 44px; height: 44px; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.75rem; color: ${tokens.textMuted}; cursor: pointer;">&times;</button>
+          </div>
+
+          <nav style="display: flex; flex-direction: column; gap: 8px; font-size: 1rem; font-weight: 600;">
+            <a href="#features" onclick="window.stokrovaCustomerApp.toggleMobileMenu()" style="color: ${tokens.textPrimary}; text-decoration: none; min-height: 44px; display: flex; align-items: center; padding: 0 8px;">Features</a>
+            <a href="#money-flow" onclick="window.stokrovaCustomerApp.toggleMobileMenu()" style="color: ${tokens.textPrimary}; text-decoration: none; min-height: 44px; display: flex; align-items: center; padding: 0 8px;">Money Flow</a>
+            <a href="#architecture" onclick="window.stokrovaCustomerApp.toggleMobileMenu()" style="color: ${tokens.textPrimary}; text-decoration: none; min-height: 44px; display: flex; align-items: center; padding: 0 8px;">Multi-Branch Architecture</a>
+            <a href="#pos" onclick="window.stokrovaCustomerApp.toggleMobileMenu()" style="color: ${tokens.textPrimary}; text-decoration: none; min-height: 44px; display: flex; align-items: center; padding: 0 8px;">Offline POS Engine</a>
+            <a href="#pricing" onclick="window.stokrovaCustomerApp.toggleMobileMenu()" style="color: ${tokens.textPrimary}; text-decoration: none; min-height: 44px; display: flex; align-items: center; padding: 0 8px;">Pricing Plans</a>
+            <a href="#faq" onclick="window.stokrovaCustomerApp.toggleMobileMenu()" style="color: ${tokens.textPrimary}; text-decoration: none; min-height: 44px; display: flex; align-items: center; padding: 0 8px;">Frequently Asked Questions</a>
+          </nav>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; border-top: 1px solid ${tokens.border}; padding-top: 20px;">
+          <button onclick="window.stokrovaCustomerApp.toggleMobileMenu(); window.stokrovaCustomerApp.openLoginModal()" style="width: 100%; min-height: 44px; background: transparent; color: ${tokens.textPrimary}; border: 1px solid ${tokens.borderStrong}; border-radius: 6px; font-size: 0.95rem; font-weight: 600; cursor: pointer;">
+            Staff Sign In
+          </button>
+          <button onclick="window.stokrovaCustomerApp.toggleMobileMenu(); window.stokrovaCustomerApp.openRegisterModal()" style="width: 100%; min-height: 44px; background: ${tokens.primary}; color: #0E1116; border: none; border-radius: 6px; font-size: 0.95rem; font-weight: 700; cursor: pointer; box-shadow: 0 2px 10px rgba(189,150,82,0.4);">
+            Register Your Business Workspace →
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Section 2: Large tilted Command Center product window embedded directly inside the Hero.
+   */
+  public renderHeroCommandCenterHtml(): string {
+    const tokens = themeTokens[this.theme];
+
+    // Sparkline series data
+    const gmvSpark = [22, 24, 25, 27, 26, 30, 31, 34];
+    const revSpark = [18, 20, 22, 21, 24, 26, 27, 29];
+    const marginSpark = [34, 35, 36, 35, 37, 38, 38.2, 38.5];
+    const riskSpark = [8, 7, 6, 6, 5, 5, 4, 4];
+
+    return `
+      <div class="command-center-outer-wrapper" style="position: relative; max-width: 1040px; margin: 36px auto 0 auto; text-align: left;">
+        <!-- Subtle Breathing Gold Glow -->
+        <div class="command-center-glow" style="position: absolute; inset: -16px; background: radial-gradient(ellipse 70% 50% at 50% 20%, rgba(189,150,82,0.18), transparent 75%); filter: blur(35px); pointer-events: none; z-index: 0;" aria-hidden="true"></div>
+
+        <!-- Floating Depth Card 1: Live POS Ticket -->
+        <div class="floating-depth-card floating-depth-receipt" style="position: absolute; right: -24px; bottom: 24px; background: ${tokens.surface}; border: 1px solid ${tokens.primary}; border-radius: 8px; padding: 14px 18px; box-shadow: 0 16px 36px rgba(0,0,0,0.65); z-index: 10; width: 260px;" aria-hidden="true">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 700; color: ${tokens.primary};">
+              ${this.renderSvgIcon('receipt', 14)} <span>POS Sale #10482</span>
+            </div>
+            <span style="color: #4ADE80; font-size: 0.65rem; background: #14291F; border: 1px solid #1E4620; padding: 2px 6px; border-radius: 4px; font-weight: 700;">PAID</span>
+          </div>
+          <div style="font-family: var(--stokrova-font-mono); font-size: 1.25rem; font-weight: 800; color: ${tokens.textPrimary}; margin-bottom: 2px;">$86.40</div>
+          <div style="color: ${tokens.textSecondary}; font-size: 0.75rem;">Split: Card $60.00 + Cash $26.40</div>
+          <div style="font-family: var(--stokrova-font-mono); color: ${tokens.textMuted}; font-size: 0.6875rem; margin-top: 6px; border-top: 1px solid ${tokens.border}; padding-top: 6px;">
+            London Flagship • QR Verified
+          </div>
+        </div>
+
+        <!-- Floating Depth Card 2: Balanced General Ledger -->
+        <div class="floating-depth-card floating-depth-ledger" style="position: absolute; left: -24px; bottom: 90px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; border-left: 3px solid #4ADE80; border-radius: 8px; padding: 12px 16px; box-shadow: 0 16px 36px rgba(0,0,0,0.65); z-index: 10; width: 250px;" aria-hidden="true">
+          <div style="display: flex; align-items: center; gap: 6px; color: #4ADE80; font-size: 0.75rem; font-weight: 700; margin-bottom: 6px;">
+            <span>✓</span> <span>JRNL-849201 Balanced</span>
+          </div>
+          <div style="font-family: var(--stokrova-font-mono); color: ${tokens.textSecondary}; font-size: 0.75rem; line-height: 1.45;">
+            <div>DR 1010 Cash: <strong style="color: ${tokens.textPrimary};">$86.40</strong></div>
+            <div>CR 4010 Sales: <strong style="color: ${tokens.textPrimary};">$86.40</strong></div>
+          </div>
+          <div style="color: #4ADE80; font-size: 0.6875rem; margin-top: 4px; font-weight: 600;">Delta: $0.00 (Pure Ledger Truth)</div>
+        </div>
+
+        <!-- Main Product Window -->
+        <div class="command-center-window" role="region" aria-label="Example executive overview" style="position: relative; z-index: 1; background: #161B1E; border: 1px solid ${tokens.borderStrong}; border-radius: 12px; box-shadow: 0 25px 60px rgba(0,0,0,0.7), 0 0 1px rgba(189,150,82,0.3); overflow: hidden; transform: perspective(1200px) rotateX(1.5deg); transition: transform 0.3s ease;">
+          
+          <!-- Window Chrome Titlebar -->
+          <div style="background: ${tokens.surface}; border-bottom: 1px solid ${tokens.border}; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 10px; height: 10px; border-radius: 50%; background: #414F5A; display: inline-block;"></span>
+              <span style="width: 10px; height: 10px; border-radius: 50%; background: #333D46; display: inline-block;"></span>
+              <span style="width: 10px; height: 10px; border-radius: 50%; background: #293136; display: inline-block;"></span>
+            </div>
+
+            <!-- Address Bar Pill -->
+            <div class="command-center-addr" style="display: flex; align-items: center; gap: 6px; background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 6px; padding: 3px 12px; font-family: var(--stokrova-font-mono); font-size: 0.75rem; color: ${tokens.textSecondary};">
+              <span style="color: ${tokens.primary};">🔒</span>
+              <span>app.stokrova.com/command-center</span>
+            </div>
+
+            <!-- Branch Selector Chip -->
+            <div style="font-size: 0.75rem; font-weight: 600; color: ${tokens.primary}; background: rgba(189,150,82,0.12); border: 1px solid rgba(189,150,82,0.3); border-radius: 4px; padding: 3px 8px; display: flex; align-items: center; gap: 4px;">
+              <span>All branches</span> <span style="font-size: 0.65rem;">▾</span>
+            </div>
+          </div>
+
+          <!-- Window Interior Body -->
+          <div style="padding: 20px 16px;">
+            <!-- Telemetry Header Row -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="width: 8px; height: 8px; border-radius: 50%; background: #4ADE80; box-shadow: 0 0 8px #4ADE80; display: inline-block;"></span>
+                <h3 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: ${tokens.textPrimary}; letter-spacing: -0.01em;">Executive Operations Command</h3>
+                <span style="font-size: 0.75rem; color: ${tokens.textMuted}; font-family: var(--stokrova-font-mono);">• 4 Branches</span>
+              </div>
+              <div style="font-size: 0.6875rem; color: ${tokens.textMuted}; font-family: var(--stokrova-font-mono);">Illustrative platform data.</div>
+            </div>
+
+            <!-- 5 KPI Tiles Grid -->
+            <div class="kpi-tiles-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px;">
+              
+              <!-- KPI 1: GMV -->
+              <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px 14px;">
+                <div style="font-size: 0.6875rem; color: ${tokens.textMuted}; font-weight: 700; text-transform: uppercase;">GMV</div>
+                <div class="kpi-num" style="font-size: 1.35rem; font-weight: 900; color: ${tokens.primary}; font-family: var(--stokrova-font-mono); margin: 3px 0;" font-variant-numeric: tabular-nums>$4,850,000</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 0.6875rem; color: #4ADE80;">▲ +18.4%</span>
+                  ${this.renderSparklineSvg(gmvSpark, '#BD9652')}
+                </div>
+              </div>
+
+              <!-- KPI 2: Net Revenue -->
+              <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px 14px;">
+                <div style="font-size: 0.6875rem; color: ${tokens.textMuted}; font-weight: 700; text-transform: uppercase;">Net Revenue</div>
+                <div class="kpi-num" style="font-size: 1.35rem; font-weight: 900; color: ${tokens.textPrimary}; font-family: var(--stokrova-font-mono); margin: 3px 0;" font-variant-numeric: tabular-nums>$382,000.00</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 0.6875rem; color: #4ADE80;">▲ +12.1%</span>
+                  ${this.renderSparklineSvg(revSpark, '#BD9652')}
+                </div>
+              </div>
+
+              <!-- KPI 3: Gross Margin -->
+              <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px 14px;">
+                <div style="font-size: 0.6875rem; color: ${tokens.textMuted}; font-weight: 700; text-transform: uppercase;">Gross Margin</div>
+                <div class="kpi-num" style="font-size: 1.35rem; font-weight: 900; color: ${tokens.textPrimary}; font-family: var(--stokrova-font-mono); margin: 3px 0;" font-variant-numeric: tabular-nums>38.50%</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 0.6875rem; color: ${tokens.textMuted}; font-family: var(--stokrova-font-mono);">3850 bps</span>
+                  ${this.renderSparklineSvg(marginSpark, '#BD9652')}
+                </div>
+              </div>
+
+              <!-- KPI 4: Stockout Risk -->
+              <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px 14px;">
+                <div style="font-size: 0.6875rem; color: ${tokens.textMuted}; font-weight: 700; text-transform: uppercase;">Stockout Risk</div>
+                <div class="kpi-num" style="font-size: 1.35rem; font-weight: 900; color: #4ADE80; font-family: var(--stokrova-font-mono); margin: 3px 0;" font-variant-numeric: tabular-nums>4/100</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 0.6875rem; color: ${tokens.textMuted};">Low Risk</span>
+                  ${this.renderSparklineSvg(riskSpark, '#4ADE80')}
+                </div>
+              </div>
+
+              <!-- KPI 5: Till Variance -->
+              <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px 14px;">
+                <div style="font-size: 0.6875rem; color: ${tokens.textMuted}; font-weight: 700; text-transform: uppercase;">Till Variance</div>
+                <div class="kpi-num" style="font-size: 1.35rem; font-weight: 900; color: #4ADE80; font-family: var(--stokrova-font-mono); margin: 3px 0;" font-variant-numeric: tabular-nums>$0.00</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 0.65rem; color: #4ADE80; background: #14291F; border: 1px solid #1E4620; padding: 1px 6px; border-radius: 4px; font-weight: 700;">Balanced</span>
+                  <span style="font-size: 0.6875rem; color: ${tokens.textMuted};">6 Tills</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Revenue Chart & Branch Share Dual Panel -->
+            <div class="chart-dual-panel" style="display: grid; grid-template-columns: 2.1fr 1fr; gap: 16px;">
+              
+              <!-- 12-Month Area Chart -->
+              <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 16px 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+                  <div style="font-size: 0.8125rem; font-weight: 700; color: ${tokens.textPrimary};">12-Month Net Revenue vs Cost of Goods</div>
+                  <div style="display: flex; align-items: center; gap: 12px; font-size: 0.75rem;">
+                    <span style="display: inline-flex; align-items: center; gap: 4px; color: ${tokens.primary};">
+                      <span style="width: 8px; height: 8px; border-radius: 50%; background: ${tokens.primary};"></span> Revenue
+                    </span>
+                    <span style="display: inline-flex; align-items: center; gap: 4px; color: #2D8A9E;">
+                      <span style="width: 8px; height: 8px; border-radius: 50%; background: #2D8A9E;"></span> Cost of Goods (Teal)
+                    </span>
+                  </div>
+                </div>
+
+                <!-- SVG Area Chart -->
+                <div style="width: 100%; overflow-x: auto;">
+                  <svg viewBox="0 0 540 180" style="width: 100%; height: auto; display: block;" aria-hidden="true">
+                    <defs>
+                      <linearGradient id="goldAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#BD9652" stop-opacity="0.32" />
+                        <stop offset="100%" stop-color="#BD9652" stop-opacity="0.0" />
+                      </linearGradient>
+                    </defs>
+
+                    <!-- Horizontal Grid lines -->
+                    <line x1="35" y1="30" x2="520" y2="30" stroke="#222830" stroke-dasharray="3,3" />
+                    <line x1="35" y1="70" x2="520" y2="70" stroke="#222830" stroke-dasharray="3,3" />
+                    <line x1="35" y1="110" x2="520" y2="110" stroke="#222830" stroke-dasharray="3,3" />
+                    <line x1="35" y1="150" x2="520" y2="150" stroke="#333D46" />
+
+                    <!-- Axis Labels -->
+                    <text x="30" y="34" fill="#7E919F" font-size="9" text-anchor="end" font-family="'JetBrains Mono', monospace">$400k</text>
+                    <text x="30" y="74" fill="#7E919F" font-size="9" text-anchor="end" font-family="'JetBrains Mono', monospace">$300k</text>
+                    <text x="30" y="114" fill="#7E919F" font-size="9" text-anchor="end" font-family="'JetBrains Mono', monospace">$200k</text>
+                    <text x="30" y="154" fill="#7E919F" font-size="9" text-anchor="end" font-family="'JetBrains Mono', monospace">$100k</text>
+
+                    <!-- Gold Area Fill -->
+                    <polygon points="35,89.3 79.1,65.5 123.2,80.7 167.3,74.2 211.4,59.0 255.5,52.5 299.5,46.0 343.6,39.5 387.7,37.3 431.8,33.0 475.9,29.5 520,27.8 520,150 35,150" fill="url(#goldAreaGrad)" />
+
+                    <!-- Teal Line: Cost of Goods -->
+                    <polyline points="35,129.2 79.1,114.5 123.2,124.0 167.3,119.7 211.4,111.0 255.5,106.7 299.5,102.3 343.6,98.9 387.7,97.1 431.8,94.5 475.9,92.8 520,91.5" fill="none" stroke="#2D8A9E" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+
+                    <!-- Gold Line: Net Revenue -->
+                    <polyline class="chart-revenue-line" points="35,89.3 79.1,65.5 123.2,80.7 167.3,74.2 211.4,59.0 255.5,52.5 299.5,46.0 343.6,39.5 387.7,37.3 431.8,33.0 475.9,29.5 520,27.8" fill="none" stroke="#BD9652" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+
+                    <!-- Month X labels (spaced bi-monthly for clean mobile legibility) -->
+                    <text x="35" y="166" fill="#7E919F" font-size="9" text-anchor="middle" font-family="'JetBrains Mono', monospace">NOV</text>
+                    <text x="123" y="166" fill="#7E919F" font-size="9" text-anchor="middle" font-family="'JetBrains Mono', monospace">JAN</text>
+                    <text x="211" y="166" fill="#7E919F" font-size="9" text-anchor="middle" font-family="'JetBrains Mono', monospace">MAR</text>
+                    <text x="299" y="166" fill="#7E919F" font-size="9" text-anchor="middle" font-family="'JetBrains Mono', monospace">MAY</text>
+                    <text x="387" y="166" fill="#7E919F" font-size="9" text-anchor="middle" font-family="'JetBrains Mono', monospace">JUL</text>
+                    <text x="475" y="166" fill="#7E919F" font-size="9" text-anchor="middle" font-family="'JetBrains Mono', monospace">SEP</text>
+                    <text x="520" y="166" fill="#BD9652" font-size="9" text-anchor="middle" font-weight="700" font-family="'JetBrains Mono', monospace">OCT</text>
+
+                    <!-- Interactive Data Circle with SVG Tooltip -->
+                    <circle cx="520" cy="27.8" r="5" fill="#BD9652" stroke="#161B1E" stroke-width="2">
+                      <title>OCT (Current): Net Revenue $382,000.00 | COGS $235,000.00 | Margin 38.5%</title>
+                    </circle>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Branch Share Distribution Bar Panel -->
+              <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 16px 14px; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                  <div style="font-size: 0.8125rem; font-weight: 700; color: ${tokens.textPrimary}; margin-bottom: 10px;">Branch Revenue Share</div>
+                  
+                  <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div>
+                      <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 3px;">
+                        <span style="color: ${tokens.textPrimary}; font-weight: 600;">Lagos Central</span>
+                        <span style="font-family: var(--stokrova-font-mono); color: ${tokens.primary};">$152.8k (40%)</span>
+                      </div>
+                      <div style="height: 5px; background: #293136; border-radius: 3px; overflow: hidden;">
+                        <div style="width: 40%; height: 100%; background: ${tokens.primary}; border-radius: 3px;"></div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 3px;">
+                        <span style="color: ${tokens.textPrimary}; font-weight: 600;">Abuja Mall</span>
+                        <span style="font-family: var(--stokrova-font-mono); color: ${tokens.primary};">$114.6k (30%)</span>
+                      </div>
+                      <div style="height: 5px; background: #293136; border-radius: 3px; overflow: hidden;">
+                        <div style="width: 30%; height: 100%; background: ${tokens.primary}; border-radius: 3px;"></div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 3px;">
+                        <span style="color: ${tokens.textPrimary}; font-weight: 600;">Kano DC</span>
+                        <span style="font-family: var(--stokrova-font-mono); color: ${tokens.primary};">$68.7k (18%)</span>
+                      </div>
+                      <div style="height: 5px; background: #293136; border-radius: 3px; overflow: hidden;">
+                        <div style="width: 18%; height: 100%; background: ${tokens.primary}; border-radius: 3px;"></div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 3px;">
+                        <span style="color: ${tokens.textPrimary}; font-weight: 600;">Port Harcourt</span>
+                        <span style="font-family: var(--stokrova-font-mono); color: ${tokens.primary};">$45.8k (12%)</span>
+                      </div>
+                      <div style="height: 5px; background: #293136; border-radius: 3px; overflow: hidden;">
+                        <div style="width: 12%; height: 100%; background: ${tokens.primary}; border-radius: 3px;"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="margin-top: 12px; padding-top: 8px; border-top: 1px solid ${tokens.border}; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: #4ADE80;">
+                  <span>● Inter-Branch Sync</span>
+                  <span style="font-family: var(--stokrova-font-mono);">0ms lag</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Visually Hidden Table for Full WCAG AAA Accessibility -->
+        <table class="sr-only">
+          <caption>Executive Command Center Operational Overview</caption>
+          <thead>
+            <tr><th>Metric</th><th>Current Value</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Gross Merchandise Value (GMV)</td><td>$4,850,000.00</td><td>+18.4% vs last month</td></tr>
+            <tr><td>Today's Net Revenue</td><td>$382,000.00</td><td>+12.1%</td></tr>
+            <tr><td>Gross Margin</td><td>38.50%</td><td>3,850 bps</td></tr>
+            <tr><td>Stockout Risk Index</td><td>4 / 100</td><td>Low Risk</td></tr>
+            <tr><td>Till Cashier Variance</td><td>$0.00</td><td>Balanced across 6 till sessions</td></tr>
+          </tbody>
+        </table>
+      </div>
     `;
   }
 
   public renderHeroHtml(): string {
     const tokens = themeTokens[this.theme];
+    const commandCenterHtml = this.renderHeroCommandCenterHtml();
+
     return `
-      <section style="padding: 72px 32px 56px 32px; text-align: center; max-width: 1040px; margin: 0 auto;">
-        <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(189,150,82,0.12); border: 1px solid ${tokens.primary}; padding: 4px 14px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; color: ${tokens.primary}; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 24px;">
+      <section class="landing-section hero-section" style="padding: 56px 32px 48px 32px; text-align: center; max-width: 1080px; margin: 0 auto;">
+        <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(189,150,82,0.12); border: 1px solid ${tokens.primary}; padding: 4px 14px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; color: ${tokens.primary}; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 20px;">
           <span>⚡ Next-Generation Multi-Branch Retail & Logistics ERP</span>
         </div>
-        <h1 style="font-size: 3.25rem; font-weight: 900; line-height: 1.15; color: ${tokens.textPrimary}; margin: 0 0 20px 0; letter-spacing: -0.02em;">
+        <h1 class="hero-h1" style="font-size: clamp(2rem, 4.8vw, 3.25rem); font-weight: 900; line-height: 1.15; color: ${tokens.textPrimary}; margin: 0 0 16px 0; letter-spacing: -0.02em;">
           One Unified Operating System for Stores, Warehouses & Finance
         </h1>
-        <p style="font-size: 1.15rem; line-height: 1.6; color: ${tokens.textSecondary}; max-width: 780px; margin: 0 auto 36px auto;">
+        <p class="hero-sub" style="font-size: 1.1rem; line-height: 1.6; color: ${tokens.textSecondary}; max-width: 780px; margin: 0 auto 32px auto;">
           Run your point of sale offline without fear of data loss, manage inventory across hundreds of branches with authoritative FEFO lot tracking, and maintain pure double-entry ledger accuracy.
         </p>
-        <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
-          <button onclick="window.stokrovaCustomerApp.openRegisterModal()" style="background: ${tokens.primary}; color: #0E1116; border: none; padding: 14px 28px; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(189,150,82,0.4);">
+        <div class="hero-cta-btns" style="display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
+          <button onclick="window.stokrovaCustomerApp.openRegisterModal()" style="min-height: 44px; background: ${tokens.primary}; color: #0E1116; border: none; padding: 12px 28px; border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(189,150,82,0.4);">
             Register Your Business Workspace →
           </button>
-          <button onclick="window.stokrovaCustomerApp.openLoginModal()" style="background: ${tokens.surface}; color: ${tokens.textPrimary}; border: 1px solid ${tokens.borderStrong}; padding: 14px 24px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">
+          <button onclick="window.stokrovaCustomerApp.openLoginModal()" style="min-height: 44px; background: ${tokens.surface}; color: ${tokens.textPrimary}; border: 1px solid ${tokens.borderStrong}; padding: 12px 24px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer;">
             Staff Sign In to Workspace
           </button>
         </div>
 
-        <div style="display: flex; justify-content: center; gap: 40px; margin-top: 56px; padding-top: 36px; border-top: 1px solid ${tokens.border}; color: ${tokens.textMuted}; font-size: 0.8125rem;">
-          <div>✓ Offline-First POS Engine</div>
-          <div>✓ Multi-Branch Stock Transfers</div>
-          <div>✓ Balanced Double-Entry Journals</div>
-          <div>✓ Strict Multi-Tenant Isolation (Rule 21)</div>
+        <!-- The Hero Command Center Window -->
+        ${commandCenterHtml}
+
+        <!-- Product Capability & Trust Row -->
+        <div style="margin-top: 40px; padding-top: 28px; border-top: 1px solid ${tokens.border};">
+          <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: ${tokens.textMuted}; margin-bottom: 14px;">
+            Engineered for High-Volume Retailers, Distributors & Regional Warehouses
+          </div>
+
+          <div style="display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; color: ${tokens.textSecondary}; font-size: 0.8125rem;">
+            <div><strong style="color: ${tokens.primary}; font-family: var(--stokrova-font-mono);">&lt; 50ms</strong> Hardware Laser Scanner Buffer</div>
+            <div><strong style="color: ${tokens.primary}; font-family: var(--stokrova-font-mono);">100%</strong> Balanced Double-Entry Ledgers</div>
+            <div><strong style="color: ${tokens.primary}; font-family: var(--stokrova-font-mono);">0</strong> Phantom Stock (Two-Step Transfers)</div>
+            <div><strong style="color: ${tokens.primary}; font-family: var(--stokrova-font-mono);">24/7</strong> Offline-First Local Till Engine</div>
+          </div>
+
+          <div style="display: flex; justify-content: center; gap: 20px; margin-top: 16px; color: ${tokens.textMuted}; font-size: 0.75rem; flex-wrap: wrap;">
+            <div>✓ Offline-First POS Engine</div>
+            <div>✓ Multi-Branch Stock Transfers</div>
+            <div>✓ Balanced Double-Entry Journals</div>
+            <div>✓ Strict Multi-Tenant Isolation (Rule 21)</div>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  /**
+   * Section 3: Animated "Money flow" strip answering "What does STOKROVA do?" in 5 seconds.
+   */
+  public renderMoneyFlowStripHtml(): string {
+    const tokens = themeTokens[this.theme];
+
+    const steps = [
+      {
+        num: '01',
+        icon: 'scanner',
+        title: 'Scan at till',
+        sub: 'Hardware scanner buffer',
+        mono: '5011000000018',
+      },
+      {
+        num: '02',
+        icon: 'receipt',
+        title: 'Sale recorded',
+        sub: 'Split tender checkout',
+        mono: '$86.40 receipt',
+      },
+      {
+        num: '03',
+        icon: 'box',
+        title: 'Stock updated',
+        sub: 'Authoritative FEFO',
+        mono: '-1 unit, Lagos',
+      },
+      {
+        num: '04',
+        icon: 'ledger',
+        title: 'Ledger balanced',
+        sub: 'Double-entry journals',
+        mono: 'DR 1010 = CR 4010',
+      },
+      {
+        num: '05',
+        icon: 'profit',
+        title: 'Owner sees profit',
+        sub: 'Live executive margins',
+        mono: '+$31.20 margin',
+      },
+    ];
+
+    const cardsHtml = steps
+      .map(
+        (st) => `
+        <div class="money-flow-step" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 18px 14px; flex: 1; text-align: left; position: relative; transition: all 0.2s ease;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div style="background: rgba(189,150,82,0.1); border: 1px solid rgba(189,150,82,0.25); border-radius: 6px; padding: 6px; display: inline-flex;">
+              ${this.renderSvgIcon(st.icon, 18)}
+            </div>
+            <span style="font-family: var(--stokrova-font-mono); font-size: 0.6875rem; color: ${tokens.textMuted}; font-weight: 700;">${st.num}</span>
+          </div>
+          <h4 style="margin: 0 0 4px 0; font-size: 0.95rem; font-weight: 700; color: ${tokens.textPrimary};">${st.title}</h4>
+          <div style="font-size: 0.75rem; color: ${tokens.textSecondary}; margin-bottom: 8px;">${st.sub}</div>
+          <div style="font-family: var(--stokrova-font-mono); font-size: 0.75rem; color: ${tokens.primary}; background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 4px; padding: 3px 8px; display: inline-block;">
+            ${st.mono}
+          </div>
+        </div>
+      `
+      )
+      .join('');
+
+    return `
+      <section id="money-flow" class="landing-section" style="padding: 56px 32px; max-width: 1120px; margin: 0 auto; border-top: 1px solid ${tokens.border};">
+        <div style="text-align: center; margin-bottom: 36px;">
+          <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(189,150,82,0.12); border: 1px solid ${tokens.primary}; padding: 4px 14px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; color: ${tokens.primary}; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px;">
+            <span>Universal Financial Pipeline</span>
+          </div>
+          <h2 class="section-h2" style="font-size: 2.25rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 0 0 10px 0;">Every sale, counted once — everywhere.</h2>
+          <p class="section-sub" style="font-size: 1rem; color: ${tokens.textSecondary}; max-width: 680px; margin: 0 auto;">
+            From physical counter barcode scan to consolidated general ledger and profit telemetry in under 50 milliseconds.
+          </p>
+        </div>
+
+        <div class="money-flow-track" style="display: flex; gap: 12px; position: relative;">
+          ${cardsHtml}
         </div>
       </section>
     `;
@@ -139,59 +643,158 @@ export class LandingViewModel {
 
   public renderFeaturesGridHtml(): string {
     const tokens = themeTokens[this.theme];
-    const features = [
-      {
-        icon: '🏪',
-        title: 'Multi-Branch & Inter-Store Transfers',
-        desc: 'Execute stock movements between stores and distribution centers with two-step dispatch/receipt and IN-TRANSIT ledger tracking.',
-      },
-      {
-        icon: '⚡',
-        title: 'Offline-Tolerant Point of Sale',
-        desc: 'Keep ringing up sales even during internet blackouts. Background sync queues reconcile sales orders and payments when connectivity returns.',
-      },
-      {
-        icon: '📦',
-        title: 'Authoritative FEFO & Serial Lot Control',
-        desc: 'First-Expired, First-Out picking prevents perishable write-offs. Full chain of custody for serial-numbered and batch items.',
-      },
-      {
-        icon: '⚖️',
-        title: 'Immutable Double-Entry Ledger',
-        desc: 'Every inventory intake, sale, and return automatically posts balanced journal entries (Debits = Credits) in pure integer minor units.',
-      },
-      {
-        icon: '⚙️',
-        title: 'Visual DAG Workflow Automation',
-        desc: 'Automate approvals, stock thresholds, and purchase orders via Kahn cycle-validated Directed Acyclic Graphs without schema locks.',
-      },
-      {
-        icon: '🛡️',
-        title: 'Cryptographic RBAC & Security',
-        desc: 'Enforce branch-scoped permissions across Cashiers, Store Managers, Warehouse Pickers, and Business Owners.',
-      },
-    ];
-
-    const cardsHtml = features
-      .map(
-        (f) => `
-        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 12px; padding: 28px; text-align: left; transition: transform 0.15s ease;">
-          <div style="font-size: 2rem; margin-bottom: 16px;">${f.icon}</div>
-          <h3 style="font-size: 1.125rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 10px 0;">${f.title}</h3>
-          <p style="font-size: 0.875rem; line-height: 1.5; color: ${tokens.textSecondary}; margin: 0;">${f.desc}</p>
-        </div>
-      `
-      )
-      .join('');
 
     return `
-      <section id="features" style="padding: 64px 32px; max-width: 1120px; margin: 0 auto;">
-        <div style="text-align: center; margin-bottom: 48px;">
-          <h2 style="font-size: 2.25rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 0 0 12px 0;">Built for Rigorous Physical Operations</h2>
-          <p style="font-size: 1rem; color: ${tokens.textSecondary}; max-width: 600px; margin: 0 auto;">Engineered specifically to eliminate inventory shrink, stockout penalties, and till variance.</p>
+      <section id="features" class="landing-section" style="padding: 56px 32px; max-width: 1120px; margin: 0 auto; border-top: 1px solid ${tokens.border};">
+        <div style="text-align: center; margin-bottom: 40px;">
+          <h2 class="section-h2" style="font-size: 2.25rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 0 0 10px 0;">Built for Rigorous Physical Operations</h2>
+          <p class="section-sub" style="font-size: 1rem; color: ${tokens.textSecondary}; max-width: 600px; margin: 0 auto;">Engineered specifically to eliminate inventory shrink, stockout penalties, and till variance.</p>
         </div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
-          ${cardsHtml}
+
+        <div class="features-enhanced-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+          
+          <!-- Card 1: Multi-Branch & Inter-Store Transfers -->
+          <div class="feature-card" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 12px; padding: 24px; text-align: left;">
+            <div style="background: rgba(189,150,82,0.1); border: 1px solid rgba(189,150,82,0.25); border-radius: 8px; padding: 8px; display: inline-flex; margin-bottom: 14px;">
+              ${this.renderSvgIcon('branch', 22)}
+            </div>
+            <h3 class="card-h3" style="font-size: 1.125rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 8px 0;">Multi-Branch & Inter-Store Transfers</h3>
+            <p style="font-size: 0.875rem; line-height: 1.5; color: ${tokens.textSecondary}; margin: 0 0 12px 0;">
+              Execute stock movements between stores and distribution centers with two-step dispatch/receipt and IN-TRANSIT ledger tracking.
+            </p>
+            <div style="font-size: 0.75rem; font-family: var(--stokrova-font-mono); color: ${tokens.primary}; background: #161B1E; padding: 6px 10px; border-radius: 4px; border: 1px solid ${tokens.border};">
+              Dispatch → IN_TRANSIT Custody → Receiving Receipt
+            </div>
+          </div>
+
+          <!-- Card 2: Offline-Tolerant Point of Sale -->
+          <div class="feature-card" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 12px; padding: 24px; text-align: left;">
+            <div style="background: rgba(189,150,82,0.1); border: 1px solid rgba(189,150,82,0.25); border-radius: 8px; padding: 8px; display: inline-flex; margin-bottom: 14px;">
+              ${this.renderSvgIcon('pos', 22)}
+            </div>
+            <h3 class="card-h3" style="font-size: 1.125rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 8px 0;">Offline-Tolerant Point of Sale</h3>
+            <p style="font-size: 0.875rem; line-height: 1.5; color: ${tokens.textSecondary}; margin: 0 0 12px 0;">
+              Keep ringing up sales even during internet blackouts. Background sync queues reconcile sales orders and payments when connectivity returns.
+            </p>
+            <div style="font-size: 0.75rem; font-family: var(--stokrova-font-mono); color: #4ADE80; background: #14291F; padding: 6px 10px; border-radius: 4px; border: 1px solid #1E4620;">
+              Zero-Drop SQLite Outbox • Sub-50ms Laser Scans
+            </div>
+          </div>
+
+          <!-- Card 3: Authoritative FEFO & Serial Lot Control -->
+          <div class="feature-card" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 12px; padding: 24px; text-align: left;">
+            <div style="background: rgba(189,150,82,0.1); border: 1px solid rgba(189,150,82,0.25); border-radius: 8px; padding: 8px; display: inline-flex; margin-bottom: 14px;">
+              ${this.renderSvgIcon('box', 22)}
+            </div>
+            <h3 class="card-h3" style="font-size: 1.125rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 8px 0;">Authoritative FEFO & Serial Lot Control</h3>
+            <p style="font-size: 0.875rem; line-height: 1.5; color: ${tokens.textSecondary}; margin: 0 0 12px 0;">
+              First-Expired, First-Out picking prevents perishable write-offs. Full chain of custody for serial-numbered and batch items.
+            </p>
+            <!-- Mini Lot Expiry Table -->
+            <div style="background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 6px; padding: 8px 10px; font-size: 0.75rem; font-family: var(--stokrova-font-mono);">
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #222830; padding-bottom: 4px; margin-bottom: 4px;">
+                <span>LOT-2026-B1</span>
+                <span>Exp: 2026-11-15</span>
+                <span style="color: #4ADE80; font-weight: 700;">USE FIRST</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; color: ${tokens.textMuted};">
+                <span>LOT-2026-B2</span>
+                <span>Exp: 2027-01-20</span>
+                <span>STANDBY</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4 (WIDE FEATURE CARD): Immutable Double-Entry Ledger with Till Reconciliation Visual -->
+          <div class="feature-card wide-feature-card" style="grid-column: 1 / -1; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; border-radius: 12px; padding: 28px; text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
+              
+              <div style="flex: 1; min-width: 280px;">
+                <div style="background: rgba(189,150,82,0.1); border: 1px solid rgba(189,150,82,0.25); border-radius: 8px; padding: 8px; display: inline-flex; margin-bottom: 14px;">
+                  ${this.renderSvgIcon('ledger', 22)}
+                </div>
+                <h3 class="card-h3" style="font-size: 1.2rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 8px 0;">Immutable Double-Entry Ledger & Cash Truth</h3>
+                <p style="font-size: 0.875rem; line-height: 1.6; color: ${tokens.textSecondary}; margin: 0 0 16px 0;">
+                  Every inventory intake, sale, and return automatically posts balanced journal entries (Debits = Credits) in pure integer minor units. Blind session reconciliation enforces financial accountability at every cash drawer.
+                </p>
+
+                <!-- General Ledger Entry Box -->
+                <div style="background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px 14px; font-family: var(--stokrova-font-mono); font-size: 0.8125rem;">
+                  <div style="color: #4ADE80; font-weight: 700; margin-bottom: 4px;">✓ JRNL-849201 | Automatic Revenue Post</div>
+                  <div style="color: ${tokens.textSecondary}; margin-left: 12px;">DR 1010 Cash at Bank: <strong style="color: ${tokens.textPrimary};">$4,250.00</strong></div>
+                  <div style="color: ${tokens.textSecondary}; margin-left: 12px;">CR 4010 Retail Revenue: <strong style="color: ${tokens.textPrimary};">$4,250.00</strong></div>
+                  <div style="color: #4ADE80; font-size: 0.75rem; margin-left: 12px; margin-top: 4px;">Delta: $0.00 (Balanced Double-Entry Books)</div>
+                </div>
+              </div>
+
+              <!-- Till Reconciliation Waterfall Visual -->
+              <div style="flex: 1; min-width: 300px; background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 18px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                  <span style="font-size: 0.8125rem; font-weight: 700; color: ${tokens.textPrimary};">Till Session Reconciliation Visual</span>
+                  <span style="font-size: 0.6875rem; color: #4ADE80; background: #14291F; border: 1px solid #1E4620; padding: 2px 8px; border-radius: 9999px; font-weight: 700;">$0.00 VARIANCE ✓</span>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 7px; font-family: var(--stokrova-font-mono); font-size: 0.8125rem;">
+                  <div style="display: flex; justify-content: space-between; padding: 3px 0;">
+                    <span style="color: ${tokens.textSecondary};">Opening Float</span>
+                    <span style="color: ${tokens.textPrimary}; font-weight: 600;">$200.00</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; padding: 3px 0; color: ${tokens.primary};">
+                    <span>(+) Net Cash Sales</span>
+                    <span style="font-weight: 700;">+$4,250.00</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; padding: 3px 0; color: #F87171;">
+                    <span>(-) Paid Out / Expense</span>
+                    <span style="font-weight: 600;">-$150.00</span>
+                  </div>
+                  <div style="border-top: 1px solid ${tokens.border}; padding-top: 6px; display: flex; justify-content: space-between; color: #2D8A9E; font-weight: 700;">
+                    <span>(=) Expected Drawer Cash</span>
+                    <span>$4,300.00</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; padding: 3px 0; color: ${tokens.textPrimary}; font-weight: 700;">
+                    <span>Actual Blind Closing Count</span>
+                    <span>$4,300.00</span>
+                  </div>
+                </div>
+
+                <!-- Waterfall Progress Bar -->
+                <div style="height: 6px; background: #293136; border-radius: 3px; overflow: hidden; margin-top: 10px; display: flex;">
+                  <div style="width: 5%; background: #7E919F;" title="Float $200"></div>
+                  <div style="width: 95%; background: ${tokens.primary};" title="Cash Sales $4,250"></div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Card 5: Visual DAG Workflow Automation -->
+          <div class="feature-card" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 12px; padding: 24px; text-align: left;">
+            <div style="background: rgba(189,150,82,0.1); border: 1px solid rgba(189,150,82,0.25); border-radius: 8px; padding: 8px; display: inline-flex; margin-bottom: 14px;">
+              ${this.renderSvgIcon('dag', 22)}
+            </div>
+            <h3 class="card-h3" style="font-size: 1.125rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 8px 0;">Visual DAG Workflow Automation</h3>
+            <p style="font-size: 0.875rem; line-height: 1.5; color: ${tokens.textSecondary}; margin: 0 0 12px 0;">
+              Automate approvals, stock thresholds, and purchase orders via Kahn cycle-validated Directed Acyclic Graphs without schema locks.
+            </p>
+            <div style="font-size: 0.75rem; font-family: var(--stokrova-font-mono); color: ${tokens.primary}; background: #161B1E; padding: 6px 10px; border-radius: 4px; border: 1px solid ${tokens.border};">
+              Threshold Trigger → Kahn Cycle Check → Branch Manager Approval
+            </div>
+          </div>
+
+          <!-- Card 6: Cryptographic RBAC & Security -->
+          <div class="feature-card" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 12px; padding: 24px; text-align: left;">
+            <div style="background: rgba(189,150,82,0.1); border: 1px solid rgba(189,150,82,0.25); border-radius: 8px; padding: 8px; display: inline-flex; margin-bottom: 14px;">
+              ${this.renderSvgIcon('shield', 22)}
+            </div>
+            <h3 class="card-h3" style="font-size: 1.125rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 8px 0;">Cryptographic RBAC & Security</h3>
+            <p style="font-size: 0.875rem; line-height: 1.5; color: ${tokens.textSecondary}; margin: 0 0 12px 0;">
+              Enforce branch-scoped permissions across Cashiers, Store Managers, Warehouse Pickers, and Business Owners.
+            </p>
+            <div style="font-size: 0.75rem; font-family: var(--stokrova-font-mono); color: #4ADE80; background: #14291F; padding: 6px 10px; border-radius: 4px; border: 1px solid #1E4620;">
+              Branch-Scoped Token Authentication (Rule 21)
+            </div>
+          </div>
+
         </div>
       </section>
     `;
@@ -200,44 +803,90 @@ export class LandingViewModel {
   public renderArchitectureSectionHtml(): string {
     const tokens = themeTokens[this.theme];
     return `
-      <section id="architecture" style="padding: 72px 32px; max-width: 1120px; margin: 0 auto; border-top: 1px solid ${tokens.border};">
-        <div style="text-align: center; margin-bottom: 48px;">
-          <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(189,150,82,0.12); border: 1px solid ${tokens.primary}; padding: 4px 14px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; color: ${tokens.primary}; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px;">
+      <section id="architecture" class="landing-section" style="padding: 56px 32px; max-width: 1120px; margin: 0 auto; border-top: 1px solid ${tokens.border};">
+        <div style="text-align: center; margin-bottom: 40px;">
+          <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(189,150,82,0.12); border: 1px solid ${tokens.primary}; padding: 4px 14px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; color: ${tokens.primary}; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px;">
             <span>Multi-Company & Multi-Branch Topology</span>
           </div>
-          <h2 style="font-size: 2.25rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 0 0 12px 0;">Authoritative Inventory Across Every Location</h2>
-          <p style="font-size: 1rem; color: ${tokens.textSecondary}; max-width: 680px; margin: 0 auto;">
+          <h2 class="section-h2" style="font-size: 2.25rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 0 0 10px 0;">Authoritative Inventory Across Every Location</h2>
+          <p class="section-sub" style="font-size: 1rem; color: ${tokens.textSecondary}; max-width: 680px; margin: 0 auto;">
             From parent holding companies and bonded regional warehouses to high-street retail stores and pop-up locations, STOKROVA maintains unified inventory integrity and real-time in-transit tracking.
           </p>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 40px;">
-          <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 12px; padding: 28px;">
-            <div style="font-size: 1.5rem; margin-bottom: 12px;">🏛️</div>
-            <h3 style="font-size: 1.1rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 8px 0;">Multi-Entity Holding Hierarchy</h3>
-            <p style="font-size: 0.85rem; line-height: 1.5; color: ${tokens.textSecondary}; margin: 0 0 16px 0;">Manage multiple trading entities, legal subsidiaries, and operating currencies under a single tenant with automatic intercompany elimination.</p>
-            <div style="font-size: 0.75rem; font-family: var(--stokrova-font-mono); color: ${tokens.primary}; background: ${tokens.cardHover}; padding: 8px 12px; border-radius: 6px; border: 1px solid ${tokens.border};">
-              Holding Co → Operating Entities → Local Currencies (USD, GBP, EUR, NGN)
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 32px;">
+          
+          <!-- Card 1: Multi-Entity Holding Hierarchy with Visual Tree Diagram -->
+          <div class="arch-card" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 12px; padding: 24px;">
+            <div style="background: rgba(189,150,82,0.1); border: 1px solid rgba(189,150,82,0.25); border-radius: 8px; padding: 8px; display: inline-flex; margin-bottom: 10px;">
+              ${this.renderSvgIcon('holding', 22)}
+            </div>
+            <h3 class="card-h3" style="font-size: 1.1rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 6px 0;">Multi-Entity Holding Hierarchy</h3>
+            <p style="font-size: 0.85rem; line-height: 1.5; color: ${tokens.textSecondary}; margin: 0 0 14px 0;">
+              Manage multiple trading entities, legal subsidiaries, and operating currencies under a single tenant with automatic intercompany elimination.
+            </p>
+            
+            <!-- Visual Branch Tree Diagram -->
+            <div style="background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px; font-size: 0.75rem; font-family: var(--stokrova-font-mono);">
+              <div style="color: ${tokens.primary}; font-weight: 700; margin-bottom: 6px;">🏛️ Apex Global Holding Group</div>
+              <div style="margin-left: 12px; border-left: 2px solid ${tokens.borderStrong}; padding-left: 10px; display: flex; flex-direction: column; gap: 6px;">
+                <div>
+                  <div style="color: ${tokens.textPrimary}; font-weight: 600;">├── Apex UK Retail Ltd (GBP)</div>
+                  <div style="margin-left: 12px; color: ${tokens.textMuted}; font-size: 0.7rem;">• London Flagship: <strong style="color: ${tokens.primary};">$184k/mo</strong></div>
+                  <div style="margin-left: 12px; color: ${tokens.textMuted}; font-size: 0.7rem;">• Manchester Store: $92k/mo</div>
+                </div>
+                <div>
+                  <div style="color: ${tokens.textPrimary}; font-weight: 600;">└── Apex Logistics West Africa (USD/NGN)</div>
+                  <div style="margin-left: 12px; color: ${tokens.textMuted}; font-size: 0.7rem;">• Lagos Central: <strong style="color: ${tokens.primary};">$153k/mo</strong></div>
+                  <div style="margin-left: 12px; color: ${tokens.textMuted}; font-size: 0.7rem;">• Abuja Distribution Hub: $115k/mo</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 12px; padding: 28px;">
-            <div style="font-size: 1.5rem; margin-bottom: 12px;">🚚</div>
-            <h3 style="font-size: 1.1rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 8px 0;">Two-Step In-Transit Transfers</h3>
-            <p style="font-size: 0.85rem; line-height: 1.5; color: ${tokens.textSecondary}; margin: 0 0 16px 0;">Zero phantom stock. When goods leave a central distribution center, they sit in an audited IN-TRANSIT GL account until received and verified by the destination branch.</p>
-            <div style="font-size: 0.75rem; font-family: var(--stokrova-font-mono); color: ${tokens.primary}; background: ${tokens.cardHover}; padding: 8px 12px; border-radius: 6px; border: 1px solid ${tokens.border};">
-              Dispatch Verification → In-Transit Custody → Receiving Blind Inspection
+          <!-- Card 2: Two-Step In-Transit Transfers with 3-Stage Pipeline Diagram -->
+          <div class="arch-card" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 12px; padding: 24px;">
+            <div style="background: rgba(189,150,82,0.1); border: 1px solid rgba(189,150,82,0.25); border-radius: 8px; padding: 8px; display: inline-flex; margin-bottom: 10px;">
+              ${this.renderSvgIcon('truck', 22)}
+            </div>
+            <h3 class="card-h3" style="font-size: 1.1rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 6px 0;">Two-Step In-Transit Transfers</h3>
+            <p style="font-size: 0.85rem; line-height: 1.5; color: ${tokens.textSecondary}; margin: 0 0 14px 0;">
+              Zero phantom stock. When goods leave a central distribution center, they sit in an audited IN-TRANSIT GL account until received and verified by the destination branch.
+            </p>
+
+            <!-- 3-Step Milestone Pipeline (<ol>) -->
+            <ol style="list-style: none; padding: 0; margin: 0; background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px; font-size: 0.75rem; font-family: var(--stokrova-font-mono); display: flex; flex-direction: column; gap: 8px;">
+              <li style="display: flex; align-items: center; gap: 8px;">
+                <span style="background: ${tokens.primary}; color: #0E1116; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800;">1</span>
+                <span>Central DC Dispatch (Scan Barcode)</span>
+              </li>
+              <li style="display: flex; align-items: center; gap: 8px; color: ${tokens.primary};">
+                <span style="background: rgba(189,150,82,0.2); border: 1px solid ${tokens.primary}; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800;">2</span>
+                <span>In-Transit (GL Custody Account)</span>
+              </li>
+              <li style="display: flex; align-items: center; gap: 8px; color: #4ADE80;">
+                <span style="background: #14291F; border: 1px solid #1E4620; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800;">3</span>
+                <span>Blind Receiving Count (20/20 LAPTOP-PRO-16 ✓)</span>
+              </li>
+            </ol>
+          </div>
+
+          <!-- Card 3: Rule 21 Multi-Tenant Isolation -->
+          <div class="arch-card" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 12px; padding: 24px;">
+            <div style="background: rgba(189,150,82,0.1); border: 1px solid rgba(189,150,82,0.25); border-radius: 8px; padding: 8px; display: inline-flex; margin-bottom: 10px;">
+              ${this.renderSvgIcon('lock', 22)}
+            </div>
+            <h3 class="card-h3" style="font-size: 1.1rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 6px 0;">Rule 21 Multi-Tenant Isolation</h3>
+            <p style="font-size: 0.85rem; line-height: 1.5; color: ${tokens.textSecondary}; margin: 0 0 14px 0;">
+              Every subscriber's catalog, ledger, orders, and customer data are cryptographically quarantined. No cross-tenant bleed, no shared unencrypted state.
+            </p>
+            <div style="font-size: 0.75rem; font-family: var(--stokrova-font-mono); color: #4ADE80; background: #14291F; padding: 10px 12px; border-radius: 6px; border: 1px solid #1E4620; line-height: 1.45;">
+              <div>✓ Tenant-Scoped Row Security Active</div>
+              <div>✓ AES-256 Encrypted Offline SQLite Buffers</div>
+              <div>✓ Zero Global Cross-Tenant Contamination</div>
             </div>
           </div>
 
-          <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 12px; padding: 28px;">
-            <div style="font-size: 1.5rem; margin-bottom: 12px;">🛡️</div>
-            <h3 style="font-size: 1.1rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 8px 0;">Rule 21 Multi-Tenant Isolation</h3>
-            <p style="font-size: 0.85rem; line-height: 1.5; color: ${tokens.textSecondary}; margin: 0 0 16px 0;">Every subscriber's catalog, ledger, orders, and customer data are cryptographically quarantined. No cross-tenant bleed, no shared unencrypted state.</p>
-            <div style="font-size: 0.75rem; font-family: var(--stokrova-font-mono); color: #4ADE80; background: ${tokens.cardHover}; padding: 8px 12px; border-radius: 6px; border: 1px solid #1E4620;">
-              Tenant-Scoped Row Security + Branch-Scoped RBAC Enforcement
-            </div>
-          </div>
         </div>
       </section>
     `;
@@ -246,51 +895,303 @@ export class LandingViewModel {
   public renderPosSectionHtml(): string {
     const tokens = themeTokens[this.theme];
     return `
-      <section id="pos" style="padding: 72px 32px; max-width: 1120px; margin: 0 auto; border-top: 1px solid ${tokens.border};">
-        <div style="text-align: center; margin-bottom: 48px;">
-          <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(189,150,82,0.12); border: 1px solid ${tokens.primary}; padding: 4px 14px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; color: ${tokens.primary}; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px;">
+      <section id="pos" class="landing-section" style="padding: 56px 32px; max-width: 1120px; margin: 0 auto; border-top: 1px solid ${tokens.border};">
+        <div style="text-align: center; margin-bottom: 40px;">
+          <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(189,150,82,0.12); border: 1px solid ${tokens.primary}; padding: 4px 14px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; color: ${tokens.primary}; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px;">
             <span>High-Speed Retail Checkout</span>
           </div>
-          <h2 style="font-size: 2.25rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 0 0 12px 0;">Offline-Tolerant Point of Sale Architecture</h2>
-          <p style="font-size: 1rem; color: ${tokens.textSecondary}; max-width: 680px; margin: 0 auto;">
+          <h2 class="section-h2" style="font-size: 2.25rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 0 0 10px 0;">Offline-Tolerant Point of Sale Architecture</h2>
+          <p class="section-sub" style="font-size: 1rem; color: ${tokens.textSecondary}; max-width: 680px; margin: 0 auto;">
             Engineered for high-volume retail counters. Ring up sales at the speed of light with hardware laser scanner detection, split tenders, and continuous offline operation.
           </p>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 36px;">
-          <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 22px;">
-            <div style="font-size: 1.3rem; margin-bottom: 10px; color: ${tokens.primary};">⚡ Sub-50ms Scans</div>
-            <h4 style="margin: 0 0 6px 0; font-size: 0.95rem; color: ${tokens.textPrimary}; font-weight: 700;">Hardware Scanner Buffer</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 32px;">
+          <div class="pos-benefit-card" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 18px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: ${tokens.primary};">
+              ${this.renderSvgIcon('bolt', 18)}
+              <span style="font-weight: 700; font-size: 0.95rem;">Sub-50ms Scans</span>
+            </div>
+            <h4 style="margin: 0 0 4px 0; font-size: 0.9rem; color: ${tokens.textPrimary}; font-weight: 700;">Hardware Scanner Buffer</h4>
             <p style="margin: 0; font-size: 0.8rem; color: ${tokens.textSecondary}; line-height: 1.4;">Automatic distinction between keyboard input and laser barcode scanner bursts without dropping focus.</p>
           </div>
 
-          <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 22px;">
-            <div style="font-size: 1.3rem; margin-bottom: 10px; color: ${tokens.primary};">💳 Split Tender</div>
-            <h4 style="margin: 0 0 6px 0; font-size: 0.95rem; color: ${tokens.textPrimary}; font-weight: 700;">Multi-Payment Splitting</h4>
+          <div class="pos-benefit-card" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 18px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: ${tokens.primary};">
+              ${this.renderSvgIcon('card', 18)}
+              <span style="font-weight: 700; font-size: 0.95rem;">Split Tender</span>
+            </div>
+            <h4 style="margin: 0 0 4px 0; font-size: 0.9rem; color: ${tokens.textPrimary}; font-weight: 700;">Multi-Payment Splitting</h4>
             <p style="margin: 0; font-size: 0.8rem; color: ${tokens.textSecondary}; line-height: 1.4;">Accept multiple payment methods per ticket (cash + card + gift card) computed in pure integer minor units.</p>
           </div>
 
-          <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 22px;">
-            <div style="font-size: 1.3rem; margin-bottom: 10px; color: ${tokens.primary};">📴 Offline Outbox</div>
-            <h4 style="margin: 0 0 6px 0; font-size: 0.95rem; color: ${tokens.textPrimary}; font-weight: 700;">Zero-Drop Local Queue</h4>
+          <div class="pos-benefit-card" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 18px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: ${tokens.primary};">
+              ${this.renderSvgIcon('queue', 18)}
+              <span style="font-weight: 700; font-size: 0.95rem;">Zero-Drop Local Queue</span>
+            </div>
+            <h4 style="margin: 0 0 4px 0; font-size: 0.9rem; color: ${tokens.textPrimary}; font-weight: 700;">Reliable Offline Storage</h4>
             <p style="margin: 0; font-size: 0.8rem; color: ${tokens.textSecondary}; line-height: 1.4;">Transactions persist to local indexed storage with UUID idempotency keys, syncing seamlessly upon reconnect.</p>
           </div>
 
-          <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 22px;">
-            <div style="font-size: 1.3rem; margin-bottom: 10px; color: ${tokens.primary};">🧾 Thermal Receipts</div>
-            <h4 style="margin: 0 0 6px 0; font-size: 0.95rem; color: ${tokens.textPrimary}; font-weight: 700;">ESC/POS & Verification</h4>
+          <div class="pos-benefit-card" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 18px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: ${tokens.primary};">
+              ${this.renderSvgIcon('receipt', 18)}
+              <span style="font-weight: 700; font-size: 0.95rem;">Thermal Receipts</span>
+            </div>
+            <h4 style="margin: 0 0 4px 0; font-size: 0.9rem; color: ${tokens.textPrimary}; font-weight: 700;">ESC/POS & Verification</h4>
             <p style="margin: 0; font-size: 0.8rem; color: ${tokens.textSecondary}; line-height: 1.4;">Standard 80mm & 58mm thermal output featuring tamper-evident QR verification and itemized tax breakdowns.</p>
           </div>
         </div>
 
-        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; border-radius: 12px; padding: 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
-          <div>
-            <h3 style="margin: 0 0 4px 0; font-size: 1.15rem; color: ${tokens.textPrimary}; font-weight: 700;">Experience the POS in Action</h3>
-            <p style="margin: 0; font-size: 0.85rem; color: ${tokens.textSecondary};">Open the interactive workspace to ring items, test barcode scans, and inspect the double-entry ledger in real time.</p>
+        <!-- Interactive Till & Receipt Preview Card (Dual Tabbed) -->
+        <div class="pos-preview-wrapper" style="background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <h3 class="card-h3" style="margin: 0 0 4px 0; font-size: 1.15rem; color: ${tokens.textPrimary}; font-weight: 800;">Experience the POS in Action</h3>
+              <p style="margin: 0; font-size: 0.85rem; color: ${tokens.textSecondary};">Simulate an authentic high-speed retail checkout with split tenders and live 80mm receipt generation.</p>
+            </div>
+
+            <!-- Tab Buttons (Concise touch-accessible labels >= 44px) -->
+            <div style="display: flex; gap: 6px; background: #161B1E; padding: 4px; border-radius: 8px; border: 1px solid ${tokens.border};">
+              <button id="btn-tab-pos-scanner" class="pos-tab-btn" onclick="window.stokrovaCustomerApp.switchPosTab('scanner')" style="min-height: 44px; background: ${tokens.primary}; color: #0E1116; border: none; padding: 8px 14px; border-radius: 6px; font-size: 0.8125rem; font-weight: 700; cursor: pointer;">
+                Scanner & Cart
+              </button>
+              <button id="btn-tab-pos-receipt" class="pos-tab-btn" onclick="window.stokrovaCustomerApp.switchPosTab('receipt')" style="min-height: 44px; background: transparent; color: ${tokens.textSecondary}; border: none; padding: 8px 14px; border-radius: 6px; font-size: 0.8125rem; font-weight: 600; cursor: pointer;">
+                Thermal Receipt
+              </button>
+            </div>
           </div>
-          <button onclick="window.stokrovaCustomerApp.launchWorkspace({ tenantName: 'Apex Global Retail Ltd', branchName: 'London Flagship', userName: 'Victoria Sterling', userRole: 'Business Owner (Administrator)' })" style="background: ${tokens.primary}; color: #0E1116; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 700; font-size: 0.875rem; cursor: pointer; box-shadow: 0 2px 8px rgba(189,150,82,0.3);">
-            Launch Interactive Workspace →
-          </button>
+
+          <!-- Tab Content 1: Scanner & Split Tender Cart -->
+          <div id="tab-content-scanner" style="display: block;">
+            <div class="chart-dual-panel" style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; align-items: start;">
+              
+              <!-- Left: Live Scanner Buffer & Cart Table -->
+              <div style="background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 16px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+                  <span style="font-size: 0.75rem; font-weight: 700; color: ${tokens.primary}; text-transform: uppercase;">Laser Buffer Ready:</span>
+                  <div style="display: inline-flex; align-items: center; gap: 6px; background: #222830; border: 1px solid #333D46; padding: 4px 8px; border-radius: 4px; font-family: var(--stokrova-font-mono); font-size: 0.75rem; color: #4ADE80;">
+                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #4ADE80; animation: pulseDot 1.5s infinite;"></span>
+                    <span>5011000000018 (Apex Pro 16)</span>
+                  </div>
+                </div>
+
+                <!-- 3 Line Items Table -->
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.8125rem; font-family: var(--stokrova-font-mono);">
+                  <thead>
+                    <tr style="border-bottom: 1px solid ${tokens.border}; color: ${tokens.textMuted}; text-align: left; font-size: 0.7rem;">
+                      <th style="padding: 6px 0;">ITEM / SKU</th>
+                      <th style="padding: 6px 0; text-align: center;">QTY</th>
+                      <th style="padding: 6px 0; text-align: right;">PRICE</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style="border-bottom: 1px solid #222830; color: ${tokens.textPrimary};">
+                      <td style="padding: 8px 0;">Apex Pro 16 Laptop<br><span style="color: ${tokens.textMuted}; font-size: 0.7rem;">SKU: LAPTOP-PRO-16</span></td>
+                      <td style="padding: 8px 0; text-align: center;">1</td>
+                      <td style="padding: 8px 0; text-align: right; font-weight: 700;">$2,499.00</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #222830; color: ${tokens.textPrimary};">
+                      <td style="padding: 8px 0;">Apex Ultra 5G Phone<br><span style="color: ${tokens.textMuted}; font-size: 0.7rem;">SKU: PHONE-ULTRA-5G</span></td>
+                      <td style="padding: 8px 0; text-align: center;">1</td>
+                      <td style="padding: 8px 0; text-align: right; font-weight: 700;">$999.00</td>
+                    </tr>
+                    <tr style="color: ${tokens.textPrimary};">
+                      <td style="padding: 8px 0;">Oxford Cotton Shirt<br><span style="color: ${tokens.textMuted}; font-size: 0.7rem;">SKU: SHIRT-OXFORD-BLU</span></td>
+                      <td style="padding: 8px 0; text-align: center;">2</td>
+                      <td style="padding: 8px 0; text-align: right; font-weight: 700;">$130.00</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <div aria-live="polite" class="sr-only" id="pos-aria-announcer">Current till ticket subtotal $3,628.00</div>
+              </div>
+
+              <!-- Right: Split Payment Summary Box -->
+              <div style="background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 16px; font-family: var(--stokrova-font-mono);">
+                <div style="font-size: 0.75rem; color: ${tokens.textMuted}; margin-bottom: 4px; font-weight: 700;">TICKET SETTLEMENT</div>
+                <div style="font-size: 1.5rem; font-weight: 900; color: ${tokens.textPrimary}; margin-bottom: 10px;" font-variant-numeric: tabular-nums>$3,628.00</div>
+
+                <div style="border-top: 1px solid ${tokens.border}; padding-top: 8px; font-size: 0.75rem; display: flex; flex-direction: column; gap: 5px;">
+                  <div style="display: flex; justify-content: space-between; color: ${tokens.textSecondary};">
+                    <span>Subtotal:</span> <span>$3,628.00</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; color: ${tokens.textSecondary};">
+                    <span>Tax (0.00% VAT Ex.):</span> <span>$0.00</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; color: ${tokens.primary}; font-weight: 700;">
+                    <span>💳 Visa Card Tender:</span> <span>$3,000.00</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; color: #4ADE80; font-weight: 700;">
+                    <span>💵 Cash Collected:</span> <span>$628.00</span>
+                  </div>
+                </div>
+
+                <div style="margin-top: 12px; background: #14291F; border: 1px solid #1E4620; padding: 6px 8px; border-radius: 6px; font-size: 0.6875rem; color: #4ADE80; text-align: center;">
+                  📴 Offline Outbox: 3 sales queued locally in SQLite, syncing on connect
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Tab Content 2: 80mm Thermal Receipt (ESC/POS) -->
+          <div id="tab-content-receipt" style="display: none;">
+            <div style="display: flex; justify-content: center; padding: 8px 0;">
+              <!-- 80mm Receipt Container with Serrated Bottom Edge -->
+              <div class="thermal-receipt-paper" style="width: 100%; max-width: 300px; background: #FFFFFF; color: #1E2428; border-radius: 4px; padding: 20px 16px 28px 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-family: var(--stokrova-font-mono); font-size: 0.75rem; line-height: 1.4; position: relative;">
+                
+                <div style="text-align: center; border-bottom: 1px dashed #ACB8C3; padding-bottom: 10px; margin-bottom: 10px;">
+                  <div style="font-weight: 900; font-size: 0.9rem; letter-spacing: 0.05em;">APEX GLOBAL RETAIL LTD</div>
+                  <div style="font-size: 0.7rem; color: #586069;">London Flagship Store #01</div>
+                  <div style="font-size: 0.65rem; color: #586069;">VAT ID: GB 928 401 228</div>
+                  <div style="font-size: 0.65rem; color: #586069; margin-top: 2px;">Tx: POS-SALE-10482 • Cashier: Emma W.</div>
+                </div>
+
+                <div style="border-bottom: 1px dashed #ACB8C3; padding-bottom: 10px; margin-bottom: 10px;">
+                  <div style="display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 4px;">
+                    <span>1x Apex Pro 16 Laptop</span>
+                    <span>$2,499.00</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 4px;">
+                    <span>1x Apex Ultra 5G Phone</span>
+                    <span>$999.00</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-weight: 700;">
+                    <span>2x Oxford Cotton Shirt</span>
+                    <span>$130.00</span>
+                  </div>
+                </div>
+
+                <div style="border-bottom: 1px dashed #ACB8C3; padding-bottom: 10px; margin-bottom: 10px;">
+                  <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: #586069;">
+                    <span>SUBTOTAL</span> <span>$3,628.00</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: #586069;">
+                    <span>TAX (0.00%)</span> <span>$0.00</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-weight: 900; font-size: 1.05rem; margin-top: 4px;">
+                    <span>TOTAL</span> <span>$3,628.00</span>
+                  </div>
+                </div>
+
+                <!-- SVG QR Code with Integrity Hash -->
+                <div style="text-align: center; margin-top: 10px;">
+                  <svg width="78" height="78" viewBox="0 0 84 84" style="margin: 0 auto; display: block;" aria-hidden="true">
+                    <rect width="84" height="84" fill="#FFFFFF" />
+                    <rect x="6" y="6" width="24" height="24" fill="#1E2428" />
+                    <rect x="10" y="10" width="16" height="16" fill="#FFFFFF" />
+                    <rect x="14" y="14" width="8" height="8" fill="#1E2428" />
+                    
+                    <rect x="54" y="6" width="24" height="24" fill="#1E2428" />
+                    <rect x="58" y="10" width="16" height="16" fill="#FFFFFF" />
+                    <rect x="62" y="14" width="8" height="8" fill="#1E2428" />
+                    
+                    <rect x="6" y="54" width="24" height="24" fill="#1E2428" />
+                    <rect x="10" y="58" width="16" height="16" fill="#FFFFFF" />
+                    <rect x="14" y="62" width="8" height="8" fill="#1E2428" />
+
+                    <rect x="36" y="10" width="12" height="6" fill="#1E2428" />
+                    <rect x="36" y="24" width="6" height="12" fill="#1E2428" />
+                    <rect x="44" y="40" width="16" height="6" fill="#1E2428" />
+                    <rect x="36" y="54" width="8" height="18" fill="#1E2428" />
+                    <rect x="54" y="48" width="18" height="6" fill="#1E2428" />
+                    <rect x="64" y="62" width="12" height="12" fill="#1E2428" />
+                  </svg>
+                  <div style="font-size: 0.6rem; color: #586069; margin-top: 4px;">SHA256: 0x9f4a82...e12b</div>
+                  <div style="font-size: 0.65rem; font-weight: 700; margin-top: 2px; color: #1E2428;">OFFICIAL TAMPER-EVIDENT FISCAL RECEIPT</div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Action Row -->
+          <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid ${tokens.border}; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+            <div style="font-size: 0.8125rem; color: ${tokens.textSecondary};">
+              Ready to test in-browser? Open the interactive simulation with 28 live operations modules.
+            </div>
+            <button onclick="window.stokrovaCustomerApp.confirmOpenDemo()" style="min-height: 44px; background: ${tokens.primary}; color: #0E1116; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 700; font-size: 0.875rem; cursor: pointer; box-shadow: 0 2px 8px rgba(189,150,82,0.3);">
+              Launch Interactive Workspace →
+            </button>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  /**
+   * Section 5: "Who It's For" Row to prevent solo merchants from assuming STOKROVA is only enterprise bloat.
+   */
+  public renderWhoItsForSectionHtml(): string {
+    const tokens = themeTokens[this.theme];
+
+    const profiles = [
+      {
+        badge: 'SINGLE BOUTIQUE',
+        title: 'Single Shop & Retail Store',
+        desc: 'Frictionless checkout and automatic bookkeeping for high-street boutiques, pop-ups, and independent merchants.',
+        bullets: [
+          'Sub-50ms touch POS register',
+          'Standard thermal receipt output',
+          'Zero manual spreadsheet logging',
+          'Offline operation with local SQLite storage',
+        ],
+      },
+      {
+        badge: 'EXPANDING BRAND',
+        title: 'Growing Multi-Store Chain',
+        desc: 'Multi-branch visibility and two-step stock routing for brands opening second, third, or tenth store locations.',
+        bullets: [
+          'Inter-store transfers & IN-TRANSIT tracking',
+          'FEFO lot expiry & serial warranty control',
+          'Centralized pricing & customer accounts',
+          'Cashier till session variance auditing',
+        ],
+      },
+      {
+        badge: 'REGIONAL ENTERPRISE',
+        title: 'Distribution & Warehouse Group',
+        desc: 'Unified multi-company holding hierarchy for large-scale FMCG distribution, cold stores, and bonded warehouses.',
+        bullets: [
+          'Parent holding intercompany elimination',
+          'Visual DAG Kahn workflow orchestration',
+          'Wave-picking & dock receiving checklists',
+          'Strict cryptographic Rule 21 tenant isolation',
+        ],
+      },
+    ];
+
+    const cardsHtml = profiles
+      .map(
+        (p) => `
+        <div class="who-card" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 12px; padding: 24px; text-align: left; display: flex; flex-direction: column;">
+          <div style="font-size: 0.6875rem; font-weight: 800; color: ${tokens.primary}; letter-spacing: 0.08em; margin-bottom: 6px;">${p.badge}</div>
+          <h3 class="card-h3" style="font-size: 1.15rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 6px 0;">${p.title}</h3>
+          <p style="font-size: 0.85rem; line-height: 1.5; color: ${tokens.textSecondary}; margin: 0 0 16px 0; flex-grow: 1;">${p.desc}</p>
+          <ul style="list-style: none; padding: 0; margin: 0; border-top: 1px solid ${tokens.border}; padding-top: 12px; font-size: 0.8125rem; color: ${tokens.textSecondary}; display: flex; flex-direction: column; gap: 7px;">
+            ${p.bullets.map((b) => `<li style="display: flex; align-items: center; gap: 8px;"><span style="color: ${tokens.primary}; font-weight: 800;">✓</span> <span>${b}</span></li>`).join('')}
+          </ul>
+        </div>
+      `
+      )
+      .join('');
+
+    return `
+      <section id="who-its-for" class="landing-section" style="padding: 56px 32px; max-width: 1120px; margin: 0 auto; border-top: 1px solid ${tokens.border};">
+        <div style="text-align: center; margin-bottom: 36px;">
+          <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(189,150,82,0.12); border: 1px solid ${tokens.primary}; padding: 4px 14px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; color: ${tokens.primary}; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px;">
+            <span>Configurable Operational Scale</span>
+          </div>
+          <h2 class="section-h2" style="font-size: 2.25rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 0 0 10px 0;">Engineered to Fit Your Operational Scale</h2>
+          <p class="section-sub" style="font-size: 1rem; color: ${tokens.textSecondary}; max-width: 620px; margin: 0 auto;">
+            The business does not adapt itself to our software. Our software adapts itself to the business.
+          </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+          ${cardsHtml}
         </div>
       </section>
     `;
@@ -311,7 +1212,7 @@ export class LandingViewModel {
         const featuresList = p.features
           .map(
             (feat) => `
-            <li style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 0.875rem; color: ${tokens.textSecondary};">
+            <li style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 0.85rem; color: ${tokens.textSecondary};">
               <span style="color: ${tokens.primary}; font-weight: 800;">✓</span>
               <span>${feat}</span>
             </li>
@@ -319,36 +1220,144 @@ export class LandingViewModel {
           )
           .join('');
 
+        const enterpriseContactLink =
+          p.id === 'enterprise'
+            ? `<div style="text-align: center; margin-top: 14px; font-size: 0.75rem;"><a href="mailto:solutions@stokrova.com?subject=Enterprise%20Plan%20Inquiry" style="color: ${tokens.primary}; text-decoration: none; font-weight: 600;">Talk to our solutions architect team →</a></div>`
+            : '';
+
         return `
-          <div style="background: ${tokens.surface}; border: ${borderStyle}; border-radius: 12px; padding: 32px 28px; display: flex; flex-direction: column; position: relative;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div class="pricing-card" style="background: ${tokens.surface}; border: ${borderStyle}; border-radius: 12px; padding: 28px 24px; display: flex; flex-direction: column; position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
               <h3 style="font-size: 1.25rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 0;">${p.name}</h3>
               ${badgeHtml}
             </div>
-            <p style="font-size: 0.8125rem; color: ${tokens.textMuted}; min-height: 40px; margin: 0 0 20px 0;">${p.description}</p>
-            <div style="margin-bottom: 24px;">
-              <span style="font-size: 2.5rem; font-weight: 900; color: ${tokens.textPrimary}; font-family: var(--stokrova-font-mono);">${formatCurrencyMinor(p.monthlyPriceMinor, p.currency)}</span>
+            <!-- Ensured description text uses slate-300 #ACB8C3 for WCAG AAA 7:1+ contrast -->
+            <p style="font-size: 0.8125rem; color: #ACB8C3; min-height: 40px; margin: 0 0 16px 0; line-height: 1.5;">${p.description}</p>
+            <div style="margin-bottom: 20px;">
+              <span class="pricing-card-price" style="font-size: 2.25rem; font-weight: 900; color: ${tokens.textPrimary}; font-family: var(--stokrova-font-mono);" font-variant-numeric: tabular-nums>${formatCurrencyMinor(p.monthlyPriceMinor, p.currency)}</span>
               <span style="font-size: 0.875rem; color: ${tokens.textMuted};"> / month</span>
             </div>
-            <button onclick="window.stokrovaCustomerApp.openRegisterModal('${p.id}')" style="background: ${isRec ? tokens.primary : 'transparent'}; color: ${isRec ? '#0E1116' : tokens.textPrimary}; border: ${isRec ? 'none' : `1px solid ${tokens.borderStrong}`}; padding: 12px 20px; border-radius: 6px; font-size: 0.875rem; font-weight: 700; cursor: pointer; margin-bottom: 28px; transition: all 0.15s ease;">
+            <button onclick="window.stokrovaCustomerApp.openRegisterModal('${p.id}')" style="min-height: 44px; background: ${isRec ? tokens.primary : 'transparent'}; color: ${isRec ? '#0E1116' : tokens.textPrimary}; border: ${isRec ? 'none' : `1px solid ${tokens.borderStrong}`}; padding: 12px 20px; border-radius: 6px; font-size: 0.875rem; font-weight: 700; cursor: pointer; margin-bottom: 20px; transition: all 0.15s ease;">
               Choose ${p.name} →
             </button>
-            <ul style="list-style: none; padding: 0; margin: 0; border-top: 1px solid ${tokens.border}; padding-top: 20px;">
+            <ul style="list-style: none; padding: 0; margin: 0; border-top: 1px solid ${tokens.border}; padding-top: 18px; flex-grow: 1;">
               ${featuresList}
             </ul>
+            ${enterpriseContactLink}
           </div>
         `;
       })
       .join('');
 
     return `
-      <section id="pricing" style="padding: 64px 32px; max-width: 1120px; margin: 0 auto;">
-        <div style="text-align: center; margin-bottom: 48px;">
-          <h2 style="font-size: 2.25rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 0 0 12px 0;">Simple, Transparent SaaS Pricing</h2>
-          <p style="font-size: 1rem; color: ${tokens.textSecondary}; max-width: 600px; margin: 0 auto;">No hidden transaction percentages. Select the tier that matches your physical operational scale.</p>
+      <section id="pricing" class="landing-section" style="padding: 56px 32px; max-width: 1120px; margin: 0 auto; border-top: 1px solid ${tokens.border};">
+        <div style="text-align: center; margin-bottom: 40px;">
+          <h2 class="section-h2" style="font-size: 2.25rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 0 0 10px 0;">Simple, Transparent SaaS Pricing</h2>
+          <p class="section-sub" style="font-size: 1rem; color: ${tokens.textSecondary}; max-width: 600px; margin: 0 auto;">No hidden transaction percentages. Select the tier that matches your physical operational scale.</p>
         </div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; align-items: stretch;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: stretch;">
           ${plansHtml}
+        </div>
+      </section>
+    `;
+  }
+
+  /**
+   * Section 6: Native HTML5 <details>/<summary> FAQ accordion for enterprise objection handling.
+   */
+  public renderFaqSectionHtml(): string {
+    const tokens = themeTokens[this.theme];
+
+    const faqs = [
+      {
+        q: 'How does STOKROVA maintain 100% uptime when retail internet goes down?',
+        a: 'STOKROVA is built with an offline-first transactional engine. All counter actions, barcode scans, and split payments persist to encrypted local IndexedDB and SQLite outbox queues with deterministic UUID idempotency keys. When connection returns, transactions sync automatically with zero dropped records or duplicate charges.',
+      },
+      {
+        q: 'How does Rule 21 guarantee our business and financial data is kept isolated?',
+        a: 'Every database query, API contract, and general ledger journal strictly enforces tenant-scoped row-level security. We enforce our architectural Golden Rule 21: every tenant operates in cryptographic quarantine. There is zero cross-tenant query bleed, shared unencrypted caches, or unauthenticated data leakage.',
+      },
+      {
+        q: 'What receipt printers, barcode scanners, and counter hardware are supported?',
+        a: 'Universal standard retail hardware: ESC/POS thermal printers (both 80mm and 58mm via USB, Network, and Bluetooth), hardware laser barcode scanners with high-speed input buffering (sub-50ms scans), and automated cash drawers via standard RJ11/RJ12 pulses.',
+      },
+      {
+        q: 'Can we import our existing inventory catalogs and historical customer records?',
+        a: 'Yes. Built-in batch CSV/Excel import tools with intelligent column matching allow you to migrate thousands of products, variants, serial lots, and customer credit balances in seconds. REST and GraphQL bulk APIs are also available for enterprise systems.',
+      },
+      {
+        q: 'Can we upgrade, downgrade, or add branches at any time?',
+        a: 'Yes. You can add new branch stores, till sessions, or regional distribution warehouses directly from your business workspace settings. Subscription changes are calculated with pure integer minor unit precision and prorated down to the second.',
+      },
+      {
+        q: 'How does the interactive demo workspace work?',
+        a: 'The interactive workspace provides a fully live, in-browser simulated environment of STOKROVA operating as "Apex Global Retail Ltd". You can ring items at the POS, scan test barcodes, inspect double-entry general ledger postings, and test inter-branch transfers with zero real financial exposure.',
+      },
+    ];
+
+    const itemsHtml = faqs
+      .map(
+        (f) => `
+        <details class="faq-details" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 14px 18px; transition: border-color 0.2s ease;">
+          <summary style="font-size: 0.95rem; font-weight: 700; color: ${tokens.textPrimary}; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; min-height: 48px; padding: 2px 0;">
+            <span style="padding-right: 12px; line-height: 1.4;">${f.q}</span>
+            <span style="color: ${tokens.primary}; font-weight: 800; font-size: 1.1rem; flex-shrink: 0; width: 24px; text-align: center;">+</span>
+          </summary>
+          <div style="font-size: 0.875rem; line-height: 1.6; color: ${tokens.textSecondary}; margin-top: 10px; border-top: 1px solid ${tokens.border}; padding-top: 10px;">
+            ${f.a}
+          </div>
+        </details>
+      `
+      )
+      .join('');
+
+    return `
+      <section id="faq" class="landing-section" style="padding: 56px 32px; max-width: 900px; margin: 0 auto; border-top: 1px solid ${tokens.border};">
+        <div style="text-align: center; margin-bottom: 36px;">
+          <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(189,150,82,0.12); border: 1px solid ${tokens.primary}; padding: 4px 14px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; color: ${tokens.primary}; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px;">
+            <span>Clear Answers</span>
+          </div>
+          <h2 class="section-h2" style="font-size: 2.25rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 0 0 10px 0;">Frequently Asked Questions</h2>
+          <p class="section-sub" style="font-size: 1rem; color: ${tokens.textSecondary}; max-width: 600px; margin: 0 auto;">Everything you need to know about offline reliability, data sovereignty, and hardware compatibility.</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          ${itemsHtml}
+        </div>
+      </section>
+    `;
+  }
+
+  /**
+   * Section 7: Pre-Footer Final Conversion Banner.
+   */
+  public renderClosingCtaHtml(): string {
+    const tokens = themeTokens[this.theme];
+
+    return `
+      <section class="landing-section" style="padding: 56px 32px; max-width: 1120px; margin: 0 auto;">
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.primary}; border-radius: 14px; padding: 40px 28px; text-align: center; box-shadow: 0 0 35px rgba(189,150,82,0.15); position: relative; overflow: hidden;">
+          
+          <div style="position: relative; z-index: 1; max-width: 720px; margin: 0 auto;">
+            <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(189,150,82,0.12); border: 1px solid ${tokens.primary}; padding: 4px 14px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; color: ${tokens.primary}; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px;">
+              <span>Accelerate Your Commerce Operations</span>
+            </div>
+            <h2 class="section-h2 closing-cta-h2" style="font-size: clamp(1.8rem, 3.8vw, 2.5rem); font-weight: 900; color: ${tokens.textPrimary}; margin: 0 0 14px 0; letter-spacing: -0.02em;">
+              Run every branch from one screen.
+            </h2>
+            <p style="font-size: 1rem; line-height: 1.6; color: ${tokens.textSecondary}; margin: 0 0 28px 0;">
+              Experience the speed of offline-first retail, zero phantom inventory, and pure double-entry ledger truth. Provision your workspace in under 60 seconds.
+            </p>
+
+            <div style="display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
+              <button onclick="window.stokrovaCustomerApp.openRegisterModal()" style="min-height: 44px; background: ${tokens.primary}; color: #0E1116; border: none; padding: 12px 28px; border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(189,150,82,0.4);">
+                Register your business →
+              </button>
+              <button onclick="window.stokrovaCustomerApp.confirmOpenDemo()" style="min-height: 44px; background: #161B1E; color: ${tokens.textPrimary}; border: 1px solid ${tokens.borderStrong}; padding: 12px 24px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer;">
+                Explore the demo
+              </button>
+            </div>
+          </div>
         </div>
       </section>
     `;
@@ -357,33 +1366,33 @@ export class LandingViewModel {
   public renderRegisterModalHtml(): string {
     const tokens = themeTokens[this.theme];
     return `
-      <div id="modal-register" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
-        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; border-radius: 12px; width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.6); padding: 32px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <div id="modal-register" role="dialog" aria-modal="true" aria-labelledby="reg-modal-title" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
+        <div class="modal-dialog-inner" style="background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; border-radius: 12px; width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.6); padding: 28px 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
             <div>
-              <h2 style="margin: 0; font-size: 1.4rem; color: ${tokens.textPrimary};">Register Your Business</h2>
-              <p style="margin: 4px 0 0 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">Create your isolated multi-branch workspace (Rule 21 Multi-Tenant Isolation)</p>
+              <h2 id="reg-modal-title" style="margin: 0; font-size: 1.3rem; color: ${tokens.textPrimary};">Register Your Business</h2>
+              <p style="margin: 3px 0 0 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">Create your isolated multi-branch workspace (Rule 21 Multi-Tenant Isolation)</p>
             </div>
-            <button onclick="window.stokrovaCustomerApp.closeRegisterModal()" style="background: none; border: none; font-size: 1.5rem; color: ${tokens.textMuted}; cursor: pointer;">&times;</button>
+            <button onclick="window.stokrovaCustomerApp.closeRegisterModal()" aria-label="Close dialog" style="background: none; border: none; width: 44px; height: 44px; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; color: ${tokens.textMuted}; cursor: pointer;">&times;</button>
           </div>
 
           <form id="form-register-customer" onsubmit="window.stokrovaCustomerApp.handleRegisterSubmit(event)">
-            <div style="margin-bottom: 16px;">
-              <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">BUSINESS / COMPANY LEGAL NAME *</label>
-              <input id="reg-company-name" type="text" required placeholder="e.g. Apex Global Retail Ltd" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
+            <div style="margin-bottom: 14px;">
+              <label for="reg-company-name" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">BUSINESS / COMPANY LEGAL NAME *</label>
+              <input id="reg-company-name" class="form-input" type="text" required placeholder="e.g. Apex Global Retail Ltd" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+            <div class="modal-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
               <div>
-                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">WORKSPACE SLUG (SUBDOMAIN) *</label>
-                <div style="display: flex; align-items: center; background: ${tokens.background}; border: 1px solid ${tokens.border}; border-radius: 6px; overflow: hidden;">
-                  <input id="reg-slug" type="text" required placeholder="apex" style="flex: 1; padding: 10px 12px; background: transparent; border: none; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
+                <label for="reg-slug" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">WORKSPACE SLUG (SUBDOMAIN) *</label>
+                <div style="display: flex; align-items: center; background: ${tokens.background}; border: 1px solid ${tokens.border}; border-radius: 6px; overflow: hidden; min-height: 44px;">
+                  <input id="reg-slug" class="form-input" type="text" required placeholder="apex" style="flex: 1; min-height: 44px; padding: 10px 12px; background: transparent; border: none; color: ${tokens.textPrimary}; font-size: 16px;" />
                   <span style="padding: 0 10px; font-size: 0.75rem; color: ${tokens.textMuted};">.stokrova.com</span>
                 </div>
               </div>
               <div>
-                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">BASE CURRENCY *</label>
-                <select id="reg-currency" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;">
+                <label for="reg-currency" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">BASE CURRENCY *</label>
+                <select id="reg-currency" class="form-input" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;">
                   <option value="USD">USD ($) — US Dollar</option>
                   <option value="GBP">GBP (£) — British Pound</option>
                   <option value="EUR">EUR (€) — Euro</option>
@@ -393,25 +1402,25 @@ export class LandingViewModel {
               </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+            <div class="modal-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
               <div>
-                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">OWNER FULL NAME *</label>
-                <input id="reg-owner-name" type="text" required placeholder="Victoria Sterling" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
+                <label for="reg-owner-name" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">OWNER FULL NAME *</label>
+                <input id="reg-owner-name" class="form-input" type="text" required placeholder="Victoria Sterling" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
               </div>
               <div>
-                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">OWNER WORK EMAIL *</label>
-                <input id="reg-owner-email" type="email" required placeholder="victoria@apex.com" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
+                <label for="reg-owner-email" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">OWNER WORK EMAIL *</label>
+                <input id="reg-owner-email" class="form-input" type="email" required placeholder="victoria@apex.com" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
               </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+            <div class="modal-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
               <div>
-                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">PASSWORD *</label>
-                <input id="reg-password" type="password" required placeholder="••••••••••••" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
+                <label for="reg-password" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">PASSWORD *</label>
+                <input id="reg-password" class="form-input" type="password" required placeholder="••••••••••••" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
               </div>
               <div>
-                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">PLAN TIER</label>
-                <select id="reg-tier" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;">
+                <label for="reg-tier" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">PLAN TIER</label>
+                <select id="reg-tier" class="form-input" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;">
                   <option value="starter">Starter — $49/mo</option>
                   <option value="growth" selected>Growth — $149/mo (Recommended)</option>
                   <option value="enterprise">Enterprise — $399/mo</option>
@@ -419,16 +1428,16 @@ export class LandingViewModel {
               </div>
             </div>
 
-            <div style="margin-bottom: 24px;">
-              <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">INITIAL FLAGSHIP / STORE BRANCH NAME</label>
-              <input id="reg-branch-name" type="text" placeholder="e.g. London Central Flagship" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
+            <div style="margin-bottom: 20px;">
+              <label for="reg-branch-name" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">INITIAL FLAGSHIP / STORE BRANCH NAME</label>
+              <input id="reg-branch-name" class="form-input" type="text" placeholder="e.g. London Central Flagship" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
             </div>
 
-            <div style="display: flex; justify-content: flex-end; gap: 12px;">
-              <button type="button" onclick="window.stokrovaCustomerApp.closeRegisterModal()" style="padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
+            <div style="display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
+              <button type="button" onclick="window.stokrovaCustomerApp.closeRegisterModal()" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
                 Cancel
               </button>
-              <button type="submit" style="padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer;">
+              <button type="submit" style="min-height: 44px; padding: 10px 22px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer;">
                 Complete Registration & Launch Workspace →
               </button>
             </div>
@@ -441,37 +1450,43 @@ export class LandingViewModel {
   public renderLoginModalHtml(): string {
     const tokens = themeTokens[this.theme];
     return `
-      <div id="modal-login" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
-        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; border-radius: 12px; width: 100%; max-width: 480px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); padding: 32px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <div id="modal-login" role="dialog" aria-modal="true" aria-labelledby="login-modal-title" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
+        <div class="modal-dialog-inner" style="background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; border-radius: 12px; width: 100%; max-width: 480px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); padding: 28px 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div>
-              <h2 style="margin: 0; font-size: 1.4rem; color: ${tokens.textPrimary};">Staff Sign In</h2>
-              <p style="margin: 4px 0 0 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">Enter your business slug and credentials to access your live workspace</p>
+              <h2 id="login-modal-title" style="margin: 0; font-size: 1.3rem; color: ${tokens.textPrimary};">Staff Sign In</h2>
+              <p style="margin: 3px 0 0 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">Enter your business slug and credentials to access your live workspace</p>
             </div>
-            <button onclick="window.stokrovaCustomerApp.closeLoginModal()" style="background: none; border: none; font-size: 1.5rem; color: ${tokens.textMuted}; cursor: pointer;">&times;</button>
+            <button onclick="window.stokrovaCustomerApp.closeLoginModal()" aria-label="Close dialog" style="background: none; border: none; width: 44px; height: 44px; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; color: ${tokens.textMuted}; cursor: pointer;">&times;</button>
           </div>
 
           <form id="form-login-customer" onsubmit="window.stokrovaCustomerApp.handleLoginSubmit(event)">
-            <div style="margin-bottom: 16px;">
-              <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">BUSINESS WORKSPACE / SLUG *</label>
-              <input id="login-slug" type="text" required placeholder="e.g. acme-retail" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
+            <div style="margin-bottom: 14px;">
+              <label for="login-slug" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">BUSINESS WORKSPACE / SLUG *</label>
+              <input id="login-slug" class="form-input" type="text" required placeholder="e.g. apex" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+              <div style="text-align: right; margin-top: 4px;">
+                <a href="#" onclick="window.stokrovaCustomerApp.showToast('Demo workspace slug is: apex'); return false;" style="font-size: 0.7rem; color: ${tokens.primary}; text-decoration: none;">Forgot your workspace name?</a>
+              </div>
             </div>
 
-            <div style="margin-bottom: 16px;">
-              <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">STAFF WORK EMAIL *</label>
-              <input id="login-email" type="email" required placeholder="name@company.com" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
+            <div style="margin-bottom: 14px;">
+              <label for="login-email" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">STAFF WORK EMAIL *</label>
+              <input id="login-email" class="form-input" type="email" required placeholder="name@company.com" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+              <div style="font-size: 0.75rem; color: ${tokens.primary}; margin-top: 5px; line-height: 1.4;">
+                💡 Demo roles hint: Use an email containing manager, cashier, or picker to preview those specific staff views.
+              </div>
             </div>
 
-            <div style="margin-bottom: 24px;">
-              <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">PASSWORD / PIN *</label>
-              <input id="login-password" type="password" required placeholder="••••••••••••" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
+            <div style="margin-bottom: 20px;">
+              <label for="login-password" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">PASSWORD / PIN *</label>
+              <input id="login-password" class="form-input" type="password" required placeholder="••••••••••••" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
             </div>
 
-            <div style="display: flex; justify-content: flex-end; gap: 12px;">
-              <button type="button" onclick="window.stokrovaCustomerApp.closeLoginModal()" style="padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
+            <div style="display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
+              <button type="button" onclick="window.stokrovaCustomerApp.closeLoginModal()" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
                 Cancel
               </button>
-              <button type="submit" style="padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer;">
+              <button type="submit" style="min-height: 44px; padding: 10px 22px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer;">
                 Sign In to Workspace →
               </button>
             </div>
@@ -481,41 +1496,122 @@ export class LandingViewModel {
     `;
   }
 
+  /**
+   * Section 8: Interactive Demo Confirmation Warning Dialog.
+   */
+  public renderDemoConfirmModalHtml(): string {
+    const tokens = themeTokens[this.theme];
+    return `
+      <div id="modal-demo-confirm" role="dialog" aria-modal="true" aria-labelledby="demo-confirm-title" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
+        <div class="modal-dialog-inner" style="background: ${tokens.surface}; border: 1px solid ${tokens.primary}; border-radius: 12px; width: 100%; max-width: 480px; box-shadow: 0 20px 40px rgba(0,0,0,0.7); padding: 28px 22px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 1.4rem; color: ${tokens.primary};">◆</span>
+              <h2 id="demo-confirm-title" style="margin: 0; font-size: 1.2rem; color: ${tokens.textPrimary}; font-weight: 800;">Open Live Interactive Demo</h2>
+            </div>
+            <button onclick="window.stokrovaCustomerApp.closeDemoConfirmModal()" aria-label="Close dialog" style="background: none; border: none; width: 44px; height: 44px; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; color: ${tokens.textMuted}; cursor: pointer;">&times;</button>
+          </div>
+
+          <p style="font-size: 0.875rem; line-height: 1.55; color: ${tokens.textSecondary}; margin: 0 0 16px 0;">
+            You're about to open a live demo workspace as Victoria Sterling (Business Owner). No real data is used.
+          </p>
+
+          <div style="background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px 14px; font-size: 0.8125rem; color: ${tokens.textSecondary}; margin-bottom: 20px; display: flex; flex-direction: column; gap: 7px;">
+            <div>✓ Ring items on the offline-first touch POS register</div>
+            <div>✓ Inspect automated double-entry ledger postings</div>
+            <div>✓ Explore multi-branch transfers & in-transit tracking</div>
+            <div>✓ Full access across all 28 business workspace views</div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
+            <button type="button" onclick="window.stokrovaCustomerApp.closeDemoConfirmModal()" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
+              Cancel
+            </button>
+            <button type="button" onclick="window.stokrovaCustomerApp.proceedToDemo()" style="min-height: 44px; padding: 10px 22px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer;">
+              Open demo →
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Section 9: Legal & Compliance Informative Dialogs for Privacy and Terms.
+   */
+  public renderLegalModalHtml(): string {
+    const tokens = themeTokens[this.theme];
+    return `
+      <div id="modal-legal" role="dialog" aria-modal="true" aria-labelledby="legal-modal-title" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
+        <div class="modal-dialog-inner" style="background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; border-radius: 12px; width: 100%; max-width: 580px; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.7); padding: 28px 22px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h2 id="legal-modal-title" style="margin: 0; font-size: 1.2rem; color: ${tokens.textPrimary}; font-weight: 800;">Legal & Security Compliance</h2>
+            <button onclick="window.stokrovaCustomerApp.closeLegalModal()" aria-label="Close dialog" style="background: none; border: none; width: 44px; height: 44px; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; color: ${tokens.textMuted}; cursor: pointer;">&times;</button>
+          </div>
+
+          <div id="legal-modal-body" style="font-size: 0.875rem; line-height: 1.6; color: ${tokens.textSecondary};">
+            <h4 style="color: ${tokens.textPrimary}; margin: 14px 0 4px 0;">Rule 21 Multi-Tenant Data Quarantine</h4>
+            <p>Every business subscriber's catalog, double-entry financial ledger, orders, and customer information are cryptographically isolated with tenant-scoped row security. Cross-tenant leakage is strictly prevented at the architectural layer.</p>
+
+            <h4 style="color: ${tokens.textPrimary}; margin: 14px 0 4px 0;">Offline Outbox & Financial Ledger Immutability</h4>
+            <p>All sales and inventory adjustments post append-only journal entries. Financial transactions are never overwritten or silently deleted; corrections require explicit compensating debit/credit reversals.</p>
+
+            <h4 style="color: ${tokens.textPrimary}; margin: 14px 0 4px 0;">Privacy & Data Sovereignty</h4>
+            <p>Customer contact information is strictly used for workspace provisioning, order invoicing, and receipts. We do not sell or monetize tenant transaction telemetry.</p>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+            <button type="button" onclick="window.stokrovaCustomerApp.closeLegalModal()" style="min-height: 44px; padding: 10px 20px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   public renderFooterHtml(): string {
     const tokens = themeTokens[this.theme];
     return `
-      <footer style="background: ${tokens.surface}; border-top: 1px solid ${tokens.border}; padding: 48px 32px 32px 32px; color: ${tokens.textMuted}; font-size: 0.8125rem;">
-        <div style="max-width: 1120px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 32px;">
+      <footer style="background: ${tokens.surface}; border-top: 1px solid ${tokens.border}; padding: 44px 32px 28px 32px; color: ${tokens.textMuted}; font-size: 0.8125rem;">
+        <div style="max-width: 1120px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 28px;">
           <div>
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-              <span style="color: ${tokens.primary}; font-weight: 800;">◆</span>
-              <span style="color: ${tokens.textPrimary}; font-weight: 800; font-size: 1.1rem;">STOKROVA</span>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+              <img src="./assets/stokrova-symbol.png" alt="" width="22" height="22" style="display: block; object-fit: contain;" onerror="this.style.display='none'; document.getElementById('ftr-fallback-sym').style.display='inline-block';" />
+              <span id="ftr-fallback-sym" style="display: none; color: ${tokens.primary}; font-weight: 800;">◆</span>
+              <span style="color: ${tokens.textPrimary}; font-weight: 800; font-size: 1.1rem; letter-spacing: 0.05em;">STOKROVA</span>
             </div>
-            <p style="margin: 0 0 12px 0; max-width: 320px; line-height: 1.5;">Enterprise multi-branch inventory, retail POS, and financial orchestration platform.</p>
-            <div>Strict Multi-Tenant Rule 21 • Pure Minor Currency Math</div>
+            <p style="margin: 0 0 10px 0; max-width: 320px; line-height: 1.5; color: ${tokens.textSecondary};">
+              Enterprise multi-branch inventory, retail POS, and financial orchestration operating platform.
+            </p>
+            <div style="font-family: var(--stokrova-font-mono); font-size: 0.75rem; color: ${tokens.primary};">
+              Strict Multi-Tenant Rule 21 • Pure Minor Currency Math
+            </div>
           </div>
 
-          <div style="display: flex; gap: 48px;">
+          <div style="display: flex; gap: 40px; flex-wrap: wrap;">
             <div>
-              <div style="font-weight: 700; color: ${tokens.textPrimary}; margin-bottom: 12px; text-transform: uppercase; font-size: 0.75rem;">Platform</div>
-              <div style="display: flex; flex-direction: column; gap: 8px;">
-                <a href="#features" style="color: ${tokens.textSecondary}; text-decoration: none;">Features</a>
-                <a href="#pricing" style="color: ${tokens.textSecondary}; text-decoration: none;">Pricing</a>
-                <a href="https://admin.stokrova.com" target="_blank" style="color: ${tokens.primary}; text-decoration: none; font-weight: 600;">👑 Platform Founder Console</a>
+              <div style="font-weight: 700; color: ${tokens.textPrimary}; margin-bottom: 10px; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.08em;">Platform</div>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <a href="#features" style="color: ${tokens.textSecondary}; text-decoration: none; min-height: 32px; display: inline-flex; align-items: center;">Features</a>
+                <a href="#money-flow" style="color: ${tokens.textSecondary}; text-decoration: none; min-height: 32px; display: inline-flex; align-items: center;">Money Flow</a>
+                <a href="#pricing" style="color: ${tokens.textSecondary}; text-decoration: none; min-height: 32px; display: inline-flex; align-items: center;">Pricing</a>
+                <a href="https://admin.stokrova.com" target="_blank" style="color: ${tokens.primary}; text-decoration: none; font-weight: 600; min-height: 32px; display: inline-flex; align-items: center;">👑 Platform admin (staff only)</a>
               </div>
             </div>
             <div>
-              <div style="font-weight: 700; color: ${tokens.textPrimary}; margin-bottom: 12px; text-transform: uppercase; font-size: 0.75rem;">Legal & Compliance</div>
-              <div style="display: flex; flex-direction: column; gap: 8px;">
-                <span>Tenant Isolation Guarantee</span>
-                <span>Immutable Financial History</span>
-                <span>Audit Trail Compliant</span>
+              <div style="font-weight: 700; color: ${tokens.textPrimary}; margin-bottom: 10px; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.08em;">Legal & Compliance</div>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <a href="#" onclick="window.stokrovaCustomerApp.openLegalModal('isolation'); return false;" style="color: ${tokens.textSecondary}; text-decoration: none; min-height: 32px; display: inline-flex; align-items: center;">Tenant Isolation Guarantee (Rule 21)</a>
+                <a href="#" onclick="window.stokrovaCustomerApp.openLegalModal('ledger'); return false;" style="color: ${tokens.textSecondary}; text-decoration: none; min-height: 32px; display: inline-flex; align-items: center;">Immutable Financial History</a>
+                <a href="#" onclick="window.stokrovaCustomerApp.openLegalModal('privacy'); return false;" style="color: ${tokens.textSecondary}; text-decoration: none; min-height: 32px; display: inline-flex; align-items: center;">Privacy Policy</a>
+                <a href="#" onclick="window.stokrovaCustomerApp.openLegalModal('terms'); return false;" style="color: ${tokens.textSecondary}; text-decoration: none; min-height: 32px; display: inline-flex; align-items: center;">Terms of Service</a>
               </div>
             </div>
           </div>
         </div>
 
-        <div style="max-width: 1120px; margin: 36px auto 0 auto; padding-top: 24px; border-top: 1px solid ${tokens.border}; text-align: center; font-size: 0.75rem;">
+        <div style="max-width: 1120px; margin: 32px auto 0 auto; padding-top: 20px; border-top: 1px solid ${tokens.border}; text-align: center; font-size: 0.75rem; color: ${tokens.textMuted};">
           © ${new Date().getFullYear()} STOKROVA. All rights reserved.
         </div>
       </footer>

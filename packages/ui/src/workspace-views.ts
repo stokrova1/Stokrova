@@ -6,7 +6,6 @@
  */
 
 import { themeTokens, brandColors, semanticTokens } from './tokens.js';
-import { MASTER_NAVIGATION_SECTIONS, type NavigationSection } from './navigation.js';
 
 export interface WorkspaceSidebarOptions {
   activeViewId?: string;
@@ -106,29 +105,104 @@ export const MODULE_EMOJIS: Record<string, string> = {
 export function renderMasterSidebarHtml(options: WorkspaceSidebarOptions = {}): string {
   const theme = options.theme || 'dark';
   const tokens = themeTokens[theme];
+  const isDark = theme === 'dark';
   const activeViewId = options.activeViewId || 'dashboard';
   const clickFn = options.onItemClickFnName || 'window.stokrovaCustomerApp.showWsView';
 
-  // Sections with Workflows attached to Platform Administration
-  const sections: NavigationSection[] = [
-    ...MASTER_NAVIGATION_SECTIONS,
+  // 9 Canonical Domain Groupings (Overview, Sell, Stock, Buy, Move, Make, Money, Control, Settings)
+  const domainSections = [
     {
-      id: 'automation',
-      title: 'Workflow Automation',
+      id: 'overview',
+      title: 'Overview',
       items: [
-        {
-          id: 'nav_workflows',
-          label: 'DAG Workflows Studio',
-          path: '/workflows',
-          icon: 'git-branch',
-          shortcut: 'W',
-          requiredPermission: 'workflows.manage',
-        },
+        { id: 'nav_dashboards', label: 'Executive Command Center', path: '/analytics/dashboards', icon: 'bar-chart-2', shortcut: 'D' },
+        { id: 'nav_abc', label: 'ABC Velocity & Dead Stock', path: '/analytics/inventory', icon: 'pie-chart' },
+      ],
+    },
+    {
+      id: 'commerce',
+      title: 'Sell',
+      items: [
+        { id: 'nav_pos', label: 'Point of Sale (POS)', path: '/pos', icon: 'calculator', shortcut: 'F1' },
+        { id: 'nav_orders', label: 'Sales Orders', path: '/orders', icon: 'shopping-bag', shortcut: 'O' },
+        { id: 'nav_invoices', label: 'Invoices & Payments', path: '/invoices', icon: 'credit-card', shortcut: 'I' },
+        { id: 'nav_quotes', label: 'Quotations & B2B', path: '/quotes', icon: 'file-text' },
+        { id: 'nav_crm', label: 'CRM & Accounts', path: '/crm', icon: 'users', shortcut: 'C' },
+        { id: 'nav_pricing', label: 'Price Lists & Contracts', path: '/pricing/price-lists', icon: 'dollar-sign' },
+        { id: 'nav_promotions', label: 'Promotions & Coupons', path: '/pricing/promotions', icon: 'percent' },
+        { id: 'nav_loyalty', label: 'Loyalty Rewards', path: '/loyalty', icon: 'gift' },
+      ],
+    },
+    {
+      id: 'inventory',
+      title: 'Stock',
+      items: [
+        { id: 'nav_catalog', label: 'Products & Variants', path: '/catalog/products', icon: 'tag', shortcut: 'P' },
+        { id: 'nav_ledger', label: 'Stock Movement Ledger', path: '/inventory/ledger', icon: 'layers', shortcut: 'M' },
+        { id: 'nav_locations', label: 'Warehouses & 8-Tier Bins', path: '/inventory/locations', icon: 'map-pin' },
+        { id: 'nav_availability', label: 'Stock Availability Engine', path: '/inventory/availability', icon: 'box' },
+      ],
+    },
+    {
+      id: 'procurement',
+      title: 'Buy',
+      items: [
+        { id: 'nav_suppliers', label: 'Suppliers & Catalogs', path: '/procurement/suppliers', icon: 'truck' },
+        { id: 'nav_po', label: 'Purchase Orders (PO)', path: '/procurement/orders', icon: 'clipboard' },
+        { id: 'nav_receiving', label: 'Goods Receipt & 3-Way Match', path: '/procurement/receiving', icon: 'check-square' },
+      ],
+    },
+    {
+      id: 'logistics',
+      title: 'Move',
+      items: [
+        { id: 'nav_picking', label: 'Wave & Zone Picking', path: '/logistics/picking', icon: 'package' },
+        { id: 'nav_dispatch', label: 'Containerization & BOL', path: '/logistics/dispatch', icon: 'send' },
+        { id: 'nav_fleet', label: 'Fleet & Proof of Delivery', path: '/logistics/fleet', icon: 'navigation' },
+      ],
+    },
+    {
+      id: 'manufacturing',
+      title: 'Make',
+      items: [
+        { id: 'nav_bom', label: 'Bills of Materials (BOM)', path: '/manufacturing/boms', icon: 'cpu' },
+        { id: 'nav_mo', label: 'Production Work Orders', path: '/manufacturing/orders', icon: 'activity' },
+      ],
+    },
+    {
+      id: 'finance',
+      title: 'Money',
+      items: [
+        { id: 'nav_registers', label: 'Till Sessions & Cash Count', path: '/registers', icon: 'dollar-sign', shortcut: 'R' },
+        { id: 'nav_gl', label: 'Double-Entry General Ledger', path: '/finance/ledger', icon: 'book' },
+        { id: 'nav_tax', label: 'Fiscal E-Invoicing & Taxes', path: '/finance/tax', icon: 'percent' },
+        { id: 'nav_treasury', label: 'Treasury & Bank Feeds', path: '/finance/treasury', icon: 'briefcase' },
+        { id: 'nav_consolidation', label: 'Multi-Entity Consolidation', path: '/finance/consolidation', icon: 'globe' },
+      ],
+    },
+    {
+      id: 'intelligence',
+      title: 'Control',
+      items: [
+        { id: 'nav_audit', label: 'Audit Forensics & Merkle Ledger', path: '/audit/forensics', icon: 'shield', shortcut: 'S' },
+        { id: 'nav_compliance', label: 'GDPR & SOX 404 Compliance', path: '/compliance', icon: 'lock' },
+        { id: 'nav_workflows', label: 'DAG Workflows Studio', path: '/workflows', icon: 'git-branch', shortcut: 'W' },
+      ],
+    },
+    {
+      id: 'settings',
+      title: 'Settings',
+      items: [
+        { id: 'nav_org', label: 'Organization Topology', path: '/settings/organization', icon: 'briefcase' },
+        { id: 'nav_rebranding', label: 'Rebranding & Theme', path: '/settings/rebranding', icon: 'palette' },
+        { id: 'nav_rbac', label: 'Roles & Staff', path: '/settings/roles', icon: 'user-check' },
+        { id: 'nav_devices', label: 'Hardware Peripherals', path: '/settings/devices', icon: 'printer' },
+        { id: 'nav_integrations', label: 'Webhooks & EDI', path: '/settings/integrations', icon: 'git-pull-request' },
       ],
     },
   ];
 
-  const sectionsHtml = sections
+  const sectionsHtml = domainSections
     .map((sec) => {
       const itemsHtml = sec.items
         .map((item) => {
@@ -136,15 +210,20 @@ export function renderMasterSidebarHtml(options: WorkspaceSidebarOptions = {}): 
           const isActive = viewId === activeViewId;
           const emoji = MODULE_EMOJIS[item.id] || '◆';
           const shortcutHtml = item.shortcut
-            ? `<kbd style="border: 1px solid ${tokens.borderStrong}; background: rgba(255,255,255,0.06); padding: 1px 5px; border-radius: 4px; font-size: 0.65rem; color: ${tokens.textMuted}; font-family: var(--stokrova-font-mono, monospace);">${item.shortcut}</kbd>`
+            ? `<kbd style="border: 1px solid ${tokens.borderStrong}; background: ${isDark ? 'rgba(255,255,255,0.06)' : '#F1F5F9'}; padding: 1px 5px; border-radius: 4px; font-size: 0.65rem; color: ${tokens.textMuted}; font-family: var(--stokrova-font-mono, monospace);">${item.shortcut}</kbd>`
             : '';
 
+          // Exact official design system active/inactive styling
+          const activeStyle = isDark
+            ? `background: rgba(189,150,82,0.15); color: #E0CB9F; font-weight: 600; border-left: 3px solid #BD9652;`
+            : `background: #FDFBF7; color: #85642D; font-weight: 600; border-left: 3px solid #BD9652;`;
+
+          const inactiveStyle = isDark
+            ? `color: #ACB8C3; font-weight: 500; border-left: 3px solid transparent;`
+            : `color: #586A78; font-weight: 500; border-left: 3px solid transparent;`;
+
           return `
-            <div id="ws-nav-${viewId}" class="workspace-nav-item ${isActive ? 'active' : ''}" data-view-id="${viewId}" data-nav-id="${item.id}" onclick="${clickFn}('${viewId}')" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 10px; margin: 1px 4px; border-radius: 6px; font-size: 0.8125rem; cursor: pointer; text-decoration: none; transition: all 0.12s ease; ${
-            isActive
-              ? `background: rgba(189,150,82,0.15); color: ${brandColors.gold[400]}; font-weight: 600; border-left: 3px solid ${brandColors.gold[500]};`
-              : `color: ${tokens.textSecondary};`
-          }">
+            <div id="ws-nav-${viewId}" class="workspace-nav-item ${isActive ? 'active' : ''}" data-view-id="${viewId}" data-nav-id="${item.id}" onclick="${clickFn}('${viewId}')" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 10px; margin: 1px 4px; border-radius: 6px; font-size: 0.8125rem; cursor: pointer; text-decoration: none; transition: all 0.12s ease; ${isActive ? activeStyle : inactiveStyle}">
               <div style="display: flex; align-items: center; gap: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                 <span style="font-size: 0.95rem; line-height: 1;">${emoji}</span>
                 <span class="nav-label" style="overflow: hidden; text-overflow: ellipsis;">${item.label}</span>
@@ -156,8 +235,8 @@ export function renderMasterSidebarHtml(options: WorkspaceSidebarOptions = {}): 
         .join('\n');
 
       return `
-        <div class="workspace-nav-section" id="ws-sec-${sec.id}" style="margin-bottom: 12px;">
-          <div style="padding: 8px 12px 4px 12px; font-size: 0.6875rem; font-weight: 700; color: ${tokens.textMuted}; text-transform: uppercase; letter-spacing: 0.08em; display: flex; align-items: center; justify-content: space-between;">
+        <div class="workspace-nav-section" id="ws-sec-${sec.id}" style="margin-bottom: 10px;">
+          <div style="padding: 6px 12px 3px 12px; font-size: 11px; font-weight: 700; color: ${tokens.textMuted}; text-transform: uppercase; letter-spacing: 0.08em; display: flex; align-items: center; justify-content: space-between;">
             <span>${sec.title}</span>
             <span style="font-size: 0.65rem; color: ${tokens.borderStrong}; font-family: monospace;">${sec.items.length}</span>
           </div>
@@ -168,18 +247,20 @@ export function renderMasterSidebarHtml(options: WorkspaceSidebarOptions = {}): 
     .join('\n');
 
   return `
-    <aside class="workspace-sidebar" style="width: 270px; background: ${tokens.surface}; border-right: 1px solid ${tokens.border}; padding: 12px 4px; display: flex; flex-direction: column; overflow-y: auto; height: 100%;">
-      ${sectionsHtml}
-      <div style="margin-top: auto; padding: 12px 14px; border-top: 1px solid ${tokens.border}; font-size: 0.75rem; color: ${tokens.textMuted}; display: flex; flex-direction: column; gap: 4px;">
+    <aside class="workspace-sidebar" style="width: 272px; min-width: 272px; background: ${tokens.surface}; border-right: 1px solid ${tokens.border}; padding: 10px 4px; display: flex; flex-direction: column; overflow-y: auto; height: 100%; box-sizing: border-box;">
+      <div class="sidebar-scrollable" style="flex: 1; overflow-y: auto; overflow-x: hidden;">
+        ${sectionsHtml}
+      </div>
+      <div class="sidebar-footer" style="margin-top: auto; padding: 12px 14px; border-top: 1px solid ${tokens.border}; font-size: 0.75rem; color: ${tokens.textMuted}; display: flex; flex-direction: column; gap: 4px; background: ${tokens.surface};">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <span>Tenant Scope:</span>
           <span style="color: ${tokens.textPrimary}; font-weight: 600;">${options.tenantName || 'Apex Global Ltd'}</span>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <span>Branch:</span>
-          <span style="color: ${brandColors.gold[400]}; font-weight: 600;">${options.branchName || 'London Flagship'}</span>
+          <span style="color: ${isDark ? '#E0CB9F' : '#85642D'}; font-weight: 600;">${options.branchName || 'London Flagship'}</span>
         </div>
-        <div style="font-size: 0.6875rem; color: #4ADE80; margin-top: 2px;">● Rule 21 Tenant Isolation Active</div>
+        <div style="font-size: 0.6875rem; color: #16A34A; margin-top: 2px; font-weight: 600;">● Rule 21 Tenant Isolation Active</div>
       </div>
     </aside>
   `.trim();

@@ -41,8 +41,9 @@ export function formatCurrencyMinor(
   const abs = isNegative ? -big : big;
   const major = abs / 100n;
   const minor = abs % 100n;
+  const majorStr = major.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   const paddedMinor = minor.toString().padStart(2, '0');
-  const formattedNumber = `${major.toLocaleString('en-US')}.${paddedMinor}`;
+  const formattedNumber = `${majorStr}.${paddedMinor}`;
   const prefix = isNegative ? '-' : '';
 
   switch (currencyCode.toUpperCase()) {

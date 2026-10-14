@@ -53,17 +53,39 @@ export class HealthController {
 
   @Get('ready')
   async readinessCheck() {
-    let dbStatus = 'ready';
+    let dbStatus = 'down';
     let dbError: string | undefined;
 
     if (this.dbPool && typeof this.dbPool.query === 'function') {
       try {
-        await this.dbPool.query('SELECT 1;');
-        dbStatus = 'ready';
+        const pingRes: any = await this.dbPool.query(`
+          SELECT 
+            1 as connected,
+            EXISTS (
+              SELECT 1 FROM information_schema.tables 
+              WHERE table_schema = 'public' AND table_name = 'tenants'
+            ) as schema_ready;
+        `);
+        const rows = pingRes?.rows || [];
+        const firstRow = rows[0];
+        if (rows.length > 0) {
+          if (firstRow?.schema_ready === false) {
+            dbStatus = 'schema_missing';
+            dbError = 'Core schema tables missing from target database.';
+          } else {
+            dbStatus = 'ready';
+          }
+        } else {
+          dbStatus = 'down';
+          dbError = 'Database query returned empty response.';
+        }
       } catch (err: any) {
         dbStatus = 'down';
         dbError = err?.message || 'Database connection probe failed';
       }
+    } else {
+      // In decoupled unit-test or lightweight mock environments without a db pool
+      dbStatus = 'ready';
     }
 
     const redisAvailable = this.redisService ? this.redisService.isAvailable() : true;
@@ -77,7 +99,7 @@ export class HealthController {
         redis: redisAvailable ? 'up' : 'degraded',
         config: 'validated',
       },
-      ...(dbError ? { error: dbError } : {}),
+      ...(dbError && !isReady ? { error: dbError } : {}),
       timestamp: new Date().toISOString(),
     };
 

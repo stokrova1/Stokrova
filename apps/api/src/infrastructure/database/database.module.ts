@@ -4,32 +4,31 @@ import { ApiConfigService } from '../../config/api-config.service.js';
 import { DATABASE_CLIENT, DATABASE_POOL } from './database.tokens.js';
 import { TransactionManager } from './transaction.manager.js';
 
+const DB_CONNECTION_HOLDER = Symbol('DB_CONNECTION_HOLDER');
+
 @Global()
 @Module({
   providers: [
     {
-      provide: DATABASE_CLIENT,
+      provide: DB_CONNECTION_HOLDER,
       inject: [ApiConfigService],
       useFactory: (configService: ApiConfigService) => {
         try {
-          const { db } = createDatabaseClient(configService.config.databaseUrl);
-          return db;
+          return createDatabaseClient(configService.config.databaseUrl);
         } catch {
-          return null;
+          return { db: null, pool: null };
         }
       },
     },
     {
+      provide: DATABASE_CLIENT,
+      inject: [DB_CONNECTION_HOLDER],
+      useFactory: (holder: { db: any; pool: any }) => holder.db,
+    },
+    {
       provide: DATABASE_POOL,
-      inject: [ApiConfigService],
-      useFactory: (configService: ApiConfigService) => {
-        try {
-          const { pool } = createDatabaseClient(configService.config.databaseUrl);
-          return pool;
-        } catch {
-          return null;
-        }
-      },
+      inject: [DB_CONNECTION_HOLDER],
+      useFactory: (holder: { db: any; pool: any }) => holder.pool,
     },
     TransactionManager,
   ],

@@ -3,6 +3,10 @@ import { LandingViewModel } from '../src/landing-view.js';
 import { formatCurrencyMinor } from '@stokrova/ui';
 
 describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', () => {
+  // ==========================================
+  // ORIGINAL 8 PRESERVED TESTS (STRICT UNBROKEN CONTRACT)
+  // ==========================================
+
   it('initializes with default dark theme and returns 3 pricing tiers', () => {
     const view = new LandingViewModel('dark');
     const plans = view.getPricingPlans();
@@ -99,5 +103,118 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     expect(html).toContain('Zero-Drop Local Queue');
     expect(html).toContain('Thermal Receipts');
     expect(html).toContain('Launch Interactive Workspace →');
+  });
+
+  // ==========================================
+  // NEW ENHANCEMENT TESTS (COVERING BRAND & UX ADDITIONS)
+  // ==========================================
+
+  it('renders hero command center with authentic executive KPIs, area chart, and accessibility table', () => {
+    const view = new LandingViewModel('dark');
+    const html = view.renderHeroCommandCenterHtml();
+
+    expect(html).toContain('app.stokrova.com/command-center');
+    expect(html).toContain('$4,850,000');
+    expect(html).toContain('$382,000.00');
+    expect(html).toContain('38.50%');
+    expect(html).toContain('Stockout Risk');
+    expect(html).toContain('Till Variance');
+    expect(html).toContain('Balanced');
+    expect(html).toContain('Illustrative platform data.');
+    expect(html).toContain('role="region"');
+    expect(html).toContain('aria-label="Example executive overview"');
+    expect(html).toContain('class="sr-only"');
+    expect(html).toContain('Cost of Goods (Teal)');
+    expect(html).toContain('Lagos Central');
+    expect(html).toContain('Abuja Mall');
+  });
+
+  it('renders animated money flow strip demonstrating physical to financial pipeline', () => {
+    const view = new LandingViewModel('dark');
+    const html = view.renderMoneyFlowStripHtml();
+
+    expect(html).toContain('id="money-flow"');
+    expect(html).toContain('Every sale, counted once — everywhere.');
+    expect(html).toContain('Scan at till');
+    expect(html).toContain('Sale recorded');
+    expect(html).toContain('Stock updated');
+    expect(html).toContain('Ledger balanced');
+    expect(html).toContain('Owner sees profit');
+    expect(html).toContain('5011000000018');
+    expect(html).toContain('DR 1010 = CR 4010');
+  });
+
+  it('renders who its for section explaining operational scaling from single boutique to enterprise', () => {
+    const view = new LandingViewModel('dark');
+    const html = view.renderWhoItsForSectionHtml();
+
+    expect(html).toContain('id="who-its-for"');
+    expect(html).toContain('Engineered to Fit Your Operational Scale');
+    expect(html).toContain('Single Shop & Retail Store');
+    expect(html).toContain('Growing Multi-Store Chain');
+    expect(html).toContain('Distribution & Warehouse Group');
+    expect(html).toContain('SINGLE BOUTIQUE');
+    expect(html).toContain('EXPANDING BRAND');
+    expect(html).toContain('REGIONAL ENTERPRISE');
+  });
+
+  it('renders FAQ accordion section with native details/summary and core architectural answers', () => {
+    const view = new LandingViewModel('dark');
+    const html = view.renderFaqSectionHtml();
+
+    expect(html).toContain('id="faq"');
+    expect(html).toContain('Frequently Asked Questions');
+    expect(html).toContain('<details');
+    expect(html).toContain('<summary');
+    expect(html).toContain('How does STOKROVA maintain 100% uptime when retail internet goes down?');
+    expect(html).toContain('Rule 21');
+    expect(html).toContain('ESC/POS');
+  });
+
+  it('renders pre-footer closing CTA banner and interactive demo warning modal', () => {
+    const view = new LandingViewModel('dark');
+    const ctaHtml = view.renderClosingCtaHtml();
+    const demoModalHtml = view.renderDemoConfirmModalHtml();
+
+    expect(ctaHtml).toContain('Run every branch from one screen.');
+    expect(ctaHtml).toContain('Register your business →');
+    expect(ctaHtml).toContain('Explore the demo');
+
+    expect(demoModalHtml).toContain('id="modal-demo-confirm"');
+    expect(demoModalHtml).toContain('Open Live Interactive Demo');
+    expect(demoModalHtml).toContain('Victoria Sterling');
+    expect(demoModalHtml).toContain('Open demo →');
+  });
+
+  it('renders till session reconciliation waterfall and lot expiry tables in features and architecture', () => {
+    const view = new LandingViewModel('dark');
+    const featHtml = view.renderFeaturesGridHtml();
+    const archHtml = view.renderArchitectureSectionHtml();
+
+    expect(featHtml).toContain('Till Session Reconciliation Visual');
+    expect(featHtml).toContain('Opening Float');
+    expect(featHtml).toContain('Actual Blind Closing Count');
+    expect(featHtml).toContain('LOT-2026-B1');
+    expect(featHtml).toContain('USE FIRST');
+
+    expect(archHtml).toContain('Apex Global Holding Group');
+    expect(archHtml).toContain('London Flagship');
+    expect(archHtml).toContain('Blind Receiving Count');
+    expect(archHtml).toContain('LAPTOP-PRO-16');
+  });
+
+  it('renders responsive mobile drawer navigation and accessible dialog labels', () => {
+    const view = new LandingViewModel('dark');
+    const hdrHtml = view.renderHeaderHtml();
+    const regModalHtml = view.renderRegisterModalHtml();
+
+    expect(hdrHtml).toContain('id="nav-hamburger-btn"');
+    expect(hdrHtml).toContain('id="mobile-nav-drawer"');
+    expect(hdrHtml).toContain('aria-label="Toggle navigation menu"');
+
+    expect(regModalHtml).toContain('role="dialog"');
+    expect(regModalHtml).toContain('aria-modal="true"');
+    expect(regModalHtml).toContain('for="reg-company-name"');
+    expect(regModalHtml).toContain('for="reg-slug"');
   });
 });

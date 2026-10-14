@@ -6,6 +6,18 @@ import { StructuredLoggingInterceptor } from './common/interceptors/logging.inte
 import { SecurityHeadersMiddleware } from './common/middleware/security-headers.middleware.js';
 import { RateLimiterMiddleware } from './common/middleware/rate-limiter.middleware.js';
 
+if (typeof process.loadEnvFile === 'function') {
+  try {
+    process.loadEnvFile();
+  } catch {
+    try {
+      process.loadEnvFile('../../.env');
+    } catch {
+      // ignore
+    }
+  }
+}
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 

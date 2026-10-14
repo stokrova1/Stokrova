@@ -39,11 +39,16 @@ DECLARE
   t text;
 BEGIN
   FOREACH t IN ARRAY tables LOOP
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = t) THEN
+    IF EXISTS (
+      SELECT 1 FROM information_schema.columns 
+      WHERE table_schema = 'public' 
+        AND table_name = t 
+        AND column_name = 'tenant_id'
+    ) THEN
       EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY;', t);
       EXECUTE format('ALTER TABLE public.%I FORCE ROW LEVEL SECURITY;', t);
       EXECUTE format('DROP POLICY IF EXISTS tenant_isolation_policy ON public.%I;', t);
-      EXECUTE format('CREATE POLICY tenant_isolation_policy ON public.%I AS RESTRICTIVE FOR ALL USING (tenant_id = NULLIF(current_setting(''app.current_tenant_id'', true), '')::text OR current_setting(''app.is_platform_admin'', true) = ''true'') WITH CHECK (tenant_id = NULLIF(current_setting(''app.current_tenant_id'', true), '')::text OR current_setting(''app.is_platform_admin'', true) = ''true'');', t);
+      EXECUTE format($sql$CREATE POLICY tenant_isolation_policy ON public.%I AS RESTRICTIVE FOR ALL USING (tenant_id = NULLIF(current_setting('app.current_tenant_id', true), '')::text OR current_setting('app.is_platform_admin', true) = 'true') WITH CHECK (tenant_id = NULLIF(current_setting('app.current_tenant_id', true), '')::text OR current_setting('app.is_platform_admin', true) = 'true');$sql$, t);
     END IF;
   END LOOP;
 END $$;
@@ -63,6 +68,6 @@ BEGIN
     EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY;', tbl.table_name);
     EXECUTE format('ALTER TABLE public.%I FORCE ROW LEVEL SECURITY;', tbl.table_name);
     EXECUTE format('DROP POLICY IF EXISTS tenant_isolation_policy ON public.%I;', tbl.table_name);
-    EXECUTE format('CREATE POLICY tenant_isolation_policy ON public.%I AS RESTRICTIVE FOR ALL USING (tenant_id = NULLIF(current_setting(''app.current_tenant_id'', true), '')::text OR current_setting(''app.is_platform_admin'', true) = ''true'') WITH CHECK (tenant_id = NULLIF(current_setting(''app.current_tenant_id'', true), '')::text OR current_setting(''app.is_platform_admin'', true) = ''true'');', tbl.table_name);
+    EXECUTE format($sql$CREATE POLICY tenant_isolation_policy ON public.%I AS RESTRICTIVE FOR ALL USING (tenant_id = NULLIF(current_setting('app.current_tenant_id', true), '')::text OR current_setting('app.is_platform_admin', true) = 'true') WITH CHECK (tenant_id = NULLIF(current_setting('app.current_tenant_id', true), '')::text OR current_setting('app.is_platform_admin', true) = 'true');$sql$, tbl.table_name);
   END LOOP;
 END $$;

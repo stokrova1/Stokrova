@@ -25,13 +25,19 @@ export class TransactionManager {
   ): Promise<T> {
     if (this.db && typeof this.db.transaction === 'function') {
       return this.db.transaction(async (tx) => {
-        if (options?.tenantId && tx && typeof (tx as any).execute === 'function') {
-          const tenantId = options.tenantId;
-          const isPlatformAdmin = options.isPlatformAdmin ? 'true' : 'false';
+        if (tx && typeof (tx as any).execute === 'function') {
           try {
-            await (tx as any).execute(
-              sql`SELECT set_config('app.current_tenant_id', ${tenantId}, true), set_config('app.is_platform_admin', ${isPlatformAdmin}, true);`,
-            );
+            if (options?.isPlatformAdmin) {
+              await (tx as any).execute(
+                sql`SELECT set_config('app.is_platform_admin', 'true', true);`,
+              );
+            } else if (options?.tenantId) {
+              const tenantId = options.tenantId;
+              await (tx as any).execute(sql`SET LOCAL ROLE authenticated;`);
+              await (tx as any).execute(
+                sql`SELECT set_config('app.current_tenant_id', ${tenantId}, true), set_config('app.is_platform_admin', 'false', true);`,
+              );
+            }
           } catch {
             // Graceful fallback for mocked / decoupled unit tests
           }
