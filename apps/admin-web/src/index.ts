@@ -354,4 +354,9 @@ export * from './workflows-view.js';
 export * from './dashboard-view.js';
 export * from './api-client.js';
 export * from './platform-founder-view.js';
+export * from './procurement-view.js';
+export * from './finance-view.js';
+export * from './registers-view.js';
+export * from './rbac-view.js';
+export * from './organization-view.js';
 

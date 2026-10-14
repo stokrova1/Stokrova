@@ -3,13 +3,12 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   AdminWebShell,
-  DashboardViewModel,
-  CatalogViewModel,
-  InventoryViewModel,
-  OrdersViewModel,
-  WorkflowsStudioViewModel,
   PlatformFounderView,
 } from './dist/index.js';
+import {
+  renderMasterSidebarHtml,
+  renderAllWorkspaceViewsHtml,
+} from '@stokrova/ui';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,194 +29,24 @@ const defaultContext = {
 
 const shell = new AdminWebShell({ context: defaultContext, theme: 'dark' });
 
-const dashboardView = new DashboardViewModel({
-  grossMerchandiseValueMinor: 485000000n,
-  netRevenueMinor: 382000000n,
-  grossMarginBps: 3450,
-  stockoutRiskIndex: 4,
-  warehouseUtilizationPct: 78.5,
-  openTillSessionsCount: 6,
-  cashierVarianceAlertsMinor: 0n,
-  activeWorkflowsRunning: 8,
-  currencyCode: 'USD',
-});
-
-const catalogView = new CatalogViewModel('dark');
-catalogView.addProduct({
-  id: 'prod_1',
-  sku: 'LAPTOP-PRO-16',
-  barcode: '5011000000018',
-  name: 'Apex Pro 16-inch Workstation Laptop',
-  category: 'Electronics',
-  attributes: { processor: 'M4 Max', ram: '64GB', storage: '2TB' },
-  costPriceMinor: 120000n,
-  retailPriceMinor: 249900n,
-  wholesalePriceMinor: 180000n,
-  stockOnHand: 40,
-  isArchived: false,
-});
-catalogView.addProduct({
-  id: 'prod_2',
-  sku: 'SMARTPHONE-ULTRA-5G',
-  barcode: '5011000000025',
-  name: 'Apex Ultra 5G Smartphone 256GB',
-  category: 'Electronics',
-  attributes: { color: 'Titanium Black', storage: '256GB' },
-  costPriceMinor: 45000n,
-  retailPriceMinor: 99900n,
-  wholesalePriceMinor: 72000n,
-  stockOnHand: 85,
-  isArchived: false,
-});
-catalogView.addProduct({
-  id: 'prod_3',
-  sku: 'SHIRT-OXFORD-BLU-M',
-  barcode: '5012000000011',
-  name: 'Royal Oxford Cotton Shirt (Blue/M)',
-  category: 'Apparel',
-  attributes: { color: 'Blue', size: 'M' },
-  costPriceMinor: 1500n,
-  retailPriceMinor: 6500n,
-  wholesalePriceMinor: 3800n,
-  stockOnHand: 120,
-  isArchived: false,
-});
-
-const inventoryView = new InventoryViewModel('dark');
-inventoryView.addLot({
-  lotNumber: 'LOT-2026-MED-001',
-  sku: 'MED-VACCINE-AMP',
-  productName: 'Cold-Chain Sterile Vaccine 5ml Ampoule',
-  binLocationCode: 'B-02-01-01',
-  quantity: 500,
-  expiryDateIso: '2027-01-15T00:00:00Z',
-  holdStatus: 'ACTIVE',
-  receivedDateIso: '2026-10-10T00:00:00Z',
-});
-inventoryView.addLot({
-  lotNumber: 'LOT-2026-BEV-042',
-  sku: 'BEV-ESPRESSO-BEANS-1KG',
-  productName: 'Artisan Roast Espresso Beans 1kg Bag',
-  binLocationCode: 'A-01-02-03',
-  quantity: 300,
-  expiryDateIso: '2026-11-20T00:00:00Z',
-  holdStatus: 'ACTIVE',
-  receivedDateIso: '2026-09-01T00:00:00Z',
-});
-inventoryView.transferStock(
-  'LAPTOP-PRO-16',
-  'RECEIVING-DOCK',
-  'A-01-02-03',
-  20,
-  'usr_sam',
-  'PO-2026-089 Inbound',
-);
-inventoryView.transferStock(
-  'SHIRT-OXFORD-BLU-M',
-  'A-01-02-04',
-  'DISPATCH-BAY-1',
-  12,
-  'usr_david',
-  'WAVE-LON-042 Dispatch',
-);
-
-const ordersView = new OrdersViewModel('dark');
-ordersView.addSalesOrder({
-  orderId: 'ord_apex_901',
-  orderNumber: 'SO-2026-901',
-  customerName: 'Trans-European Freight Logistics SA',
-  status: 'PAID',
-  totalMinor: 1440000n, // $14,400.00
-  currencyCode: 'USD',
-  createdAtIso: new Date(Date.now() - 7200000).toISOString(),
-  lines: [
-    {
-      sku: 'LAPTOP-PRO-16',
-      productName: 'Apex Pro 16-inch Workstation Laptop',
-      quantity: 6,
-      unitPriceMinor: 180000n,
-      lineTotalMinor: 1080000n,
-    },
-    {
-      sku: 'SMARTPHONE-ULTRA-5G',
-      productName: 'Apex Ultra 5G Smartphone 256GB',
-      quantity: 5,
-      unitPriceMinor: 72000n,
-      lineTotalMinor: 360000n,
-    },
-  ],
-});
-ordersView.addSalesOrder({
-  orderId: 'ord_apex_902',
-  orderNumber: 'POS-LON-8812',
-  customerName: 'Walk-in Retail Customer',
-  status: 'DISPATCHED',
-  totalMinor: 314900n, // $3,149.00
-  currencyCode: 'USD',
-  createdAtIso: new Date(Date.now() - 2400000).toISOString(),
-  lines: [
-    {
-      sku: 'LAPTOP-PRO-16',
-      productName: 'Apex Pro 16-inch Workstation Laptop',
-      quantity: 1,
-      unitPriceMinor: 249900n,
-      lineTotalMinor: 249900n,
-    },
-    {
-      sku: 'SHIRT-OXFORD-BLU-M',
-      productName: 'Royal Oxford Cotton Shirt (Blue/M)',
-      quantity: 10,
-      unitPriceMinor: 6500n,
-      lineTotalMinor: 65000n,
-    },
-  ],
-});
-
-const workflowsView = new WorkflowsStudioViewModel('dark');
-workflowsView.addNode({
-  id: 'node_trigger',
-  label: 'Wholesale Order Placed',
-  type: 'TRIGGER',
-  description: 'Triggers on SO creation with terms > 15 days',
-  config: { event: 'ORDER_PLACED' },
-  position: { x: 40, y: 160 },
-});
-workflowsView.addNode({
-  id: 'node_condition',
-  label: 'Credit Limit Check',
-  type: 'CONDITION',
-  description: 'Checks balance against $500k credit limit',
-  config: { rule: 'AR_WITHIN_LIMIT' },
-  position: { x: 260, y: 160 },
-});
-workflowsView.addNode({
-  id: 'node_action',
-  label: 'Allocate Warehouse Stock',
-  type: 'ACTION',
-  description: 'Reserves serial units in double-entry ledger',
-  config: { service: 'StockLedger' },
-  position: { x: 480, y: 160 },
-});
-workflowsView.addEdge({
-  id: 'edge_1',
-  sourceNodeId: 'node_trigger',
-  targetNodeId: 'node_condition',
-  conditionLabel: 'Amount > $5k',
-});
-workflowsView.addEdge({
-  id: 'edge_2',
-  sourceNodeId: 'node_condition',
-  targetNodeId: 'node_action',
-  conditionLabel: 'Credit OK',
-});
-
 // 2. Render View HTML Blocks
 const founderHtml = founderView.renderPlatformFounderPortalHtml();
-const dashboardHtml = dashboardView.renderDashboardHtml();
-const catalogHtml = catalogView.renderCatalogTableHtml();
-const inventoryHtml = inventoryView.renderFefoExplorerHtml();
-const ordersHtml = ordersView.renderPipelineHtml();
-const workflowsHtml = workflowsView.renderStudioGraphHtml();
+
+const masterBusinessSidebarHtml = renderMasterSidebarHtml({
+  activeViewId: 'dashboard',
+  tenantName: 'Apex Global Retail & Logistics Ltd',
+  branchName: 'London Flagship Store',
+  theme: 'dark',
+  onItemClickFnName: 'window.stokrovaApp.showView',
+});
+
+const allBusinessViewsHtml = renderAllWorkspaceViewsHtml({
+  theme: 'dark',
+  tenantName: 'Apex Global Retail & Logistics Ltd',
+  branchName: 'London Flagship Store',
+  currencyCode: 'USD',
+  onActionToastFnName: 'window.stokrovaApp.showToast',
+});
 
 // 3. Assemble Complete Interactive Application HTML
 const completeAppHtml = `
@@ -228,6 +57,9 @@ const completeAppHtml = `
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>STOKROVA — Platform Founder & Enterprise Operations</title>
   <link rel="icon" type="image/png" href="https://assets.stokrova.com/icon-32.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #0D1117;
@@ -242,7 +74,8 @@ const completeAppHtml = `
       --text-muted: #6E7681;
       --success: #3FB950;
       --error: #F85149;
-      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --stokrova-font-mono: 'JetBrains Mono', monospace;
     }
     * { box-sizing: border-box; }
     body {
@@ -310,7 +143,7 @@ const completeAppHtml = `
       overflow: hidden;
     }
     .sidebar {
-      width: 250px;
+      width: 275px;
       background: var(--surface);
       border-right: 1px solid var(--border);
       display: flex;
@@ -377,6 +210,11 @@ const completeAppHtml = `
       animation: slideIn 0.2s ease-out;
     }
     @keyframes slideIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
   </style>
 </head>
 <body>
@@ -394,7 +232,7 @@ const completeAppHtml = `
           👑 Platform Founder Console
         </div>
         <div id="pill-business" class="mode-pill" onclick="window.stokrovaApp.switchMode('BUSINESS')">
-          🏢 Business Operations Console
+          🏢 Business Operations Console (28 Modules)
         </div>
       </div>
     </div>
@@ -403,8 +241,8 @@ const completeAppHtml = `
       <span style="color: var(--text-muted); font-size: 0.75rem;">Simulated Active Persona:</span>
       <select id="persona-select" class="persona-select" onchange="window.stokrovaApp.handlePersonaChange(this.value)">
         <option value="FOUNDER">👑 Platform Founder (Global Super-Admin)</option>
-        <option value="OWNER">🏢 Business Owner (Victoria Sterling - Apex Global)</option>
-        <option value="MANAGER">🏪 Store Manager (David O'Connor - London Branch)</option>
+        <option value="OWNER">🏢 Business Owner (Victoria Sterling - Full Access)</option>
+        <option value="MANAGER">🏪 Store Manager (David O'Connor - Operations)</option>
         <option value="CASHIER">💳 Head Cashier (Emma Watson - POS Terminal)</option>
         <option value="PICKER">📦 Warehouse Operator (Samuel Adebayo - Wave Picking)</option>
       </select>
@@ -415,6 +253,7 @@ const completeAppHtml = `
   <div class="app-layout">
     <!-- Sidebar -->
     <aside class="sidebar">
+      <!-- 1. Founder Menu -->
       <div id="sidebar-founder-menu">
         <div class="sidebar-section-title">Platform Super-Admin</div>
         <div class="nav-item active" onclick="window.stokrovaApp.showView('founder')">
@@ -432,23 +271,9 @@ const completeAppHtml = `
         </div>
       </div>
 
-      <div id="sidebar-business-menu" style="display: none;">
-        <div class="sidebar-section-title" id="business-sidebar-title">Apex Global Operations</div>
-        <div class="nav-item" id="nav-dashboard" onclick="window.stokrovaApp.showView('dashboard')">
-          <span>📊 Executive Dashboard</span>
-        </div>
-        <div class="nav-item" id="nav-catalog" onclick="window.stokrovaApp.showView('catalog')">
-          <span>🏷️ Products & Catalog</span>
-        </div>
-        <div class="nav-item" id="nav-inventory" onclick="window.stokrovaApp.showView('inventory')">
-          <span>📦 Stock Ledger & FEFO</span>
-        </div>
-        <div class="nav-item" id="nav-orders" onclick="window.stokrovaApp.showView('orders')">
-          <span>🛍️ Sales Orders Pipeline</span>
-        </div>
-        <div class="nav-item" id="nav-workflows" onclick="window.stokrovaApp.showView('workflows')">
-          <span>⚙️ DAG Workflows Studio</span>
-        </div>
+      <!-- 2. Master Business Navigation Menu (All 8 Sections & 28 Modules) -->
+      <div id="sidebar-business-menu" style="display: none; height: 100%;">
+        ${masterBusinessSidebarHtml}
       </div>
 
       <div style="margin-top: auto; padding: 16px; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-muted);">
@@ -464,63 +289,8 @@ const completeAppHtml = `
         ${founderHtml}
       </div>
 
-      <!-- 2. Business Dashboard View -->
-      <div id="view-dashboard" class="view-panel">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-          <div>
-            <h1 style="margin: 0 0 4px 0; font-size: 1.6rem; color: var(--text-primary);">Executive Operations Command Center</h1>
-            <p style="margin: 0; color: var(--text-secondary); font-size: 0.875rem;">Apex Global Retail & Logistics Ltd • London Flagship</p>
-          </div>
-          <button onclick="window.stokrovaApp.switchMode('FOUNDER')" style="padding: 6px 14px; border-radius: 6px; background: var(--surface); color: var(--text-primary); border: 1px solid var(--borderStrong); font-size: 0.75rem; font-weight: 600; cursor: pointer;">
-            ← Back to Platform Founder Console
-          </button>
-        </div>
-        ${dashboardHtml}
-      </div>
-
-      <!-- 3. Catalog View -->
-      <div id="view-catalog" class="view-panel">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-          <div>
-            <h1 style="margin: 0 0 4px 0; font-size: 1.6rem; color: var(--text-primary);">Products Catalog & Variant Matrix</h1>
-            <p style="margin: 0; color: var(--text-secondary); font-size: 0.875rem;">Central item master, serial tracking, and attribute dimensions</p>
-          </div>
-        </div>
-        ${catalogHtml}
-      </div>
-
-      <!-- 4. Inventory Ledger View -->
-      <div id="view-inventory" class="view-panel">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-          <div>
-            <h1 style="margin: 0 0 4px 0; font-size: 1.6rem; color: var(--text-primary);">Authoritative FEFO Inventory & Lot Explorer</h1>
-            <p style="margin: 0; color: var(--text-secondary); font-size: 0.875rem;">Immutable audit trail of all warehouse lots, quarantine holds, and expiration dates</p>
-          </div>
-        </div>
-        ${inventoryHtml}
-      </div>
-
-      <!-- 5. Orders Pipeline View -->
-      <div id="view-orders" class="view-panel">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-          <div>
-            <h1 style="margin: 0 0 4px 0; font-size: 1.6rem; color: var(--text-primary);">Omnichannel Sales Orders Pipeline</h1>
-            <p style="margin: 0; color: var(--text-secondary); font-size: 0.875rem;">Real-time status progression from Draft to Dispatched</p>
-          </div>
-        </div>
-        ${ordersHtml}
-      </div>
-
-      <!-- 6. Workflows Studio View -->
-      <div id="view-workflows" class="view-panel">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-          <div>
-            <h1 style="margin: 0 0 4px 0; font-size: 1.6rem; color: var(--text-primary);">Visual DAG Workflows Engine</h1>
-            <p style="margin: 0; color: var(--text-secondary); font-size: 0.875rem;">Orchestrates business processes with strict cycle detection (Kahn's algorithm)</p>
-          </div>
-        </div>
-        ${workflowsHtml}
-      </div>
+      <!-- 2. Business Operations Views (All 28 Modules + DAG Workflows) -->
+      ${allBusinessViewsHtml}
     </main>
   </div>
 
@@ -535,6 +305,8 @@ const completeAppHtml = `
     window.stokrovaApp = {
       currentMode: 'FOUNDER',
       currentView: 'founder',
+      cart: [],
+      todayRevenue: 382000.00,
 
       switchMode(mode) {
         this.currentMode = mode;
@@ -563,14 +335,37 @@ const completeAppHtml = `
 
       showView(viewId) {
         this.currentView = viewId;
-        document.querySelectorAll('.view-panel').forEach(el => el.classList.remove('active'));
-        const targetView = document.getElementById('view-' + viewId);
-        if (targetView) targetView.classList.add('active');
+        // Hide all views
+        document.querySelectorAll('.view-panel, .ws-view-content').forEach(el => el.style.display = 'none');
+        
+        // Show target view
+        const targetView = document.getElementById('view-' + viewId) || document.getElementById('ws-view-' + viewId);
+        if (targetView) targetView.style.display = 'block';
 
-        // Update nav items active state
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        const activeNav = document.getElementById('nav-' + viewId);
-        if (activeNav) activeNav.classList.add('active');
+        // Update nav items
+        document.querySelectorAll('.nav-item, .workspace-nav-item').forEach(el => {
+          el.classList.remove('active');
+          if (el.classList.contains('workspace-nav-item')) {
+            el.style.background = 'transparent';
+            el.style.color = 'var(--text-secondary)';
+            el.style.fontWeight = '500';
+            el.style.borderLeft = 'none';
+          }
+        });
+
+        const activeNav = document.getElementById('nav-' + viewId) || document.getElementById('ws-nav-' + viewId);
+        if (activeNav) {
+          activeNav.classList.add('active');
+          if (activeNav.classList.contains('workspace-nav-item')) {
+            activeNav.style.background = 'rgba(189,150,82,0.15)';
+            activeNav.style.color = '#E0CB9F';
+            activeNav.style.fontWeight = '600';
+            activeNav.style.borderLeft = '3px solid #BD9652';
+          }
+        }
+
+        const viewport = document.querySelector('.content-viewport');
+        if (viewport) viewport.scrollTop = 0;
       },
 
       openEnrollModal() {
@@ -656,51 +451,151 @@ const completeAppHtml = `
       },
 
       handlePersonaChange(persona) {
-        const title = document.getElementById('business-sidebar-title');
-        const navDashboard = document.getElementById('nav-dashboard');
-        const navCatalog = document.getElementById('nav-catalog');
-        const navInventory = document.getElementById('nav-inventory');
-        const navOrders = document.getElementById('nav-orders');
-        const navWorkflows = document.getElementById('nav-workflows');
-
         if (persona === 'FOUNDER') {
           this.switchMode('FOUNDER');
           this.showToast('Switched to Platform Founder (Global Super-Admin)');
-        } else if (persona === 'OWNER') {
-          this.switchMode('BUSINESS');
-          if (title) title.textContent = 'Apex Global Executive';
-          [navDashboard, navCatalog, navInventory, navOrders, navWorkflows].forEach(el => el && (el.style.display = 'flex'));
-          this.showToast('Active Persona: Victoria Sterling (Executive Admin)');
-        } else if (persona === 'MANAGER') {
-          this.switchMode('BUSINESS');
-          if (title) title.textContent = 'London Flagship (Manager)';
-          if (navDashboard) navDashboard.style.display = 'flex';
-          if (navCatalog) navCatalog.style.display = 'flex';
-          if (navOrders) navOrders.style.display = 'flex';
-          if (navInventory) navInventory.style.display = 'flex';
-          if (navWorkflows) navWorkflows.style.display = 'none'; // Managers cannot edit DAG workflows
-          this.showToast('Active Persona: David O\\'Connor (Store Manager)');
-        } else if (persona === 'CASHIER') {
-          this.switchMode('BUSINESS');
-          if (title) title.textContent = 'London POS Till (Cashier)';
-          if (navDashboard) navDashboard.style.display = 'none';
-          if (navCatalog) navCatalog.style.display = 'flex'; // view catalog
-          if (navOrders) navOrders.style.display = 'flex'; // view orders
-          if (navInventory) navInventory.style.display = 'none'; // restricted
-          if (navWorkflows) navWorkflows.style.display = 'none';
-          this.showView('orders');
-          this.showToast('Active Persona: Emma Watson (Cashier - POS Only)');
-        } else if (persona === 'PICKER') {
-          this.switchMode('BUSINESS');
-          if (title) title.textContent = 'Amsterdam DC (Warehouse)';
-          if (navDashboard) navDashboard.style.display = 'none';
-          if (navCatalog) navCatalog.style.display = 'none';
-          if (navOrders) navOrders.style.display = 'none';
-          if (navInventory) navInventory.style.display = 'flex'; // bin movements only
-          if (navWorkflows) navWorkflows.style.display = 'none';
-          this.showView('inventory');
-          this.showToast('Active Persona: Samuel Adebayo (Warehouse Picker)');
+          return;
         }
+
+        this.switchMode('BUSINESS');
+        const isCashier = persona === 'CASHIER';
+        const isPicker = persona === 'PICKER';
+        const isManager = persona === 'MANAGER';
+
+        const allNavItems = document.querySelectorAll('.workspace-nav-item');
+        allNavItems.forEach(item => {
+          const vId = item.getAttribute('data-view-id');
+          if (isCashier) {
+            item.style.display = (vId === 'pos' || vId === 'catalog' || vId === 'orders') ? 'flex' : 'none';
+          } else if (isPicker) {
+            item.style.display = (vId === 'inventory' || vId === 'picking' || vId === 'locations' || vId === 'ledger') ? 'flex' : 'none';
+          } else if (isManager) {
+            item.style.display = (vId === 'org' || vId === 'compliance') ? 'none' : 'flex';
+          } else {
+            // Owner has FULL wildcard access across all 28 views!
+            item.style.display = 'flex';
+          }
+        });
+
+        if (isCashier) {
+          this.showView('pos');
+          this.showToast('Active Persona: Emma Watson (Cashier - Front Counter)');
+        } else if (isPicker) {
+          this.showView('picking');
+          this.showToast('Active Persona: Samuel Adebayo (Warehouse Picker)');
+        } else if (isManager) {
+          this.showView('dashboard');
+          this.showToast('Active Persona: David O\\'Connor (Store Manager)');
+        } else {
+          this.showView('dashboard');
+          this.showToast('Active Persona: Victoria Sterling (Business Owner - Full Access)');
+        }
+      },
+
+      addItemToCart(sku, name, price) {
+        const existing = this.cart.find(i => i.sku === sku);
+        if (existing) {
+          existing.qty += 1;
+        } else {
+          this.cart.push({ sku, name, price, qty: 1 });
+        }
+        this.renderCart();
+        this.showToast(\`Added 1x \${name} to register ticket.\`);
+      },
+
+      addBarcodeToCart() {
+        const input = document.getElementById('pos-barcode-input');
+        if (!input) return;
+        const code = input.value.trim().toUpperCase();
+        input.value = '';
+        if (code.includes('LAPTOP') || code === '5011000000018') {
+          this.addItemToCart('LAPTOP-PRO-16', 'Apex Pro 16 Laptop', 2499.00);
+        } else if (code.includes('PHONE') || code === '5011000000025') {
+          this.addItemToCart('SMARTPHONE-ULTRA-5G', 'Apex Ultra 5G Phone', 999.00);
+        } else {
+          this.addItemToCart('SHIRT-OXFORD-BLU-M', 'Oxford Cotton Shirt', 65.00);
+        }
+      },
+
+      renderCart() {
+        const container = document.getElementById('pos-cart-items');
+        const totalEl = document.getElementById('pos-cart-total');
+        const checkoutBtn = document.getElementById('pos-checkout-btn');
+        if (!container || !totalEl || !checkoutBtn) return;
+
+        if (this.cart.length === 0) {
+          container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 40px 0;">Till ticket is empty. Scan an item to ring up sale.</div>';
+          totalEl.textContent = '$0.00';
+          checkoutBtn.disabled = true;
+          checkoutBtn.style.background = 'var(--border)';
+          checkoutBtn.style.color = 'var(--text-muted)';
+          checkoutBtn.style.cursor = 'not-allowed';
+          return;
+        }
+
+        let total = 0;
+        let html = '';
+        this.cart.forEach((item, idx) => {
+          const lineTotal = item.price * item.qty;
+          total += lineTotal;
+          html += \`
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border);">
+              <div>
+                <div style="font-weight: 600; color: var(--text-primary);">\${item.name}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--stokrova-font-mono);">\${item.sku} × \${item.qty}</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-weight: 700; font-family: var(--stokrova-font-mono); color: var(--text-primary);">$\${lineTotal.toFixed(2)}</span>
+                <button onclick="window.stokrovaApp.removeItemFromCart(\${idx})" style="background: transparent; border: none; color: #F85149; cursor: pointer; font-size: 1rem;">×</button>
+              </div>
+            </div>
+          \`;
+        });
+
+        container.innerHTML = html;
+        totalEl.textContent = '$' + total.toFixed(2);
+        checkoutBtn.disabled = false;
+        checkoutBtn.style.background = 'var(--primary)';
+        checkoutBtn.style.color = '#0E1116';
+        checkoutBtn.style.cursor = 'pointer';
+      },
+
+      removeItemFromCart(idx) {
+        this.cart.splice(idx, 1);
+        this.renderCart();
+      },
+
+      completeSale() {
+        if (this.cart.length === 0) return;
+        let total = 0;
+        this.cart.forEach(i => total += (i.price * i.qty));
+        const saleRef = 'POS-SALE-' + Math.floor(100000 + Math.random() * 900000);
+        const journalRef = 'JRNL-' + Date.now().toString().slice(-6);
+
+        this.todayRevenue += total;
+        const revEl = document.querySelector('#ws-view-dashboard .stokrova-net-revenue');
+        if (revEl) {
+          revEl.textContent = '$' + this.todayRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        const ledgerContainer = document.getElementById('ws-ledger-entries');
+        if (ledgerContainer) {
+          const entryDiv = document.createElement('div');
+          entryDiv.className = 'ledger-row';
+          entryDiv.style.borderBottom = '1px solid var(--border)';
+          entryDiv.style.paddingBottom = '12px';
+          entryDiv.innerHTML = \`
+            <div style="color: #4ADE80; margin-bottom: 4px;">✓ \${journalRef} | Receipt \${saleRef}</div>
+            <div style="color: var(--text-secondary); margin-left: 20px;">DR 1010 Cash at Bank: $\${total.toFixed(2)}</div>
+            <div style="color: var(--text-secondary); margin-left: 20px;">CR 4010 Retail Revenue: $\${total.toFixed(2)}</div>
+            <div style="color: var(--text-muted); font-size: 0.75rem; margin-left: 20px; margin-top: 2px;">Delta: $0.00 (Balanced Double-Entry)</div>
+          \`;
+          ledgerContainer.insertBefore(entryDiv, ledgerContainer.firstChild);
+        }
+
+        this.cart = [];
+        this.renderCart();
+        this.showToast(\`✓ Sale \${saleRef} completed! Cash collected: $\${total.toFixed(2)}. Ledger balanced.\`);
       },
 
       showToast(msg) {
@@ -735,4 +630,4 @@ if (!fs.existsSync(distDir)) {
 }
 
 fs.writeFileSync(path.join(distDir, 'index.html'), completeAppHtml.trim(), 'utf-8');
-console.log('✅ Generated STOKROVA Interactive Platform Founder & Business Console index.html at', path.join(distDir, 'index.html'));
+console.log('✅ Generated STOKROVA Interactive Platform Founder & Complete Business Console index.html at', path.join(distDir, 'index.html'));
