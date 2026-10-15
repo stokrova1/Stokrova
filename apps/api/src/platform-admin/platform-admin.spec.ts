@@ -275,7 +275,7 @@ describe('STOKROVA Platform Founder Console — Master Test Suite', () => {
     it('lists platform users with search and pagination', async () => {
       const res = await service.listUsers({ page: 1, limit: 10 });
       expect(res.total).toBe(5);
-      expect(res.items.some((u) => u.email === 'founder@stokrova.com')).toBe(true);
+      expect(res.items.some((u) => u.email === 'stokrova1@gmail.com' || u.email === 'founder@stokrova.com')).toBe(true);
     });
 
     it('suspends and reactivates user accounts with mandatory reasons', async () => {

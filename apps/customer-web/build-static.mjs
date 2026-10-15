@@ -27,7 +27,11 @@ if (!fs.existsSync(distAssetsDir)) {
 if (fs.existsSync(uiAssetsDir)) {
   const files = fs.readdirSync(uiAssetsDir);
   for (const file of files) {
-    fs.copyFileSync(path.join(uiAssetsDir, file), path.join(distAssetsDir, file));
+    try {
+      fs.copyFileSync(path.join(uiAssetsDir, file), path.join(distAssetsDir, file));
+    } catch (err) {
+      if (err.code !== 'EBUSY') throw err;
+    }
   }
 }
 
@@ -936,10 +940,11 @@ const completeWebsiteHtml = `
 
   <!-- Client Application Script -->
   <script>
+    const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
     const SUPABASE_CONFIG = {
       url: 'https://vbtuccvxtgjhaywijmwa.supabase.co',
       anonKey: 'sb_publishable_SQZZBnrGJ4wwY4rUeZjtag_-jtZxCVp',
-      apiBase: 'http://localhost:3000/api/v1',
+      apiBase: isLocalhost && window.location.port !== '3000' && window.location.port !== '' ? 'http://localhost:3000/v1' : '/v1',
     };
     const getSupabase = () => {
       if (window._stokrovaSupabase) return window._stokrovaSupabase;
@@ -1623,7 +1628,7 @@ const completeWebsiteHtml = `
               viewId: 'dashboard',
               targetSelector: '.workspace-topbar',
               title: 'Branch Real-Time Performance Telemetry',
-              desc: 'Keep fingers on the pulse of the store. Track today\'s gross sales, customer footfall, average basket size, and individual cashier till throughput in real time.',
+              desc: "Keep fingers on the pulse of the store. Track today's gross sales, customer footfall, average basket size, and individual cashier till throughput in real time.",
               snippet: '📈 Branch Revenue: $24,850.00 Today • Customer Count: 312 • Average Basket: $79.65'
             },
             {
@@ -2643,7 +2648,7 @@ const completeWebsiteHtml = `
                 })
               });
               localStorage.removeItem('stokrova_pending_onboarding');
-              window.stokrovaCustomerApp.showToast('✓ Identity confirmed & business \'' + pending.companyName + '\' provisioned!');
+              window.stokrovaCustomerApp.showToast("✓ Identity confirmed & business '" + pending.companyName + "' provisioned!");
             } catch (_) {}
           }
         }

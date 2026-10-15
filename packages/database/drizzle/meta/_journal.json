@@ -113,6 +113,13 @@
       "when": 1792325000000,
       "tag": "0015_enable_rls_on_remaining_public_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1792326000000,
+      "tag": "0016_platform_admin_stokrova1",
+      "breakpoints": true
     }
   ]
 }

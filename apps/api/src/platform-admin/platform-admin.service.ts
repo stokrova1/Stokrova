@@ -144,9 +144,9 @@ export class PlatformAdminService {
 
     const defaultUsers: InMemUser[] = [
       {
-        id: 'usr_founder_root',
-        name: 'Platform Root Administrator',
-        email: 'founder@stokrova.com',
+        id: 'f145cbc0-65be-4903-ad5e-28562ef44a0f',
+        name: 'STOKROVA Platform Founder',
+        email: 'stokrova1@gmail.com',
         role: 'PLATFORM_SUPER_ADMIN',
         status: 'ACTIVE',
         last_active_iso: '2026-10-15T12:45:00Z',
