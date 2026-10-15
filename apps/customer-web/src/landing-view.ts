@@ -1110,11 +1110,16 @@ export class LandingViewModel {
           <!-- Bottom Action Row -->
           <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid ${tokens.border}; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
             <div style="font-size: 0.8125rem; color: ${tokens.textSecondary};">
-              Ready to deploy across your retail locations and distribution network?
+              Ready to test in-browser? Open the interactive simulation with 28 live operations modules.
             </div>
-            <button onclick="window.stokrovaCustomerApp.openRegisterModal()" style="min-height: 44px; background: ${tokens.primary}; color: #0E1116; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 700; font-size: 0.875rem; cursor: pointer; box-shadow: 0 2px 8px rgba(189,150,82,0.3);">
-              Register Your Business Workspace →
-            </button>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button onclick="window.stokrovaCustomerApp.confirmOpenDemo()" style="min-height: 44px; background: ${tokens.primary}; color: #0E1116; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 700; font-size: 0.875rem; cursor: pointer; box-shadow: 0 2px 8px rgba(189,150,82,0.3); touch-action: manipulation;">
+                Launch Interactive Workspace →
+              </button>
+              <button onclick="window.stokrovaCustomerApp.openRegisterModal()" style="min-height: 44px; background: transparent; color: ${tokens.textPrimary}; border: 1px solid ${tokens.borderStrong}; padding: 12px 20px; border-radius: 6px; font-weight: 600; font-size: 0.875rem; cursor: pointer; touch-action: manipulation;">
+                Register Your Business →
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -1293,6 +1298,10 @@ export class LandingViewModel {
         q: 'How does live business onboarding and workspace setup work?',
         a: 'When you register your business, STOKROVA instantly provisions your dedicated organization workspace, configures your primary store branch and POS till, sets up your chart of accounts, and equips you to start ringing sales, managing inventory, and inviting staff immediately.',
       },
+      {
+        q: 'How does the interactive demo workspace work?',
+        a: 'The interactive workspace provides a fully live, in-browser simulated environment of STOKROVA. You can ring items at the POS, scan test barcodes, inspect double-entry general ledger postings, and test inter-branch transfers with zero real financial exposure.',
+      },
     ];
 
     const itemsHtml = faqs
@@ -1350,10 +1359,13 @@ export class LandingViewModel {
             </p>
 
             <div style="display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
-              <button onclick="window.stokrovaCustomerApp.openRegisterModal()" style="min-height: 44px; background: ${tokens.primary}; color: #0E1116; border: none; padding: 12px 28px; border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(189,150,82,0.4);">
+              <button onclick="window.stokrovaCustomerApp.openRegisterModal()" style="min-height: 44px; background: ${tokens.primary}; color: #0E1116; border: none; padding: 12px 28px; border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(189,150,82,0.4); touch-action: manipulation;">
                 Register your business →
               </button>
-              <button onclick="window.stokrovaCustomerApp.openLoginModal()" style="min-height: 44px; background: #161B1E; color: ${tokens.textPrimary}; border: 1px solid ${tokens.borderStrong}; padding: 12px 24px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer;">
+              <button onclick="window.stokrovaCustomerApp.confirmOpenDemo()" style="min-height: 44px; background: #161B1E; color: ${tokens.textPrimary}; border: 1px solid ${tokens.borderStrong}; padding: 12px 24px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; touch-action: manipulation;">
+                Explore the demo
+              </button>
+              <button onclick="window.stokrovaCustomerApp.openLoginModal()" style="min-height: 44px; background: transparent; color: ${tokens.textSecondary}; border: 1px solid ${tokens.border}; padding: 12px 20px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; touch-action: manipulation;">
                 Staff sign in →
               </button>
             </div>

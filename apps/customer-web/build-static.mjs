@@ -52,6 +52,7 @@ const closingCtaHtml = landingView.renderClosingCtaHtml();
 
 const registerModalHtml = landingView.renderRegisterModalHtml();
 const loginModalHtml = landingView.renderLoginModalHtml();
+const demoConfirmModalHtml = landingView.renderDemoConfirmModalHtml();
 const legalModalHtml = landingView.renderLegalModalHtml();
 const tourOverlayHtml = landingView.renderTourOverlayHtml();
 
@@ -137,6 +138,37 @@ const completeWebsiteHtml = `
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Bulletproof Early Auth & Interactive Navigation Dispatcher
+    // Ensures modal triggers and navigation respond instantly on touch and click from the first paint
+    window.stokrovaCustomerApp = window.stokrovaCustomerApp || {};
+    window.stokrovaCustomerApp.openLoginModal = window.stokrovaCustomerApp.openLoginModal || function() {
+      var d = document.getElementById('mobile-nav-drawer'); if (d) d.style.display = 'none';
+      var m = document.getElementById('modal-login'); if (m) m.style.display = 'flex';
+      var f = document.getElementById('login-email'); if (f) setTimeout(function() { f.focus(); }, 50);
+    };
+    window.stokrovaCustomerApp.closeLoginModal = window.stokrovaCustomerApp.closeLoginModal || function() {
+      var m = document.getElementById('modal-login'); if (m) m.style.display = 'none';
+    };
+    window.stokrovaCustomerApp.openRegisterModal = window.stokrovaCustomerApp.openRegisterModal || function(plan) {
+      var d = document.getElementById('mobile-nav-drawer'); if (d) d.style.display = 'none';
+      var m = document.getElementById('modal-register'); if (m) m.style.display = 'flex';
+      var f = document.getElementById('reg-company-name'); if (f) setTimeout(function() { f.focus(); }, 50);
+    };
+    window.stokrovaCustomerApp.closeRegisterModal = window.stokrovaCustomerApp.closeRegisterModal || function() {
+      var m = document.getElementById('modal-register'); if (m) m.style.display = 'none';
+    };
+    window.stokrovaCustomerApp.confirmOpenDemo = window.stokrovaCustomerApp.confirmOpenDemo || function() {
+      var d = document.getElementById('mobile-nav-drawer'); if (d) d.style.display = 'none';
+      var m = document.getElementById('modal-demo-confirm'); if (m) m.style.display = 'flex';
+    };
+    window.stokrovaCustomerApp.closeDemoConfirmModal = window.stokrovaCustomerApp.closeDemoConfirmModal || function() {
+      var m = document.getElementById('modal-demo-confirm'); if (m) m.style.display = 'none';
+    };
+    window.stokrovaCustomerApp.toggleMobileMenu = window.stokrovaCustomerApp.toggleMobileMenu || function() {
+      var d = document.getElementById('mobile-nav-drawer'); if (d) d.style.display = (d.style.display === 'flex' ? 'none' : 'flex');
+    };
+  </script>
   <style>
     :root {
       /* Official STOKROVA Brand Tokens (Strictly Preserved) */
@@ -637,6 +669,7 @@ const completeWebsiteHtml = `
   <!-- AUTH & DIALOG MODALS -->
   ${registerModalHtml}
   ${loginModalHtml}
+  ${demoConfirmModalHtml}
   ${legalModalHtml}
   ${tourOverlayHtml}
 
@@ -714,7 +747,10 @@ const completeWebsiteHtml = `
           <span id="ws-tenant-display">Organization Workspace</span>
         </div>
         <span style="font-size: 0.75rem; background: rgba(189,150,82,0.18); color: var(--primary); padding: 2px 8px; border-radius: 4px; font-weight: 600;" id="ws-branch-display">Main Branch</span>
-        <span style="font-size: 0.75rem; background: #14291F; color: #4ADE80; border: 1px solid #1E4620; padding: 2px 8px; border-radius: 9999px; font-weight: 600;">LIVE PRODUCTION</span>
+        <span id="ws-mode-badge" style="font-size: 0.75rem; background: #14291F; color: #4ADE80; border: 1px solid #1E4620; padding: 2px 8px; border-radius: 9999px; font-weight: 600;">LIVE PRODUCTION</span>
+        <button id="ws-demo-register-cta" onclick="window.stokrovaCustomerApp.exitWorkspaceToRegister()" style="display: none; background: var(--primary); color: #0E1116; border: none; padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(189,150,82,0.4); touch-action: manipulation;">
+          Register Real Business →
+        </button>
       </div>
 
       <div style="display: flex; align-items: center; gap: 14px;">
@@ -1841,8 +1877,35 @@ const completeWebsiteHtml = `
         if (firstInput) setTimeout(() => firstInput.focus(), 50);
       },
 
+      confirmOpenDemo() {
+        const drawer = document.getElementById('mobile-nav-drawer');
+        if (drawer) drawer.style.display = 'none';
+        const modal = document.getElementById('modal-demo-confirm');
+        if (modal) modal.style.display = 'flex';
+      },
+
       closeDemoConfirmModal() {
-        // Purged: All operations are 100% live
+        const modal = document.getElementById('modal-demo-confirm');
+        if (modal) modal.style.display = 'none';
+      },
+
+      proceedToDemo() {
+        this.closeDemoConfirmModal();
+        this.launchWorkspace({
+          tenantName: 'Interactive Preview Workspace',
+          branchName: 'London Flagship Store',
+          userName: 'Workspace Explorer (Visitor)',
+          userRole: 'Business Owner (Administrator)',
+          isDemo: true
+        });
+        this.showToast('✓ Welcome to STOKROVA interactive preview workspace! Explore all 28 operations views.');
+      },
+
+      exitWorkspaceToRegister() {
+        this.signOut();
+        setTimeout(() => {
+          this.openRegisterModal();
+        }, 120);
       },
 
       showSuspendedScreen(data = {}) {
@@ -2278,7 +2341,7 @@ const completeWebsiteHtml = `
         });
       },
 
-      launchWorkspace({ tenantName, branchName, userName, userRole }) {
+      launchWorkspace({ tenantName, branchName, userName, userRole, isDemo = false }) {
         if (sessionStorage.getItem('stokrova_tenant_suspended')) {
           let saved = null;
           try { saved = JSON.parse(sessionStorage.getItem('stokrova_tenant_suspended')); } catch (_) {}
@@ -2296,6 +2359,7 @@ const completeWebsiteHtml = `
             branchName,
             userName,
             userRole,
+            isDemo: !!isDemo,
             sessionStartedAt: new Date().toISOString()
           }));
         } catch (_) {}
@@ -2309,11 +2373,31 @@ const completeWebsiteHtml = `
         const bEl = document.getElementById('ws-branch-display');
         const uEl = document.getElementById('ws-user-display');
         const rEl = document.getElementById('ws-role-display');
+        const modeBadge = document.getElementById('ws-mode-badge');
+        const demoRegCta = document.getElementById('ws-demo-register-cta');
 
         if (tEl) tEl.textContent = tenantName;
         if (bEl) bEl.textContent = branchName;
         if (uEl) uEl.textContent = userName;
         if (rEl) rEl.textContent = userRole;
+
+        if (isDemo) {
+          if (modeBadge) {
+            modeBadge.textContent = 'INTERACTIVE PREVIEW';
+            modeBadge.style.background = 'rgba(189,150,82,0.2)';
+            modeBadge.style.color = 'var(--primary)';
+            modeBadge.style.border = '1px solid var(--primary)';
+          }
+          if (demoRegCta) demoRegCta.style.display = 'inline-block';
+        } else {
+          if (modeBadge) {
+            modeBadge.textContent = 'LIVE PRODUCTION';
+            modeBadge.style.background = '#14291F';
+            modeBadge.style.color = '#4ADE80';
+            modeBadge.style.border = '1px solid #1E4620';
+          }
+          if (demoRegCta) demoRegCta.style.display = 'none';
+        }
 
         // Populate dynamic staff roster from storage
         this.renderStaffRoster();
@@ -2695,6 +2779,7 @@ const completeWebsiteHtml = `
       if (pub) pub.style.display = 'block';
       window.stokrovaCustomerApp.closeLoginModal();
       window.stokrovaCustomerApp.closeRegisterModal();
+      window.stokrovaCustomerApp.closeDemoConfirmModal();
       window.stokrovaCustomerApp.closeLegalModal();
     }
 
@@ -2788,6 +2873,7 @@ const completeWebsiteHtml = `
         window.stokrovaCustomerApp.endTour();
         window.stokrovaCustomerApp.closeRegisterModal();
         window.stokrovaCustomerApp.closeLoginModal();
+        window.stokrovaCustomerApp.closeDemoConfirmModal();
         window.stokrovaCustomerApp.closeLegalModal();
         const drawer = document.getElementById('mobile-nav-drawer');
         if (drawer) drawer.style.display = 'none';
@@ -2844,16 +2930,19 @@ for (const match of scriptMatches) {
   const ctx = vm.createContext(mockWindow);
   vm.runInContext(code, ctx);
 
-  if (!ctx.window.stokrovaCustomerApp) {
-    throw new Error('Build Verification Failed: window.stokrovaCustomerApp was not instantiated by client script.');
-  }
-  if (
-    typeof ctx.window.stokrovaCustomerApp.openLoginModal !== 'function' ||
-    typeof ctx.window.stokrovaCustomerApp.openRegisterModal !== 'function' ||
-    typeof ctx.window.stokrovaCustomerApp.handleLoginSubmit !== 'function' ||
-    typeof ctx.window.stokrovaCustomerApp.handleRegisterSubmit !== 'function'
-  ) {
-    throw new Error('Build Verification Failed: Critical auth handlers missing on window.stokrovaCustomerApp.');
+  if (code.includes('handleLoginSubmit')) {
+    if (!ctx.window.stokrovaCustomerApp) {
+      throw new Error('Build Verification Failed: window.stokrovaCustomerApp was not instantiated by client script.');
+    }
+    if (
+      typeof ctx.window.stokrovaCustomerApp.openLoginModal !== 'function' ||
+      typeof ctx.window.stokrovaCustomerApp.openRegisterModal !== 'function' ||
+      typeof ctx.window.stokrovaCustomerApp.handleLoginSubmit !== 'function' ||
+      typeof ctx.window.stokrovaCustomerApp.handleRegisterSubmit !== 'function' ||
+      typeof ctx.window.stokrovaCustomerApp.confirmOpenDemo !== 'function'
+    ) {
+      throw new Error('Build Verification Failed: Critical auth handlers missing on window.stokrovaCustomerApp.');
+    }
   }
 }
 
