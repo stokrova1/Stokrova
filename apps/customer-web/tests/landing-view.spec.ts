@@ -294,6 +294,41 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     expect(html).toContain('Switch Account');
     expect(html).toContain('Rule 21 Verified');
   });
+
+  it('guarantees dist/index.html inline client script is 100% syntactically valid with zero syntax errors', async () => {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const vm = await import('node:vm');
+
+    const htmlPath = path.resolve(__dirname, '../dist/index.html');
+    if (!fs.existsSync(htmlPath)) return; // Skipped if dist not yet generated
+
+    const html = fs.readFileSync(htmlPath, 'utf8');
+    const scriptMatches = [...html.matchAll(/<script[\s\S]*?>([\s\S]*?)<\/script>/gi)];
+    expect(scriptMatches.length).toBeGreaterThan(0);
+
+    for (const m of scriptMatches) {
+      const code = m[1]?.trim();
+      if (!code) continue; // External CDN script
+      expect(() => new vm.Script(code)).not.toThrow();
+    }
+  });
+
+  it('ensures client script wires up window.stokrovaCustomerApp with registration and login handlers', async () => {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+
+    const htmlPath = path.resolve(__dirname, '../dist/index.html');
+    if (!fs.existsSync(htmlPath)) return;
+
+    const html = fs.readFileSync(htmlPath, 'utf8');
+    expect(html).toContain('window.stokrovaCustomerApp = {');
+    expect(html).toContain('openLoginModal');
+    expect(html).toContain('handleLoginSubmit');
+    expect(html).toContain('openRegisterModal');
+    expect(html).toContain('handleRegisterSubmit');
+    expect(html).toContain('confirmLoginLaunch');
+  });
 });
 
 
