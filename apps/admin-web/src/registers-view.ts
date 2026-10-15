@@ -193,7 +193,7 @@ export class RegistersViewModel {
             <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700;">Till Sessions & Cash Drawer Reconciliation</h3>
             <p style="margin: 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">Live register float tracking, cash movements, and blind audit variance control</p>
           </div>
-          <button onclick="window.stokrovaApp?.showToast('Refreshed active till session registers.')" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-weight: 600; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+          <button onclick="window.stokrovaApp?.refreshTillSessions ? window.stokrovaApp.refreshTillSessions(this) : window.stokrovaApp?.showToast('Refreshed active till session registers.')" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-weight: 600; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
             ⟳ Refresh Sessions
           </button>
         </div>
@@ -231,7 +231,7 @@ export class RegistersViewModel {
     const tokens = themeTokens[this.theme];
     const currency = options.currency || 'USD';
     const cashierName = options.cashierName;
-    const branchName = options.branchName || 'London Flagship Store';
+    const branchName = options.branchName || 'Primary Branch';
     const metrics = this.getCashierPersonalShiftMetrics(options.cashierId);
     const goldText = this.theme === 'light' ? '#85642D' : '#E0CB9F';
 
@@ -261,7 +261,7 @@ export class RegistersViewModel {
             <button onclick="window.stokrovaApp?.showView('pos')" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; background: ${tokens.primary}; color: ${tokens.primaryForeground}; border: none; font-weight: 700; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
               <span>💳 Open Active POS Till</span>
             </button>
-            <button onclick="window.stokrovaApp?.showToast('Blind cash count drawer modal opened.')" style="min-height: 44px; padding: 10px 16px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-weight: 600; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+            <button onclick="window.stokrovaApp?.openBlindCashCountModal ? window.stokrovaApp.openBlindCashCountModal() : window.stokrovaApp?.showToast('Blind cash count drawer modal opened.')" style="min-height: 44px; padding: 10px 16px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-weight: 600; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
               <span>💵 Blind Drawer Count</span>
             </button>
           </div>

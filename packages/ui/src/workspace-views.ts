@@ -22,6 +22,7 @@ export interface WorkspaceViewsOptions {
   branchName?: string;
   currencyCode?: string;
   onActionToastFnName?: string; // e.g. "window.stokrovaCustomerApp.showToast" or "window.stokrovaApp.showToast"
+  isDemo?: boolean;
 }
 
 /**
@@ -260,11 +261,11 @@ export function renderMasterSidebarHtml(options: WorkspaceSidebarOptions = {}): 
       <div class="sidebar-footer" style="margin-top: auto; padding: 12px 14px; border-top: 1px solid ${tokens.border}; font-size: 0.75rem; color: ${tokens.textMuted}; display: flex; flex-direction: column; gap: 4px; background: ${tokens.surface};">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <span>Tenant Scope:</span>
-          <span style="color: ${tokens.textPrimary}; font-weight: 600;">${options.tenantName || 'Apex Global Ltd'}</span>
+          <span style="color: ${tokens.textPrimary}; font-weight: 600;">${options.tenantName || 'Organization Workspace'}</span>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <span>Branch:</span>
-          <span style="color: ${isDark ? '#E0CB9F' : '#85642D'}; font-weight: 600;">${options.branchName || 'London Flagship'}</span>
+          <span style="color: ${isDark ? '#E0CB9F' : '#85642D'}; font-weight: 600;">${options.branchName || 'Primary Branch'}</span>
         </div>
         <div style="font-size: 0.6875rem; color: #16A34A; margin-top: 2px; font-weight: 600;">● Tenant Isolation Active</div>
       </div>
@@ -282,63 +283,20 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
   const tokens = themeTokens[theme];
   const st = semanticTokens;
   const toastFn = options.onActionToastFnName || 'window.stokrovaCustomerApp.showToast';
-  const tenantName = options.tenantName || 'Apex Global Retail Ltd';
-  const branchName = options.branchName || 'London Flagship';
+  const tenantName = options.tenantName || 'Organization Workspace';
+  const branchName = options.branchName || 'Primary Branch';
+  const isDemo = options.isDemo ?? false;
 
-  return `
-    <!-- ========================================== -->
-    <!-- 1. EXECUTIVE DASHBOARD (/analytics/dashboards) -->
-    <!-- ========================================== -->
-    <div id="ws-view-dashboard" class="ws-view-content" style="display: block;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
-        <div>
-          <h1 style="margin: 0 0 6px 0; font-size: 1.6rem; color: ${tokens.textPrimary}; font-weight: 800;">Executive Operations Command Center</h1>
-          <p style="margin: 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Consolidated cross-branch telemetry, live margins, inventory velocity, and cashier variance.</p>
-        </div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-          <span style="background: rgba(189,150,82,0.12); border: 1px solid ${brandColors.gold[500]}; color: ${brandColors.gold[400]}; padding: 6px 14px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;">
-            🏢 Apex Global Retail Ltd (All Branches)
-          </span>
-          <button onclick="${toastFn}('Exporting executive board analytics as sanitized CSV / PDF...')" style="background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; padding: 6px 14px; border-radius: 6px; font-size: 0.8125rem; font-weight: 600; cursor: pointer;">
-            📥 Export Report
-          </button>
-        </div>
-      </div>
+  const gmvDisplay = isDemo ? '$4,850,000.00' : '$0.00';
+  const gmvTrend = isDemo ? '▲ +18.4% vs last month' : 'No prior comparison data';
+  const netRevenueDisplay = isDemo ? '$382,000.00' : '$0.00';
+  const marginDisplay = isDemo ? 'Gross Margin: <strong>38.50%</strong> (3850 bps)' : 'Gross Margin: <strong>0.00%</strong> (0 bps)';
+  const stockoutDisplay = isDemo ? '4 / 100' : '0 / 100';
+  const warehouseDisplay = isDemo ? 'Warehouse Utilization: <strong>78.5%</strong>' : 'Warehouse Utilization: <strong>0.0%</strong>';
+  const varianceDisplay = isDemo ? '$0.00' : '$0.00';
+  const tillSessionsDisplay = isDemo ? '<strong>6 Active Till Sessions</strong> across 3 stores' : '<strong>0 Active Till Sessions</strong>';
 
-      <!-- Top 4 Executive KPI Cards -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
-        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
-          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 700; text-transform: uppercase;">Gross Merchandise Value (GMV)</div>
-          <div style="font-size: 1.8rem; font-weight: 800; color: ${brandColors.gold[400]}; font-family: var(--stokrova-font-mono); margin-top: 6px;">$4,850,000.00</div>
-          <div style="font-size: 0.75rem; color: ${st.success[theme].text}; margin-top: 4px;">▲ +18.4% vs last month</div>
-        </div>
-
-        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
-          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 700; text-transform: uppercase;">Today's Net Revenue</div>
-          <div class="stokrova-net-revenue" style="font-size: 1.8rem; font-weight: 800; color: ${tokens.textPrimary}; font-family: var(--stokrova-font-mono); margin-top: 6px;">$382,000.00</div>
-          <div style="font-size: 0.75rem; color: ${tokens.textSecondary}; margin-top: 4px;">Gross Margin: <strong>38.50%</strong> (3850 bps)</div>
-        </div>
-
-        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
-          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 700; text-transform: uppercase;">Stockout Risk Index</div>
-          <div style="font-size: 1.8rem; font-weight: 800; color: #4ADE80; font-family: var(--stokrova-font-mono); margin-top: 6px;">4 / 100</div>
-          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; margin-top: 4px;">Warehouse Utilization: <strong>78.5%</strong></div>
-        </div>
-
-        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
-          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 700; text-transform: uppercase;">Till Cashier Variance</div>
-          <div style="font-size: 1.8rem; font-weight: 800; color: #4ADE80; font-family: var(--stokrova-font-mono); margin-top: 6px;">$0.00</div>
-          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; margin-top: 4px;"><strong>6 Active Till Sessions</strong> across 3 stores</div>
-        </div>
-      </div>
-
-      <!-- Velocity Graph & Operational Alerts Panel -->
-      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px;">
-        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <h3 style="margin: 0; font-size: 1rem; color: ${tokens.textPrimary};">Multi-Channel Revenue Velocity</h3>
-            <span style="font-size: 0.75rem; color: ${tokens.textMuted};">Throughput Streams</span>
-          </div>
+  const velocityChartHtml = isDemo ? `
           <div style="display: flex; flex-direction: column; gap: 14px;">
             <div>
               <div style="display: flex; justify-content: space-between; font-size: 0.8125rem; margin-bottom: 4px;">
@@ -368,10 +326,13 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
               </div>
             </div>
           </div>
-        </div>
+  ` : `
+          <div style="height: 140px; display: flex; align-items: center; justify-content: center; border: 1px dashed ${tokens.borderStrong}; border-radius: 6px; color: ${tokens.textMuted}; font-size: 0.8125rem; text-align: center; padding: 16px;">
+            No transaction velocity recorded yet. Run POS sales or dispatch orders to visualize revenue streams.
+          </div>
+  `;
 
-        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
-          <h3 style="margin: 0 0 14px 0; font-size: 1rem; color: ${tokens.textPrimary};">Live Operational Alerts</h3>
+  const alertsPanelHtml = isDemo ? `
           <div style="display: flex; flex-direction: column; gap: 8px;">
             <div style="border-left: 3px solid #3B82F6; background: ${tokens.cardHover}; padding: 10px; border-radius: 4px;">
               <div style="font-size: 0.75rem; font-weight: 700; color: #3B82F6;">INFO: Inter-Branch Transfer</div>
@@ -386,6 +347,72 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
               <div style="font-size: 0.8rem; color: ${tokens.textSecondary}; margin-top: 2px;">All London store tills balanced with 0 float discrepancies.</div>
             </div>
           </div>
+  ` : `
+          <div style="padding: 24px 16px; text-align: center; color: ${tokens.textMuted}; font-size: 0.8125rem;">
+            ✓ All systems operational. Zero critical exceptions or alerts.
+          </div>
+  `;
+
+  return `
+    <!-- ========================================== -->
+    <!-- 1. EXECUTIVE DASHBOARD (/analytics/dashboards) -->
+    <!-- ========================================== -->
+    <div id="ws-view-dashboard" class="ws-view-content" style="display: block;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h1 style="margin: 0 0 6px 0; font-size: 1.6rem; color: ${tokens.textPrimary}; font-weight: 800;">Executive Operations Command Center</h1>
+          <p style="margin: 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Consolidated cross-branch telemetry, live margins, inventory velocity, and cashier variance.</p>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <span style="background: rgba(189,150,82,0.12); border: 1px solid ${brandColors.gold[500]}; color: ${brandColors.gold[400]}; padding: 6px 14px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;">
+            🏢 ${tenantName} (All Branches)
+          </span>
+          <button onclick="window.stokrovaApp?.exportExecutiveBriefing ? window.stokrovaApp.exportExecutiveBriefing(this) : ${toastFn}('Exporting executive board analytics as sanitized CSV / PDF...')" style="background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; padding: 6px 14px; border-radius: 6px; font-size: 0.8125rem; font-weight: 600; cursor: pointer;">
+            📥 Export Report
+          </button>
+        </div>
+      </div>
+
+      <!-- Top 4 Executive KPI Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
+          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 700; text-transform: uppercase;">Gross Merchandise Value (GMV)</div>
+          <div style="font-size: 1.8rem; font-weight: 800; color: ${brandColors.gold[400]}; font-family: var(--stokrova-font-mono); margin-top: 6px;">${gmvDisplay}</div>
+          <div style="font-size: 0.75rem; color: ${st.success[theme].text}; margin-top: 4px;">${gmvTrend}</div>
+        </div>
+
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
+          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 700; text-transform: uppercase;">Today's Net Revenue</div>
+          <div class="stokrova-net-revenue" style="font-size: 1.8rem; font-weight: 800; color: ${tokens.textPrimary}; font-family: var(--stokrova-font-mono); margin-top: 6px;">${netRevenueDisplay}</div>
+          <div style="font-size: 0.75rem; color: ${tokens.textSecondary}; margin-top: 4px;">${marginDisplay}</div>
+        </div>
+
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
+          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 700; text-transform: uppercase;">Stockout Risk Index</div>
+          <div style="font-size: 1.8rem; font-weight: 800; color: #4ADE80; font-family: var(--stokrova-font-mono); margin-top: 6px;">${stockoutDisplay}</div>
+          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; margin-top: 4px;">${warehouseDisplay}</div>
+        </div>
+
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
+          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 700; text-transform: uppercase;">Till Cashier Variance</div>
+          <div style="font-size: 1.8rem; font-weight: 800; color: #4ADE80; font-family: var(--stokrova-font-mono); margin-top: 6px;">${varianceDisplay}</div>
+          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; margin-top: 4px;">${tillSessionsDisplay}</div>
+        </div>
+      </div>
+
+      <!-- Velocity Graph & Operational Alerts Panel -->
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px;">
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <h3 style="margin: 0; font-size: 1rem; color: ${tokens.textPrimary};">Multi-Channel Revenue Velocity</h3>
+            <span style="font-size: 0.75rem; color: ${tokens.textMuted};">Throughput Streams</span>
+          </div>
+          ${velocityChartHtml}
+        </div>
+
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
+          <h3 style="margin: 0 0 14px 0; font-size: 1rem; color: ${tokens.textPrimary};">Live Operational Alerts</h3>
+          ${alertsPanelHtml}
         </div>
       </div>
 
@@ -436,12 +463,12 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <button type="button" onclick="(window.stokrovaCustomerApp || window.stokrovaApp).addItemToCart('LAPTOP-PRO-16', 'Apex Pro 16 Laptop', 2499.00)" style="padding: 12px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; border-radius: 6px; text-align: left; cursor: pointer; color: ${tokens.textPrimary};">
-              <div style="font-weight: 700; font-size: 0.875rem;">Apex Pro 16 Laptop</div>
+            <button type="button" onclick="(window.stokrovaCustomerApp || window.stokrovaApp).addItemToCart('LAPTOP-PRO-16', 'Pro 16 Workstation Laptop', 2499.00)" style="padding: 12px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; border-radius: 6px; text-align: left; cursor: pointer; color: ${tokens.textPrimary};">
+              <div style="font-weight: 700; font-size: 0.875rem;">Pro 16 Workstation Laptop</div>
               <div style="color: ${brandColors.gold[400]}; font-family: var(--stokrova-font-mono); font-size: 0.8125rem; margin-top: 4px;">$2,499.00</div>
             </button>
-            <button type="button" onclick="(window.stokrovaCustomerApp || window.stokrovaApp).addItemToCart('SMARTPHONE-ULTRA-5G', 'Apex Ultra 5G Phone', 999.00)" style="padding: 12px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; border-radius: 6px; text-align: left; cursor: pointer; color: ${tokens.textPrimary};">
-              <div style="font-weight: 700; font-size: 0.875rem;">Apex Ultra 5G Phone</div>
+            <button type="button" onclick="(window.stokrovaCustomerApp || window.stokrovaApp).addItemToCart('SMARTPHONE-ULTRA-5G', 'Ultra 5G Smartphone 256GB', 999.00)" style="padding: 12px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; border-radius: 6px; text-align: left; cursor: pointer; color: ${tokens.textPrimary};">
+              <div style="font-weight: 700; font-size: 0.875rem;">Ultra 5G Smartphone 256GB</div>
               <div style="color: ${brandColors.gold[400]}; font-family: var(--stokrova-font-mono); font-size: 0.8125rem; margin-top: 4px;">$999.00</div>
             </button>
             <button type="button" onclick="(window.stokrovaCustomerApp || window.stokrovaApp).addItemToCart('SHIRT-OXFORD-BLU-M', 'Oxford Cotton Shirt', 65.00)" style="padding: 12px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; border-radius: 6px; text-align: left; cursor: pointer; color: ${tokens.textPrimary};">
@@ -458,7 +485,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
           </div>
 
           <div style="display: flex; justify-content: space-between; font-size: 1.125rem; font-weight: 800; margin-bottom: 16px;">
-            <span>Total Due:</span>
+            <span>TOTAL DUE:</span>
             <span id="pos-cart-total" style="color: ${brandColors.gold[400]}; font-family: var(--stokrova-font-mono);">$0.00</span>
           </div>
 
@@ -507,7 +534,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
             <tr style="border-bottom: 1px solid ${tokens.border};">
               <td style="padding: 14px 16px; font-family: var(--stokrova-font-mono); font-weight: 600;">POS-LON-8812</td>
               <td style="padding: 14px 16px;">Walk-in Retail Customer</td>
-              <td style="padding: 14px 16px;">London Flagship POS</td>
+              <td style="padding: 14px 16px;">${branchName} POS</td>
               <td style="padding: 14px 16px;"><span style="background: #1E293B; color: #94A3B8; padding: 2px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">DISPATCHED</span></td>
               <td style="padding: 14px 16px; text-align: right; font-family: var(--stokrova-font-mono); font-weight: 700;">$3,149.00</td>
               <td style="padding: 14px 16px; text-align: right;"><button onclick="${toastFn}('Reprinting thermal receipt for POS-LON-8812...')" style="padding: 4px 10px; background: transparent; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Receipt</button></td>
@@ -642,7 +669,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
                 <td style="padding: 12px 14px; text-align: right; font-weight: 700; font-family: var(--stokrova-font-mono);">$65,000.00</td>
                 <td style="padding: 12px 14px; text-align: center;"><span style="color: ${goldText}; font-weight: 700;">PROPOSAL PRESENTED</span></td>
                 <td style="padding: 12px 14px; text-align: center; font-weight: 700; color: #4ADE80;">70%</td>
-                <td style="padding: 12px 14px; text-align: right;"><button onclick="${toastFn}('Converting quote QT-2026-042 to Sales Order...')" style="min-height: 40px; padding: 6px 14px; border-radius: 6px; border: none; background: ${brandColors.gold[500]}; color: #0E1116; font-size: 0.75rem; font-weight: 700; cursor: pointer;">Convert to SO →</button></td>
+                <td style="padding: 12px 14px; text-align: right;"><button onclick="window.stokrovaApp?.convertQuoteToSalesOrder ? window.stokrovaApp.convertQuoteToSalesOrder('OPP-2026-104', this) : ${toastFn}('Converting quote QT-2026-042 to Sales Order...')" style="min-height: 40px; padding: 6px 14px; border-radius: 6px; border: none; background: ${brandColors.gold[500]}; color: #0E1116; font-size: 0.75rem; font-weight: 700; cursor: pointer;">Convert to SO →</button></td>
               </tr>
               <tr>
                 <td style="padding: 12px 14px; font-weight: 700; font-family: var(--stokrova-font-mono);">OPP-2026-108</td>
@@ -653,7 +680,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
                 <td style="padding: 12px 14px; text-align: right; font-weight: 700; font-family: var(--stokrova-font-mono);">$28,500.00</td>
                 <td style="padding: 12px 14px; text-align: center;"><span style="color: #3B82F6; font-weight: 700;">TECHNICAL EVALUATION</span></td>
                 <td style="padding: 12px 14px; text-align: center; font-weight: 700;">50%</td>
-                <td style="padding: 12px 14px; text-align: right;"><button onclick="${toastFn}('Dispatching sample scanner unit...')" style="min-height: 40px; padding: 6px 14px; border-radius: 6px; border: 1px solid ${tokens.borderStrong}; background: ${tokens.surface}; color: ${tokens.textPrimary}; font-size: 0.75rem; font-weight: 600; cursor: pointer;">Send Demo</button></td>
+                <td style="padding: 12px 14px; text-align: right;"><button onclick="window.stokrovaApp?.dispatchSampleDemo ? window.stokrovaApp.dispatchSampleDemo('OPP-2026-108', this) : ${toastFn}('Dispatching sample scanner unit...')" style="min-height: 40px; padding: 6px 14px; border-radius: 6px; border: 1px solid ${tokens.borderStrong}; background: ${tokens.surface}; color: ${tokens.textPrimary}; font-size: 0.75rem; font-weight: 600; cursor: pointer;">Send Demo</button></td>
               </tr>
             </tbody>
           </table>
@@ -685,7 +712,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
           <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Product Catalog & Variant Matrix</h1>
           <p style="margin: 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Central item master, serial tracking, barcode aliases, and attribute dimensions.</p>
         </div>
-        <button onclick="${toastFn}('Opening SKU / Variant creation modal...')" style="padding: 8px 16px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;">
+        <button onclick="window.stokrovaApp?.openProductModal ? window.stokrovaApp.openProductModal() : ${toastFn}('Opening SKU / Variant creation modal...')" style="padding: 8px 16px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;">
           + Add Product / Variant
         </button>
       </div>
@@ -704,7 +731,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
           <tbody>
             <tr style="border-bottom: 1px solid ${tokens.border};">
               <td style="padding: 14px 16px; font-family: var(--stokrova-font-mono); font-weight: 600;">LAPTOP-PRO-16</td>
-              <td style="padding: 14px 16px;">Apex Pro 16-inch Workstation Laptop</td>
+              <td style="padding: 14px 16px;">Pro 16-inch Workstation Laptop</td>
               <td style="padding: 14px 16px; font-family: var(--stokrova-font-mono);">5011000000018</td>
               <td style="padding: 14px 16px; color: #4ADE80; font-weight: 600;">40 units</td>
               <td style="padding: 14px 16px; text-align: right; color: ${tokens.textMuted};">$1,200.00</td>
@@ -712,7 +739,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
             </tr>
             <tr style="border-bottom: 1px solid ${tokens.border};">
               <td style="padding: 14px 16px; font-family: var(--stokrova-font-mono); font-weight: 600;">SMARTPHONE-ULTRA-5G</td>
-              <td style="padding: 14px 16px;">Apex Ultra 5G Smartphone 256GB</td>
+              <td style="padding: 14px 16px;">Ultra 5G Smartphone 256GB</td>
               <td style="padding: 14px 16px; font-family: var(--stokrova-font-mono);">5011000000025</td>
               <td style="padding: 14px 16px; color: #4ADE80; font-weight: 600;">85 units</td>
               <td style="padding: 14px 16px; text-align: right; color: ${tokens.textMuted};">$450.00</td>
@@ -803,14 +830,14 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
             <div style="font-weight: 700;">Intel Corporation UK Ltd</div>
             <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Lead Time: 5 Days • On-Time Rating: 99.2% • Currency: USD</div>
           </div>
-          <button onclick="${toastFn}('Requesting Request for Quotation (RFQ)...')" style="padding: 6px 12px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Request RFQ</button>
+          <button onclick="window.stokrovaApp?.requestSupplierRfq ? window.stokrovaApp.requestSupplierRfq('SUPP-INTEL', this) : ${toastFn}('Requesting Request for Quotation (RFQ)...')" style="padding: 6px 12px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Request RFQ</button>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <div>
             <div style="font-weight: 700;">Samsung Electronics Logistics Europe</div>
             <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Lead Time: 7 Days • On-Time Rating: 98.4% • Currency: EUR</div>
           </div>
-          <button onclick="${toastFn}('Requesting Request for Quotation (RFQ)...')" style="padding: 6px 12px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Request RFQ</button>
+          <button onclick="window.stokrovaApp?.requestSupplierRfq ? window.stokrovaApp.requestSupplierRfq('SUPP-SAMSUNG', this) : ${toastFn}('Requesting Request for Quotation (RFQ)...')" style="padding: 6px 12px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Request RFQ</button>
         </div>
       </div>
     </div>
@@ -825,7 +852,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
         <div style="font-weight: 700; color: ${brandColors.gold[400]};">PO-2026-089 • Intel Corporation ($48,000.00 USD)</div>
         <div style="font-size: 0.8125rem; color: ${tokens.textSecondary}; margin-top: 4px;">Status: PARTIALLY_RECEIVED • 20/40 Workstations received at London Dock</div>
         <div style="margin-top: 12px;">
-          <button onclick="${toastFn}('Recording inbound receiving for PO-2026-089...')" style="padding: 6px 14px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; border-radius: 4px; font-weight: 700; font-size: 0.75rem; cursor: pointer;">Receive Goods (GRN)</button>
+          <button onclick="window.stokrovaApp?.recordInboundGRN ? window.stokrovaApp.recordInboundGRN('PO-2026-089', this) : ${toastFn}('Recording inbound receiving for PO-2026-089...')" style="padding: 6px 14px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; border-radius: 4px; font-weight: 700; font-size: 0.75rem; cursor: pointer;">Receive Goods (GRN)</button>
         </div>
       </div>
     </div>
@@ -883,10 +910,10 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
         </div>
 
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <button onclick="${toastFn}('Active pick wave submitted to container packing dock!')" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; font-weight: 700; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+          <button onclick="window.stokrovaApp?.completeAndStageWave ? window.stokrovaApp.completeAndStageWave('WAVE-LON-042', this) : ${toastFn}('Active pick wave submitted to container packing dock!')" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; font-weight: 700; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
             <span>✓ Complete & Stage Wave</span>
           </button>
-          <button onclick="${toastFn}('Scanner calibrated. Ready for barcode scan.')" style="min-height: 44px; padding: 10px 16px; border-radius: 6px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-weight: 600; font-size: 0.8125rem; cursor: pointer;">
+          <button onclick="window.stokrovaApp?.calibrateScanner ? window.stokrovaApp.calibrateScanner(this) : ${toastFn}('Scanner calibrated. Ready for barcode scan.')" style="min-height: 44px; padding: 10px 16px; border-radius: 6px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-weight: 600; font-size: 0.8125rem; cursor: pointer;">
             <span>🔍 Calibrate Scanner</span>
           </button>
         </div>
@@ -941,7 +968,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
                 <td style="padding: 12px 14px; font-family: var(--stokrova-font-mono); font-weight: 700; color: ${goldText};">A-02-01-B</td>
                 <td style="padding: 12px 14px;">
                   <div style="font-weight: 600;">LAPTOP-PRO-16</div>
-                  <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Apex Pro 16 Workstation • Lot #LOT-2026-088</div>
+                  <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Pro 16 Workstation • Lot #LOT-2026-088</div>
                 </td>
                 <td style="padding: 12px 14px; text-align: center; font-weight: 700;">6</td>
                 <td style="padding: 12px 14px; text-align: center; font-weight: 700; color: #4ADE80;">6</td>
@@ -952,7 +979,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
                 <td style="padding: 12px 14px; font-family: var(--stokrova-font-mono); font-weight: 700; color: ${goldText};">A-03-04-A</td>
                 <td style="padding: 12px 14px;">
                   <div style="font-weight: 600;">PHONE-ULTRA-5G</div>
-                  <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Apex Ultra 5G Phone • Serial Tracked</div>
+                  <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Ultra 5G Phone • Serial Tracked</div>
                 </td>
                 <td style="padding: 12px 14px; text-align: center; font-weight: 700;">10</td>
                 <td style="padding: 12px 14px; text-align: center; font-weight: 700; color: #4ADE80;">10</td>
@@ -968,7 +995,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
                 <td style="padding: 12px 14px; text-align: center; font-weight: 700;">20</td>
                 <td style="padding: 12px 14px; text-align: center; font-weight: 700; color: ${goldText};">12</td>
                 <td style="padding: 12px 14px; text-align: center;"><span style="color: ${goldText}; font-weight: 700;">IN PROGRESS</span></td>
-                <td style="padding: 12px 14px; text-align: right;"><button onclick="${toastFn}('Scan barcode for Oxford Shirt...')" style="min-height: 40px; padding: 6px 14px; border-radius: 6px; border: none; background: ${brandColors.gold[500]}; color: #0E1116; font-size: 0.75rem; font-weight: 700; cursor: pointer;">Scan Unit (8 left)</button></td>
+                <td style="padding: 12px 14px; text-align: right;"><button onclick="window.stokrovaApp?.scanPickItem ? window.stokrovaApp.scanPickItem('SHIRT-OXFORD-BLU', this) : ${toastFn}('Scan barcode for Oxford Shirt...')" style="min-height: 40px; padding: 6px 14px; border-radius: 6px; border: none; background: ${brandColors.gold[500]}; color: #0E1116; font-size: 0.75rem; font-weight: 700; cursor: pointer;">Scan Unit (8 left)</button></td>
               </tr>
             </tbody>
           </table>
@@ -984,9 +1011,9 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
       <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Pallet SSCC-18 barcodes, container gross weight checks, and carrier manifests.</p>
       <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px; font-family: var(--stokrova-font-mono); font-size: 0.8125rem;">
         <div>PALLET SSCC-18: 006141411234567890</div>
-        <div style="color: ${tokens.textSecondary}; margin-top: 4px;">Cartons: 24 • Gross Weight: 420 kg • Destination: Birmingham Hub</div>
+        <div style="color: ${tokens.textSecondary}; margin-top: 4px;">Cartons: 24 • Gross Weight: 420 kg • Destination: Central Logistics Hub</div>
         <div style="margin-top: 14px;">
-          <button onclick="${toastFn}('Printing official Bill of Lading (BOL)...')" style="min-height: 44px; padding: 10px 18px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center;">Print BOL Manifest</button>
+          <button onclick="window.stokrovaApp?.printBillOfLading ? window.stokrovaApp.printBillOfLading(this) : ${toastFn}('Printing official Bill of Lading (BOL)...')" style="min-height: 44px; padding: 10px 18px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center;">Print BOL Manifest</button>
         </div>
       </div>
     </div>
@@ -1014,10 +1041,10 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
         </div>
 
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <button onclick="${toastFn}('Digital POD signature pad opened for current drop.')" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; font-weight: 700; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+          <button onclick="window.stokrovaApp?.openPodSignatureModal ? window.stokrovaApp.openPodSignatureModal() : ${toastFn}('Digital POD signature pad opened for current drop.')" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; font-weight: 700; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
             <span>✍️ Capture POD Signature</span>
           </button>
-          <button onclick="${toastFn}('Syncing GPS coordinates and offline drop queue...')" style="min-height: 44px; padding: 10px 16px; border-radius: 6px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-weight: 600; font-size: 0.8125rem; cursor: pointer;">
+          <button onclick="window.stokrovaApp?.syncRouteTelemetry ? window.stokrovaApp.syncRouteTelemetry(this) : ${toastFn}('Syncing GPS coordinates and offline drop queue...')" style="min-height: 44px; padding: 10px 16px; border-radius: 6px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-weight: 600; font-size: 0.8125rem; cursor: pointer;">
             <span>🧭 Sync Route Telemetry</span>
           </button>
         </div>
@@ -1080,7 +1107,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
                 </td>
                 <td style="padding: 12px 14px;">4x Cartons Apparel (BOL-8850)</td>
                 <td style="padding: 12px 14px; text-align: center;"><span style="color: ${goldText}; font-weight: 700;">NEXT STOP (ETA 15:15)</span></td>
-                <td style="padding: 12px 14px; text-align: right;"><button onclick="${toastFn}('Arrived at Islington. Capturing recipient signature...')" style="min-height: 40px; padding: 6px 14px; border-radius: 6px; border: none; background: ${brandColors.gold[500]}; color: #0E1116; font-size: 0.75rem; font-weight: 700; cursor: pointer;">Deliver & Sign</button></td>
+                <td style="padding: 12px 14px; text-align: right;"><button onclick="window.stokrovaApp?.deliverAndSignPod ? window.stokrovaApp.deliverAndSignPod('DROP-13', this) : ${toastFn}('Arrived at Islington. Capturing recipient signature...')" style="min-height: 40px; padding: 6px 14px; border-radius: 6px; border: none; background: ${brandColors.gold[500]}; color: #0E1116; font-size: 0.75rem; font-weight: 700; cursor: pointer;">Deliver & Sign</button></td>
               </tr>
               <tr>
                 <td style="padding: 12px 14px; font-weight: 700; font-family: var(--stokrova-font-mono);">#14</td>
@@ -1126,7 +1153,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
         <div style="font-weight: 700;">WO-2026-014 • Work Center: Assembly Bay 01</div>
         <div style="font-size: 0.8125rem; color: ${tokens.textSecondary}; margin-top: 4px;">Target: 50x LAPTOP-PRO-16 • Status: IN_PROGRESS (30/50 assembled)</div>
         <div style="margin-top: 12px;">
-          <button onclick="${toastFn}('Output logged: 10 finished laptops posted to inventory asset ledger.')" style="padding: 6px 14px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; border-radius: 4px; font-weight: 700; font-size: 0.75rem; cursor: pointer;">Record Output (10 units)</button>
+          <button onclick="window.stokrovaApp?.recordAssemblyOutput ? window.stokrovaApp.recordAssemblyOutput('WO-2026-014', 10, this) : ${toastFn}('Output logged: 10 finished laptops posted to inventory asset ledger.')" style="padding: 6px 14px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; border-radius: 4px; font-weight: 700; font-size: 0.75rem; cursor: pointer;">Record Output (10 units)</button>
         </div>
       </div>
     </div>
@@ -1139,13 +1166,13 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
       <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Daily opening float, mid-shift drops, blind closing count, and cash variance audit.</p>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 18px;">
-          <div style="font-weight: 700;">Till Register 01 (London Flagship)</div>
-          <div style="font-size: 0.8125rem; color: ${tokens.textMuted}; margin-top: 4px;">Cashier: Emma Watson • Float: $250.00 • Active Sales: $3,450.00</div>
+          <div style="font-weight: 700;">Till Register 01 (${branchName})</div>
+          <div style="font-size: 0.8125rem; color: ${tokens.textMuted}; margin-top: 4px;">Cashier: Assigned Cashier • Float: $250.00 • Active Sales: $3,450.00</div>
           <div style="font-size: 0.75rem; color: #4ADE80; margin-top: 8px;">● 0 Cashier Discrepancy</div>
         </div>
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 18px;">
-          <div style="font-weight: 700;">Till Register 02 (London Flagship)</div>
-          <div style="font-size: 0.8125rem; color: ${tokens.textMuted}; margin-top: 4px;">Cashier: Liam Vance • Float: $250.00 • Active Sales: $2,890.00</div>
+          <div style="font-weight: 700;">Till Register 02 (${branchName})</div>
+          <div style="font-size: 0.8125rem; color: ${tokens.textMuted}; margin-top: 4px;">Cashier: Terminal Cashier • Float: $250.00 • Active Sales: $2,890.00</div>
           <div style="font-size: 0.75rem; color: #4ADE80; margin-top: 8px;">● 0 Cashier Discrepancy</div>
         </div>
       </div>
@@ -1176,7 +1203,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
       <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
         <div style="font-weight: 700;">UK Standard VAT 20.00% (Accrued: $63,666.67)</div>
         <p style="font-size: 0.8125rem; color: ${tokens.textSecondary}; margin: 4px 0 14px 0;">All transactions signed with SHA-256 tamper-proof fiscal hash chain.</p>
-        <button onclick="${toastFn}('Exporting fiscal tax package for HM Revenue & Customs...')" style="padding: 8px 16px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; border-radius: 6px; font-size: 0.8125rem; cursor: pointer;">Export Fiscal Audit File</button>
+        <button onclick="window.stokrovaApp?.exportFiscalAudit ? window.stokrovaApp.exportFiscalAudit(this) : ${toastFn}('Exporting fiscal tax package for HM Revenue & Customs...')" style="padding: 8px 16px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; border-radius: 6px; font-size: 0.8125rem; cursor: pointer;">Export Fiscal Audit File</button>
       </div>
     </div>
 
@@ -1209,9 +1236,9 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
       <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px; font-family: var(--stokrova-font-mono); font-size: 0.8125rem;">
         <div style="color: #4ADE80; margin-bottom: 6px;">✓ MERKLE_ROOT: 8f49a2c3e1b7... (Tree verified intact)</div>
         <div style="color: ${tokens.textSecondary}; line-height: 1.6;">
-          • [2026-10-14 14:22:01] EVENT: POS_CHECKOUT | Actor: emma.watson | Ref: POS-SALE-9912<br>
-          • [2026-10-14 13:45:10] EVENT: STOCK_TRANSFER | Actor: samuel.adebayo | Ref: TR-LON-BIR-042<br>
-          • [2026-10-14 11:15:30] EVENT: USER_LOGIN | Actor: victoria.sterling | IP: 192.168.1.42
+          • [2026-10-14 14:22:01] EVENT: POS_CHECKOUT | Actor: cashier.operator | Ref: POS-SALE-9912<br>
+          • [2026-10-14 13:45:10] EVENT: STOCK_TRANSFER | Actor: logistics.operator | Ref: TR-LON-BIR-042<br>
+          • [2026-10-14 11:15:30] EVENT: USER_LOGIN | Actor: system.admin | IP: 192.168.1.42
         </div>
       </div>
     </div>
@@ -1235,10 +1262,10 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
       <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Tenant Organization & Subsidiary Companies</h1>
       <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Multi-company legal entity governance and regional retail branch assignments.</p>
       <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
-        <div style="font-weight: 700; color: ${brandColors.gold[400]};">Holding: Apex Global Retail & Logistics Ltd</div>
+        <div style="font-weight: 700; color: ${brandColors.gold[400]};">Holding: ${tenantName}</div>
         <div style="margin-left: 16px; margin-top: 8px; font-size: 0.8125rem; color: ${tokens.textSecondary}; line-height: 1.6;">
-          • Subsidiary 1: Apex Retail UK Ltd (GBP • 3 Storefronts)<br>
-          • Subsidiary 2: Apex US Distribution Inc (USD • 2 Distribution Centers)
+          • Primary Legal Entity (${options.currencyCode || 'USD'} • Active Operations)<br>
+          • Registered Commercial Facility: ${branchName}
         </div>
       </div>
     </div>
@@ -1264,18 +1291,18 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
           
           <div style="margin-bottom: 16px;">
             <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">COMPANY LEGAL & DISPLAY NAME</label>
-            <input id="rebrand-company-name" type="text" value="${tenantName}" placeholder="e.g. Apex Global Retail Ltd" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.875rem;" oninput="window.updateBrandPreview && window.updateBrandPreview()" />
+            <input id="rebrand-company-name" type="text" value="${tenantName}" placeholder="e.g. Acme Enterprises Ltd" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.875rem;" oninput="window.updateBrandPreview && window.updateBrandPreview()" />
           </div>
 
           <div style="margin-bottom: 16px;">
             <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">RECEIPT & INVOICE SUBTITLE</label>
-            <input id="rebrand-receipt-slogan" type="text" value="Luxury Lifestyle & Electronics • Flagship Branch" placeholder="e.g. Authorized Premium Retailer" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.875rem;" oninput="window.updateBrandPreview && window.updateBrandPreview()" />
+            <input id="rebrand-receipt-slogan" type="text" value="Premium Retail & Logistics • Flagship Branch" placeholder="e.g. Authorized Premium Retailer" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.875rem;" oninput="window.updateBrandPreview && window.updateBrandPreview()" />
           </div>
 
           <div style="margin-bottom: 24px;">
             <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">BRAND MONOGRAM / LOGO TEXT</label>
             <div style="display: flex; gap: 10px;">
-              <input id="rebrand-logo-text" type="text" value="◆ APEX" placeholder="e.g. ❖ BRAND" style="flex: 1; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.875rem;" oninput="window.updateBrandPreview && window.updateBrandPreview()" />
+              <input id="rebrand-logo-text" type="text" value="◆ STOKROVA" placeholder="e.g. ❖ BRAND" style="flex: 1; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.875rem;" oninput="window.updateBrandPreview && window.updateBrandPreview()" />
             </div>
           </div>
 
@@ -1334,11 +1361,11 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
             <div style="background: #090B0E; border: 1px solid ${tokens.borderStrong}; border-radius: 6px; padding: 14px; margin-bottom: 14px;">
               <div style="font-size: 0.7rem; color: ${tokens.textMuted}; text-transform: uppercase; font-weight: 700; margin-bottom: 8px;">Cashier POS Terminal Appearance</div>
               <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid ${tokens.border}; padding-bottom: 8px; margin-bottom: 10px;">
-                <span id="preview-brand-header" style="font-weight: 800; color: #BD9652; font-size: 0.85rem;">◆ APEX</span>
+                <span id="preview-brand-header" style="font-weight: 800; color: #BD9652; font-size: 0.85rem;">◆ ${tenantName}</span>
                 <span style="font-size: 0.7rem; background: rgba(189,150,82,0.18); color: #BD9652; padding: 2px 6px; border-radius: 4px; font-weight: 600;" id="preview-branch-badge">${branchName}</span>
               </div>
               <div style="display: flex; gap: 8px;">
-                <button type="button" id="preview-pos-btn" style="flex: 1; padding: 8px; background: #BD9652; color: #0E1116; border: none; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">Complete Cashier Sale ($2,499.00)</button>
+                <button type="button" id="preview-pos-btn" style="flex: 1; padding: 8px; background: #BD9652; color: #0E1116; border: none; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">Complete Cashier Sale ($0.00)</button>
               </div>
             </div>
 
@@ -1354,13 +1381,13 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
             <!-- Preview 3: Thermal Receipt Output -->
             <div style="background: #FFFFFF; color: #0E1116; border-radius: 6px; padding: 14px; font-family: var(--stokrova-font-mono); font-size: 0.7rem; line-height: 1.4;">
               <div style="text-align: center; font-weight: 800; font-size: 0.85rem;" id="preview-receipt-name">${tenantName}</div>
-              <div style="text-align: center; font-size: 0.65rem; color: #555555; margin-bottom: 6px;" id="preview-receipt-slogan">Luxury Lifestyle & Electronics • Flagship Branch</div>
+              <div style="text-align: center; font-size: 0.65rem; color: #555555; margin-bottom: 6px;" id="preview-receipt-slogan">Official Fiscal Receipt • ${branchName}</div>
               <div style="border-top: 1px dashed #000000; border-bottom: 1px dashed #000000; padding: 4px 0; margin: 4px 0;">
-                1x Apex Pro 16 Laptop Workstation ........... $2,499.00
+                1x Standard Merchandise Line ........... $0.00
               </div>
               <div style="display: flex; justify-content: space-between; font-weight: 700;">
                 <span>TOTAL PAID (CASH):</span>
-                <span>$2,499.00</span>
+                <span>$0.00</span>
               </div>
               <div style="text-align: center; margin-top: 6px; font-size: 0.6rem; color: #444444;">
                 QR CRYPTOGRAPHIC VERIFICATION • FISCAL SEAL
@@ -1388,7 +1415,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
       <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; overflow: hidden; margin-bottom: 24px;">
         <div style="padding: 14px 18px; background: ${tokens.cardHover}; border-bottom: 1px solid ${tokens.border}; display: flex; justify-content: space-between; align-items: center;">
           <span style="font-weight: 700; font-size: 0.9rem; color: ${tokens.textPrimary};">Active Company Staff Directory</span>
-          <span style="font-size: 0.75rem; color: ${tokens.textMuted};" id="staff-count-badge">4 Staff Members Active</span>
+          <span style="font-size: 0.75rem; color: ${tokens.textMuted};" id="staff-count-badge">${isDemo ? '4 Staff Members Active' : '0 Staff Members Active'}</span>
         </div>
         <div style="overflow-x: auto;">
           <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left;">
@@ -1402,6 +1429,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
               </tr>
             </thead>
             <tbody id="staff-table-body">
+              ${isDemo ? `
               <tr style="border-bottom: 1px solid ${tokens.border};">
                 <td style="padding: 12px 16px; font-weight: 600;">
                   <div>Victoria Sterling</div>
@@ -1431,7 +1459,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
                   <span style="background: #14291F; color: #4ADE80; border: 1px solid #1E4620; padding: 2px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">ACTIVE</span>
                 </td>
                 <td style="padding: 12px 16px; text-align: right;">
-                  <button onclick="${toastFn}('PIN reset email sent to david@apex.com')" style="padding: 4px 8px; border-radius: 4px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.75rem; cursor: pointer;">Reset PIN</button>
+                  <button onclick="window.stokrovaApp?.resetStaffPin ? window.stokrovaApp.resetStaffPin('usr_david', this) : ${toastFn}('PIN reset email sent to david@apex.com')" style="padding: 4px 8px; border-radius: 4px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.75rem; cursor: pointer;">Reset PIN</button>
                 </td>
               </tr>
               <tr style="border-bottom: 1px solid ${tokens.border};">
@@ -1447,7 +1475,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
                   <span style="background: #14291F; color: #4ADE80; border: 1px solid #1E4620; padding: 2px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">ACTIVE</span>
                 </td>
                 <td style="padding: 12px 16px; text-align: right;">
-                  <button onclick="${toastFn}('Cash drawer permissions audited for Emma Watson')" style="padding: 4px 8px; border-radius: 4px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.75rem; cursor: pointer;">Permissions</button>
+                  <button onclick="window.stokrovaApp?.auditStaffPermissions ? window.stokrovaApp.auditStaffPermissions('usr_emma', this) : ${toastFn}('Cash drawer permissions audited for Emma Watson')" style="padding: 4px 8px; border-radius: 4px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.75rem; cursor: pointer;">Permissions</button>
                 </td>
               </tr>
               <tr style="border-bottom: 1px solid ${tokens.border};">
@@ -1463,9 +1491,16 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
                   <span style="background: #14291F; color: #4ADE80; border: 1px solid #1E4620; padding: 2px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">ACTIVE</span>
                 </td>
                 <td style="padding: 12px 16px; text-align: right;">
-                  <button onclick="${toastFn}('Scanner device fingerprint verified for Samuel Adebayo')" style="padding: 4px 8px; border-radius: 4px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.75rem; cursor: pointer;">Device Auth</button>
+                  <button onclick="window.stokrovaApp?.verifyDeviceFingerprint ? window.stokrovaApp.verifyDeviceFingerprint('usr_samuel', this) : ${toastFn}('Scanner device fingerprint verified for Samuel Adebayo')" style="padding: 4px 8px; border-radius: 4px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.75rem; cursor: pointer;">Device Auth</button>
                 </td>
               </tr>
+              ` : `
+              <tr id="staff-empty-row">
+                <td colspan="5" style="padding: 24px; text-align: center; color: ${tokens.textMuted}; font-size: 0.875rem;">
+                  No additional staff members provisioned. Click "+ Invite / Add Staff Member" to add team members.
+                </td>
+              </tr>
+              `}
             </tbody>
           </table>
         </div>
@@ -1477,6 +1512,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
           <span style="font-weight: 700; font-size: 0.9rem; color: ${tokens.textPrimary};">Pending Single-Sign-On Staff Invitations</span>
         </div>
         <div id="pending-invitations-list" style="padding: 16px 18px;">
+          ${isDemo ? `
           <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid ${tokens.border}; padding-bottom: 10px; margin-bottom: 10px;">
             <div>
               <div style="font-weight: 600; font-size: 0.875rem;">Sarah Jenkins (sarah.j@apex.com)</div>
@@ -1484,9 +1520,14 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
             </div>
             <div style="display: flex; gap: 8px;">
               <button onclick="navigator.clipboard?.writeText('https://stokrova.com/invite/tok_sso_sarah9912'); ${toastFn}('Copied secure invitation link to clipboard!')" style="padding: 5px 10px; border-radius: 4px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.75rem; cursor: pointer;">Copy Invite Link</button>
-              <button onclick="${toastFn}('Invitation resent to sarah.j@apex.com')" style="padding: 5px 10px; border-radius: 4px; background: transparent; border: 1px solid ${tokens.border}; color: ${tokens.textSecondary}; font-size: 0.75rem; cursor: pointer;">Resend</button>
+              <button onclick="window.stokrovaApp?.resendStaffInvite ? window.stokrovaApp.resendStaffInvite('sarah.j@apex.com', this) : ${toastFn}('Invitation resent to sarah.j@apex.com')" style="padding: 5px 10px; border-radius: 4px; background: transparent; border: 1px solid ${tokens.border}; color: ${tokens.textSecondary}; font-size: 0.75rem; cursor: pointer;">Resend</button>
             </div>
           </div>
+          ` : `
+          <div id="pending-invitations-empty" style="text-align: center; color: ${tokens.textMuted}; font-size: 0.8125rem; padding: 12px;">
+            No pending staff invitations.
+          </div>
+          `}
         </div>
       </div>
     </div>
@@ -1512,7 +1553,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
 
           <div style="margin-bottom: 14px;">
             <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">WORK EMAIL ADDRESS *</label>
-            <input id="invite-staff-email" type="email" required placeholder="alex@apex.com" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
+            <input id="invite-staff-email" type="email" required placeholder="staff@company.com" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
@@ -1529,9 +1570,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
             <div>
               <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">BRANCH / FACILITY *</label>
               <select id="invite-staff-branch" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;">
-                <option value="London Flagship" selected>London Flagship</option>
-                <option value="Birmingham DC">Birmingham DC</option>
-                <option value="New York Distribution Center">New York Distribution Center</option>
+                <option value="${branchName}" selected>${branchName}</option>
                 <option value="All Branches (Tenant Wide)">All Branches (Tenant Wide)</option>
               </select>
             </div>
@@ -1539,7 +1578,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
 
           <div style="margin-bottom: 24px;">
             <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">TEMPORARY ACCESS PIN / PASSWORD *</label>
-            <input id="invite-staff-pin" type="text" required value="7788" placeholder="e.g. 7788" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem; font-family: var(--stokrova-font-mono);" />
+            <input id="invite-staff-pin" type="text" required placeholder="4-digit PIN (e.g. 1234)" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem; font-family: var(--stokrova-font-mono);" />
           </div>
 
           <div style="display: flex; justify-content: flex-end; gap: 12px;">
@@ -1566,7 +1605,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
             <div style="font-weight: 700;">Epson TM-T88VI Thermal Receipt Printer</div>
             <div style="font-size: 0.75rem; color: #4ADE80;">● Online (USB / Raw 9100)</div>
           </div>
-          <button onclick="${toastFn}('Hardware test print job sent to Epson TM-T88VI!')" style="padding: 6px 14px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; border-radius: 6px; font-size: 0.75rem; cursor: pointer;">Test Print</button>
+          <button onclick="window.stokrovaApp?.testPrintHardware ? window.stokrovaApp.testPrintHardware(this) : ${toastFn}('Hardware test print job sent to Epson TM-T88VI!')" style="padding: 6px 14px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; border-radius: 6px; font-size: 0.75rem; cursor: pointer;">Test Print</button>
         </div>
       </div>
     </div>
@@ -1596,7 +1635,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
           <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Visual DAG Workflows Studio</h1>
           <p style="margin: 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Orchestrates automated business logic with Kahn's algorithm cycle detection.</p>
         </div>
-        <button onclick="${toastFn}('Workflow dry-run simulation executed: 0 cycles, 3 steps completed.')" style="padding: 8px 16px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;">
+        <button onclick="window.stokrovaApp?.simulateWorkflowDryRun ? window.stokrovaApp.simulateWorkflowDryRun(this) : ${toastFn}('Workflow dry-run simulation executed: 0 cycles, 3 steps completed.')" style="padding: 8px 16px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;">
           ▶ Run Workflow Test
         </button>
       </div>

@@ -98,7 +98,7 @@ export class RbacViewModel {
               </span>
             </td>
             <td style="padding: 12px 14px; text-align: right;">
-              <button onclick="window.stokrovaApp?.showToast('Edit scope target for ${s.fullName}')" style="padding: 5px 10px; border-radius: 6px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.75rem; cursor: pointer;">
+              <button onclick="window.stokrovaApp?.openEditScopeModal ? window.stokrovaApp.openEditScopeModal('${s.fullName}') : window.stokrovaApp?.showToast('Edit scope target for ${s.fullName}')" style="padding: 5px 10px; border-radius: 6px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.75rem; cursor: pointer;">
                 Configure Scope ↗
               </button>
             </td>
@@ -196,27 +196,27 @@ export class RbacViewModel {
           <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;">
             <div style="background: ${tokens.card}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px; border-top: 3px solid #BD9652;">
               <div style="font-size: 0.65rem; color: ${tokens.textMuted}; text-transform: uppercase; font-weight: 700;">Tier 1: Tenant Scope</div>
-              <div style="font-size: 0.85rem; font-weight: 700; color: ${tokens.textPrimary}; margin-top: 4px;">Apex Global Group</div>
+              <div style="font-size: 0.85rem; font-weight: 700; color: ${tokens.textPrimary}; margin-top: 4px;">Active Sovereign Tenant</div>
               <div style="font-size: 0.7rem; color: #16A34A; margin-top: 4px;">● Global Tenant Root</div>
             </div>
             <div style="background: ${tokens.card}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px; border-top: 3px solid #3B82F6;">
               <div style="font-size: 0.65rem; color: ${tokens.textMuted}; text-transform: uppercase; font-weight: 700;">Tier 2: Company Scope</div>
-              <div style="font-size: 0.85rem; font-weight: 700; color: ${tokens.textPrimary}; margin-top: 4px;">Apex Retail UK Ltd</div>
+              <div style="font-size: 0.85rem; font-weight: 700; color: ${tokens.textPrimary}; margin-top: 4px;">Operating Legal Entity</div>
               <div style="font-size: 0.7rem; color: ${tokens.textSecondary}; margin-top: 4px;">Legal & Fiscal Entity</div>
             </div>
             <div style="background: ${tokens.card}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px; border-top: 3px solid #10B981;">
               <div style="font-size: 0.65rem; color: ${tokens.textMuted}; text-transform: uppercase; font-weight: 700;">Tier 3: Branch Scope</div>
-              <div style="font-size: 0.85rem; font-weight: 700; color: ${tokens.textPrimary}; margin-top: 4px;">London Flagship</div>
+              <div style="font-size: 0.85rem; font-weight: 700; color: ${tokens.textPrimary}; margin-top: 4px;">Active Commercial Branch</div>
               <div style="font-size: 0.7rem; color: ${tokens.textSecondary}; margin-top: 4px;">Commercial Store Front</div>
             </div>
             <div style="background: ${tokens.card}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px; border-top: 3px solid #8B5CF6;">
               <div style="font-size: 0.65rem; color: ${tokens.textMuted}; text-transform: uppercase; font-weight: 700;">Tier 4: Warehouse Scope</div>
-              <div style="font-size: 0.85rem; font-weight: 700; color: ${tokens.textPrimary}; margin-top: 4px;">London Main DC Bins</div>
-              <div style="font-size: 0.7rem; color: ${tokens.textSecondary}; margin-top: 4px;">8-Tier Storage Bins</div>
+              <div style="font-size: 0.85rem; font-weight: 700; color: ${tokens.textPrimary}; margin-top: 4px;">Facility Storage Bins</div>
+              <div style="font-size: 0.7rem; color: ${tokens.textSecondary}; margin-top: 4px;">Multi-Tier Storage Bins</div>
             </div>
             <div style="background: ${tokens.card}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px; border-top: 3px solid #EC4899;">
               <div style="font-size: 0.65rem; color: ${tokens.textMuted}; text-transform: uppercase; font-weight: 700;">Tier 5: Till Register Scope</div>
-              <div style="font-size: 0.85rem; font-weight: 700; color: ${tokens.textPrimary}; margin-top: 4px;">REG-LON-01</div>
+              <div style="font-size: 0.85rem; font-weight: 700; color: ${tokens.textPrimary}; margin-top: 4px;">Cashier Workstation</div>
               <div style="font-size: 0.7rem; color: ${tokens.textSecondary}; margin-top: 4px;">Hardware POS Float</div>
             </div>
           </div>
@@ -315,12 +315,12 @@ export class RbacViewModel {
             <form id="form-invite-staff" onsubmit="window.handleStaffInviteSubmit ? window.handleStaffInviteSubmit(event) : (window.stokrovaApp?.handleStaffInviteSubmit ? window.stokrovaApp.handleStaffInviteSubmit(event) : null)">
               <div style="margin-bottom: 14px;">
                 <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">STAFF FULL NAME *</label>
-                <input id="invite-staff-name" type="text" required placeholder="e.g. Alex Morgan" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
+                <input id="invite-staff-name" type="text" required placeholder="e.g. Jane Doe" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
               </div>
 
               <div style="margin-bottom: 14px;">
                 <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">WORK EMAIL ADDRESS *</label>
-                <input id="invite-staff-email" type="email" required placeholder="alex@apex.com" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
+                <input id="invite-staff-email" type="email" required placeholder="staff@company.com" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;" />
               </div>
 
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
@@ -337,9 +337,7 @@ export class RbacViewModel {
                 <div>
                   <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">BRANCH / FACILITY *</label>
                   <select id="invite-staff-branch" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem;">
-                    <option value="London Flagship" selected>London Flagship</option>
-                    <option value="Birmingham DC">Birmingham DC</option>
-                    <option value="New York Distribution Center">New York Distribution Center</option>
+                    <option value="Primary Branch" selected>Primary Branch</option>
                     <option value="All Branches (Tenant Wide)">All Branches (Tenant Wide)</option>
                   </select>
                 </div>
@@ -347,7 +345,7 @@ export class RbacViewModel {
 
               <div style="margin-bottom: 24px;">
                 <label style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">TEMPORARY ACCESS PIN / PASSWORD *</label>
-                <input id="invite-staff-pin" type="text" required value="7788" placeholder="e.g. 7788" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem; font-family: var(--stokrova-font-mono);" />
+                <input id="invite-staff-pin" type="text" required placeholder="4-digit PIN (e.g. 1234)" style="width: 100%; padding: 10px 12px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.875rem; font-family: var(--stokrova-font-mono);" />
               </div>
 
               <div style="display: flex; justify-content: flex-end; gap: 12px;">

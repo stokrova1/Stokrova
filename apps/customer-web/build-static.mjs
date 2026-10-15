@@ -3,6 +3,14 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { LandingViewModel } from './dist/index.js';
 import { renderMasterSidebarHtml, renderAllWorkspaceViewsHtml } from '@stokrova/ui';
+import {
+  DashboardViewModel,
+  ProcurementViewModel,
+  FinanceViewModel,
+  RegistersViewModel,
+  RbacViewModel,
+  OrganizationViewModel,
+} from '../admin-web/dist/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -53,13 +61,319 @@ const masterSidebarHtml = renderMasterSidebarHtml({
   onItemClickFnName: 'window.stokrovaCustomerApp.showWsView',
 });
 
-const allWorkspaceViewsHtml = renderAllWorkspaceViewsHtml({
+const dashboardModel = new DashboardViewModel({
+  grossMerchandiseValueMinor: 485000000n, // $4,850,000.00
+  netRevenueMinor: 38200000n, // $382,000.00
+  grossMarginBps: 3850, // 38.50%
+  stockoutRiskIndex: 4,
+  warehouseUtilizationPct: 78.5,
+  openTillSessionsCount: 6,
+  cashierVarianceAlertsMinor: 0n,
+  activeWorkflowsRunning: 3,
+  currencyCode: 'USD',
+}, 'dark');
+
+dashboardModel.addAlert({
+  id: 'alt_01',
+  severity: 'INFO',
+  title: 'Inter-Branch Stock Dispatched',
+  message: 'TR-LON-BIR-042 dispatched to Birmingham DC (20 units in-transit).',
+  timestampIso: '2026-10-14T14:15:00Z',
+});
+dashboardModel.addAlert({
+  id: 'alt_02',
+  severity: 'WARNING',
+  title: 'Discount Override Requested',
+  message: 'B2B Quote QT-2026-042 requested 14% discount (exceeds 10% manager threshold).',
+  timestampIso: '2026-10-14T13:50:00Z',
+});
+dashboardModel.addAlert({
+  id: 'alt_03',
+  severity: 'INFO',
+  title: 'Daily Register Reconciled',
+  message: 'All London store tills balanced with 0 float discrepancies.',
+  timestampIso: '2026-10-14T12:00:00Z',
+});
+
+const procurementModel = new ProcurementViewModel('dark');
+procurementModel.addSupplier({
+  id: 'supp_intel',
+  name: 'Intel Corporation UK Ltd',
+  code: 'SUPP-INTEL',
+  contactEmail: 'orders@intel.co.uk',
+  paymentTermsDays: 30,
+  leadTimeDays: 5,
+  currencyCode: 'USD',
+  isActive: true,
+});
+procurementModel.addSupplier({
+  id: 'supp_samsung',
+  name: 'Samsung Electronics Logistics Europe',
+  code: 'SUPP-SAMSUNG',
+  contactEmail: 'b2b@samsung.de',
+  paymentTermsDays: 14,
+  leadTimeDays: 7,
+  currencyCode: 'EUR',
+  isActive: true,
+});
+procurementModel.addPurchaseOrder({
+  id: 'po_089',
+  poNumber: 'PO-2026-089',
+  supplierId: 'supp_intel',
+  supplierName: 'Intel Corporation UK Ltd',
+  createdAtIso: '2026-10-12T10:00:00Z',
+  expectedDeliveryIso: '2026-10-17T00:00:00Z',
+  currencyCode: 'USD',
+  status: 'PARTIALLY_RECEIVED',
+  lines: [
+    {
+      id: 'pol_01',
+      sku: 'SKU-CPU-I9',
+      productName: 'Intel Core i9-14900K Processor',
+      orderedQty: 20,
+      receivedQty: 20,
+      invoicedQty: 20,
+      unitCostMinor: 58000n,
+      invoicedUnitCostMinor: 58000n,
+    },
+    {
+      id: 'pol_02',
+      sku: 'SKU-MB-Z790',
+      productName: 'ASUS ROG Maximus Z790 Hero Motherboard',
+      orderedQty: 15,
+      receivedQty: 10,
+      invoicedQty: 10,
+      unitCostMinor: 62000n,
+      invoicedUnitCostMinor: 62000n,
+    },
+    {
+      id: 'pol_03',
+      sku: 'SKU-SSD-2TB',
+      productName: 'Samsung 990 PRO 2TB NVMe SSD',
+      orderedQty: 30,
+      receivedQty: 0,
+      invoicedQty: 0,
+      unitCostMinor: 18000n,
+      invoicedUnitCostMinor: 18000n,
+    },
+  ],
+});
+
+const financeModel = new FinanceViewModel('dark');
+financeModel.addJournalEntry({
+  id: 'jrnl_001',
+  entryNumber: 'JRNL-2026-10-001',
+  reference: 'POS-CLOSE-042',
+  description: 'Daily counter register settlement and merchant settlement transfer',
+  dateIso: '2026-10-14T18:00:00Z',
+  status: 'POSTED',
+  currencyCode: 'USD',
+  preparedBy: 'usr_arthur',
+  preparedByName: 'Arthur Pendelton',
+  postedBy: 'usr_arthur',
+  postedByName: 'Arthur Pendelton',
+  turnaroundMinutes: 24,
+  lines: [
+    { accountCode: '1010', accountName: 'Cash at Bank (Operating)', debitMinor: 284050n, creditMinor: 0n },
+    { accountCode: '4010', accountName: 'Retail Counter Sales', debitMinor: 0n, creditMinor: 284050n },
+  ],
+});
+financeModel.addJournalEntry({
+  id: 'jrnl_002',
+  entryNumber: 'JRNL-2026-10-002',
+  reference: 'PO-2026-089',
+  description: 'Intel Workstation partial intake inventory asset capitalisation',
+  dateIso: '2026-10-14T11:30:00Z',
+  status: 'POSTED',
+  currencyCode: 'USD',
+  preparedBy: 'usr_arthur',
+  preparedByName: 'Arthur Pendelton',
+  postedBy: 'usr_arthur',
+  postedByName: 'Arthur Pendelton',
+  turnaroundMinutes: 16,
+  lines: [
+    { accountCode: '1400', accountName: 'Inventory Asset', debitMinor: 2400000n, creditMinor: 0n },
+    { accountCode: '2010', accountName: 'Accounts Payable', debitMinor: 0n, creditMinor: 2400000n },
+  ],
+});
+financeModel.addSubledgerReconciliation({
+  id: 'recon_bank_01',
+  reconciliationType: 'BANK_ACCOUNT',
+  title: 'Barclays Commercial Operating Account',
+  accountCode: '1010',
+  periodId: '2026-10',
+  ledgerBalanceMinor: 45000000n,
+  statementBalanceMinor: 45000000n,
+  discrepancyMinor: 0n,
+  status: 'BALANCED',
+  performedBy: 'usr_arthur',
+  performedByName: 'Arthur Pendelton',
+  performedAtIso: '2026-10-14T16:00:00Z',
+  notes: 'Direct Open Banking feed matched statement line items with zero variance.',
+});
+financeModel.addSubledgerReconciliation({
+  id: 'recon_ar_01',
+  reconciliationType: 'ACCOUNTS_RECEIVABLE',
+  title: 'B2B Trade Debtors Subledger (A/R)',
+  accountCode: '1200',
+  periodId: '2026-10',
+  ledgerBalanceMinor: 1440000n,
+  statementBalanceMinor: 1440000n,
+  discrepancyMinor: 0n,
+  status: 'BALANCED',
+  performedBy: 'usr_arthur',
+  performedByName: 'Arthur Pendelton',
+  performedAtIso: '2026-10-14T16:15:00Z',
+  notes: 'All open trade invoices reconciled against posted remittances.',
+});
+
+const registersModel = new RegistersViewModel('dark');
+registersModel.addSession({
+  id: 'reg_lon_01',
+  registerCode: 'REG-LON-01',
+  branchId: 'brn_london_flagship',
+  branchName: 'London Flagship Store',
+  cashierId: 'usr_emma',
+  cashierName: 'Emma Watson',
+  openedAtIso: '2026-10-14T08:00:00Z',
+  closedAtIso: undefined,
+  openingFloatMinor: 35000n,
+  expectedCashMinor: 148500n,
+  actualCashMinor: 148500n,
+  cashSalesMinor: 113500n,
+  cardSalesMinor: 170550n,
+  salesCount: 42,
+  averageRingSeconds: 24,
+  discrepancyMinor: 0n,
+  status: 'OPEN',
+});
+
+const rbacModel = new RbacViewModel('dark');
+rbacModel.addStaffMember({
+  id: 'usr_victoria',
+  fullName: 'Victoria Sterling',
+  email: 'founder.victoria@apex-global.com',
+  roleCode: 'BUSINESS_OWNER',
+  roleName: 'Executive Business Owner',
+  scope: { tenantId: 'ten_apex_global' },
+  status: 'ACTIVE',
+  joinedDateIso: '2026-01-15T00:00:00Z',
+});
+rbacModel.addStaffMember({
+  id: 'usr_david',
+  fullName: "David O'Connor",
+  email: 'david@apex.com',
+  roleCode: 'BRANCH_MANAGER',
+  roleName: 'Store Manager',
+  scope: { tenantId: 'ten_apex_global', branchId: 'brn_london_flagship', branchName: 'London Flagship' },
+  status: 'ACTIVE',
+  joinedDateIso: '2026-02-15T00:00:00Z',
+});
+rbacModel.addStaffMember({
+  id: 'usr_emma',
+  fullName: 'Emma Watson',
+  email: 'emma@apex.com',
+  roleCode: 'CASHIER',
+  roleName: 'Head Cashier',
+  scope: { tenantId: 'ten_apex_global', branchId: 'brn_london_flagship', branchName: 'London Flagship' },
+  status: 'ACTIVE',
+  joinedDateIso: '2026-03-01T00:00:00Z',
+});
+rbacModel.addStaffMember({
+  id: 'usr_arthur',
+  fullName: 'Arthur Pendelton',
+  email: 'arthur@apex.com',
+  roleCode: 'GENERAL_ACCOUNTANT',
+  roleName: 'Lead Financial Accountant',
+  scope: { tenantId: 'ten_apex_global', companyId: 'cmp_apex_uk', companyName: 'Apex Retail UK Ltd' },
+  status: 'ACTIVE',
+  joinedDateIso: '2026-02-01T00:00:00Z',
+});
+
+const organizationModel = new OrganizationViewModel('dark');
+organizationModel.addCompany({
+  id: 'cmp_apex_uk',
+  name: 'Apex Retail UK Ltd',
+  legalName: 'Apex Retail UK Limited',
+  currency: 'GBP',
+  timezone: 'Europe/London',
+  isHolding: true,
+  branchesCount: 2,
+});
+organizationModel.addBranch({
+  id: 'brn_london_flagship',
+  companyId: 'cmp_apex_uk',
+  name: 'London Flagship Store',
+  code: 'LON-FLG',
+  type: 'STORE',
+  isActive: true,
+});
+organizationModel.addBranch({
+  id: 'brn_birmingham_dc',
+  companyId: 'cmp_apex_uk',
+  name: 'Birmingham Logistics Hub',
+  code: 'BIR-DC',
+  type: 'WAREHOUSE',
+  isActive: true,
+});
+
+const accountantHtml = financeModel.renderAccountantWorkspaceHtml({
+  currentMemberId: 'usr_arthur',
+  currentMemberName: 'Arthur Pendelton',
+  companyName: 'Apex Retail UK Ltd',
+  currency: 'USD',
+  filterMode: 'my',
+  isGeneralAccountant: true,
+});
+
+const cashierWorkspaceHtml = registersModel.renderCashierPersonalWorkspaceHtml({
+  cashierId: 'usr_emma',
+  cashierName: 'Emma Watson',
+  branchName: 'London Flagship Store',
+  currency: 'USD',
+});
+
+const baseWorkspaceViewsHtml = renderAllWorkspaceViewsHtml({
   theme: 'dark',
   tenantName: 'Apex Global Retail Ltd',
   branchName: 'London Flagship',
   currencyCode: 'USD',
   onActionToastFnName: 'window.stokrovaCustomerApp.showToast',
 });
+
+function replaceViewBlock(html, viewId, innerHtml) {
+  const pattern = new RegExp(
+    `<!-- =+ -->\\s*<!-- \\d+\\.[^>]* -->\\s*<!-- =+ -->\\s*<div id="ws-view-${viewId}" class="ws-view-content"[^>]*>[\\s\\S]*?(?=(?:<!-- =+ -->|\\s*</main>|$))`,
+    'g'
+  );
+  const replacement = `<!-- ========================================== -->\n    <div id="ws-view-${viewId}" class="ws-view-content" style="${viewId === 'dashboard' ? 'display: block;' : 'display: none;'}">\n      ${innerHtml}\n    </div>\n\n    `;
+  return html.replace(pattern, replacement);
+}
+
+let allWorkspaceViewsHtml = baseWorkspaceViewsHtml;
+allWorkspaceViewsHtml = replaceViewBlock(allWorkspaceViewsHtml, 'dashboard', dashboardModel.renderDashboardHtml());
+allWorkspaceViewsHtml = replaceViewBlock(allWorkspaceViewsHtml, 'suppliers', procurementModel.renderSuppliersTableHtml());
+allWorkspaceViewsHtml = replaceViewBlock(allWorkspaceViewsHtml, 'receiving', procurementModel.renderThreeWayMatchAuditHtml());
+allWorkspaceViewsHtml = replaceViewBlock(allWorkspaceViewsHtml, 'registers', registersModel.renderSessionsTableHtml('USD'));
+allWorkspaceViewsHtml = replaceViewBlock(allWorkspaceViewsHtml, 'gl', `${financeModel.renderJournalLedgerHtml()}\n<div style="margin-top: 24px;">\n${financeModel.renderChartOfAccountsHtml()}\n</div>`);
+allWorkspaceViewsHtml = replaceViewBlock(allWorkspaceViewsHtml, 'org', organizationModel.renderOrganizationHtml());
+allWorkspaceViewsHtml = replaceViewBlock(allWorkspaceViewsHtml, 'rbac', rbacModel.renderStaffManagementHtml());
+
+allWorkspaceViewsHtml += `
+    <!-- ========================================== -->
+    <!-- ACCOUNTANT WORKSPACE (/finance/accountant) -->
+    <!-- ========================================== -->
+    <div id="ws-view-accountant" class="ws-view-content" style="display: none;">
+      ${accountantHtml}
+    </div>
+
+    <!-- ========================================== -->
+    <!-- CASHIER SHIFT & DESK (/pos/cashier-desk) -->
+    <!-- ========================================== -->
+    <div id="ws-view-cashier-desk" class="ws-view-content" style="display: none;">
+      ${cashierWorkspaceHtml}
+    </div>
+`;
 
 const completeWebsiteHtml = `
 <!DOCTYPE html>
@@ -73,6 +387,7 @@ const completeWebsiteHtml = `
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       /* Official STOKROVA Brand Tokens (Strictly Preserved) */
@@ -619,6 +934,20 @@ const completeWebsiteHtml = `
 
   <!-- Client Application Script -->
   <script>
+    const SUPABASE_CONFIG = {
+      url: 'https://vbtuccvxtgjhaywijmwa.supabase.co',
+      anonKey: 'sb_publishable_SQZZBnrGJ4wwY4rUeZjtag_-jtZxCVp',
+      apiBase: 'http://localhost:3000/api/v1',
+    };
+    const getSupabase = () => {
+      if (window._stokrovaSupabase) return window._stokrovaSupabase;
+      if (window.supabase && typeof window.supabase.createClient === 'function') {
+        window._stokrovaSupabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+        return window._stokrovaSupabase;
+      }
+      return null;
+    };
+
     window.stokrovaCustomerApp = {
       cart: [],
       todayRevenue: 382000.00,
@@ -645,6 +974,10 @@ const completeWebsiteHtml = `
       },
 
       closeRegisterModal() {
+        if (this.welcomeCountdownTimer) {
+          clearInterval(this.welcomeCountdownTimer);
+          this.welcomeCountdownTimer = null;
+        }
         const modal = document.getElementById('modal-register');
         if (modal) modal.style.display = 'none';
         this.stopCosmicParticles();
@@ -826,15 +1159,22 @@ const completeWebsiteHtml = `
         }
       },
 
-      handleRegisterSubmit(e) {
+      async handleRegisterSubmit(e) {
         e.preventDefault();
         const companyName = document.getElementById('reg-company-name')?.value.trim() || 'Apex Global Retail Ltd';
         const slug = document.getElementById('reg-slug')?.value.trim().toLowerCase() || 'apex';
         const currency = document.getElementById('reg-currency')?.value || 'USD';
         const branchName = document.getElementById('reg-branch-name')?.value.trim() || 'London Flagship';
         const ownerName = document.getElementById('reg-owner-name')?.value.trim() || 'Victoria Sterling';
-        const ownerEmail = document.getElementById('reg-owner-email')?.value.trim() || 'victoria@apex.com';
+        const ownerEmail = document.getElementById('reg-owner-email')?.value.trim().toLowerCase() || 'victoria@apex.com';
+        const password = document.getElementById('reg-password')?.value || '';
         const tier = document.getElementById('reg-tier')?.value || 'growth';
+        const phone = document.getElementById('reg-owner-phone')?.value.trim() || '';
+
+        if (!password) {
+          this.showToast('Please enter a secure password for your owner account.');
+          return;
+        }
 
         const tenantData = {
           companyName,
@@ -844,36 +1184,192 @@ const completeWebsiteHtml = `
           ownerName,
           ownerEmail,
           tier,
+          phone,
           registeredAt: new Date().toISOString()
         };
 
         this.pendingTenant = tenantData;
 
-        // Persist locally
+        // Persist locally for callback continuity
         try {
-          const stored = JSON.parse(localStorage.getItem('stokrova_tenants') || '{}');
-          stored[slug] = tenantData;
-          localStorage.setItem('stokrova_tenants', JSON.stringify(stored));
+          localStorage.setItem('stokrova_pending_onboarding', JSON.stringify(tenantData));
         } catch (_) {}
 
-        // Async notify backend (non-blocking for resilient UX)
-        try {
-          fetch('/api/tenants/onboard', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              name: companyName,
-              slug: slug,
-              owner_email: ownerEmail,
-              owner_full_name: ownerName,
-              default_currency: currency,
-              initial_branch_name: branchName,
-              plan_tier: tier,
-            })
-          }).catch(() => {});
-        } catch (_) {}
+        const sb = getSupabase();
+        if (sb) {
+          const submitBtn = document.getElementById('btn-submit-registration');
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Registering with Supabase Auth...';
+          }
+          try {
+            const { data, error } = await sb.auth.signUp({
+              email: ownerEmail,
+              password: password,
+              options: {
+                data: {
+                  full_name: ownerName,
+                  company_name: companyName,
+                  workspace_slug: slug,
+                  plan_tier: tier,
+                  branch_name: branchName,
+                  default_currency: currency,
+                  phone: phone || undefined,
+                },
+                emailRedirectTo: window.location.origin,
+              }
+            });
 
-        // Populate Customization Screen Data
+            if (error) {
+              this.showToast('Registration Failed: ' + error.message);
+              if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Provision Workspace & Customize →';
+              }
+              return;
+            }
+
+            // Check if Supabase session is issued or confirmation required
+            if (data.session && data.session.access_token) {
+              // Immediate session (autoconfirm enabled): Call transactional NestJS onboarding API
+              try {
+                await fetch(SUPABASE_CONFIG.apiBase + '/auth/onboard', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + data.session.access_token,
+                  },
+                  body: JSON.stringify({
+                    name: companyName,
+                    slug: slug,
+                    owner_full_name: ownerName,
+                    default_currency: currency,
+                    initial_branch_name: branchName,
+                    plan_tier: tier,
+                  })
+                });
+                localStorage.removeItem('stokrova_pending_onboarding');
+              } catch (_) {}
+
+              this.populateCustomizationAndSimulate(companyName, branchName, ownerName, slug);
+            } else {
+              // Supabase email confirmation required
+              this.showEmailConfirmationScreen({
+                email: ownerEmail,
+                companyName,
+                slug,
+              });
+            }
+          } catch (err) {
+            this.showToast('Registration Error: ' + (err.message || 'Network error'));
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = 'Provision Workspace & Customize →';
+            }
+          }
+        } else {
+          // Graceful fallback if offline
+          this.populateCustomizationAndSimulate(companyName, branchName, ownerName, slug);
+        }
+      },
+
+      showEmailConfirmationScreen({ email, companyName, slug }) {
+        const stepperHeader = document.getElementById('signup-stepper-header');
+        if (stepperHeader) stepperHeader.style.display = 'none';
+        for (let i = 1; i <= 5; i++) {
+          const p = document.getElementById('reg-step-' + i);
+          if (p) p.style.display = 'none';
+        }
+        const confirmPane = document.getElementById('reg-step-confirm-email');
+        const targetEmail = document.getElementById('confirm-email-target');
+        const targetSlug = document.getElementById('confirm-slug-target');
+        if (targetEmail) targetEmail.textContent = email;
+        if (targetSlug) targetSlug.textContent = slug;
+        if (confirmPane) confirmPane.style.display = 'block';
+        this.showToast('✓ Verification link dispatched to ' + email + '. Please check your inbox.');
+      },
+
+      async resendConfirmationEmail() {
+        const sb = getSupabase();
+        if (!sb) return;
+        const email = this.pendingTenant ? this.pendingTenant.ownerEmail : document.getElementById('reg-owner-email')?.value.trim();
+        if (!email) {
+          this.showToast('No owner email specified for resend.');
+          return;
+        }
+        const btn = document.getElementById('btn-resend-confirm-email');
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = 'Sending...';
+        }
+        try {
+          const { error } = await sb.auth.resend({ type: 'signup', email });
+          if (error) {
+            this.showToast('Resend failed: ' + error.message);
+          } else {
+            this.showToast('✓ Confirmation link resent to ' + email + '!');
+          }
+        } catch (err) {
+          this.showToast('Resend error: ' + err.message);
+        } finally {
+          if (btn) {
+            setTimeout(() => {
+              btn.disabled = false;
+              btn.textContent = 'Resend Confirmation Email';
+            }, 3000);
+          }
+        }
+      },
+
+      async checkSessionAfterEmailConfirmation() {
+        const sb = getSupabase();
+        if (!sb) return;
+        const btn = document.getElementById('btn-check-confirmed');
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = 'Verifying identity...';
+        }
+        try {
+          const { data: { session }, error } = await sb.auth.getSession();
+          if (session && session.access_token) {
+            const pending = this.pendingTenant || JSON.parse(localStorage.getItem('stokrova_pending_onboarding') || '{}');
+            await fetch(SUPABASE_CONFIG.apiBase + '/auth/onboard', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + session.access_token,
+              },
+              body: JSON.stringify({
+                name: pending.companyName || 'Apex Global Retail Ltd',
+                slug: pending.slug || 'apex',
+                owner_full_name: pending.ownerName || session.user.email,
+                default_currency: pending.currency || 'USD',
+                initial_branch_name: pending.branchName || 'London Flagship',
+                plan_tier: pending.tier || 'growth',
+              })
+            }).catch(() => {});
+            localStorage.removeItem('stokrova_pending_onboarding');
+            this.showToast('✓ Identity confirmed! Deploying workspace...');
+            this.populateCustomizationAndSimulate(
+              pending.companyName || 'Apex Global Retail Ltd',
+              pending.branchName || 'London Flagship',
+              pending.ownerName || 'Victoria Sterling',
+              pending.slug || 'apex'
+            );
+          } else {
+            this.showToast('Email confirmation pending. Please check your inbox and click the verification link.');
+          }
+        } catch (err) {
+          this.showToast('Verification check: ' + err.message);
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'I Have Confirmed My Email →';
+          }
+        }
+      },
+
+      populateCustomizationAndSimulate(companyName, branchName, ownerName, slug) {
         const compEl = document.getElementById('prov-dyn-company');
         const brnEl = document.getElementById('prov-dyn-branch');
         const ownEl = document.getElementById('prov-dyn-owner');
@@ -886,10 +1382,7 @@ const completeWebsiteHtml = `
         if (slugEl) slugEl.textContent = slug;
         if (welEl) welEl.textContent = ownerName;
 
-        // Advance to Step 5
         this.setSignupStep(5);
-
-        // Run dynamic progress simulation
         this.runCustomizationSimulation();
       },
 
@@ -931,12 +1424,53 @@ const completeWebsiteHtml = `
           if (pct >= 100) {
             clearInterval(timer);
             if (actionsEl) actionsEl.style.display = 'block';
-            this.showToast('✓ Workspace customized & ready!');
+            this.showToast('✓ Workspace calibrated! Launching dashboard...');
+
+            let countdown = 3;
+            const cdEl = document.getElementById('prov-countdown-sec');
+            if (cdEl) cdEl.textContent = String(countdown);
+            if (this.welcomeCountdownTimer) {
+              clearInterval(this.welcomeCountdownTimer);
+            }
+            this.welcomeCountdownTimer = setInterval(() => {
+              countdown -= 1;
+              const cdSpan = document.getElementById('prov-countdown-sec');
+              if (cdSpan) cdSpan.textContent = String(Math.max(0, countdown));
+              if (countdown <= 0) {
+                if (this.welcomeCountdownTimer) {
+                  clearInterval(this.welcomeCountdownTimer);
+                  this.welcomeCountdownTimer = null;
+                }
+                const modal = document.getElementById('modal-register');
+                if (modal && modal.style.display !== 'none') {
+                  this.launchWorkspaceFromWelcome();
+                }
+              }
+            }, 1000);
           }
         }, 45);
       },
 
-      launchWorkspaceWithTour() {
+      welcomeCountdownTimer: null,
+      autoTourTimer: null,
+
+      scheduleAutoTour(delayMs = 350) {
+        if (this.autoTourTimer) {
+          clearTimeout(this.autoTourTimer);
+        }
+        this.autoTourTimer = setTimeout(() => {
+          const ws = document.getElementById('business-workspace-container');
+          if (ws && ws.style.display !== 'none') {
+            this.startTour();
+          }
+        }, delayMs);
+      },
+
+      launchWorkspaceFromWelcome() {
+        if (this.welcomeCountdownTimer) {
+          clearInterval(this.welcomeCountdownTimer);
+          this.welcomeCountdownTimer = null;
+        }
         this.closeRegisterModal();
         const t = this.pendingTenant || {
           companyName: 'Apex Global Retail Ltd',
@@ -949,73 +1483,318 @@ const completeWebsiteHtml = `
           userName: t.ownerName,
           userRole: 'Business Owner (Administrator)'
         });
-        setTimeout(() => {
-          this.startTour();
-        }, 350);
+        this.showToast('✦ Welcome to your dashboard! Starting guided walkthrough...');
+        // Tour starts immediately upon arrival
+        this.scheduleAutoTour(350);
+      },
+
+      launchWorkspaceWithTour() {
+        this.launchWorkspaceFromWelcome();
       },
 
       launchWorkspaceDirect() {
-        this.closeRegisterModal();
-        const t = this.pendingTenant || {
-          companyName: 'Apex Global Retail Ltd',
-          branchName: 'London Flagship',
-          ownerName: 'Victoria Sterling',
-        };
-        this.launchWorkspace({
-          tenantName: t.companyName,
-          branchName: t.branchName,
-          userName: t.ownerName,
-          userRole: 'Business Owner (Administrator)'
-        });
+        this.launchWorkspaceFromWelcome();
       },
 
-      // World-Class Interactive Guided Tour Engine
+      // World-Class Interactive Guided Tour Engine for ALL Roles
       currentTourStep: 1,
-      tourData: [
-        {
-          viewId: 'dashboard',
-          targetSelector: '.workspace-topbar',
-          title: 'Universal Operations Command Bar',
-          desc: 'Control every high-street branch, pop-up store, and regional distribution warehouse from a single pane of glass. Your data is protected by enterprise cryptographic tenant isolation—zero cross-tenant data bleed.',
-          snippet: '🌍 Multi-Branch Switcher Active • Status: Live Production (Tenant Isolation Active ✓)'
-        },
-        {
-          viewId: 'dashboard',
-          targetSelector: '.kpi-tiles-grid',
-          title: 'Executive Telemetry & Financial Pulse',
-          desc: 'Monitor GMV, real-time net revenue, and gross margins across all stores. Because STOKROVA uses pure integer minor currency units, every figure is penny-perfect with zero floating-point rounding errors.',
-          snippet: '📊 12-Month Net Revenue: $382,000.00 | Gross Margin: 38.50% | Till Variance: $0.00'
-        },
-        {
-          viewId: 'pos',
-          targetSelector: '.pos-preview-wrapper',
-          title: 'Offline-Tolerant Point of Sale & Laser Buffer',
-          desc: 'Ring up sales at counter speed. Hardware laser scanners are detected automatically (<50ms). If retail internet goes down, sales persist in encrypted local SQLite outbox queues and sync automatically upon reconnection.',
-          snippet: '<button onclick="window.stokrovaCustomerApp.simulateTourScan()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">⚡ Test Laser Barcode Scan (5011000000018)</button>'
-        },
-        {
-          viewId: 'inventory',
-          targetSelector: '.workspace-viewport',
-          title: 'Authoritative FEFO Lots & In-Transit Transfers',
-          desc: 'Eliminate phantom stock. When goods move between branches, they sit in an audited IN-TRANSIT GL custody account until verified by destination receiving. Perishables enforce First-Expired, First-Out picking.',
-          snippet: '📦 Chain of Custody: Central DC Dispatch → In-Transit Custody → Blind Receiving Verified'
-        },
-        {
-          viewId: 'ledger',
-          targetSelector: '.workspace-viewport',
-          title: 'Immutable Double-Entry Ledger & Till Audits',
-          desc: 'Pure accounting truth. Every till sale, inventory movement, and customer refund automatically writes balanced double-entry journals (Debits = Credits). Blind session variance counts ensure drawer integrity.',
-          snippet: '⚖️ Pure Double-Entry: DR 1010 Bank Cash $86.40 = CR 4010 Retail Sales $86.40 (Delta: $0.00)'
-        }
-      ],
+      currentTourList: [],
+      currentTourRoleTitle: 'Business Owner',
+      currentUserName: 'Victoria Sterling',
+      currentWorkspaceRole: 'Business Owner (Administrator)',
 
-      startTour() {
+      roleTours: {
+        owner: {
+          roleTitle: 'Business Owner',
+          defaultView: 'dashboard',
+          steps: [
+            {
+              viewId: 'dashboard',
+              targetSelector: '.workspace-topbar',
+              title: 'Universal Operations Command Bar',
+              desc: 'Control every high-street branch, pop-up store, and regional distribution warehouse from a single pane of glass. Your data is protected by enterprise cryptographic tenant isolation—zero cross-tenant data bleed.',
+              snippet: '🌍 Multi-Branch Switcher Active • Status: Live Production (Tenant Isolation Active ✓)'
+            },
+            {
+              viewId: 'dashboard',
+              targetSelector: '.kpi-tiles-grid',
+              title: 'Executive Telemetry & Financial Pulse',
+              desc: 'Monitor GMV, real-time net revenue, and gross margins across all stores. Because STOKROVA uses pure integer minor currency units, every figure is penny-perfect with zero floating-point rounding errors.',
+              snippet: '📊 12-Month Net Revenue: $382,000.00 | Gross Margin: 38.50% | Till Variance: $0.00'
+            },
+            {
+              viewId: 'pos',
+              targetSelector: '.pos-preview-wrapper',
+              title: 'Offline-Tolerant Point of Sale & Laser Buffer',
+              desc: 'Ring up sales at counter speed. Hardware laser scanners are detected automatically (<50ms). If retail internet goes down, sales persist in encrypted local SQLite outbox queues and sync automatically upon reconnection.',
+              snippet: '<button onclick="window.stokrovaCustomerApp.simulateTourScan()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">⚡ Test Laser Barcode Scan (5011000000018)</button>'
+            },
+            {
+              viewId: 'inventory',
+              targetSelector: '.workspace-viewport',
+              title: 'Authoritative FEFO Lots & In-Transit Transfers',
+              desc: 'Eliminate phantom stock. When goods move between branches, they sit in an audited IN-TRANSIT GL custody account until verified by destination receiving. Perishables enforce First-Expired, First-Out picking.',
+              snippet: '📦 Chain of Custody: Central DC Dispatch → In-Transit Custody → Blind Receiving Verified'
+            },
+            {
+              viewId: 'ledger',
+              targetSelector: '.workspace-viewport',
+              title: 'Immutable Double-Entry Ledger & Till Audits',
+              desc: 'Pure accounting truth. Every till sale, inventory movement, and customer refund automatically writes balanced double-entry journals (Debits = Credits). Blind session variance counts ensure drawer integrity.',
+              snippet: '⚖️ Pure Double-Entry: DR 1010 Bank Cash $86.40 = CR 4010 Retail Sales $86.40 (Delta: $0.00)'
+            }
+          ]
+        },
+        cashier: {
+          roleTitle: 'Front Counter Cashier',
+          defaultView: 'pos',
+          steps: [
+            {
+              viewId: 'pos',
+              targetSelector: '.pos-preview-wrapper',
+              title: 'High-Speed Checkout Counter & Laser Buffer',
+              desc: 'Ring up products with zero interface lag. Barcode laser scans are buffered instantly (<42ms). Quick keys and live SKU search keep customer queues moving fast during rush hours.',
+              snippet: '<button onclick="window.stokrovaCustomerApp.simulateTourScan()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">⚡ Test Laser Barcode Scan (5011000000018)</button>'
+            },
+            {
+              viewId: 'pos',
+              targetSelector: '.pos-preview-wrapper',
+              title: 'Basket Adjustments & Tax Breakdown',
+              desc: 'Easily modify line item quantities, apply supervisor-approved discounts, or set tax exemptions. Item subtotals and dynamic tax calculations update in memory on every keystroke.',
+              snippet: '🛒 Active Basket: Dynamic Tax Breakdown (VAT/Sales Tax) • Minor currency integer truth'
+            },
+            {
+              viewId: 'pos',
+              targetSelector: '.pos-preview-wrapper',
+              title: 'Split Tender & Flexible Payment Options',
+              desc: 'Accept multi-tender split transactions across Cash, Contactless Card, QR, or Store Credit. Exact drawer change and minor currency rounding are handled automatically.',
+              snippet: '<button onclick="window.stokrovaCustomerApp.simulateSplitTender()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">💳 Simulate Split Payment ($20.00 Cash + $66.40 Card)</button>'
+            },
+            {
+              viewId: 'pos',
+              targetSelector: '.workspace-topbar',
+              title: '100% Offline Outbox Journaling',
+              desc: 'Keep checking out customers even if network connectivity is completely severed. Transactions persist in encrypted local storage and sync in monotonic sequence when online.',
+              snippet: '🔒 Offline Journal: Monotonic Sequence Active • Rule 24 Offline Tolerance Guaranteed'
+            }
+          ]
+        },
+        picker: {
+          roleTitle: 'Warehouse Lead & Picker',
+          defaultView: 'picking',
+          steps: [
+            {
+              viewId: 'picking',
+              targetSelector: '.workspace-viewport',
+              title: 'Priority Digital Pick Queue & Routing',
+              desc: 'Execute pick waves with route-optimized walking paths. Customer orders are batched by warehouse zone and bin sequence to minimize picker walking time and turnaround.',
+              snippet: '<button onclick="window.stokrovaCustomerApp.simulatePickItem()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">📦 Verify Pick Item (Wave #WAVE-LON-042)</button>'
+            },
+            {
+              viewId: 'inventory',
+              targetSelector: '.workspace-viewport',
+              title: 'Strict FEFO Lot Expiry Enforcement',
+              desc: 'Enforce product freshness. STOKROVA strictly requires First-Expired, First-Out lot picking for perishable and dated goods, preventing pickers from selecting newer lots prematurely.',
+              snippet: '🏷️ Lot Verification: LOT-2026-A12 (Exp: 2026-12-31) • Rule 5 Invariants Enforced ✓'
+            },
+            {
+              viewId: 'locations',
+              targetSelector: '.workspace-viewport',
+              title: 'Aisle, Rack & Bin Location Mapping',
+              desc: 'Navigate multi-tier racking maps with bin capacities and barcode verification. Scan bin barcodes directly to transfer stock between picking shelves and reserve bulk storage.',
+              snippet: '📍 Bin R-04-B2: Capacity 85% • Barcode Verified • Zero Phantom Stock Discrepancies'
+            },
+            {
+              viewId: 'receiving',
+              targetSelector: '.workspace-viewport',
+              title: 'Blind Receiving & Transfer Custody',
+              desc: 'Eliminate phantom stock with blind count receiving. Goods arriving from suppliers or sister branches are counted independently before release to active inventory.',
+              snippet: '🛡️ Blind Count Receiving: 120 Units Counted vs PO Manifest • Variance: 0.00%'
+            }
+          ]
+        },
+        manager: {
+          roleTitle: 'Store Operations Manager',
+          defaultView: 'dashboard',
+          steps: [
+            {
+              viewId: 'dashboard',
+              targetSelector: '.workspace-topbar',
+              title: 'Branch Real-Time Performance Telemetry',
+              desc: 'Keep fingers on the pulse of the store. Track today\'s gross sales, customer footfall, average basket size, and individual cashier till throughput in real time.',
+              snippet: '📈 Branch Revenue: $24,850.00 Today • Customer Count: 312 • Average Basket: $79.65'
+            },
+            {
+              viewId: 'registers',
+              targetSelector: '.workspace-viewport',
+              title: 'Till Drawer Audits & Shift Approvals',
+              desc: 'Authorize cashier shift open/close audits. Perform blind drawer counts and sign off till variances with supervisor cryptographic approvals.',
+              snippet: '<button onclick="window.stokrovaCustomerApp.simulateManagerAudit()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">🛡️ Sign Off Shift Till (Zero Variance Verified)</button>'
+            },
+            {
+              viewId: 'po',
+              targetSelector: '.workspace-viewport',
+              title: 'Purchase Orders & Low-Stock Alerts',
+              desc: 'Prevent stockouts before they happen. Review automatic reorder triggers when inventory breaches safety thresholds and approve supplier POs with a single click.',
+              snippet: '⚠️ Reorder Trigger: 4 SKUs below minimum buffer • PO-2026-088 Drafted'
+            },
+            {
+              viewId: 'org',
+              targetSelector: '.workspace-viewport',
+              title: 'Staff Shift Rostering & Permission Scopes',
+              desc: 'Manage store team members and active shift schedules. Configure terminal access and supervisor permissions with strict Rule 9 server-side authorization enforcement.',
+              snippet: '👥 Active Store Roster: 6 Staff On Shift • Granular RBAC Enforced'
+            }
+          ]
+        },
+        accountant: {
+          roleTitle: 'Financial Accountant & Auditor',
+          defaultView: 'ledger',
+          steps: [
+            {
+              viewId: 'ledger',
+              targetSelector: '.workspace-viewport',
+              title: 'Immutable Double-Entry Ledger Truth',
+              desc: 'Inspect financial journals where Debits always equal Credits down to fractional minor currency units. Till transactions, supplier invoices, and inventory write-offs post balanced entries.',
+              snippet: '⚖️ GL Balance: Total Debits $1,420,950.00 = Total Credits $1,420,950.00 (Delta: $0.00)'
+            },
+            {
+              viewId: 'accountant',
+              targetSelector: '.workspace-viewport',
+              title: 'Bank & Subledger Automated Matching',
+              desc: 'Run 3-way matching between Purchase Orders, Receiving Notes, and Invoices. Match clearing bank accounts automatically and resolve variances with audited adjustments.',
+              snippet: '<button onclick="window.stokrovaCustomerApp.simulateReconcileAccount()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">📊 Reconcile Bank Feed (99.8% Auto-Matched)</button>'
+            },
+            {
+              viewId: 'tax',
+              targetSelector: '.workspace-viewport',
+              title: 'Tax & VAT Statutory Reporting',
+              desc: 'Automatic input vs output VAT schedules, multi-jurisdiction sales tax calculations, and exportable financial summaries ready for revenue and customs authorities.',
+              snippet: '🏛️ VAT Summary: Output VAT $18,420.00 - Input VAT $9,110.00 = Net Due $9,310.00'
+            },
+            {
+              viewId: 'audit',
+              targetSelector: '.workspace-viewport',
+              title: 'Cryptographic Audit Trail & Governance',
+              desc: 'Tamper-evident system logs. Rule 11 guarantees financial history is never mutated or silently deleted. Every financial event is cryptographically sealed with user attribution.',
+              snippet: '🔒 Audit Integrity: SHA-256 Ledger Signature Verified • Immutable Journal History'
+            }
+          ]
+        },
+        driver: {
+          roleTitle: 'Route Logistics Driver',
+          defaultView: 'fleet',
+          steps: [
+            {
+              viewId: 'fleet',
+              targetSelector: '.workspace-viewport',
+              title: 'Multi-Stop Delivery Route Manifest',
+              desc: 'Follow route-optimized delivery manifests directly from your phone or mobile terminal. Track turn-by-turn drop sequences and live customer delivery ETAs.',
+              snippet: '🚚 Run #RUN-LON-04: 8 Delivery Drops • Route Optimized • Total Distance: 28.4 mi'
+            },
+            {
+              viewId: 'fleet',
+              targetSelector: '.workspace-viewport',
+              title: 'Electronic Proof-of-Delivery (ePOD)',
+              desc: 'Capture customer signatures, delivery photo verification, and GPS timestamps at the doorstep. Completed delivery records update customer orders instantly.',
+              snippet: '<button onclick="window.stokrovaCustomerApp.simulateDriverEpod()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">✍️ Test Capture ePOD Signature (Drop #3 Delivered)</button>'
+            },
+            {
+              viewId: 'dispatch',
+              targetSelector: '.workspace-viewport',
+              title: 'Vehicle Custody Scan & Return Processing',
+              desc: 'Confirm vehicle loading with quick barcode scans. Safely log undelivered goods or customer returns back into warehouse custody with zero discrepancy.',
+              snippet: '📦 Custody Status: 8/8 Parcels Loaded • 0 Unaccounted Items'
+            }
+          ]
+        },
+        sales: {
+          roleTitle: 'B2B Account Executive',
+          defaultView: 'crm',
+          steps: [
+            {
+              viewId: 'crm',
+              targetSelector: '.workspace-viewport',
+              title: 'Corporate Accounts & Deal Pipeline',
+              desc: 'Manage wholesale accounts, buyer contacts, and corporate purchasing limits. Track sales pipeline stages from initial lead to closed-won wholesale contracts.',
+              snippet: '💼 Portfolio: 18 Enterprise Accounts • Total Pipeline Value: $420,000.00'
+            },
+            {
+              viewId: 'quotes',
+              targetSelector: '.workspace-viewport',
+              title: 'Dynamic Wholesale Quotes & Price Lists',
+              desc: 'Draft bespoke customer quotes with negotiated tiered pricing. The system checks margin thresholds automatically before dispatching formal proposals.',
+              snippet: '<button onclick="window.stokrovaCustomerApp.simulateQuoteApprove()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">📄 Generate B2B Quote (Tier 2 Wholesale Discount)</button>'
+            },
+            {
+              viewId: 'orders',
+              targetSelector: '.workspace-viewport',
+              title: 'Fulfillment & Dispatch Visibility',
+              desc: 'Keep clients updated with end-to-end order tracking. Monitor warehouse picking, dispatch manifests, and invoice payment statuses in real time.',
+              snippet: '🚚 Order #ORD-8921: Dispatched from DC • Est. Delivery Tomorrow 10:00 AM'
+            }
+          ]
+        },
+        staff: {
+          roleTitle: 'Store Operations Staff',
+          defaultView: 'catalog',
+          steps: [
+            {
+              viewId: 'catalog',
+              targetSelector: '.workspace-viewport',
+              title: 'Universal Product & Barcode Catalog',
+              desc: 'Look up product specifications, SKUs, barcode identifiers, and current pricing across all retail and warehouse departments.',
+              snippet: '🔍 Universal Search: Over 12,000 active SKUs indexed across all categories'
+            },
+            {
+              viewId: 'availability',
+              targetSelector: '.workspace-viewport',
+              title: 'Live Multi-Branch Stock Availability',
+              desc: 'Instantly check whether an out-of-stock item is available at nearby sister branches or central distribution centers for customer transfer.',
+              snippet: '🏬 Availability: 14 units at London Flagship • 42 units at Central DC'
+            },
+            {
+              viewId: 'orders',
+              targetSelector: '.workspace-viewport',
+              title: 'Customer Orders & Click-and-Collect',
+              desc: 'Track click-and-collect orders, layaways, and customer holds. Verify pickup readiness and hand goods over to customers with fast receipt verification.',
+              snippet: '📋 Order Lookup: ORD-2026-904 (Ready for Collection at Customer Service)'
+            }
+          ]
+        }
+      },
+
+      get tourData() {
+        return (this.currentTourList && this.currentTourList.length > 0)
+          ? this.currentTourList
+          : this.roleTours.owner.steps;
+      },
+
+      getTourDataForRole(roleStr) {
+        const r = (roleStr || '').toLowerCase();
+        if (r.includes('cashier')) return this.roleTours.cashier;
+        if (r.includes('picker') || r.includes('warehouse')) return this.roleTours.picker;
+        if (r.includes('manager')) return this.roleTours.manager;
+        if (r.includes('accountant') || r.includes('finance') || r.includes('audit')) return this.roleTours.accountant;
+        if (r.includes('driver') || r.includes('fleet') || r.includes('logistics')) return this.roleTours.driver;
+        if (r.includes('sales') || r.includes('representative') || r.includes('crm')) return this.roleTours.sales;
+        if (r.includes('owner') || r.includes('admin')) return this.roleTours.owner;
+        return this.roleTours.staff;
+      },
+
+      startTour(roleStr) {
         const overlay = document.getElementById('stokrova-tour-overlay');
         if (!overlay) return;
-        overlay.style.display = 'block';
+
+        const effectiveRole = roleStr || this.currentWorkspaceRole || 'Business Owner (Administrator)';
+        const roleSuite = this.getTourDataForRole(effectiveRole);
+        this.currentTourList = roleSuite.steps;
+        this.currentTourRoleTitle = roleSuite.roleTitle;
         this.currentTourStep = 1;
+
+        overlay.style.display = 'block';
         this.renderTourStep(1);
-        this.showToast('🌍 Welcome to the STOKROVA guided dashboard walkthrough!');
+        this.showToast('🌍 Welcome! Starting your ' + roleSuite.roleTitle + ' guided walkthrough...');
       },
 
       renderTourStep(stepNum) {
@@ -1029,6 +1808,8 @@ const completeWebsiteHtml = `
         }
 
         const numEl = document.getElementById('tour-step-num');
+        const totalEl = document.getElementById('tour-step-total');
+        const roleEl = document.getElementById('tour-role-badge');
         const titleEl = document.getElementById('tour-card-title');
         const descEl = document.getElementById('tour-card-desc');
         const snippetEl = document.getElementById('tour-action-snippet');
@@ -1037,6 +1818,8 @@ const completeWebsiteHtml = `
         const spotlight = document.getElementById('stokrova-tour-spotlight');
 
         if (numEl) numEl.textContent = String(stepNum);
+        if (totalEl) totalEl.textContent = String(this.tourData.length);
+        if (roleEl) roleEl.textContent = this.currentTourRoleTitle;
         if (titleEl) titleEl.textContent = data.title;
         if (descEl) descEl.textContent = data.desc;
         if (snippetEl) snippetEl.innerHTML = data.snippet;
@@ -1051,7 +1834,7 @@ const completeWebsiteHtml = `
             btnNext.style.background = '#4ADE80';
             btnNext.style.color = '#0E1116';
           } else {
-            btnNext.textContent = 'Next Feature →';
+            btnNext.textContent = 'Next';
             btnNext.style.background = 'var(--primary)';
             btnNext.style.color = '#0E1116';
           }
@@ -1090,14 +1873,29 @@ const completeWebsiteHtml = `
       },
 
       endTour(completed = false) {
+        if (this.autoTourTimer) {
+          clearTimeout(this.autoTourTimer);
+          this.autoTourTimer = null;
+        }
         const overlay = document.getElementById('stokrova-tour-overlay');
         if (overlay) overlay.style.display = 'none';
         const spotlight = document.getElementById('stokrova-tour-spotlight');
         if (spotlight) spotlight.style.opacity = '0';
 
-        this.showWsView('dashboard');
+        // Mark as completed once-off in localStorage for this user and role
+        const userKey = this.currentUserName || 'User';
+        const roleKey = this.currentWorkspaceRole || 'Staff';
+        try {
+          localStorage.setItem('stokrova_tour_completed_' + encodeURIComponent(userKey + '_' + roleKey), 'true');
+        } catch (e) {}
+
+        // Return user to their primary role view
+        const effectiveRole = this.currentWorkspaceRole || 'Business Owner (Administrator)';
+        const suite = this.getTourDataForRole(effectiveRole);
+        this.showWsView(suite.defaultView || 'dashboard');
+
         if (completed) {
-          this.showToast('✦ Tour complete! You have full command of your business dashboard.');
+          this.showToast('✦ Tour complete! You have full command of your ' + (this.currentTourRoleTitle || 'role') + ' workspace.');
         } else {
           this.showToast('Tour dismissed. Click "Take Tour ✦" anytime to reopen.');
         }
@@ -1109,6 +1907,54 @@ const completeWebsiteHtml = `
         const snippetEl = document.getElementById('tour-action-snippet');
         if (snippetEl) {
           snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Scanner Buffer Fired:</span> 1x LAPTOP-PRO-16 added to cart. DR 1010 Bank = CR 4010 Sales balanced!';
+        }
+      },
+
+      simulateSplitTender() {
+        this.showToast('💳 Split Payment Simulation: $20.00 Cash + $66.40 Card processed and balanced!');
+        const snippetEl = document.getElementById('tour-action-snippet');
+        if (snippetEl) {
+          snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Split Payment Approved:</span> $20.00 Cash (Till change: $0.00) + $66.40 Card Auth #99142. DR 1010/1020 balanced!';
+        }
+      },
+
+      simulatePickItem() {
+        this.showToast('📦 Pick Verified: Item picked from Bin R-04-B2 with FEFO Lot LOT-2026-A12!');
+        const snippetEl = document.getElementById('tour-action-snippet');
+        if (snippetEl) {
+          snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Pick Complete:</span> Item scanned from Bin R-04-B2. Pick Accuracy: 100% • Route optimized!';
+        }
+      },
+
+      simulateManagerAudit() {
+        this.showToast('🛡️ Till Audit Signed: Shift register balanced with $0.00 variance!');
+        const snippetEl = document.getElementById('tour-action-snippet');
+        if (snippetEl) {
+          snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Till Audit Approved:</span> Physical Cash $450.00 = System Expected $450.00 (Zero Till Variance Verified)';
+        }
+      },
+
+      simulateReconcileAccount() {
+        this.showToast('📊 Bank Feed Reconciled: 14 transactions auto-matched to general ledger!');
+        const snippetEl = document.getElementById('tour-action-snippet');
+        if (snippetEl) {
+          snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Bank Matching Succeeded:</span> 14 entries reconciled with 0 unallocated funds. GL integrity verified!';
+        }
+      },
+
+      simulateDriverEpod() {
+        this.showToast('✍️ ePOD Captured: Electronic proof of delivery saved with GPS and signature!');
+        const snippetEl = document.getElementById('tour-action-snippet');
+        if (snippetEl) {
+          snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Delivery Confirmed:</span> Recipient signature captured. Drop #3 marked DELIVERED in fleet manifest.';
+        }
+      },
+
+      simulateQuoteApprove() {
+        this.showToast('📄 B2B Quote Generated: Tier 2 wholesale discount approved with 38% gross margin!');
+        const snippetEl = document.getElementById('tour-action-snippet');
+        if (snippetEl) {
+          snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Quote QTE-2026-042 Ready:</span> 15% wholesale tier applied. Profit margin confirmed.';
         }
       },
 
@@ -1211,45 +2057,7 @@ const completeWebsiteHtml = `
         }
       },
 
-      handleRegisterSubmit(e) {
-        e.preventDefault();
-        const companyName = document.getElementById('reg-company-name').value.trim();
-        const slug = document.getElementById('reg-slug').value.trim().toLowerCase();
-        const currency = document.getElementById('reg-currency').value;
-        const ownerName = document.getElementById('reg-owner-name').value.trim();
-        const ownerEmail = document.getElementById('reg-owner-email').value.trim();
-        const tier = document.getElementById('reg-tier').value;
-        const branchName = document.getElementById('reg-branch-name').value.trim() || 'Central Branch';
-
-        try {
-          const stored = JSON.parse(localStorage.getItem('stokrova_tenants') || '{}');
-          stored[slug] = {
-            companyName,
-            slug,
-            currency,
-            ownerName,
-            ownerEmail,
-            tier,
-            branchName,
-            registeredAt: new Date().toISOString()
-          };
-          localStorage.setItem('stokrova_tenants', JSON.stringify(stored));
-        } catch (_) {}
-
-        this.closeRegisterModal();
-        this.showToast(\`✓ Organization '\${companyName}' provisioned! Launching workspace...\`);
-
-        setTimeout(() => {
-          this.launchWorkspace({
-            tenantName: companyName,
-            branchName: branchName,
-            userName: ownerName,
-            userRole: 'Business Owner (Administrator)',
-          });
-        }, 500);
-      },
-
-      handleLoginSubmit(e) {
+      async handleLoginSubmit(e) {
         e.preventDefault();
         const emailEl = document.getElementById('login-email');
         const passEl = document.getElementById('login-password');
@@ -1277,79 +2085,85 @@ const completeWebsiteHtml = `
         if (verifiedState) verifiedState.style.display = 'none';
         if (progressFill) progressFill.style.width = '25%';
 
-        // Match company and staff data
-        let tenantName = 'Apex Global Retail Ltd';
-        let branch = 'London Flagship';
-        let name = 'Victoria Sterling';
-        let role = 'Business Owner (Administrator)';
-        let lastActive = 'Today at 09:42 AM • Active Session';
+        let tenantName = 'My Organization';
+        let branch = 'Primary Branch';
+        let name = email ? email.split('@')[0] : 'Staff Member';
+        let role = 'Business Member';
+        let lastActive = 'Today • Active Session';
 
-        try {
-          const stored = JSON.parse(localStorage.getItem('stokrova_tenants') || '{}');
-          if (slug && stored[slug]) {
-            const org = stored[slug];
-            tenantName = org.companyName;
-            branch = org.branchName || 'London Flagship';
-            if (email === (org.ownerEmail || '').toLowerCase()) {
-              name = org.ownerName;
-              role = 'Business Owner (Administrator)';
+        const sb = getSupabase();
+        if (sb) {
+          try {
+            if (progressFill) progressFill.style.width = '50%';
+            const { data, error } = await sb.auth.signInWithPassword({
+              email: email,
+              password: password,
+            });
+
+            if (error) {
+              if (step1) step1.style.display = 'block';
+              if (step2) step2.style.display = 'none';
+              if (error.message && error.message.toLowerCase().includes('email not confirmed')) {
+                this.showToast('Please confirm your email address before signing in. Check your inbox.');
+              } else {
+                this.showToast('Sign in failed: ' + error.message);
+              }
+              return;
             }
-          } else {
-            for (const s in stored) {
-              const org = stored[s];
-              if (org.ownerEmail && org.ownerEmail.toLowerCase() === email) {
-                tenantName = org.companyName;
-                slug = org.slug;
-                branch = org.branchName || 'London Flagship';
-                name = org.ownerName;
-                role = 'Business Owner (Administrator)';
-                break;
+
+            if (progressFill) progressFill.style.width = '75%';
+
+            // Check authoritative membership and onboarding status via backend API
+            if (data.session && data.session.access_token) {
+              const sessionRes = await fetch(SUPABASE_CONFIG.apiBase + '/auth/session', {
+                headers: { 'Authorization': 'Bearer ' + data.session.access_token }
+              }).catch(() => null);
+
+              if (sessionRes && sessionRes.ok) {
+                const sessData = await sessionRes.json();
+                if (sessData.authenticated && sessData.active_tenant) {
+                  tenantName = sessData.active_tenant.tenant_name || tenantName;
+                  branch = sessData.active_tenant.branch_name || branch;
+                  name = sessData.user.name || (data.user?.user_metadata?.full_name) || email.split('@')[0];
+                  role = sessData.active_tenant.role === 'owner' ? 'Business Owner (Administrator)' : (sessData.active_tenant.role || role);
+                  slug = sessData.active_tenant.workspace_slug || slug || 'apex';
+                  lastActive = 'Just Now • Cryptographically Verified';
+                } else if (sessData.onboarding_status === 'ONBOARDING_REQUIRED') {
+                  let pending = null;
+                  try { pending = JSON.parse(localStorage.getItem('stokrova_pending_onboarding') || 'null'); } catch (_) {}
+                  if (pending && pending.ownerEmail.toLowerCase() === email) {
+                    await fetch(SUPABASE_CONFIG.apiBase + '/auth/onboard', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + data.session.access_token,
+                      },
+                      body: JSON.stringify({
+                        name: pending.companyName,
+                        slug: pending.slug,
+                        owner_full_name: pending.ownerName,
+                        default_currency: pending.currency,
+                        initial_branch_name: pending.branchName,
+                        plan_tier: pending.tier,
+                      })
+                    }).catch(() => {});
+                    localStorage.removeItem('stokrova_pending_onboarding');
+                    tenantName = pending.companyName;
+                    branch = pending.branchName;
+                    name = pending.ownerName;
+                    slug = pending.slug;
+                  }
+                }
               }
             }
+          } catch (err) {
+            console.warn('Supabase auth flow note:', err);
           }
-        } catch (_) {}
-
-        if (!slug) slug = 'apex';
-
-        // Determine staff role & name if not matched as registered owner
-        if (role !== 'Business Owner (Administrator)') {
-          if (email.includes('manager') || email.includes('david')) {
-            name = "David O'Connor";
-            role = 'Store Operations Manager';
-            lastActive = 'Today at 08:30 AM • Shift Active';
-          } else if (email.includes('cashier') || email.includes('emma')) {
-            name = 'Emma Watson';
-            role = 'Front Counter Cashier';
-            lastActive = 'Today at 10:15 AM • Till Registered';
-          } else if (email.includes('picker') || email.includes('samuel')) {
-            name = 'Samuel Adebayo';
-            role = 'Warehouse Lead & Picker';
-            lastActive = 'Today at 07:00 AM • Dock Active';
-          } else {
-            const prefix = email.split('@')[0] || 'staff';
-            name = prefix.split(/[._-]/).map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
-            role = 'Store Operations Staff';
-            lastActive = 'Active Today • Verified Identity';
-          }
-        } else if (email.includes('owner') || email.includes('victoria') || email.includes('admin')) {
-          name = 'Victoria Sterling';
-          role = 'Business Owner (Administrator)';
         }
 
-        // Send non-blocking verification request to backend API
-        try {
-          fetch('http://localhost:3000/api/v1/tenants/verify-staff', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: email, slug: slug })
-          }).catch(() => {});
-        } catch (_) {}
+        if (!slug) slug = 'workspace';
 
-        // Animate radar scanning progress
-        if (progressFill) {
-          setTimeout(() => { if (progressFill) progressFill.style.width = '65%'; }, 160);
-          setTimeout(() => { if (progressFill) progressFill.style.width = '100%'; }, 340);
-        }
+        if (progressFill) progressFill.style.width = '100%';
 
         this.verifiedStaffData = {
           tenantName: tenantName,
@@ -1376,19 +2190,34 @@ const completeWebsiteHtml = `
           if (verifiedState) verifiedState.style.display = 'block';
 
           this.showToast('✓ Workspace found & verified for ' + name);
-        }, 440);
+        }, 300);
       },
 
       confirmLoginLaunch() {
         this.closeLoginModal();
         const data = this.verifiedStaffData || {
-          tenantName: 'Apex Global Retail Ltd',
-          branchName: 'London Flagship',
-          userName: 'Victoria Sterling',
-          userRole: 'Business Owner (Administrator)',
+          tenantName: 'My Organization',
+          branchName: 'Primary Branch',
+          userName: 'Staff Member',
+          userRole: 'Business Member',
         };
         this.showToast('✓ Access granted: Welcome back, ' + data.userName + '!');
         this.launchWorkspace(data);
+
+        // Check if first-login tour should start automatically (once-off per staff member & role)
+        const role = data.userRole || 'Store Operations Staff';
+        const userName = data.userName || 'Staff';
+        let tourAlreadyDone = false;
+        try {
+          tourAlreadyDone = !!localStorage.getItem('stokrova_tour_completed_' + encodeURIComponent(userName + '_' + role));
+        } catch (e) {
+          tourAlreadyDone = false;
+        }
+
+        if (!tourAlreadyDone) {
+          // Automatic and immediate on first login
+          this.scheduleAutoTour(350, role);
+        }
       },
 
       addItemToCart(sku, name, price) {
@@ -1500,6 +2329,9 @@ const completeWebsiteHtml = `
       },
 
       launchWorkspace({ tenantName, branchName, userName, userRole }) {
+        this.currentUserName = userName;
+        this.currentWorkspaceRole = userRole;
+
         document.getElementById('customer-public-surface').style.display = 'none';
         const ws = document.getElementById('business-workspace-container');
         ws.style.display = 'flex';
@@ -1510,16 +2342,25 @@ const completeWebsiteHtml = `
         document.getElementById('ws-role-display').textContent = userRole;
 
         const isCashier = userRole.includes('Cashier');
-        const isPicker = userRole.includes('Picker');
+        const isPicker = userRole.includes('Picker') || userRole.includes('Warehouse');
         const isManager = userRole.includes('Manager');
+        const isAccountant = userRole.includes('Accountant') || userRole.includes('Finance') || userRole.includes('Audit');
+        const isDriver = userRole.includes('Driver') || userRole.includes('Logistics') || userRole.includes('Fleet');
+        const isSales = userRole.includes('Sales') || userRole.includes('Executive');
 
         const allNavItems = document.querySelectorAll('.workspace-nav-item');
         allNavItems.forEach(item => {
           const vId = item.getAttribute('data-view-id');
           if (isCashier) {
-            item.style.display = (vId === 'pos' || vId === 'catalog' || vId === 'orders') ? 'flex' : 'none';
+            item.style.display = (vId === 'pos' || vId === 'catalog' || vId === 'orders' || vId === 'cashier-desk') ? 'flex' : 'none';
           } else if (isPicker) {
-            item.style.display = (vId === 'inventory' || vId === 'picking' || vId === 'locations' || vId === 'ledger') ? 'flex' : 'none';
+            item.style.display = (vId === 'inventory' || vId === 'picking' || vId === 'locations' || vId === 'receiving' || vId === 'dispatch') ? 'flex' : 'none';
+          } else if (isAccountant) {
+            item.style.display = (vId === 'ledger' || vId === 'gl' || vId === 'accountant' || vId === 'tax' || vId === 'audit' || vId === 'invoices') ? 'flex' : 'none';
+          } else if (isDriver) {
+            item.style.display = (vId === 'fleet' || vId === 'dispatch' || vId === 'orders') ? 'flex' : 'none';
+          } else if (isSales) {
+            item.style.display = (vId === 'crm' || vId === 'quotes' || vId === 'orders' || vId === 'invoices' || vId === 'catalog') ? 'flex' : 'none';
           } else if (isManager) {
             item.style.display = (vId === 'org' || vId === 'compliance') ? 'none' : 'flex';
           } else {
@@ -1532,16 +2373,30 @@ const completeWebsiteHtml = `
           this.showWsView('pos');
         } else if (isPicker) {
           this.showWsView('picking');
+        } else if (isAccountant) {
+          this.showWsView('accountant');
+        } else if (isDriver) {
+          this.showWsView('fleet');
+        } else if (isSales) {
+          this.showWsView('crm');
         } else {
           this.showWsView('dashboard');
         }
       },
 
-      signOut() {
+      async signOut() {
+        const sb = getSupabase();
+        if (sb) {
+          try { await sb.auth.signOut(); } catch (_) {}
+        }
+        if (this.autoTourTimer) {
+          clearTimeout(this.autoTourTimer);
+          this.autoTourTimer = null;
+        }
         document.getElementById('business-workspace-container').style.display = 'none';
         document.getElementById('customer-public-surface').style.display = 'block';
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        this.showToast('You have exited the business workspace.');
+        this.showToast('You have signed out of your STOKROVA business workspace.');
       },
 
       showWsView(viewId) {
@@ -1736,6 +2591,62 @@ const completeWebsiteHtml = `
 
     // Initialize brand settings
     window.stokrovaCustomerApp.loadBrandSettings();
+
+    // Automatic Live Supabase Session Restoration & Onboarding Recovery
+    window.addEventListener('DOMContentLoaded', async () => {
+      const sb = getSupabase();
+      if (!sb) return;
+
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        if (session && session.access_token) {
+          const res = await fetch(SUPABASE_CONFIG.apiBase + '/auth/session', {
+            headers: { 'Authorization': 'Bearer ' + session.access_token }
+          }).then(r => r.json()).catch(() => null);
+
+          if (res && res.authenticated && res.active_tenant) {
+            const signinBtns = document.querySelectorAll('button[onclick*="openLoginModal"]');
+            signinBtns.forEach(btn => {
+              btn.textContent = res.active_tenant.tenant_name + ' (' + (res.user?.email || '').split('@')[0] + ') →';
+              btn.onclick = () => window.stokrovaCustomerApp.launchWorkspace({
+                tenantName: res.active_tenant.tenant_name,
+                branchName: res.active_tenant.branch_name || 'Primary Branch',
+                userName: res.user?.name || res.user?.email || 'Owner',
+                userRole: res.active_tenant.role === 'owner' ? 'Business Owner (Administrator)' : (res.active_tenant.role || 'Staff'),
+              });
+            });
+          }
+        }
+      } catch (_) {}
+
+      sb.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN' && session && session.access_token) {
+          let pending = null;
+          try { pending = JSON.parse(localStorage.getItem('stokrova_pending_onboarding') || 'null'); } catch (_) {}
+          if (pending && session.user && session.user.email && pending.ownerEmail.toLowerCase() === session.user.email.toLowerCase()) {
+            try {
+              await fetch(SUPABASE_CONFIG.apiBase + '/auth/onboard', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer ' + session.access_token,
+                },
+                body: JSON.stringify({
+                  name: pending.companyName,
+                  slug: pending.slug,
+                  owner_full_name: pending.ownerName,
+                  default_currency: pending.currency,
+                  initial_branch_name: pending.branchName,
+                  plan_tier: pending.tier,
+                })
+              });
+              localStorage.removeItem('stokrova_pending_onboarding');
+              window.stokrovaCustomerApp.showToast('✓ Identity confirmed & business \'' + pending.companyName + '\' provisioned!');
+            } catch (_) {}
+          }
+        }
+      });
+    });
 
     // Sticky Header Scroll Listener
     window.addEventListener('scroll', () => {

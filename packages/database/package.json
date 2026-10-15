@@ -12,6 +12,7 @@
     "migrate:live": "node run-migrate.cjs",
     "test:connectivity": "node test-connectivity.cjs",
     "test:rls": "node test-permissive-rls.cjs",
+    "audit:live": "node audit-live-database.cjs",
     "clean": "rm -rf dist"
   },
   "dependencies": {

@@ -243,8 +243,12 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     expect(regModalHtml).toContain('id="prov-progress-fill"');
     expect(regModalHtml).toContain('id="prov-milestones"');
     expect(regModalHtml).toContain('id="prov-completion-actions"');
-    expect(regModalHtml).toContain('Take Interactive Tour (Recommended)');
-    expect(regModalHtml).toContain('Enter Dashboard Directly →');
+    expect(regModalHtml).toContain('id="prov-countdown-banner"');
+    expect(regModalHtml).toContain('id="prov-countdown-sec"');
+    expect(regModalHtml).toContain('Launching dashboard in');
+    expect(regModalHtml).not.toContain('Auto-launching');
+    expect(regModalHtml).not.toContain('Take Interactive Tour');
+    expect(regModalHtml).not.toContain('Enter Dashboard Directly');
   });
 
   it('renders world-class guided tour overlay with globe icon and interactive navigation steps', () => {
@@ -258,11 +262,16 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     expect(tourHtml).toContain('STOKROVA TOUR');
     expect(tourHtml).toContain('🌍');
     expect(tourHtml).toContain('id="tour-step-num"');
+    expect(tourHtml).toContain('id="tour-step-total"');
+    expect(tourHtml).toContain('id="tour-role-badge"');
     expect(tourHtml).toContain('id="tour-card-title"');
     expect(tourHtml).toContain('id="tour-card-desc"');
     expect(tourHtml).toContain('id="tour-btn-next"');
     expect(tourHtml).toContain('id="tour-btn-prev"');
-    expect(tourHtml).toContain('Dismiss Tour (Esc)');
+    expect(tourHtml).toContain('Dismiss (Esc)');
+    expect(tourHtml).not.toContain('Dismiss Tour (Esc)');
+    expect(tourHtml).toContain('Next');
+    expect(tourHtml).not.toContain('Next Feature');
   });
 
   it('renders staff login modal with two-stage verification screen and green confirmation checks', () => {

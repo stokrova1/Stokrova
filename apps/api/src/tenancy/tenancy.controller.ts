@@ -24,7 +24,6 @@ import type {
   TenantResponse,
   VerifyStaffWorkspaceResponse,
 } from '@stokrova/contracts';
-import { randomUUID } from 'node:crypto';
 import type { TenantStatus } from '@stokrova/domain';
 
 @Controller('tenants')
@@ -51,7 +50,11 @@ export class TenancyController {
   }
 
   @Post('onboard')
-  async onboardTenant(@Body() body: unknown): Promise<ProvisionedTenantResult> {
+  @UseGuards(AuthGuard)
+  async onboardTenant(
+    @Body() body: unknown,
+    @CurrentUser() user: UserIdentity,
+  ): Promise<ProvisionedTenantResult> {
     const parseResult = CreateTenantRequestSchema.safeParse(body);
     if (!parseResult.success) {
       throw new BadRequestException({
@@ -63,9 +66,13 @@ export class TenancyController {
       });
     }
 
-    const ownerId = `usr_${randomUUID().replace(/-/g, '')}`;
+    const ownerId = user?.id || 'owner_init';
     return this.tenancyService.provisionTenant(
-      parseResult.data as CreateTenantRequest,
+      {
+        ...parseResult.data,
+        owner_email: user?.email || (parseResult.data as any).owner_email,
+        owner_full_name: user?.full_name || (parseResult.data as any).owner_full_name,
+      } as CreateTenantRequest,
       ownerId,
     );
   }
@@ -89,7 +96,11 @@ export class TenancyController {
 
     const ownerId = user?.id || 'owner_init';
     return this.tenancyService.provisionTenant(
-      parseResult.data as CreateTenantRequest,
+      {
+        ...parseResult.data,
+        owner_email: user?.email || (parseResult.data as any).owner_email,
+        owner_full_name: user?.full_name || (parseResult.data as any).owner_full_name,
+      } as CreateTenantRequest,
       ownerId,
     );
   }

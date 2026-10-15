@@ -3,6 +3,8 @@ import {
   ExecutionContext,
   Injectable,
   UnauthorizedException,
+  Inject,
+  Optional,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { createHmac, timingSafeEqual } from 'node:crypto';
@@ -10,6 +12,9 @@ import type { Request } from 'express';
 import { ErrorCodes } from '@stokrova/contracts';
 import type { UserIdentity } from '@stokrova/contracts';
 import { IS_PUBLIC_KEY } from './decorators/public.decorator.js';
+import { JwksVerifier } from './jwks-verifier.js';
+import { SupabaseService } from './supabase.service.js';
+import { DATABASE_POOL } from '../infrastructure/database/database.tokens.js';
 
 interface AuthenticatedRequest extends Request {
   user?: UserIdentity;
@@ -17,9 +22,13 @@ interface AuthenticatedRequest extends Request {
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private readonly reflector?: Reflector) {}
+  constructor(
+    @Optional() private readonly reflector?: Reflector,
+    @Optional() @Inject(DATABASE_POOL) private readonly pool?: any,
+    @Optional() private readonly supabaseService?: SupabaseService,
+  ) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     if (this.reflector) {
       const classTarget = typeof context.getClass === 'function' ? context.getClass() : undefined;
       const targets = [context.getHandler(), classTarget].filter(Boolean) as any[];
@@ -44,7 +53,7 @@ export class AuthGuard implements CanActivate {
     const token = authHeader.substring(7).trim();
 
     try {
-      const user = this.verifyAndDecodeToken(token, request);
+      const user = await this.verifyAndDecodeToken(token, request);
       request.user = user;
       return true;
     } catch (err: any) {
@@ -58,7 +67,7 @@ export class AuthGuard implements CanActivate {
     }
   }
 
-  private verifyAndDecodeToken(token: string, request: Request): UserIdentity {
+  private async verifyAndDecodeToken(token: string, request: Request): Promise<UserIdentity> {
     const isTestEnv = process.env['NODE_ENV'] === 'test';
 
     // 1. Strict gating of test bypass headers: ONLY allowed in NODE_ENV === 'test'
@@ -99,28 +108,71 @@ export class AuthGuard implements CanActivate {
     }
 
     const [headerB64, payloadB64, signatureB64] = parts;
-    const isProdEnv = process.env['NODE_ENV'] === 'production';
-    let jwtSecret = process.env['JWT_SECRET'];
-    if (!jwtSecret) {
-      if (isProdEnv) {
-        throw new Error('JWT_SECRET is strictly mandatory in production environment.');
-      }
-      jwtSecret = 'stokrova-default-jwt-secret-phase12-sec';
+
+    // Decode header to inspect algorithm and key id
+    let header: { alg?: string; kid?: string } = {};
+    try {
+      header = JSON.parse(Buffer.from(headerB64, 'base64url').toString('utf8'));
+    } catch {
+      throw new Error('Malformed JWT header JSON.');
     }
 
-    // Verify cryptographic HMAC-SHA256 signature
-    const expectedSignature = createHmac('sha256', jwtSecret)
-      .update(`${headerB64}.${payloadB64}`)
-      .digest('base64url');
+    const alg = (header.alg || 'HS256').toUpperCase();
+    const signingInput = `${headerB64}.${payloadB64}`;
 
-    const expectedBuf = Buffer.from(expectedSignature, 'utf8');
-    const actualBuf = Buffer.from(signatureB64, 'utf8');
+    if (alg === 'ES256' || alg === 'RS256') {
+      // Asymmetric signature verification against Supabase JWKS
+      const jwksUrl =
+        process.env['SUPABASE_JWKS_URL'] ||
+        `${process.env['SUPABASE_URL'] || 'https://vbtuccvxtgjhaywijmwa.supabase.co'}/auth/v1/.well-known/jwks.json`;
 
-    if (
-      expectedBuf.length !== actualBuf.length ||
-      !timingSafeEqual(expectedBuf, actualBuf)
-    ) {
-      throw new Error('Invalid JWT signature.');
+      const keyEntry = await JwksVerifier.getPublicKey(header.kid, jwksUrl);
+      let isValidAsymmetric = false;
+
+      if (keyEntry) {
+        isValidAsymmetric = JwksVerifier.verifyAsymmetricSignature(
+          signingInput,
+          signatureB64,
+          keyEntry.key,
+          keyEntry.alg || alg,
+        );
+      }
+
+      // If local JWKS verification failed or key was missing, attempt authoritative Supabase verification
+      if (!isValidAsymmetric && this.supabaseService) {
+        const user = await this.supabaseService.getUserFromToken(token);
+        if (user) {
+          isValidAsymmetric = true;
+        }
+      }
+
+      if (!isValidAsymmetric) {
+        throw new Error('Invalid JWT signature.');
+      }
+    } else {
+      // HMAC-SHA256 verification (for test/local environments with shared secret)
+      const isProdEnv = process.env['NODE_ENV'] === 'production';
+      let jwtSecret = process.env['JWT_SECRET'];
+      if (!jwtSecret) {
+        if (isProdEnv) {
+          throw new Error('JWT_SECRET is strictly mandatory in production environment.');
+        }
+        jwtSecret = 'stokrova-default-jwt-secret-phase12-sec';
+      }
+
+      const expectedSignature = createHmac('sha256', jwtSecret)
+        .update(signingInput)
+        .digest('base64url');
+
+      const expectedBuf = Buffer.from(expectedSignature, 'utf8');
+      const actualBuf = Buffer.from(signatureB64, 'utf8');
+
+      if (
+        expectedBuf.length !== actualBuf.length ||
+        !timingSafeEqual(expectedBuf, actualBuf)
+      ) {
+        throw new Error('Invalid JWT signature.');
+      }
     }
 
     // Decode and parse payload
@@ -135,6 +187,42 @@ export class AuthGuard implements CanActivate {
       }
     }
 
+    const userId = (payload['sub'] as string) || (payload['id'] as string) || 'anon-user';
+    const email = (payload['email'] as string) || 'user@stokrova.com';
+    const fullName =
+      (payload['user_metadata'] as { full_name?: string })?.full_name ||
+      'Authenticated User';
+    const isPlatformAdmin = Boolean(
+      (payload['app_metadata'] as { is_platform_admin?: boolean })?.is_platform_admin,
+    );
+
+    // 4. Authoritative PostgreSQL Membership Resolution
+    if (this.pool && typeof this.pool.query === 'function') {
+      try {
+        const res = await this.pool.query(
+          `SELECT m.tenant_id, u.role, u.full_name, u.is_active
+           FROM public.memberships m
+           LEFT JOIN public.users u ON u.id = m.user_id AND u.tenant_id = m.tenant_id
+           WHERE m.user_id = $1 AND m.status = 'ACTIVE'`,
+          [userId],
+        );
+        if (res.rows && res.rows.length > 0) {
+          const dbTenantIds = res.rows.map((r: any) => r.tenant_id);
+          return {
+            id: userId,
+            email,
+            full_name: res.rows[0].full_name || fullName,
+            is_platform_admin: isPlatformAdmin,
+            tenant_ids: dbTenantIds,
+            tenant_id: dbTenantIds[0],
+          };
+        }
+      } catch {
+        // Fallback for tests or environments without connected database
+      }
+    }
+
+    // 5. Fallback tenancy mapping for test environments without connected DB
     const appMetadata = (payload['app_metadata'] as Record<string, unknown>) || {};
     const userMetadata = (payload['user_metadata'] as Record<string, unknown>) || {};
 
@@ -154,15 +242,10 @@ export class AuthGuard implements CanActivate {
     }
 
     return {
-      id: (payload['sub'] as string) || (payload['id'] as string) || 'anon-user',
-      email: (payload['email'] as string) || 'user@stokrova.com',
-      full_name:
-        (payload['user_metadata'] as { full_name?: string })?.full_name ||
-        'Authenticated User',
-      is_platform_admin: Boolean(
-        (payload['app_metadata'] as { is_platform_admin?: boolean })
-          ?.is_platform_admin,
-      ),
+      id: userId,
+      email,
+      full_name: fullName,
+      is_platform_admin: isPlatformAdmin,
       tenant_ids: tenantIds,
       tenant_id: tenantIds?.[0],
     };

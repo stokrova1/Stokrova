@@ -193,7 +193,7 @@ export class ProcurementViewModel {
             </span>
           </td>
           <td style="padding: 12px 14px; text-align: right;">
-            <button onclick="window.stokrovaApp?.showToast('Viewing catalog for supplier ${s.code}')" style="padding: 5px 10px; border-radius: 6px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.75rem; cursor: pointer;">
+            <button onclick="window.stokrovaApp?.viewSupplierCatalog ? window.stokrovaApp.viewSupplierCatalog('${s.code}') : window.stokrovaApp?.showToast('Viewing catalog for supplier ${s.code}')" style="padding: 5px 10px; border-radius: 6px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.75rem; cursor: pointer;">
               Catalog ↗
             </button>
           </td>
@@ -208,7 +208,7 @@ export class ProcurementViewModel {
             <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700;">Approved Supplier Directory</h3>
             <p style="margin: 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">Master vendor agreements, payment terms, and lead time metrics</p>
           </div>
-          <button onclick="window.stokrovaApp?.showToast('Supplier creation dialog opened.')" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; background: ${tokens.primary}; color: ${tokens.primaryForeground}; border: none; font-weight: 600; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+          <button onclick="window.stokrovaApp?.openEnrollSupplierModal ? window.stokrovaApp.openEnrollSupplierModal() : window.stokrovaApp?.showToast('Supplier creation dialog opened.')" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; background: ${tokens.primary}; color: ${tokens.primaryForeground}; border: none; font-weight: 600; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
             + Enroll Supplier
           </button>
         </div>

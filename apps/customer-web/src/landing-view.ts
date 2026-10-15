@@ -1429,13 +1429,13 @@ export class LandingViewModel {
 
               <div style="margin-bottom: 14px;">
                 <label for="reg-company-name" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">BUSINESS / COMPANY LEGAL NAME *</label>
-                <input id="reg-company-name" class="form-input" type="text" required placeholder="e.g. Apex Global Retail Ltd" oninput="window.stokrovaCustomerApp.autoSuggestSlug(this.value)" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+                <input id="reg-company-name" class="form-input" type="text" required placeholder="e.g. Acme Enterprises Ltd" oninput="window.stokrovaCustomerApp.autoSuggestSlug(this.value)" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
               </div>
 
               <div style="margin-bottom: 14px;">
                 <label for="reg-slug" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">WORKSPACE SLUG (SUBDOMAIN) *</label>
                 <div style="display: flex; align-items: center; background: ${tokens.background}; border: 1px solid ${tokens.border}; border-radius: 6px; overflow: hidden; min-height: 44px;">
-                  <input id="reg-slug" class="form-input" type="text" required placeholder="apex" style="flex: 1; min-height: 44px; padding: 10px 12px; background: transparent; border: none; color: ${tokens.textPrimary}; font-size: 16px;" />
+                  <input id="reg-slug" class="form-input" type="text" required placeholder="acme" style="flex: 1; min-height: 44px; padding: 10px 12px; background: transparent; border: none; color: ${tokens.textPrimary}; font-size: 16px;" />
                   <span style="padding: 0 12px; font-size: 0.75rem; color: ${tokens.textMuted}; font-family: var(--stokrova-font-mono);">.stokrova.com</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 0.7rem;">
@@ -1517,7 +1517,7 @@ export class LandingViewModel {
 
               <div style="margin-bottom: 14px;">
                 <label for="reg-branch-name" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">INITIAL FLAGSHIP / STORE BRANCH NAME *</label>
-                <input id="reg-branch-name" class="form-input" type="text" placeholder="e.g. London Central Flagship" value="London Flagship" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+                <input id="reg-branch-name" class="form-input" type="text" placeholder="e.g. Central Flagship" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
               </div>
 
               <div class="modal-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
@@ -1549,11 +1549,11 @@ export class LandingViewModel {
               <div class="modal-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
                 <div>
                   <label for="reg-owner-name" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">OWNER FULL NAME *</label>
-                  <input id="reg-owner-name" class="form-input" type="text" required placeholder="Victoria Sterling" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+                  <input id="reg-owner-name" class="form-input" type="text" required placeholder="Owner Full Name" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
                 </div>
                 <div>
                   <label for="reg-owner-email" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">OWNER WORK EMAIL *</label>
-                  <input id="reg-owner-email" class="form-input" type="email" required placeholder="victoria@apex.com" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+                  <input id="reg-owner-email" class="form-input" type="email" required placeholder="owner@company.com" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
                 </div>
               </div>
 
@@ -1564,7 +1564,7 @@ export class LandingViewModel {
                 </div>
                 <div>
                   <label for="reg-owner-phone" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">EMERGENCY AUDIT PHONE (OPTIONAL)</label>
-                  <input id="reg-owner-phone" class="form-input" type="tel" placeholder="+44 20 7946 0912" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+                  <input id="reg-owner-phone" class="form-input" type="tel" placeholder="+44 20 7000 0000" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
                 </div>
               </div>
 
@@ -1642,10 +1642,10 @@ export class LandingViewModel {
                   ✦ CONGRATULATIONS • WORKSPACE DEPLOYED ✦
                 </div>
                 <h2 id="prov-headline" style="margin: 0 0 6px 0; font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary};">
-                  Welcome to STOKROVA, <span id="prov-dyn-welcome">Victoria</span>!
+                  Welcome to STOKROVA, <span id="prov-dyn-welcome">Owner</span>!
                 </h2>
                 <p style="margin: 0; font-size: 0.8125rem; color: ${tokens.textSecondary}; line-height: 1.5;">
-                  Your sovereign business workspace for <strong id="prov-dyn-company" style="color: ${tokens.textPrimary};">Apex Global Retail Ltd</strong> is live and cryptographically partitioned at <span id="prov-dyn-slug" style="color: ${tokens.primary}; font-family: var(--stokrova-font-mono); font-weight: 700;">apex.stokrova.com</span>.
+                  Your sovereign business workspace for <strong id="prov-dyn-company" style="color: ${tokens.textPrimary};">Your Organization</strong> is live and cryptographically partitioned at <span id="prov-dyn-slug" style="color: ${tokens.primary}; font-family: var(--stokrova-font-mono); font-weight: 700;">workspace.stokrova.com</span>.
                 </p>
               </div>
 
@@ -1736,20 +1736,44 @@ export class LandingViewModel {
               </div>
 
               <!-- Celebratory Completion Actions (Shown at 100%) -->
-              <div id="prov-completion-actions" style="display: none; animation: fadeIn 0.3s ease-out;">
-                <div style="background: rgba(74, 222, 128, 0.1); border: 1px solid #1E4620; border-radius: 8px; padding: 10px 14px; max-width: 480px; margin: 0 auto 16px auto; color: #4ADE80; font-size: 0.8125rem; font-weight: 700;">
-                  ✦ Workspace Live: Ready to launch your enterprise dashboard!
+              <div id="prov-completion-actions" style="display: none; animation: fadeIn 0.3s ease-out; margin-top: 24px; text-align: center;">
+                <div style="background: rgba(74, 222, 128, 0.1); border: 1px solid #1E4620; border-radius: 8px; padding: 12px 18px; max-width: 480px; margin: 0 auto 16px auto; color: #4ADE80; font-size: 0.875rem; font-weight: 700;">
+                  ✦ Workspace Live: Setup Complete
                 </div>
-                <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
-                  <button id="btn-launch-tour" type="button" onclick="window.stokrovaCustomerApp.launchWorkspaceWithTour()" style="min-height: 44px; padding: 12px 24px; border-radius: 8px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 16px rgba(189,150,82,0.45); display: inline-flex; align-items: center; gap: 8px;">
-                    <span>🌍</span> <span>Take Interactive Tour (Recommended)</span>
-                  </button>
-                  <button id="btn-launch-direct" type="button" onclick="window.stokrovaCustomerApp.launchWorkspaceDirect()" style="min-height: 44px; padding: 12px 20px; border-radius: 8px; border: 1px solid ${tokens.borderStrong}; background: #161B1E; color: ${tokens.textPrimary}; font-weight: 600; font-size: 0.9rem; cursor: pointer;">
-                    Enter Dashboard Directly →
-                  </button>
+                <div id="prov-countdown-banner" style="font-size: 0.9375rem; font-weight: 600; color: ${tokens.textSecondary}; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                  <span style="display: inline-block; animation: pulseDot 1.2s infinite; color: ${tokens.primary};">⚡</span>
+                  <span>Launching dashboard in <strong id="prov-countdown-sec" style="color: ${tokens.primary}; font-family: var(--stokrova-font-mono); font-size: 1.15rem;">3</strong>s...</span>
                 </div>
               </div>
 
+            </div>
+
+            <!-- STEP EMAIL CONFIRMATION: Supabase Real Verification Notice -->
+            <div id="reg-step-confirm-email" class="signup-step-pane" style="display: none; text-align: center; padding: 12px 4px;">
+              <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(189,150,82,0.12); border: 1px solid ${tokens.primary}; margin: 0 auto 16px auto; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; color: ${tokens.primary};">
+                ✉️
+              </div>
+              <h3 style="margin: 0 0 8px 0; font-size: 1.25rem; font-weight: 800; color: ${tokens.textPrimary};">
+                Confirm Your Email Address
+              </h3>
+              <p style="margin: 0 0 16px 0; font-size: 0.875rem; color: ${tokens.textSecondary}; line-height: 1.5; max-width: 480px; margin-left: auto; margin-right: auto;">
+                A cryptographic verification link has been sent to <strong id="confirm-email-target" style="color: ${tokens.textPrimary}; font-family: var(--stokrova-font-mono);">...</strong>.
+              </p>
+              <div style="background: #161B1E; border: 1px solid ${tokens.borderStrong}; border-radius: 10px; padding: 14px 16px; margin: 0 auto 20px auto; max-width: 480px; text-align: left; font-size: 0.775rem; color: ${tokens.textSecondary}; line-height: 1.5;">
+                <div style="color: #4ADE80; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                  <span>✓</span> <span>Supabase Auth & Rule 21 Tenant Security</span>
+                </div>
+                <div>Please click the confirmation link in your email to verify your ownership. Your workspace at <strong id="confirm-slug-target" style="color: ${tokens.primary}; font-family: var(--stokrova-font-mono);">...</strong>.stokrova.com will be provisioned into PostgreSQL as soon as your identity is verified.</div>
+              </div>
+
+              <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+                <button id="btn-resend-confirm-email" type="button" onclick="window.stokrovaCustomerApp.resendConfirmationEmail()" style="min-height: 44px; padding: 10px 20px; border-radius: 6px; border: 1px solid ${tokens.primary}; background: transparent; color: ${tokens.primary}; font-weight: 700; font-size: 0.875rem; cursor: pointer;">
+                  Resend Confirmation Email
+                </button>
+                <button id="btn-check-confirmed" type="button" onclick="window.stokrovaCustomerApp.checkSessionAfterEmailConfirmation()" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.875rem; cursor: pointer; box-shadow: 0 2px 10px rgba(189,150,82,0.35);">
+                  I Have Confirmed My Email →
+                </button>
+              </div>
             </div>
 
           </form>
@@ -1776,12 +1800,27 @@ export class LandingViewModel {
         <!-- Floating Tour Popover Card -->
         <div id="stokrova-tour-card" style="position: fixed; bottom: 32px; right: 32px; background: ${tokens.surface}; border: 1px solid ${tokens.primary}; border-radius: 14px; padding: 22px 24px; width: 440px; max-width: calc(100vw - 32px); box-shadow: 0 25px 60px rgba(0,0,0,0.85), 0 0 25px rgba(189,150,82,0.25); z-index: 100002; pointer-events: auto; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
           
+          <!-- Responsive Mobile Styling for Tour Card -->
+          <style>
+            @media (max-width: 640px) {
+              #stokrova-tour-card {
+                bottom: 14px !important;
+                right: 12px !important;
+                left: 12px !important;
+                width: auto !important;
+                max-width: calc(100vw - 24px) !important;
+                padding: 16px 18px !important;
+              }
+            }
+          </style>
+
           <!-- Card Header with Globe Icon -->
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
               <span style="font-size: 1.3rem; animation: pulseDot 1.5s infinite;">🌍</span>
               <span style="font-size: 0.75rem; font-weight: 800; color: ${tokens.primary}; text-transform: uppercase; letter-spacing: 0.08em;">STOKROVA TOUR</span>
-              <span style="font-size: 0.75rem; color: ${tokens.textMuted}; font-family: var(--stokrova-font-mono);">• Step <span id="tour-step-num">1</span> of 5</span>
+              <span id="tour-role-badge" style="font-size: 0.6875rem; background: rgba(189,150,82,0.18); color: ${tokens.primary}; padding: 1px 6px; border-radius: 4px; font-weight: 600;">Business Owner</span>
+              <span style="font-size: 0.75rem; color: ${tokens.textMuted}; font-family: var(--stokrova-font-mono);">• Step <span id="tour-step-num">1</span> of <span id="tour-step-total">5</span></span>
             </div>
             <button onclick="window.stokrovaCustomerApp.endTour()" aria-label="Dismiss tour" style="background: none; border: none; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; color: ${tokens.textMuted}; cursor: pointer;">&times;</button>
           </div>
@@ -1802,14 +1841,14 @@ export class LandingViewModel {
           <!-- Tour Footer Navigation -->
           <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid ${tokens.border}; padding-top: 14px;">
             <button onclick="window.stokrovaCustomerApp.endTour()" style="background: transparent; border: none; color: ${tokens.textMuted}; font-size: 0.8125rem; font-weight: 600; cursor: pointer; padding: 8px 0;">
-              Dismiss Tour (Esc)
+              Dismiss (Esc)
             </button>
             <div style="display: flex; gap: 8px;">
               <button id="tour-btn-prev" onclick="window.stokrovaCustomerApp.prevTourStep()" style="min-height: 40px; background: #161B1E; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; padding: 8px 16px; border-radius: 6px; font-size: 0.8125rem; font-weight: 600; cursor: pointer;">
                 ← Back
               </button>
               <button id="tour-btn-next" onclick="window.stokrovaCustomerApp.nextTourStep()" style="min-height: 40px; background: ${tokens.primary}; border: none; color: #0E1116; padding: 8px 18px; border-radius: 6px; font-size: 0.8125rem; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(189,150,82,0.4);">
-                Next Feature →
+                Next
               </button>
             </div>
           </div>
@@ -1906,8 +1945,8 @@ export class LandingViewModel {
                     <span style="color: ${tokens.textSecondary};">Company Workspace:</span>
                   </div>
                   <div style="text-align: right;">
-                    <strong id="login-dyn-company" style="color: ${tokens.textPrimary};">Apex Global Retail Ltd</strong>
-                    <div id="login-dyn-slug" style="font-size: 0.7rem; color: ${tokens.primary}; font-family: var(--stokrova-font-mono);">apex.stokrova.com</div>
+                    <strong id="login-dyn-company" style="color: ${tokens.textPrimary};">Verified Organization</strong>
+                    <div id="login-dyn-slug" style="font-size: 0.7rem; color: ${tokens.primary}; font-family: var(--stokrova-font-mono);">workspace.stokrova.com</div>
                   </div>
                 </div>
 

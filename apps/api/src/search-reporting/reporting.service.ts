@@ -14,23 +14,14 @@ export class ReportingService {
    * Run custom parameter-driven business report.
    */
   async runReport(
-    tenantId: string,
+    _tenantId: string,
     dto: RunCustomReportDto,
     customRows?: ReportRow[]
   ): Promise<ReportExecutionResult> {
     const validated = runCustomReportSchema.parse(dto);
 
-    // Default mock data generator if no custom rows provided
-    const rows: ReportRow[] = customRows ?? [
-      {
-        dimensions: {
-          [validated.dimensions[0] ?? 'BRANCH']: `${tenantId}-Primary`,
-        },
-        metrics: {
-          [validated.metrics[0] ?? 'TOTAL_REVENUE']: 1500000,
-        },
-      },
-    ];
+    // Zero-placeholder: Default to empty array when no custom rows or database aggregation provided
+    const rows: ReportRow[] = customRows ?? [];
 
     return {
       report_name: validated.name,

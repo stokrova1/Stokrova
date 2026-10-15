@@ -57,8 +57,9 @@ export class OrganizationViewModel {
     const companies = this.listCompanies();
     const branches = this.listBranches();
 
-    const companyRows = companies
-      .map((c) => `
+    const companyRows = companies.length > 0
+      ? companies
+          .map((c) => `
         <tr style="border-bottom: 1px solid ${tokens.border};">
           <td style="padding: 12px 14px; font-weight: 600;">
             <div>${c.name}</div>
@@ -68,16 +69,24 @@ export class OrganizationViewModel {
           <td style="padding: 12px 14px; font-size: 0.8125rem;">${c.taxIdentifier}</td>
           <td style="padding: 12px 14px; font-size: 0.8125rem;">${c.branchesCount} branches</td>
           <td style="padding: 12px 14px; text-align: right;">
-            <button onclick="window.stokrovaApp?.showToast('Configure company ${c.name}')" style="padding: 5px 10px; border-radius: 6px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.75rem; cursor: pointer;">
+            <button onclick="window.stokrovaApp?.configureCompany ? window.stokrovaApp.configureCompany('${c.name}') : window.stokrovaApp?.showToast('Configure company ${c.name}')" style="padding: 5px 10px; border-radius: 6px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.75rem; cursor: pointer;">
               Configure ↗
             </button>
           </td>
         </tr>
       `.trim())
-      .join('\n');
+          .join('\n')
+      : `<tr>
+          <td colspan="5" style="padding: 32px 16px; text-align: center; color: ${tokens.textMuted}; font-size: 0.875rem;">
+            <div style="font-size: 1.5rem; margin-bottom: 8px;">🏛️</div>
+            <div style="font-weight: 600; color: ${tokens.textSecondary};">No legal companies registered yet.</div>
+            <div style="font-size: 0.8125rem; margin-top: 4px;">Click "+ Create Company Entity" to register your sovereign business legal entity.</div>
+          </td>
+        </tr>`;
 
-    const branchRows = branches
-      .map((b) => `
+    const branchRows = branches.length > 0
+      ? branches
+          .map((b) => `
         <tr style="border-bottom: 1px solid ${tokens.border};">
           <td style="padding: 12px 14px; font-weight: 600;">
             <div>${b.name}</div>
@@ -95,7 +104,14 @@ export class OrganizationViewModel {
           </td>
         </tr>
       `.trim())
-      .join('\n');
+          .join('\n')
+      : `<tr>
+          <td colspan="5" style="padding: 32px 16px; text-align: center; color: ${tokens.textMuted}; font-size: 0.875rem;">
+            <div style="font-size: 1.5rem; margin-bottom: 8px;">📍</div>
+            <div style="font-weight: 600; color: ${tokens.textSecondary};">No operational branches or facilities configured.</div>
+            <div style="font-size: 0.8125rem; margin-top: 4px;">Click "+ Add Physical Branch" to establish your first warehouse or retail station.</div>
+          </td>
+        </tr>`;
 
     return `
       <div class="organization-management-view" style="color: ${tokens.textPrimary};">
@@ -105,10 +121,10 @@ export class OrganizationViewModel {
             <p style="margin: 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">Multi-company holding corporate structure and physical retail/warehouse facilities</p>
           </div>
           <div style="display: flex; gap: 8px;">
-            <button onclick="window.stokrovaApp?.showToast('New Company dialog triggered.')" style="padding: 8px 14px; border-radius: 6px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-weight: 600; font-size: 0.8125rem; cursor: pointer;">
+            <button onclick="window.stokrovaApp?.openAddCompanyModal ? window.stokrovaApp.openAddCompanyModal() : window.stokrovaApp?.showToast('New Company dialog triggered.')" style="padding: 8px 14px; border-radius: 6px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-weight: 600; font-size: 0.8125rem; cursor: pointer;">
               + Add Company
             </button>
-            <button onclick="window.stokrovaApp?.showToast('New Branch dialog triggered.')" style="padding: 8px 14px; border-radius: 6px; background: ${tokens.primary}; color: ${tokens.primaryForeground}; border: none; font-weight: 600; font-size: 0.8125rem; cursor: pointer;">
+            <button onclick="window.stokrovaApp?.openAddBranchModal ? window.stokrovaApp.openAddBranchModal() : window.stokrovaApp?.showToast('New Branch dialog triggered.')" style="padding: 8px 14px; border-radius: 6px; background: ${tokens.primary}; color: ${tokens.primaryForeground}; border: none; font-weight: 600; font-size: 0.8125rem; cursor: pointer;">
               + Add Branch
             </button>
           </div>

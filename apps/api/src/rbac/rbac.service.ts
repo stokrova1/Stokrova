@@ -1,4 +1,10 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+  Inject,
+  Optional,
+} from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type {
   RoleResponse,
@@ -15,6 +21,7 @@ import {
   SystemRoleTemplates,
   type ActiveRoleAssignment,
 } from '@stokrova/domain';
+import { DATABASE_POOL } from '../infrastructure/database/database.tokens.js';
 
 interface StoredRole {
   id: string;
@@ -56,7 +63,7 @@ export class RbacService {
   private assignmentsStore = new Map<string, StoredRoleAssignment>();
   private invitationsStore = new Map<string, StoredInvitation>();
 
-  constructor() {
+  constructor(@Optional() @Inject(DATABASE_POOL) private readonly pool?: any) {
     this.seedSystemTemplates();
   }
 
@@ -84,6 +91,29 @@ export class RbacService {
   }
 
   async getRolesForTenant(tenantId: string): Promise<RoleResponse[]> {
+    if (this.pool && typeof this.pool.query === 'function') {
+      try {
+        const res = await this.pool.query(
+          'SELECT id, tenant_id, name, code, description, is_system_template, created_at FROM public.roles WHERE tenant_id IS NULL OR tenant_id = $1',
+          [tenantId],
+        );
+        if (res.rows && res.rows.length > 0) {
+          return res.rows.map((r: any) => ({
+            id: r.id,
+            tenant_id: r.tenant_id,
+            name: r.name,
+            code: r.code,
+            description: r.description,
+            is_system_template: r.is_system_template,
+            permissions: this.rolesStore.get(r.id)?.permissions || [],
+            created_at: new Date(r.created_at).toISOString(),
+          }));
+        }
+      } catch {
+        // Fallback
+      }
+    }
+
     return Array.from(this.rolesStore.values())
       .filter((r) => r.is_system_template || r.tenant_id === tenantId)
       .map(this.toRoleResponse);
@@ -103,6 +133,20 @@ export class RbacService {
     }
 
     const id = `role_${randomUUID().replace(/-/g, '')}`;
+    const now = new Date().toISOString();
+
+    if (this.pool && typeof this.pool.query === 'function') {
+      try {
+        await this.pool.query(
+          `INSERT INTO public.roles (id, tenant_id, name, code, description, is_system_template, created_at)
+           VALUES ($1, $2, $3, $4, $5, false, NOW())`,
+          [id, tenantId, req.name.trim(), code, req.description?.trim() || null],
+        );
+      } catch {
+        // Fallback
+      }
+    }
+
     const role: StoredRole = {
       id,
       tenant_id: tenantId,
@@ -111,7 +155,7 @@ export class RbacService {
       description: req.description?.trim() || null,
       is_system_template: false,
       permissions: req.permission_codes,
-      created_at: new Date().toISOString(),
+      created_at: now,
     };
 
     this.rolesStore.set(id, role);
@@ -128,13 +172,37 @@ export class RbacService {
     }
 
     const id = `asgn_${randomUUID().replace(/-/g, '')}`;
+    const now = new Date().toISOString();
+
+    if (this.pool && typeof this.pool.query === 'function') {
+      try {
+        await this.pool.query(
+          `INSERT INTO public.role_assignments (id, tenant_id, user_id, role_id, company_id, branch_id, warehouse_id, register_id, work_center_id, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())`,
+          [
+            id,
+            tenantId,
+            req.user_id,
+            role.id,
+            req.scope?.company_id || null,
+            req.scope?.branch_id || null,
+            req.scope?.warehouse_id || null,
+            req.scope?.register_id || null,
+            req.scope?.work_center_id || null,
+          ],
+        );
+      } catch {
+        // Fallback
+      }
+    }
+
     const assignment: StoredRoleAssignment = {
       id,
       tenant_id: tenantId,
       user_id: req.user_id,
       role_id: role.id,
       scope: req.scope || {},
-      created_at: new Date().toISOString(),
+      created_at: now,
     };
 
     this.assignmentsStore.set(id, assignment);
@@ -156,6 +224,33 @@ export class RbacService {
     tenantId: string,
     userId: string,
   ): Promise<ActiveRoleAssignment[]> {
+    if (this.pool && typeof this.pool.query === 'function') {
+      try {
+        const res = await this.pool.query(
+          `SELECT ra.role_id, r.code as role_code, ra.company_id, ra.branch_id, ra.warehouse_id, ra.register_id, ra.work_center_id
+           FROM public.role_assignments ra
+           LEFT JOIN public.roles r ON r.id = ra.role_id
+           WHERE ra.tenant_id = $1 AND ra.user_id = $2`,
+          [tenantId, userId],
+        );
+        if (res.rows && res.rows.length > 0) {
+          return res.rows.map((r: any) => ({
+            role_code: r.role_code || 'UNKNOWN',
+            permissions: this.rolesStore.get(r.role_id)?.permissions || [],
+            scope: {
+              company_id: r.company_id || undefined,
+              branch_id: r.branch_id || undefined,
+              warehouse_id: r.warehouse_id || undefined,
+              register_id: r.register_id || undefined,
+              work_center_id: r.work_center_id || undefined,
+            },
+          }));
+        }
+      } catch {
+        // Fallback
+      }
+    }
+
     const assignments = Array.from(this.assignmentsStore.values()).filter(
       (a) => a.tenant_id === tenantId && a.user_id === userId,
     );
@@ -187,6 +282,28 @@ export class RbacService {
     const expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
     const channel = req.delivery_channel || 'SHAREABLE_LINK';
     const inviteUrl = `https://app.stokrova.com/auth/invite?token=${inviteToken}`;
+
+    if (this.pool && typeof this.pool.query === 'function') {
+      try {
+        await this.pool.query(
+          `INSERT INTO public.invitations (id, tenant_id, email, full_name, role_id, scope, invite_token, delivery_channel, status, created_at, expires_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'PENDING', NOW(), $9)`,
+          [
+            invitationId,
+            tenantId,
+            req.email.toLowerCase().trim(),
+            req.full_name.trim(),
+            role.id,
+            JSON.stringify(req.scope || {}),
+            inviteToken,
+            channel,
+            expiresAt,
+          ],
+        );
+      } catch {
+        // Fallback
+      }
+    }
 
     const invitation: StoredInvitation = {
       id: invitationId,
@@ -223,6 +340,38 @@ export class RbacService {
   }
 
   async listInvitations(tenantId: string): Promise<StaffInvitationResponse[]> {
+    if (this.pool && typeof this.pool.query === 'function') {
+      try {
+        const res = await this.pool.query(
+          `SELECT i.id, i.tenant_id, i.email, i.full_name, i.role_id, i.scope, i.invite_token, i.delivery_channel, i.status, i.created_at, i.expires_at, r.name as role_name, r.code as role_code
+           FROM public.invitations i
+           LEFT JOIN public.roles r ON r.id = i.role_id
+           WHERE i.tenant_id = $1`,
+          [tenantId],
+        );
+        if (res.rows && res.rows.length > 0) {
+          return res.rows.map((inv: any) => ({
+            invitation_id: inv.id,
+            tenant_id: inv.tenant_id,
+            email: inv.email,
+            full_name: inv.full_name,
+            role_id: inv.role_id,
+            role_name: inv.role_name || 'Unknown Role',
+            role_code: inv.role_code || 'UNKNOWN',
+            scope: typeof inv.scope === 'string' ? JSON.parse(inv.scope) : inv.scope || {},
+            invite_token: inv.invite_token,
+            invite_url: `https://app.stokrova.com/auth/invite?token=${inv.invite_token}`,
+            delivery_channel: inv.delivery_channel,
+            status: inv.status,
+            created_at: new Date(inv.created_at).toISOString(),
+            expires_at: new Date(inv.expires_at).toISOString(),
+          }));
+        }
+      } catch {
+        // Fallback
+      }
+    }
+
     const invites = Array.from(this.invitationsStore.values()).filter(
       (inv) => inv.tenant_id === tenantId,
     );
@@ -250,32 +399,95 @@ export class RbacService {
 
   async acceptInvitation(
     req: AcceptStaffInvitationRequest,
+    authenticatedUserId?: string,
   ): Promise<AcceptStaffInvitationResponse> {
-    const existing = Array.from(this.invitationsStore.values()).find(
-      (inv) => inv.invite_token === req.invite_token,
-    );
+    let invitation: StoredInvitation | undefined;
 
-    if (!existing) {
+    // Check PostgreSQL first
+    if (this.pool && typeof this.pool.query === 'function') {
+      try {
+        const res = await this.pool.query(
+          `SELECT id, tenant_id, email, full_name, role_id, scope, invite_token, delivery_channel, status, created_at, expires_at
+           FROM public.invitations WHERE invite_token = $1`,
+          [req.invite_token],
+        );
+        if (res.rows && res.rows[0]) {
+          const row = res.rows[0];
+          invitation = {
+            id: row.id,
+            tenant_id: row.tenant_id,
+            email: row.email,
+            full_name: row.full_name,
+            role_id: row.role_id,
+            scope: typeof row.scope === 'string' ? JSON.parse(row.scope) : row.scope || {},
+            invite_token: row.invite_token,
+            delivery_channel: row.delivery_channel,
+            status: row.status,
+            created_at: new Date(row.created_at).toISOString(),
+            expires_at: new Date(row.expires_at).toISOString(),
+          };
+        }
+      } catch {
+        // Fallback
+      }
+    }
+
+    if (!invitation) {
+      invitation = Array.from(this.invitationsStore.values()).find(
+        (inv) => inv.invite_token === req.invite_token,
+      );
+    }
+
+    if (!invitation) {
       throw new NotFoundException('Invalid invitation token.');
     }
 
-    if (existing.status === 'ACCEPTED') {
+    if (invitation.status === 'ACCEPTED') {
       throw new ConflictException('Invitation has already been accepted.');
     }
 
     const now = new Date();
-    if (existing.status === 'EXPIRED' || new Date(existing.expires_at) < now) {
-      existing.status = 'EXPIRED';
+    if (invitation.status === 'EXPIRED' || new Date(invitation.expires_at) < now) {
+      invitation.status = 'EXPIRED';
+      if (this.pool && typeof this.pool.query === 'function') {
+        await this.pool.query(
+          "UPDATE public.invitations SET status = 'EXPIRED' WHERE id = $1",
+          [invitation.id],
+        ).catch(() => {});
+      }
       throw new ConflictException('Invitation token has expired.');
     }
 
-    const invitation = existing;
     invitation.status = 'ACCEPTED';
-
-
-    const userId = `usr_${randomUUID().replace(/-/g, '')}`;
+    const userId = authenticatedUserId || `usr_${randomUUID().replace(/-/g, '')}`;
     const role = this.rolesStore.get(invitation.role_id);
     const roleCode = role?.code || 'STAFF';
+
+    // Update invitation in DB & insert membership
+    if (this.pool && typeof this.pool.query === 'function') {
+      try {
+        await this.pool.query(
+          "UPDATE public.invitations SET status = 'ACCEPTED' WHERE id = $1",
+          [invitation.id],
+        );
+        // Ensure user exists
+        await this.pool.query(
+          `INSERT INTO public.users (id, tenant_id, email, password_hash, full_name, role, is_active, created_at, updated_at)
+           VALUES ($1, $2, $3, 'SUPABASE_AUTH', $4, 'staff', true, NOW(), NOW())
+           ON CONFLICT (id) DO UPDATE SET updated_at = NOW()`,
+          [userId, invitation.tenant_id, invitation.email, invitation.full_name],
+        );
+        // Insert membership
+        await this.pool.query(
+          `INSERT INTO public.memberships (id, tenant_id, user_id, status, created_at)
+           VALUES ($1, $2, $3, 'ACTIVE', NOW())
+           ON CONFLICT (tenant_id, user_id) DO UPDATE SET status = 'ACTIVE'`,
+          [`mem_${randomUUID().replace(/-/g, '')}`, invitation.tenant_id, userId],
+        );
+      } catch {
+        // Fallback
+      }
+    }
 
     await this.assignRole(invitation.tenant_id, {
       user_id: userId,

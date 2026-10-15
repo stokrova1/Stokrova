@@ -410,7 +410,7 @@ export class FinanceViewModel {
               </span>
               <span style="color: ${tokens.textMuted}; margin-left: 6px;">Total Dr/Cr: ${formatCurrencyMinor(trial.totalDebitsMinor, currency)}</span>
             </div>
-            <button onclick="window.stokrovaApp?.showToast('Manual journal entry modal opened.')" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; background: ${tokens.primary}; color: ${tokens.primaryForeground}; border: none; font-weight: 600; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+            <button onclick="window.stokrovaApp?.openJournalModal ? window.stokrovaApp.openJournalModal() : window.stokrovaApp?.showToast('Manual journal entry modal opened.')" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; background: ${tokens.primary}; color: ${tokens.primaryForeground}; border: none; font-weight: 600; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
               + Post Journal
             </button>
           </div>
@@ -462,7 +462,7 @@ export class FinanceViewModel {
             <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700;">Chart of Accounts (GAAP / IFRS)</h3>
             <p style="margin: 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">Master account codes, classifications, and current ledger balances</p>
           </div>
-          <button onclick="window.stokrovaApp?.showToast('Add account modal opened.')" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; background: ${tokens.primary}; color: ${tokens.primaryForeground}; border: none; font-weight: 600; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+          <button onclick="window.stokrovaApp?.openAddAccountModal ? window.stokrovaApp.openAddAccountModal() : window.stokrovaApp?.showToast('Add account modal opened.')" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; background: ${tokens.primary}; color: ${tokens.primaryForeground}; border: none; font-weight: 600; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
             + Add Account
           </button>
         </div>
@@ -501,7 +501,7 @@ export class FinanceViewModel {
     const currency = options.currency || 'USD';
     const memberId = options.currentMemberId;
     const memberName = options.currentMemberName;
-    const company = options.companyName || 'Apex Retail UK Ltd';
+    const company = options.companyName || 'Primary Operating Entity';
     const filterMode = options.filterMode || 'my';
     const isGeneralAccountant = options.isGeneralAccountant ?? true;
 
@@ -539,7 +539,7 @@ export class FinanceViewModel {
               </span>
             </td>
             <td style="padding: 10px 14px; text-align: right;">
-              <button onclick="window.stokrovaApp?.showToast('Reconciliation inspector opened for ${r.title}')" style="min-height: 44px; padding: 6px 12px; border-radius: 6px; border: 1px solid ${tokens.borderStrong}; background: ${tokens.surface}; color: ${tokens.textPrimary}; font-size: 0.75rem; font-weight: 600; cursor: pointer;">
+              <button onclick="window.stokrovaApp?.inspectReconciliation ? window.stokrovaApp.inspectReconciliation('${r.title}', this) : window.stokrovaApp?.showToast('Reconciliation inspector opened for ${r.title}')" style="min-height: 44px; padding: 6px 12px; border-radius: 6px; border: 1px solid ${tokens.borderStrong}; background: ${tokens.surface}; color: ${tokens.textPrimary}; font-size: 0.75rem; font-weight: 600; cursor: pointer;">
                 Inspect
               </button>
             </td>
@@ -572,13 +572,13 @@ export class FinanceViewModel {
 
           <!-- Quick Action Buttons (Min 44px touch targets) -->
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button onclick="window.stokrovaApp?.showToast('Drafting manual journal voucher...')" style="min-height: 44px; padding: 10px 16px; border-radius: 6px; background: ${tokens.primary}; color: ${tokens.primaryForeground}; border: none; font-weight: 700; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+            <button onclick="window.stokrovaApp?.draftManualVoucher ? window.stokrovaApp.draftManualVoucher(this) : window.stokrovaApp?.showToast('Drafting manual journal voucher...')" style="min-height: 44px; padding: 10px 16px; border-radius: 6px; background: ${tokens.primary}; color: ${tokens.primaryForeground}; border: none; font-weight: 700; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
               <span>+ Draft Voucher</span>
             </button>
-            <button onclick="window.stokrovaApp?.showToast('Batch posting uncommitted vouchers to GL...')" style="min-height: 44px; padding: 10px 16px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-weight: 600; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+            <button onclick="window.stokrovaApp?.postBatchVouchers ? window.stokrovaApp.postBatchVouchers(this) : window.stokrovaApp?.showToast('Batch posting uncommitted vouchers to GL...')" style="min-height: 44px; padding: 10px 16px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-weight: 600; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
               <span>✓ Post Batch Drafts</span>
             </button>
-            <button onclick="window.stokrovaApp?.showToast('Subledger reconciliation wizard opened.')" style="min-height: 44px; padding: 10px 16px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-weight: 600; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+            <button onclick="window.stokrovaApp?.openReconcileSubledgerWizard ? window.stokrovaApp.openReconcileSubledgerWizard() : window.stokrovaApp?.showToast('Subledger reconciliation wizard opened.')" style="min-height: 44px; padding: 10px 16px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-weight: 600; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
               <span>⚖️ Reconcile Subledger</span>
             </button>
           </div>
@@ -668,7 +668,7 @@ export class FinanceViewModel {
               <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700;">Subledger Reconciliation Monitor</h3>
               <p style="margin: 2px 0 0 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">Continuous reconciliation across cash drawers, bank accounts, AP/AR subledgers, and physical inventory</p>
             </div>
-            <button onclick="window.stokrovaApp?.showToast('Subledger batch balance check initiated.')" style="min-height: 44px; padding: 8px 14px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.75rem; font-weight: 600; cursor: pointer;">
+            <button onclick="window.stokrovaApp?.reverifySubledgers ? window.stokrovaApp.reverifySubledgers(this) : window.stokrovaApp?.showToast('Subledger batch balance check initiated.')" style="min-height: 44px; padding: 8px 14px; border-radius: 6px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-size: 0.75rem; font-weight: 600; cursor: pointer;">
               ⟳ Re-verify Subledgers
             </button>
           </div>

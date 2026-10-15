@@ -60,7 +60,7 @@ describe('STOKROVA Master Security Audit & Verification Suite', () => {
       guard = new AuthGuard();
     });
 
-    it('1. accepts authentic JWT with valid signature and unexpired timestamp', () => {
+    it('1. accepts authentic JWT with valid signature and unexpired timestamp', async () => {
       const token = signJwt({
         sub: 'usr_alice',
         email: 'alice@stokrova.com',
@@ -71,13 +71,14 @@ describe('STOKROVA Master Security Audit & Verification Suite', () => {
       const req: any = { headers: { authorization: `Bearer ${token}` } };
       const ctx = createMockExecutionContext(req);
 
-      expect(guard.canActivate(ctx)).toBe(true);
+      const result = await guard.canActivate(ctx);
+      expect(result).toBe(true);
       expect(req.user.id).toBe('usr_alice');
       expect(req.user.email).toBe('alice@stokrova.com');
       expect(req.user.is_platform_admin).toBe(false);
     });
 
-    it('2. rejects forged JWT signed with an attacker secret', () => {
+    it('2. rejects forged JWT signed with an attacker secret', async () => {
       const forgedToken = signJwt(
         { sub: 'usr_attacker', email: 'attacker@evil.com', exp: Math.floor(Date.now() / 1000) + 3600 },
         'attacker-unauthorized-secret-xyz',
@@ -86,10 +87,10 @@ describe('STOKROVA Master Security Audit & Verification Suite', () => {
       const req: any = { headers: { authorization: `Bearer ${forgedToken}` } };
       const ctx = createMockExecutionContext(req);
 
-      expect(() => guard.canActivate(ctx)).toThrowError(UnauthorizedException);
+      await expect(guard.canActivate(ctx)).rejects.toThrow(UnauthorizedException);
     });
 
-    it('3. rejects expired JWT token', () => {
+    it('3. rejects expired JWT token', async () => {
       const expiredToken = signJwt({
         sub: 'usr_expired',
         email: 'expired@stokrova.com',
@@ -99,10 +100,10 @@ describe('STOKROVA Master Security Audit & Verification Suite', () => {
       const req: any = { headers: { authorization: `Bearer ${expiredToken}` } };
       const ctx = createMockExecutionContext(req);
 
-      expect(() => guard.canActivate(ctx)).toThrowError(UnauthorizedException);
+      await expect(guard.canActivate(ctx)).rejects.toThrow(UnauthorizedException);
     });
 
-    it('4. rejects tampered payload where signature does not match modified claims', () => {
+    it('4. rejects tampered payload where signature does not match modified claims', async () => {
       const validToken = signJwt({ sub: 'usr_regular', exp: Math.floor(Date.now() / 1000) + 3600 });
       const [headerB64, , sigB64] = validToken.split('.');
 
@@ -115,25 +116,25 @@ describe('STOKROVA Master Security Audit & Verification Suite', () => {
       const req: any = { headers: { authorization: `Bearer ${tamperedToken}` } };
       const ctx = createMockExecutionContext(req);
 
-      expect(() => guard.canActivate(ctx)).toThrowError(UnauthorizedException);
+      await expect(guard.canActivate(ctx)).rejects.toThrow(UnauthorizedException);
     });
 
-    it('5. rejects requests with missing or empty Authorization header', () => {
+    it('5. rejects requests with missing or empty Authorization header', async () => {
       const req: any = { headers: {} };
       const ctx = createMockExecutionContext(req);
 
-      expect(() => guard.canActivate(ctx)).toThrowError(UnauthorizedException);
+      await expect(guard.canActivate(ctx)).rejects.toThrow(UnauthorizedException);
     });
 
-    it('6. rejects malformed non-JWT token in production mode', () => {
+    it('6. rejects malformed non-JWT token in production mode', async () => {
       process.env['NODE_ENV'] = 'production';
       const req: any = { headers: { authorization: 'Bearer malformed.token' } };
       const ctx = createMockExecutionContext(req);
 
-      expect(() => guard.canActivate(ctx)).toThrowError(UnauthorizedException);
+      await expect(guard.canActivate(ctx)).rejects.toThrow(UnauthorizedException);
     });
 
-    it('7. strictly ignores x-test-user-id bypass header in production environment', () => {
+    it('7. strictly ignores x-test-user-id bypass header in production environment', async () => {
       process.env['NODE_ENV'] = 'production';
       const req: any = {
         headers: {
@@ -144,7 +145,7 @@ describe('STOKROVA Master Security Audit & Verification Suite', () => {
       const ctx = createMockExecutionContext(req);
 
       // Without valid Bearer token, bypass headers are rejected
-      expect(() => guard.canActivate(ctx)).toThrowError(UnauthorizedException);
+      await expect(guard.canActivate(ctx)).rejects.toThrow(UnauthorizedException);
     });
   });
 

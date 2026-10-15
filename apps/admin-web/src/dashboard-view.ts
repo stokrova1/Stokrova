@@ -189,11 +189,11 @@ export class DashboardViewModel {
               <span style="width: 7px; height: 7px; border-radius: 50%; background: #16A34A;"></span>
               <span>Replication 0ms Lag</span>
             </span>
-            <button onclick="window.stokrovaApp?.showToast('Refreshed real-time telemetry from double-entry ledger.')" style="display: inline-flex; align-items: center; gap: 6px; background: ${cardBg}; border: 1px solid ${borderStrong}; color: ${textPri}; padding: 7px 14px; border-radius: 8px; font-size: 0.8125rem; font-weight: 600; cursor: pointer; transition: all 0.15s ease;">
+            <button onclick="window.stokrovaApp?.refreshLedgers ? window.stokrovaApp.refreshLedgers(this) : window.stokrovaApp?.showToast('Refreshed real-time telemetry from double-entry ledger.')" style="display: inline-flex; align-items: center; gap: 6px; background: ${cardBg}; border: 1px solid ${borderStrong}; color: ${textPri}; padding: 7px 14px; border-radius: 8px; font-size: 0.8125rem; font-weight: 600; cursor: pointer; transition: all 0.15s ease;">
               <span>⟳</span>
               <span>Refresh Ledgers</span>
             </button>
-            <button onclick="window.stokrovaApp?.showToast('Exported Executive Operations briefing (PDF).')" style="display: inline-flex; align-items: center; gap: 6px; background: ${goldPrimary}; color: ${tokens.primaryForeground}; border: none; padding: 7px 16px; border-radius: 8px; font-size: 0.8125rem; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(189,150,82,0.25); transition: all 0.15s ease;">
+            <button onclick="window.stokrovaApp?.exportExecutiveBriefing ? window.stokrovaApp.exportExecutiveBriefing(this) : window.stokrovaApp?.showToast('Exported Executive Operations briefing (PDF).')" style="display: inline-flex; align-items: center; gap: 6px; background: ${goldPrimary}; color: ${tokens.primaryForeground}; border: none; padding: 7px 16px; border-radius: 8px; font-size: 0.8125rem; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(189,150,82,0.25); transition: all 0.15s ease;">
               <span>⬇</span>
               <span>Export Briefing</span>
             </button>

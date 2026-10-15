@@ -126,7 +126,7 @@ describe('STOKROVA Phase 13 — Production Readiness & Operational Certification
       tenantGuard = new TenantGuard();
     });
 
-    it('5. strictly ignores x-test-* bypass headers in production mode (NODE_ENV=production)', () => {
+    it('5. strictly ignores x-test-* bypass headers in production mode (NODE_ENV=production)', async () => {
       process.env['NODE_ENV'] = 'production';
 
       const req: any = {
@@ -139,10 +139,10 @@ describe('STOKROVA Phase 13 — Production Readiness & Operational Certification
       const ctx = createMockExecutionContext(req);
 
       // Must reject because no valid Authorization Bearer token is provided
-      expect(() => authGuard.canActivate(ctx)).toThrowError(UnauthorizedException);
+      await expect(authGuard.canActivate(ctx)).rejects.toThrow(UnauthorizedException);
     });
 
-    it('6. rejects forged JWT in production mode', () => {
+    it('6. rejects forged JWT in production mode', async () => {
       process.env['NODE_ENV'] = 'production';
 
       const forgedToken = signJwt(
@@ -153,10 +153,10 @@ describe('STOKROVA Phase 13 — Production Readiness & Operational Certification
       const req: any = { headers: { authorization: `Bearer ${forgedToken}` } };
       const ctx = createMockExecutionContext(req);
 
-      expect(() => authGuard.canActivate(ctx)).toThrowError(UnauthorizedException);
+      await expect(authGuard.canActivate(ctx)).rejects.toThrow(UnauthorizedException);
     });
 
-    it('7. rejects expired JWT in production mode', () => {
+    it('7. rejects expired JWT in production mode', async () => {
       process.env['NODE_ENV'] = 'production';
 
       const expiredToken = signJwt({
@@ -168,10 +168,10 @@ describe('STOKROVA Phase 13 — Production Readiness & Operational Certification
       const req: any = { headers: { authorization: `Bearer ${expiredToken}` } };
       const ctx = createMockExecutionContext(req);
 
-      expect(() => authGuard.canActivate(ctx)).toThrowError(UnauthorizedException);
+      await expect(authGuard.canActivate(ctx)).rejects.toThrow(UnauthorizedException);
     });
 
-    it('8. crashes token verification if JWT_SECRET is unset in production environment', () => {
+    it('8. crashes token verification if JWT_SECRET is unset in production environment', async () => {
       process.env['NODE_ENV'] = 'production';
       delete process.env['JWT_SECRET'];
 
@@ -179,7 +179,7 @@ describe('STOKROVA Phase 13 — Production Readiness & Operational Certification
       const req: any = { headers: { authorization: `Bearer ${token}` } };
       const ctx = createMockExecutionContext(req);
 
-      expect(() => authGuard.canActivate(ctx)).toThrowError(UnauthorizedException);
+      await expect(authGuard.canActivate(ctx)).rejects.toThrow(UnauthorizedException);
     });
 
     it('9. TenantGuard blocks unauthorized cross-tenant requests in production', () => {

@@ -142,27 +142,14 @@ export class AdminWebShell {
 
             <!-- Dropdown Menu -->
             <div id="branch-switcher-dropdown" style="display: none; position: absolute; top: calc(100% + 6px); left: 0; width: 300px; background: ${tokens.card}; border: 1px solid ${tokens.borderStrong}; border-radius: 10px; box-shadow: 0 10px 28px rgba(0,0,0,0.25); z-index: 2000; padding: 8px; animation: fadeIn 0.15s ease-out;">
-              <div style="padding: 6px 8px; font-size: 0.6875rem; font-weight: 700; color: ${tokens.textMuted}; text-transform: uppercase; letter-spacing: 0.08em;">Switch Active Holding / Branch</div>
+              <div style="padding: 6px 8px; font-size: 0.6875rem; font-weight: 700; color: ${tokens.textMuted}; text-transform: uppercase; letter-spacing: 0.08em;">Active Workspace Location</div>
               
-              <!-- UK Company -->
+              <!-- Active Entity -->
               <div style="margin-top: 4px;">
-                <div style="padding: 4px 8px; font-size: 0.75rem; font-weight: 700; color: ${primaryColor};">🇬🇧 Apex Retail UK Ltd (Holding)</div>
-                <div class="branch-option" onclick="window.stokrovaApp?.selectBranch('cmp_apex_uk', 'Apex Retail UK Ltd', 'brn_london_flagship', 'London Flagship Store')" style="padding: 6px 10px; margin: 2px 0; border-radius: 6px; font-size: 0.8125rem; color: ${tokens.textPrimary}; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: ${isDark ? 'rgba(189,150,82,0.12)' : '#FDFBF7'};">
-                  <span>📍 London Flagship Store</span>
+                <div style="padding: 4px 8px; font-size: 0.75rem; font-weight: 700; color: ${primaryColor};">${companyDisplayName}</div>
+                <div class="branch-option" onclick="window.stokrovaApp?.selectBranch('${this.context.companyId}', '${companyDisplayName}', '${this.context.branchId}', '${this.context.branchName}')" style="padding: 6px 10px; margin: 2px 0; border-radius: 6px; font-size: 0.8125rem; color: ${tokens.textPrimary}; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: ${isDark ? 'rgba(189,150,82,0.12)' : '#FDFBF7'};">
+                  <span>📍 ${this.context.branchName}</span>
                   <span style="color: #16A34A; font-size: 0.7rem; font-weight: 600;">ACTIVE</span>
-                </div>
-                <div class="branch-option" onclick="window.stokrovaApp?.selectBranch('cmp_apex_uk', 'Apex Retail UK Ltd', 'brn_birmingham_dc', 'Birmingham Logistics Hub')" style="padding: 6px 10px; margin: 2px 0; border-radius: 6px; font-size: 0.8125rem; color: ${tokens.textSecondary}; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-                  <span>🏭 Birmingham Logistics Hub</span>
-                  <span style="font-size: 0.7rem; color: ${tokens.textMuted};">DC Warehouse</span>
-                </div>
-              </div>
-
-              <!-- US Company -->
-              <div style="margin-top: 8px; padding-top: 6px; border-top: 1px solid ${tokens.border};">
-                <div style="padding: 4px 8px; font-size: 0.75rem; font-weight: 700; color: ${primaryColor};">🇺🇸 Apex Retail US Inc</div>
-                <div class="branch-option" onclick="window.stokrovaApp?.selectBranch('cmp_apex_us', 'Apex Retail US Inc', 'brn_ny_hub', 'New York Distribution Center')" style="padding: 6px 10px; margin: 2px 0; border-radius: 6px; font-size: 0.8125rem; color: ${tokens.textSecondary}; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-                  <span>🗽 New York Distribution Center</span>
-                  <span style="font-size: 0.7rem; color: ${tokens.textMuted};">US Fulfillment</span>
                 </div>
               </div>
 
