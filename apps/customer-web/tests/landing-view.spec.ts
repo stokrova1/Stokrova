@@ -182,7 +182,7 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
 
     expect(demoModalHtml).toContain('id="modal-demo-confirm"');
     expect(demoModalHtml).toContain('Open Live Interactive Demo');
-    expect(demoModalHtml).toContain('Victoria Sterling');
+    expect(demoModalHtml).toContain('live interactive preview workspace');
     expect(demoModalHtml).toContain('Open demo →');
   });
 
@@ -197,7 +197,7 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     expect(featHtml).toContain('LOT-2026-B1');
     expect(featHtml).toContain('USE FIRST');
 
-    expect(archHtml).toContain('Apex Global Holding Group');
+    expect(archHtml).toContain('Enterprise Group Holdings');
     expect(archHtml).toContain('London Flagship');
     expect(archHtml).toContain('Blind Receiving Count');
     expect(archHtml).toContain('LAPTOP-PRO-16');
@@ -236,7 +236,7 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     expect(regModalHtml).toContain('id="stokrova-promise-banner"');
     expect(regModalHtml).toContain('The STOKROVA Operational Promise');
     expect(regModalHtml).toContain('100% Offline Transaction Resilience');
-    expect(regModalHtml).toContain('Rule 21 Sovereign Cryptographic Quarantine');
+    expect(regModalHtml).toContain('Enterprise Organization Privacy & Data Security');
     expect(regModalHtml).toContain('Pure Integer Double-Entry Ledger Truth');
     expect(regModalHtml).toContain('id="reg-branch-name"');
     expect(regModalHtml).toContain('id="prov-percent"');
@@ -292,7 +292,7 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     expect(html).toContain('id="btn-confirm-login"');
     expect(html).toContain('Confirm & Enter Dashboard →');
     expect(html).toContain('Switch Account');
-    expect(html).toContain('Rule 21 Verified');
+    expect(html).toContain('Dedicated Privacy Active');
   });
 
   it('guarantees dist/index.html inline client script is 100% syntactically valid with zero syntax errors', async () => {

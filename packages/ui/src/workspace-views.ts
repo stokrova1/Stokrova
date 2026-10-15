@@ -285,7 +285,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
   const toastFn = options.onActionToastFnName || 'window.stokrovaCustomerApp.showToast';
   const tenantName = options.tenantName || 'Organization Workspace';
   const branchName = options.branchName || 'Primary Branch';
-  const isDemo = options.isDemo ?? false;
+  const isDemo = options.isDemo !== false;
 
   const gmvDisplay = isDemo ? '$4,850,000.00' : '$0.00';
   const gmvTrend = isDemo ? '▲ +18.4% vs last month' : 'No prior comparison data';
@@ -619,7 +619,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
               Sales Representative Workspace
             </span>
             <span style="font-size: 0.8125rem; color: ${tokens.textSecondary};">
-              Account Executive: <strong>Clara Oswald</strong> • Commercial B2B Accounts
+              ${isDemo ? 'Account Executive: <strong>Clara Oswald</strong> • Commercial B2B Accounts' : 'Commercial B2B Accounts & Corporate Wholesale'}
             </span>
           </div>
           <h1 style="margin: 0; font-size: 1.5rem; color: ${tokens.textPrimary}; font-weight: 800;">
@@ -644,23 +644,23 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px;">
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
           <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">My Active Deals</div>
-          <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">12 deals</div>
-          <div style="font-size: 0.75rem; color: ${goldText}; font-weight: 600;">8 quotes pending decision</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">${isDemo ? '12 deals' : '0 deals'}</div>
+          <div style="font-size: 0.75rem; color: ${goldText}; font-weight: 600;">${isDemo ? '8 quotes pending decision' : '0 pending quotes'}</div>
         </div>
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
           <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Pipeline Value (MTD)</div>
-          <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">$184,500.00</div>
-          <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">Weighted: $122,000.00</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">${isDemo ? '$184,500.00' : '$0.00'}</div>
+          <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">${isDemo ? 'Weighted: $122,000.00' : 'Weighted: $0.00'}</div>
         </div>
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
           <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Quote Conversion Rate</div>
-          <div style="font-size: 1.4rem; font-weight: 800; color: #4ADE80; margin: 6px 0 2px 0;">34.5%</div>
-          <div style="font-size: 0.75rem; color: #4ADE80; font-weight: 600;">▲ +4.2% vs team baseline</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: #4ADE80; margin: 6px 0 2px 0;">${isDemo ? '34.5%' : '0.0%'}</div>
+          <div style="font-size: 0.75rem; color: #4ADE80; font-weight: 600;">${isDemo ? '▲ +4.2% vs team baseline' : 'Baseline calculated from live deals'}</div>
         </div>
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
           <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Monthly Quota Progress</div>
-          <div style="font-size: 1.4rem; font-weight: 800; color: #4ADE80; margin: 6px 0 2px 0;">78.2%</div>
-          <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">$156,400 / $200,000 target</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: #4ADE80; margin: 6px 0 2px 0;">${isDemo ? '78.2%' : '0.0%'}</div>
+          <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">${isDemo ? '$156,400 / $200,000 target' : '$0 / $0 target'}</div>
         </div>
       </div>
 
@@ -680,6 +680,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
               </tr>
             </thead>
             <tbody>
+              ${isDemo ? `
               <tr style="border-bottom: 1px solid ${tokens.border};">
                 <td style="padding: 12px 14px; font-weight: 700; font-family: var(--stokrova-font-mono);">OPP-2026-104</td>
                 <td style="padding: 12px 14px;">
@@ -702,6 +703,13 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
                 <td style="padding: 12px 14px; text-align: center; font-weight: 700;">50%</td>
                 <td style="padding: 12px 14px; text-align: right;"><button onclick="window.stokrovaApp?.dispatchSampleDemo ? window.stokrovaApp.dispatchSampleDemo('OPP-2026-108', this) : ${toastFn}('Dispatching sample scanner unit...')" style="min-height: 40px; padding: 6px 14px; border-radius: 6px; border: 1px solid ${tokens.borderStrong}; background: ${tokens.surface}; color: ${tokens.textPrimary}; font-size: 0.75rem; font-weight: 600; cursor: pointer;">Send Demo</button></td>
               </tr>
+              ` : `
+              <tr>
+                <td colspan="6" style="padding: 32px 14px; text-align: center; color: ${tokens.textMuted}; font-size: 0.8125rem;">
+                  No assigned pipeline opportunities yet. Click "+ New B2B Deal" to start prospecting.
+                </td>
+              </tr>
+              `}
             </tbody>
           </table>
         </div>
@@ -710,6 +718,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
       <!-- Client Accounts Summary -->
       <h3 style="margin: 0 0 12px 0; font-size: 1.05rem; font-weight: 700; color: ${tokens.textPrimary};">Managed Key Accounts</h3>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+        ${isDemo ? `
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 18px;">
           <div style="font-weight: 700; font-size: 1rem;">Trans-European Freight Logistics</div>
           <div style="font-size: 0.8125rem; color: ${tokens.textMuted}; margin-top: 4px;">Credit Limit: $500,000.00 • Score: A+</div>
@@ -720,6 +729,11 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
           <div style="font-size: 0.8125rem; color: ${tokens.textMuted}; margin-top: 4px;">Credit Limit: $1,000,000.00 • Score: A</div>
           <div style="font-size: 0.75rem; color: #4ADE80; margin-top: 8px;">● $28,900.00 Current Invoiced Balance</div>
         </div>
+        ` : `
+        <div style="padding: 24px 16px; text-align: center; color: ${tokens.textMuted}; font-size: 0.8125rem; grid-column: 1 / -1; border: 1px dashed ${tokens.borderStrong}; border-radius: 8px;">
+          No managed client accounts registered yet. Added B2B customer accounts and corporate credit limits will display here.
+        </div>
+        `}
       </div>
     </div>
 
@@ -749,6 +763,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
             </tr>
           </thead>
           <tbody>
+            ${isDemo ? `
             <tr style="border-bottom: 1px solid ${tokens.border};">
               <td style="padding: 14px 16px; font-family: var(--stokrova-font-mono); font-weight: 600;">LAPTOP-PRO-16</td>
               <td style="padding: 14px 16px;">Pro 16-inch Workstation Laptop</td>
@@ -773,6 +788,13 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
               <td style="padding: 14px 16px; text-align: right; color: ${tokens.textMuted};">$15.00</td>
               <td style="padding: 14px 16px; text-align: right; font-family: var(--stokrova-font-mono); font-weight: 700;">$65.00</td>
             </tr>
+            ` : `
+            <tr>
+              <td colspan="6" style="padding: 36px 16px; text-align: center; color: ${tokens.textMuted}; font-size: 0.8125rem;">
+                No products in catalog yet. Click "+ Add Product / Variant" to configure your items.
+              </td>
+            </tr>
+            `}
           </tbody>
         </table>
       </div>
@@ -785,6 +807,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
       <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Double-Entry Stock Movement Ledger</h1>
       <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Immutable audit trail of every stock increase, decrease, transfer, and adjustment.</p>
       <div id="ws-stock-movements" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px; font-family: var(--stokrova-font-mono); font-size: 0.8125rem; display: flex; flex-direction: column; gap: 12px;">
+        ${isDemo ? `
         <div style="border-bottom: 1px solid ${tokens.border}; padding-bottom: 10px;">
           <div style="color: ${brandColors.gold[400]};">MVMT-2026-10-8812 | LAPTOP-PRO-16</div>
           <div style="color: ${tokens.textSecondary}; margin-left: 16px;">RECEIVING-DOCK → A-01-02-03 (Qty: +20) • Op: samuel.adebayo • Reason: PURCHASE_RECEIPT</div>
@@ -793,6 +816,11 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
           <div style="color: ${brandColors.gold[400]};">MVMT-2026-10-8811 | SHIRT-OXFORD-BLU-M</div>
           <div style="color: ${tokens.textSecondary}; margin-left: 16px;">A-01-02-04 → DISPATCH-BAY-1 (Qty: -12) • Op: david.oconnor • Reason: POS_SALE</div>
         </div>
+        ` : `
+        <div style="padding: 24px 16px; text-align: center; color: ${tokens.textMuted};">
+          No stock movements recorded yet. Receipts, transfers, and POS sales will post immutable double-entry entries here.
+        </div>
+        `}
       </div>
     </div>
 
@@ -803,12 +831,18 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
       <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Warehouses & 8-Tier Bin Hierarchy</h1>
       <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Company → Division → Facility → Zone → Aisle → Rack → Shelf → Bin.</p>
       <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
+        ${isDemo ? `
         <div style="font-weight: 700; margin-bottom: 12px; color: ${brandColors.gold[400]};">🏢 London Central Distribution Hub (FCL-LON-01)</div>
         <div style="margin-left: 20px; border-left: 2px dashed ${tokens.borderStrong}; padding-left: 16px; font-size: 0.875rem;">
           <div style="margin-bottom: 8px;">📦 <strong>Zone A (High-Value Tech)</strong> • Aisle 01 • Rack 02 • Shelf 03 • <code>Bin A-01-02-03</code> (Capacity: 80% Occupied)</div>
           <div style="margin-bottom: 8px;">❄️ <strong>Zone B (Cold-Chain 2-8°C)</strong> • Aisle 02 • Rack 01 • Shelf 01 • <code>Bin B-02-01-01</code> (Vaccine Ampoules)</div>
           <div>🚚 <strong>Outbound Dispatch Dock</strong> • Bay 01 & 02 • Active Pallet Staging Area</div>
         </div>
+        ` : `
+        <div style="padding: 24px 16px; text-align: center; color: ${tokens.textMuted}; font-size: 0.8125rem;">
+          No warehouse facilities or bins configured yet. Configure warehouse zones and racking to track physical locations.
+        </div>
+        `}
       </div>
     </div>
 
@@ -821,19 +855,19 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 16px;">
           <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Physical Stock On Hand</div>
-          <div style="font-size: 1.5rem; font-weight: 800; color: ${tokens.textPrimary}; margin-top: 4px;">245 Units</div>
+          <div style="font-size: 1.5rem; font-weight: 800; color: ${tokens.textPrimary}; margin-top: 4px;">${isDemo ? '245 Units' : '0 Units'}</div>
         </div>
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 16px;">
           <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Active Customer Reservations</div>
-          <div style="font-size: 1.5rem; font-weight: 800; color: #F59E0B; margin-top: 4px;">35 Units</div>
+          <div style="font-size: 1.5rem; font-weight: 800; color: #F59E0B; margin-top: 4px;">${isDemo ? '35 Units' : '0 Units'}</div>
         </div>
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 16px;">
           <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Confirmed Inbound (PO-89)</div>
-          <div style="font-size: 1.5rem; font-weight: 800; color: #3B82F6; margin-top: 4px;">+100 Units</div>
+          <div style="font-size: 1.5rem; font-weight: 800; color: #3B82F6; margin-top: 4px;">${isDemo ? '+100 Units' : '0 Units'}</div>
         </div>
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 16px;">
           <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Available To Promise (ATP)</div>
-          <div style="font-size: 1.5rem; font-weight: 800; color: #4ADE80; margin-top: 4px;">310 Units</div>
+          <div style="font-size: 1.5rem; font-weight: 800; color: #4ADE80; margin-top: 4px;">${isDemo ? '310 Units' : '0 Units'}</div>
         </div>
       </div>
     </div>
@@ -844,6 +878,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
     <div id="ws-view-suppliers" class="ws-view-content" style="display: none;">
       <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Suppliers & Procurement Catalogs</h1>
       <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Vendor directory, contractual lead times, and performance ratings.</p>
+      ${isDemo ? `
       <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid ${tokens.border}; padding-bottom: 10px; margin-bottom: 12px;">
           <div>
@@ -860,6 +895,13 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
           <button onclick="window.stokrovaApp?.requestSupplierRfq ? window.stokrovaApp.requestSupplierRfq('SUPP-SAMSUNG', this) : ${toastFn}('Requesting Request for Quotation (RFQ)...')" style="padding: 6px 12px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Request RFQ</button>
         </div>
       </div>
+      ` : `
+      <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 36px 20px; text-align: center; color: ${tokens.textMuted};">
+        <div style="font-size: 1.5rem; margin-bottom: 8px;">🏢</div>
+        <div style="font-weight: 600; color: ${tokens.textSecondary};">No suppliers registered yet</div>
+        <div style="font-size: 0.8125rem; margin-top: 4px;">Connect with authorized suppliers and manage purchase agreements.</div>
+      </div>
+      `}
     </div>
 
     <!-- ========================================== -->
@@ -868,6 +910,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
     <div id="ws-view-po" class="ws-view-content" style="display: none;">
       <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Purchase Orders (PO) Management</h1>
       <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Issuing purchase requisitions, landed cost allocations, and goods receiving.</p>
+      ${isDemo ? `
       <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
         <div style="font-weight: 700; color: ${brandColors.gold[400]};">PO-2026-089 • Intel Corporation ($48,000.00 USD)</div>
         <div style="font-size: 0.8125rem; color: ${tokens.textSecondary}; margin-top: 4px;">Status: PARTIALLY_RECEIVED • 20/40 Workstations received at London Dock</div>
@@ -875,6 +918,13 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
           <button onclick="window.stokrovaApp?.recordInboundGRN ? window.stokrovaApp.recordInboundGRN('PO-2026-089', this) : ${toastFn}('Recording inbound receiving for PO-2026-089...')" style="padding: 6px 14px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; border-radius: 4px; font-weight: 700; font-size: 0.75rem; cursor: pointer;">Receive Goods (GRN)</button>
         </div>
       </div>
+      ` : `
+      <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 36px 20px; text-align: center; color: ${tokens.textMuted};">
+        <div style="font-size: 1.5rem; margin-bottom: 8px;">📦</div>
+        <div style="font-weight: 600; color: ${tokens.textSecondary};">No purchase orders created yet</div>
+        <div style="font-size: 0.8125rem; margin-top: 4px;">Issue purchase requisitions and manage landed cost allocations.</div>
+      </div>
+      `}
     </div>
 
     <!-- ========================================== -->
@@ -895,6 +945,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
             </tr>
           </thead>
           <tbody>
+            ${isDemo ? `
             <tr>
               <td style="padding: 12px 14px; font-weight: 600;">LAPTOP-PRO-16</td>
               <td style="padding: 12px 14px; text-align: center;">20</td>
@@ -902,6 +953,13 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
               <td style="padding: 12px 14px; text-align: center;">20</td>
               <td style="padding: 12px 14px; text-align: center;"><span style="color: #4ADE80; font-weight: 700;">✓ MATCHED</span></td>
             </tr>
+            ` : `
+            <tr>
+              <td colspan="5" style="padding: 32px 14px; text-align: center; color: ${tokens.textMuted};">
+                No goods receipts or supplier invoices awaiting 3-way match.
+              </td>
+            </tr>
+            `}
           </tbody>
         </table>
       </div>
@@ -918,7 +976,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
               Warehouse Picker Workbench
             </span>
             <span style="font-size: 0.8125rem; color: ${tokens.textSecondary};">
-              Operator: <strong>Samuel Adebayo</strong> • London Central DC (Zone A & B)
+              Operator: <strong>${isDemo ? 'Samuel Adebayo' : 'Active Operator'}</strong> • ${branchName} (Zone A & B)
             </span>
           </div>
           <h1 style="margin: 0; font-size: 1.5rem; color: ${tokens.textPrimary}; font-weight: 800;">
@@ -943,27 +1001,27 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px;">
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
           <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Active Wave</div>
-          <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">WAVE-LON-042</div>
-          <div style="font-size: 0.75rem; color: ${goldText}; font-weight: 600;">Zone A (High-Velocity)</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">${isDemo ? 'WAVE-LON-042' : 'None Active'}</div>
+          <div style="font-size: 0.75rem; color: ${goldText}; font-weight: 600;">${isDemo ? 'Zone A (High-Velocity)' : 'No wave in progress'}</div>
         </div>
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
           <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Lines Picked Today</div>
-          <div style="font-size: 1.4rem; font-weight: 800; color: #4ADE80; margin: 6px 0 2px 0;">64 / 72 <span style="font-size: 0.8rem; font-weight: 500; color: ${tokens.textSecondary};">lines</span></div>
-          <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">88.9% wave progress</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: #4ADE80; margin: 6px 0 2px 0;">${isDemo ? '64 / 72' : '0 / 0'} <span style="font-size: 0.8rem; font-weight: 500; color: ${tokens.textSecondary};">lines</span></div>
+          <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">${isDemo ? '88.9% wave progress' : '0% wave progress'}</div>
         </div>
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
           <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Units Handled</div>
-          <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">128 units</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">${isDemo ? '128 units' : '0 units'}</div>
           <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">FEFO rule enforced</div>
         </div>
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
           <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Pick Accuracy</div>
-          <div style="font-size: 1.4rem; font-weight: 800; color: #4ADE80; margin: 6px 0 2px 0;">99.8%</div>
-          <div style="font-size: 0.75rem; color: #4ADE80; font-weight: 600;">0 mispicks flagged</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: #4ADE80; margin: 6px 0 2px 0;">${isDemo ? '99.8%' : '100%'}</div>
+          <div style="font-size: 0.75rem; color: #4ADE80; font-weight: 600;">${isDemo ? '0 mispicks flagged' : 'No mispicks recorded'}</div>
         </div>
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
           <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Average Pick Pace</div>
-          <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">42s <span style="font-size: 0.8rem; font-weight: 500; color: ${tokens.textSecondary};">/ item</span></div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">${isDemo ? '42s' : '-- s'} <span style="font-size: 0.8rem; font-weight: 500; color: ${tokens.textSecondary};">/ item</span></div>
           <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">Target: &lt; 50s / unit</div>
         </div>
       </div>
@@ -984,6 +1042,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
               </tr>
             </thead>
             <tbody>
+              ${isDemo ? `
               <tr style="border-bottom: 1px solid ${tokens.border};">
                 <td style="padding: 12px 14px; font-family: var(--stokrova-font-mono); font-weight: 700; color: ${goldText};">A-02-01-B</td>
                 <td style="padding: 12px 14px;">
@@ -1017,6 +1076,13 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
                 <td style="padding: 12px 14px; text-align: center;"><span style="color: ${goldText}; font-weight: 700;">IN PROGRESS</span></td>
                 <td style="padding: 12px 14px; text-align: right;"><button onclick="window.stokrovaApp?.scanPickItem ? window.stokrovaApp.scanPickItem('SHIRT-OXFORD-BLU', this) : ${toastFn}('Scan barcode for Oxford Shirt...')" style="min-height: 40px; padding: 6px 14px; border-radius: 6px; border: none; background: ${brandColors.gold[500]}; color: #0E1116; font-size: 0.75rem; font-weight: 700; cursor: pointer;">Scan Unit (8 left)</button></td>
               </tr>
+              ` : `
+              <tr>
+                <td colspan="6" style="padding: 32px 14px; text-align: center; color: ${tokens.textMuted};">
+                  No active pick waves queued for this branch.
+                </td>
+              </tr>
+              `}
             </tbody>
           </table>
         </div>
@@ -1029,6 +1095,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
     <div id="ws-view-dispatch" class="ws-view-content" style="display: none;">
       <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Containerization & Bills of Lading (BOL)</h1>
       <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Pallet SSCC-18 barcodes, container gross weight checks, and carrier manifests.</p>
+      ${isDemo ? `
       <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px; font-family: var(--stokrova-font-mono); font-size: 0.8125rem;">
         <div>PALLET SSCC-18: 006141411234567890</div>
         <div style="color: ${tokens.textSecondary}; margin-top: 4px;">Cartons: 24 • Gross Weight: 420 kg • Destination: Central Logistics Hub</div>
@@ -1036,6 +1103,13 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
           <button onclick="window.stokrovaApp?.printBillOfLading ? window.stokrovaApp.printBillOfLading(this) : ${toastFn}('Printing official Bill of Lading (BOL)...')" style="min-height: 44px; padding: 10px 18px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center;">Print BOL Manifest</button>
         </div>
       </div>
+      ` : `
+      <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 36px 20px; text-align: center; color: ${tokens.textMuted};">
+        <div style="font-size: 1.5rem; margin-bottom: 8px;">📤</div>
+        <div style="font-weight: 600; color: ${tokens.textSecondary};">No consignments staged for carrier dispatch</div>
+        <div style="font-size: 0.8125rem; margin-top: 4px;">Stage pick waves into containers to generate SSCC-18 pallets and Bills of Lading.</div>
+      </div>
+      `}
     </div>
 
     <!-- ========================================== -->
@@ -1049,7 +1123,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
               ● Active Driver Manifest
             </span>
             <span style="font-size: 0.8125rem; color: ${tokens.textSecondary};">
-              Driver: <strong>Marcus Bennett</strong> • Mercedes Sprinter (Reg: LK26 XYZ)
+              Driver: <strong>${isDemo ? 'Marcus Bennett' : 'Active Fleet Driver'}</strong> • ${isDemo ? 'Mercedes Sprinter (Reg: LK26 XYZ)' : branchName}
             </span>
           </div>
           <h1 style="margin: 0; font-size: 1.5rem; color: ${tokens.textPrimary}; font-weight: 800;">
@@ -1074,13 +1148,13 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px;">
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
           <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Current Route Run</div>
-          <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">RUN-LON-04</div>
-          <div style="font-size: 0.75rem; color: ${goldText}; font-weight: 600;">London Zone 2 North</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">${isDemo ? 'RUN-LON-04' : 'None Assigned'}</div>
+          <div style="font-size: 0.75rem; color: ${goldText}; font-weight: 600;">${isDemo ? 'London Zone 2 North' : 'No active dispatch route'}</div>
         </div>
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
           <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Drops Completed</div>
-          <div style="font-size: 1.4rem; font-weight: 800; color: #4ADE80; margin: 6px 0 2px 0;">12 / 14 <span style="font-size: 0.8rem; font-weight: 500; color: ${tokens.textSecondary};">drops</span></div>
-          <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">85.7% route progress</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: #4ADE80; margin: 6px 0 2px 0;">${isDemo ? '12 / 14' : '0 / 0'} <span style="font-size: 0.8rem; font-weight: 500; color: ${tokens.textSecondary};">drops</span></div>
+          <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">${isDemo ? '85.7% route progress' : 'No route active'}</div>
         </div>
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
           <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">On-Time Delivery Rate</div>
@@ -1089,8 +1163,8 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
         </div>
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
           <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">POD Signatures Captured</div>
-          <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">12 / 12</div>
-          <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">Photos + Signatures verified</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">${isDemo ? '12 / 12' : '0 / 0'}</div>
+          <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">${isDemo ? 'Photos + Signatures verified' : 'No signatures collected yet'}</div>
         </div>
       </div>
 
@@ -1109,6 +1183,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
               </tr>
             </thead>
             <tbody>
+              ${isDemo ? `
               <tr style="border-bottom: 1px solid ${tokens.border};">
                 <td style="padding: 12px 14px; font-weight: 700; font-family: var(--stokrova-font-mono);">#12</td>
                 <td style="padding: 12px 14px;">
@@ -1139,6 +1214,13 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
                 <td style="padding: 12px 14px; text-align: center;"><span style="color: ${tokens.textMuted}; font-weight: 600;">QUEUED (ETA 16:00)</span></td>
                 <td style="padding: 12px 14px; text-align: right;"><button disabled style="min-height: 40px; padding: 6px 12px; border-radius: 6px; border: 1px solid ${tokens.borderStrong}; background: ${tokens.surface}; color: ${tokens.textMuted}; font-size: 0.75rem;">Pending</button></td>
               </tr>
+              ` : `
+              <tr>
+                <td colspan="5" style="padding: 32px 14px; text-align: center; color: ${tokens.textMuted};">
+                  No delivery stops assigned for current shift.
+                </td>
+              </tr>
+              `}
             </tbody>
           </table>
         </div>
@@ -1151,6 +1233,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
     <div id="ws-view-bom" class="ws-view-content" style="display: none;">
       <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Bills of Materials (BOM) & Recipes</h1>
       <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Multi-level assembly trees, component quantities, scrap factors, and standard costing.</p>
+      ${isDemo ? `
       <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
         <div style="font-weight: 700; color: ${brandColors.gold[400]};">Finished Good: LAPTOP-PRO-16 (Rev 2.1)</div>
         <div style="margin-top: 10px; font-size: 0.8125rem; color: ${tokens.textSecondary}; line-height: 1.6;">
@@ -1161,6 +1244,13 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
           <strong>Total Standard Assembly Cost: $1,145.00 (Scrap allowance: 1.2%)</strong>
         </div>
       </div>
+      ` : `
+      <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 36px 20px; text-align: center; color: ${tokens.textMuted};">
+        <div style="font-size: 1.5rem; margin-bottom: 8px;">⚙️</div>
+        <div style="font-weight: 600; color: ${tokens.textSecondary};">No Bills of Materials (BOM) configured</div>
+        <div style="font-size: 0.8125rem; margin-top: 4px;">Define assembly hierarchies, sub-components, and scrap allowances.</div>
+      </div>
+      `}
     </div>
 
     <!-- ========================================== -->
@@ -1169,6 +1259,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
     <div id="ws-view-mo" class="ws-view-content" style="display: none;">
       <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Production Work Orders</h1>
       <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Work center scheduling, raw material reservations, and output recording.</p>
+      ${isDemo ? `
       <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
         <div style="font-weight: 700;">WO-2026-014 • Work Center: Assembly Bay 01</div>
         <div style="font-size: 0.8125rem; color: ${tokens.textSecondary}; margin-top: 4px;">Target: 50x LAPTOP-PRO-16 • Status: IN_PROGRESS (30/50 assembled)</div>
@@ -1176,6 +1267,13 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
           <button onclick="window.stokrovaApp?.recordAssemblyOutput ? window.stokrovaApp.recordAssemblyOutput('WO-2026-014', 10, this) : ${toastFn}('Output logged: 10 finished laptops posted to inventory asset ledger.')" style="padding: 6px 14px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; border-radius: 4px; font-weight: 700; font-size: 0.75rem; cursor: pointer;">Record Output (10 units)</button>
         </div>
       </div>
+      ` : `
+      <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 36px 20px; text-align: center; color: ${tokens.textMuted};">
+        <div style="font-size: 1.5rem; margin-bottom: 8px;">🏭</div>
+        <div style="font-weight: 600; color: ${tokens.textSecondary};">No active production work orders</div>
+        <div style="font-size: 0.8125rem; margin-top: 4px;">Schedule manufacturing work orders across production work centers.</div>
+      </div>
+      `}
     </div>
 
     <!-- ========================================== -->
@@ -1187,13 +1285,13 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 18px;">
           <div style="font-weight: 700;">Till Register 01 (${branchName})</div>
-          <div style="font-size: 0.8125rem; color: ${tokens.textMuted}; margin-top: 4px;">Cashier: Assigned Cashier • Float: $250.00 • Active Sales: $3,450.00</div>
-          <div style="font-size: 0.75rem; color: #4ADE80; margin-top: 8px;">● 0 Cashier Discrepancy</div>
+          <div style="font-size: 0.8125rem; color: ${tokens.textMuted}; margin-top: 4px;">Cashier: Assigned Cashier • Float: ${isDemo ? '$250.00' : '$0.00'} • Active Sales: ${isDemo ? '$3,450.00' : '$0.00'}</div>
+          <div style="font-size: 0.75rem; color: ${isDemo ? '#4ADE80' : tokens.textSecondary}; margin-top: 8px;">${isDemo ? '● 0 Cashier Discrepancy' : '● Register Closed / Ready for Shift Float'}</div>
         </div>
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 18px;">
           <div style="font-weight: 700;">Till Register 02 (${branchName})</div>
-          <div style="font-size: 0.8125rem; color: ${tokens.textMuted}; margin-top: 4px;">Cashier: Terminal Cashier • Float: $250.00 • Active Sales: $2,890.00</div>
-          <div style="font-size: 0.75rem; color: #4ADE80; margin-top: 8px;">● 0 Cashier Discrepancy</div>
+          <div style="font-size: 0.8125rem; color: ${tokens.textMuted}; margin-top: 4px;">Cashier: Terminal Cashier • Float: ${isDemo ? '$250.00' : '$0.00'} • Active Sales: ${isDemo ? '$2,890.00' : '$0.00'}</div>
+          <div style="font-size: 0.75rem; color: ${isDemo ? '#4ADE80' : tokens.textSecondary}; margin-top: 8px;">${isDemo ? '● 0 Cashier Discrepancy' : '● Register Closed / Ready for Shift Float'}</div>
         </div>
       </div>
     </div>
@@ -1204,6 +1302,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
     <div id="ws-view-gl" class="ws-view-content" style="display: none;">
       <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Double-Entry General Ledger</h1>
       <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Authoritative financial truth. Debits equal Credits at all times.</p>
+      ${isDemo ? `
       <div id="ws-ledger-entries" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px; font-family: var(--stokrova-font-mono); font-size: 0.8125rem; display: flex; flex-direction: column; gap: 14px;">
         <div class="ledger-row" style="border-bottom: 1px solid ${tokens.border}; padding-bottom: 12px;">
           <div style="color: #4ADE80; margin-bottom: 4px;">✓ JRNL-2026-10-001 | Sales Order SO-2026-001</div>
@@ -1212,6 +1311,11 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
           <div style="color: ${tokens.textMuted}; font-size: 0.75rem; margin-left: 20px; margin-top: 2px;">Delta: $0.00 (Balanced Double-Entry)</div>
         </div>
       </div>
+      ` : `
+      <div id="ws-ledger-entries" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 36px 20px; font-family: var(--stokrova-font-mono); font-size: 0.8125rem; text-align: center; color: ${tokens.textMuted};">
+        No journal entries recorded in general ledger yet. Balanced debits and credits will post here automatically.
+      </div>
+      `}
     </div>
 
     <!-- ========================================== -->
@@ -1221,7 +1325,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
       <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Fiscal E-Invoicing & Taxes</h1>
       <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Multi-jurisdiction VAT/sales tax schedules, QR fiscal stamps, and compliance exports.</p>
       <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
-        <div style="font-weight: 700;">UK Standard VAT 20.00% (Accrued: $63,666.67)</div>
+        <div style="font-weight: 700;">Standard VAT 20.00% (Accrued: ${isDemo ? '$63,666.67' : '$0.00'})</div>
         <p style="font-size: 0.8125rem; color: ${tokens.textSecondary}; margin: 4px 0 14px 0;">All transactions signed with SHA-256 tamper-proof fiscal hash chain.</p>
         <button onclick="window.stokrovaApp?.exportFiscalAudit ? window.stokrovaApp.exportFiscalAudit(this) : ${toastFn}('Exporting fiscal tax package for HM Revenue & Customs...')" style="padding: 8px 16px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; border-radius: 6px; font-size: 0.8125rem; cursor: pointer;">Export Fiscal Audit File</button>
       </div>
@@ -1236,13 +1340,13 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 18px;">
           <div style="font-size: 0.75rem; color: #4ADE80; font-weight: 700;">CLASS A (TOP 80% REVENUE)</div>
-          <div style="font-size: 1.5rem; font-weight: 800; color: ${tokens.textPrimary}; margin-top: 4px;">12 SKUs</div>
-          <div style="font-size: 0.8125rem; color: ${tokens.textMuted}; margin-top: 4px;">Revenue: $305,600.00 • High Replenishment Priority</div>
+          <div style="font-size: 1.5rem; font-weight: 800; color: ${tokens.textPrimary}; margin-top: 4px;">${isDemo ? '12 SKUs' : '0 SKUs'}</div>
+          <div style="font-size: 0.8125rem; color: ${tokens.textMuted}; margin-top: 4px;">${isDemo ? 'Revenue: $305,600.00 • High Replenishment Priority' : 'Revenue: $0.00 • No sales recorded'}</div>
         </div>
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 18px;">
           <div style="font-size: 0.75rem; color: #F59E0B; font-weight: 700;">DEAD STOCK ALERT (180+ DAYS)</div>
-          <div style="font-size: 1.5rem; font-weight: 800; color: #F59E0B; margin-top: 4px;">2 SKUs</div>
-          <div style="font-size: 0.8125rem; color: ${tokens.textMuted}; margin-top: 4px;">Tied-Up Capital: $18,400.00 • Markdown Recommended</div>
+          <div style="font-size: 1.5rem; font-weight: 800; color: #F59E0B; margin-top: 4px;">${isDemo ? '2 SKUs' : '0 SKUs'}</div>
+          <div style="font-size: 0.8125rem; color: ${tokens.textMuted}; margin-top: 4px;">${isDemo ? 'Tied-Up Capital: $18,400.00 • Markdown Recommended' : 'Tied-Up Capital: $0.00 • No dead stock detected'}</div>
         </div>
       </div>
     </div>
@@ -1254,11 +1358,15 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
       <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Audit Forensics & Merkle Ledger</h1>
       <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Cryptographic hash verification of all state changes across every workspace.</p>
       <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px; font-family: var(--stokrova-font-mono); font-size: 0.8125rem;">
-        <div style="color: #4ADE80; margin-bottom: 6px;">✓ MERKLE_ROOT: 8f49a2c3e1b7... (Tree verified intact)</div>
+        <div style="color: #4ADE80; margin-bottom: 6px;">✓ MERKLE_ROOT: ${isDemo ? '8f49a2c3e1b7...' : '000000000000...'} (${isDemo ? 'Tree verified intact' : 'Genesis Root Initialized'})</div>
         <div style="color: ${tokens.textSecondary}; line-height: 1.6;">
+          ${isDemo ? `
           • [2026-10-14 14:22:01] EVENT: POS_CHECKOUT | Actor: cashier.operator | Ref: POS-SALE-9912<br>
           • [2026-10-14 13:45:10] EVENT: STOCK_TRANSFER | Actor: logistics.operator | Ref: TR-LON-BIR-042<br>
           • [2026-10-14 11:15:30] EVENT: USER_LOGIN | Actor: system.admin | IP: 192.168.1.42
+          ` : `
+          • System initialized. Audit logging active across all operations.
+          `}
         </div>
       </div>
     </div>
@@ -1636,6 +1744,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
     <div id="ws-view-integrations" class="ws-view-content" style="display: none;">
       <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Webhooks, API Keys & EDI Exchange</h1>
       <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Outbound event webhooks, scoped REST/GraphQL credentials, and EDIFACT standard interchange.</p>
+      ${isDemo ? `
       <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
         <div style="font-weight: 700;">Outbound Webhooks Configured (3 Active)</div>
         <div style="font-size: 0.8125rem; color: ${tokens.textSecondary}; margin-top: 4px; line-height: 1.6;">
@@ -1644,6 +1753,13 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
           • <code>till.variance_alert</code> → https://compliance.apex-logistics.eu/alerts
         </div>
       </div>
+      ` : `
+      <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 36px 20px; text-align: center; color: ${tokens.textMuted};">
+        <div style="font-size: 1.5rem; margin-bottom: 8px;">🔌</div>
+        <div style="font-weight: 600; color: ${tokens.textSecondary};">No outbound webhooks or EDI connections configured</div>
+        <div style="font-size: 0.8125rem; margin-top: 4px;">Connect external ERPs, eCommerce storefronts, or carrier telemetry webhooks.</div>
+      </div>
+      `}
     </div>
 
     <!-- ========================================== -->

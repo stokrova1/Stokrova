@@ -73,7 +73,7 @@ export class WorkflowsStudioViewModel {
     this.edges.set(edge.id, { ...edge });
     if (!this.isAcyclic()) {
       this.edges.delete(edge.id);
-      throw new Error('Graph cycle detected: DAG workflows must be acyclic');
+      throw new Error('Graph cycle detected: Workflows must be non-cyclical');
     }
   }
 
@@ -82,7 +82,7 @@ export class WorkflowsStudioViewModel {
   }
 
   /**
-   * Cycle detection using Kahn's algorithm or DFS
+   * Cycle detection using topological sort or DFS
    */
   public isAcyclic(): boolean {
     const adj = new Map<string, string[]>();
@@ -156,7 +156,7 @@ export class WorkflowsStudioViewModel {
     return `
       <div class="dag-workflow-studio" style="position: relative; height: 500px; width: 100%; background: ${tokens.background}; border: 1px solid ${tokens.border}; border-radius: 8px; overflow: hidden;">
         <div class="studio-toolbar" style="padding: 12px; background: ${tokens.surface}; border-bottom: 1px solid ${tokens.border}; display: flex; justify-content: space-between;">
-          <span style="font-weight: 600;">DAG Workflow Visual Studio</span>
+          <span style="font-weight: 600;">Workflow Automation Visual Studio</span>
           <span style="font-size: 0.8rem; color: ${tokens.textSecondary};">Nodes: ${nodes.length} | Edges: ${edges.length}</span>
         </div>
         <div class="canvas-viewport" style="position: relative; width: 100%; height: calc(100% - 45px); background-size: 20px 20px; background-image: radial-gradient(circle, ${tokens.border} 1px, transparent 1px);">

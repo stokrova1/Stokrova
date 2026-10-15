@@ -11,7 +11,7 @@
  *   - Body: 14–16px (16px on inputs to prevent iOS auto-zoom).
  *   - Touch targets >= 44x44px on all controls.
  *   - Section spacing 24–36px, page gutters 12–16px.
- * - Integer minor currency math, multi-tenant cryptographic quarantine.
+ * - Integer minor currency math, multi-tenant enterprise data privacy.
  * - Pure TypeScript + inline SVG and CSS (zero third-party chart/framework bloat).
  */
 
@@ -828,15 +828,15 @@ export class LandingViewModel {
             
             <!-- Visual Branch Tree Diagram -->
             <div style="background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px; font-size: 0.75rem; font-family: var(--stokrova-font-mono);">
-              <div style="color: ${tokens.primary}; font-weight: 700; margin-bottom: 6px;">🏛️ Apex Global Holding Group</div>
+              <div style="color: ${tokens.primary}; font-weight: 700; margin-bottom: 6px;">🏛️ Enterprise Group Holdings</div>
               <div style="margin-left: 12px; border-left: 2px solid ${tokens.borderStrong}; padding-left: 10px; display: flex; flex-direction: column; gap: 6px;">
                 <div>
-                  <div style="color: ${tokens.textPrimary}; font-weight: 600;">├── Apex UK Retail Ltd (GBP)</div>
+                  <div style="color: ${tokens.textPrimary}; font-weight: 600;">├── Primary Retail Subsidiary (GBP)</div>
                   <div style="margin-left: 12px; color: ${tokens.textMuted}; font-size: 0.7rem;">• London Flagship: <strong style="color: ${tokens.primary};">$184k/mo</strong></div>
                   <div style="margin-left: 12px; color: ${tokens.textMuted}; font-size: 0.7rem;">• Manchester Store: $92k/mo</div>
                 </div>
                 <div>
-                  <div style="color: ${tokens.textPrimary}; font-weight: 600;">└── Apex Logistics West Africa (USD/NGN)</div>
+                  <div style="color: ${tokens.textPrimary}; font-weight: 600;">└── Regional Logistics Entity (USD/NGN)</div>
                   <div style="margin-left: 12px; color: ${tokens.textMuted}; font-size: 0.7rem;">• Lagos Central: <strong style="color: ${tokens.primary};">$153k/mo</strong></div>
                   <div style="margin-left: 12px; color: ${tokens.textMuted}; font-size: 0.7rem;">• Abuja Distribution Hub: $115k/mo</div>
                 </div>
@@ -973,7 +973,7 @@ export class LandingViewModel {
                   <span style="font-size: 0.75rem; font-weight: 700; color: ${tokens.primary}; text-transform: uppercase;">Laser Buffer Ready:</span>
                   <div style="display: inline-flex; align-items: center; gap: 6px; background: #222830; border: 1px solid #333D46; padding: 4px 8px; border-radius: 4px; font-family: var(--stokrova-font-mono); font-size: 0.75rem; color: #4ADE80;">
                     <span style="width: 6px; height: 6px; border-radius: 50%; background: #4ADE80; animation: pulseDot 1.5s infinite;"></span>
-                    <span>5011000000018 (Apex Pro 16)</span>
+                    <span>5011000000018 (Pro 16 Laptop)</span>
                   </div>
                 </div>
 
@@ -988,12 +988,12 @@ export class LandingViewModel {
                   </thead>
                   <tbody>
                     <tr style="border-bottom: 1px solid #222830; color: ${tokens.textPrimary};">
-                      <td style="padding: 8px 0;">Apex Pro 16 Laptop<br><span style="color: ${tokens.textMuted}; font-size: 0.7rem;">SKU: LAPTOP-PRO-16</span></td>
+                      <td style="padding: 8px 0;">Pro 16 Workstation Laptop<br><span style="color: ${tokens.textMuted}; font-size: 0.7rem;">SKU: LAPTOP-PRO-16</span></td>
                       <td style="padding: 8px 0; text-align: center;">1</td>
                       <td style="padding: 8px 0; text-align: right; font-weight: 700;">$2,499.00</td>
                     </tr>
                     <tr style="border-bottom: 1px solid #222830; color: ${tokens.textPrimary};">
-                      <td style="padding: 8px 0;">Apex Ultra 5G Phone<br><span style="color: ${tokens.textMuted}; font-size: 0.7rem;">SKU: PHONE-ULTRA-5G</span></td>
+                      <td style="padding: 8px 0;">Ultra 5G Smartphone<br><span style="color: ${tokens.textMuted}; font-size: 0.7rem;">SKU: PHONE-ULTRA-5G</span></td>
                       <td style="padding: 8px 0; text-align: center;">1</td>
                       <td style="padding: 8px 0; text-align: right; font-weight: 700;">$999.00</td>
                     </tr>
@@ -1043,19 +1043,19 @@ export class LandingViewModel {
               <div class="thermal-receipt-paper" style="width: 100%; max-width: 300px; background: #FFFFFF; color: #1E2428; border-radius: 4px; padding: 20px 16px 28px 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-family: var(--stokrova-font-mono); font-size: 0.75rem; line-height: 1.4; position: relative;">
                 
                 <div style="text-align: center; border-bottom: 1px dashed #ACB8C3; padding-bottom: 10px; margin-bottom: 10px;">
-                  <div style="font-weight: 900; font-size: 0.9rem; letter-spacing: 0.05em;">APEX GLOBAL RETAIL LTD</div>
-                  <div style="font-size: 0.7rem; color: #586069;">London Flagship Store #01</div>
-                  <div style="font-size: 0.65rem; color: #586069;">VAT ID: GB 928 401 228</div>
-                  <div style="font-size: 0.65rem; color: #586069; margin-top: 2px;">Tx: POS-SALE-10482 • Cashier: Emma W.</div>
+                  <div style="font-weight: 900; font-size: 0.9rem; letter-spacing: 0.05em;">RETAIL COMMERCE ENTERPRISE</div>
+                  <div style="font-size: 0.7rem; color: #586069;">Main Flagship Facility #01</div>
+                  <div style="font-size: 0.65rem; color: #586069;">VAT ID: GB 000 000 000</div>
+                  <div style="font-size: 0.65rem; color: #586069; margin-top: 2px;">Tx: POS-SALE-10482 • Cashier: Terminal Active</div>
                 </div>
 
                 <div style="border-bottom: 1px dashed #ACB8C3; padding-bottom: 10px; margin-bottom: 10px;">
                   <div style="display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 4px;">
-                    <span>1x Apex Pro 16 Laptop</span>
+                    <span>1x Pro 16 Workstation Laptop</span>
                     <span>$2,499.00</span>
                   </div>
                   <div style="display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 4px;">
-                    <span>1x Apex Ultra 5G Phone</span>
+                    <span>1x Ultra 5G Smartphone</span>
                     <span>$999.00</span>
                   </div>
                   <div style="display: flex; justify-content: space-between; font-weight: 700;">
@@ -1291,7 +1291,7 @@ export class LandingViewModel {
       },
       {
         q: 'How does the interactive demo workspace work?',
-        a: 'The interactive workspace provides a fully live, in-browser simulated environment of STOKROVA operating as "Apex Global Retail Ltd". You can ring items at the POS, scan test barcodes, inspect double-entry general ledger postings, and test inter-branch transfers with zero real financial exposure.',
+        a: 'The interactive workspace provides a fully live, in-browser simulated environment of STOKROVA. You can ring items at the POS, scan test barcodes, inspect double-entry general ledger postings, and test inter-branch transfers with zero real financial exposure.',
       },
     ];
 
@@ -1606,7 +1606,7 @@ export class LandingViewModel {
                   <div class="signup-plan-card" onclick="window.stokrovaCustomerApp.selectSignupPlan('enterprise')" id="plan-card-enterprise" style="background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 14px 10px; cursor: pointer; text-align: center; transition: all 0.15s ease;">
                     <div style="font-weight: 800; font-size: 0.95rem; color: ${tokens.textPrimary};">Enterprise</div>
                     <div style="font-family: var(--stokrova-font-mono); font-size: 1.25rem; font-weight: 900; color: ${tokens.textPrimary}; margin: 4px 0;">$399</div>
-                    <div style="font-size: 0.6875rem; color: ${tokens.textMuted};">Warehouses • DAG Kahn</div>
+                    <div style="font-size: 0.6875rem; color: ${tokens.textMuted};">Warehouses • Multi-Branch</div>
                   </div>
 
                 </div>
@@ -1645,7 +1645,7 @@ export class LandingViewModel {
                   Welcome to STOKROVA, <span id="prov-dyn-welcome">Owner</span>!
                 </h2>
                 <p style="margin: 0; font-size: 0.8125rem; color: ${tokens.textSecondary}; line-height: 1.5;">
-                  Your sovereign business workspace for <strong id="prov-dyn-company" style="color: ${tokens.textPrimary};">Your Organization</strong> is live and cryptographically partitioned at <span id="prov-dyn-slug" style="color: ${tokens.primary}; font-family: var(--stokrova-font-mono); font-weight: 700;">workspace.stokrova.com</span>.
+                  Your sovereign business workspace for <strong id="prov-dyn-company" style="color: ${tokens.textPrimary};">Your Organization</strong> is live and securely activated at <span id="prov-dyn-slug" style="color: ${tokens.primary}; font-family: var(--stokrova-font-mono); font-weight: 700;">workspace.stokrova.com</span>.
                 </p>
               </div>
 
@@ -1673,9 +1673,9 @@ export class LandingViewModel {
                   <div style="display: flex; gap: 10px; align-items: flex-start;">
                     <span style="color: #4ADE80; font-weight: 800; font-size: 0.95rem; line-height: 1.2;">✓</span>
                     <div>
-                      <strong style="color: ${tokens.textPrimary}; font-size: 0.8125rem;">Rule 21 Sovereign Cryptographic Quarantine</strong>
+                      <strong style="color: ${tokens.textPrimary}; font-size: 0.8125rem;">Enterprise Organization Privacy & Data Security</strong>
                       <div style="font-size: 0.725rem; color: ${tokens.textSecondary}; line-height: 1.4;">
-                        Your financial ledger and inventory belong exclusively to you. Strict tenant database isolation prevents cross-tenant query bleed, shared unencrypted caches, or data leakage.
+                        Your financial ledger and inventory belong exclusively to you. Dedicated organizational privacy prevents cross-account data leakage, shared caches, or unauthorized visibility.
                       </div>
                     </div>
                   </div>
@@ -1705,7 +1705,7 @@ export class LandingViewModel {
               <!-- Progress Percentage & Bar -->
               <div style="max-width: 480px; margin: 0 auto 18px auto;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-family: var(--stokrova-font-mono); font-size: 0.8125rem;">
-                  <span id="prov-stage-label" style="color: ${tokens.textSecondary};">Initializing cryptographic partition...</span>
+                  <span id="prov-stage-label" style="color: ${tokens.textSecondary};">Configuring dedicated organization environment...</span>
                   <span id="prov-percent" style="font-weight: 900; color: ${tokens.primary};">0%</span>
                 </div>
                 <div style="height: 6px; background: #161B1E; border-radius: 3px; overflow: hidden; border: 1px solid ${tokens.border};">
@@ -1716,7 +1716,7 @@ export class LandingViewModel {
               <!-- Dynamic Real-Time Milestone Checklist -->
               <div id="prov-milestones" style="max-width: 480px; margin: 0 auto 20px auto; background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px 16px; text-align: left; font-size: 0.75rem; font-family: var(--stokrova-font-mono); display: flex; flex-direction: column; gap: 7px;">
                 <div id="m-step-1" style="color: ${tokens.textMuted}; transition: all 0.2s ease;">
-                  <span class="m-icon">⬡</span> <span>Tenant Cryptographic Quarantine Active</span>
+                  <span class="m-icon">⬡</span> <span>Enterprise Privacy Protection Active</span>
                 </div>
                 <div id="m-step-2" style="color: ${tokens.textMuted}; transition: all 0.2s ease;">
                   <span class="m-icon">⬡</span> <span>Configuring legal entity '<strong id="prov-dyn-company" style="color: ${tokens.textPrimary};">...</strong>'</span>
@@ -1748,7 +1748,7 @@ export class LandingViewModel {
 
             </div>
 
-            <!-- STEP EMAIL CONFIRMATION: Supabase Real Verification Notice -->
+            <!-- STEP EMAIL CONFIRMATION: Real Verification Notice -->
             <div id="reg-step-confirm-email" class="signup-step-pane" style="display: none; text-align: center; padding: 12px 4px;">
               <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(189,150,82,0.12); border: 1px solid ${tokens.primary}; margin: 0 auto 16px auto; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; color: ${tokens.primary};">
                 ✉️
@@ -1757,13 +1757,13 @@ export class LandingViewModel {
                 Confirm Your Email Address
               </h3>
               <p style="margin: 0 0 16px 0; font-size: 0.875rem; color: ${tokens.textSecondary}; line-height: 1.5; max-width: 480px; margin-left: auto; margin-right: auto;">
-                A cryptographic verification link has been sent to <strong id="confirm-email-target" style="color: ${tokens.textPrimary}; font-family: var(--stokrova-font-mono);">...</strong>.
+                A secure verification link has been sent to <strong id="confirm-email-target" style="color: ${tokens.textPrimary}; font-family: var(--stokrova-font-mono);">...</strong>.
               </p>
               <div style="background: #161B1E; border: 1px solid ${tokens.borderStrong}; border-radius: 10px; padding: 14px 16px; margin: 0 auto 20px auto; max-width: 480px; text-align: left; font-size: 0.775rem; color: ${tokens.textSecondary}; line-height: 1.5;">
                 <div style="color: #4ADE80; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
-                  <span>✓</span> <span>Supabase Auth & Rule 21 Tenant Security</span>
+                  <span>✓</span> <span>Enterprise Account Security</span>
                 </div>
-                <div>Please click the confirmation link in your email to verify your ownership. Your workspace at <strong id="confirm-slug-target" style="color: ${tokens.primary}; font-family: var(--stokrova-font-mono);">...</strong>.stokrova.com will be provisioned into PostgreSQL as soon as your identity is verified.</div>
+                <div>Please click the confirmation link in your email to verify your ownership. Your workspace at <strong id="confirm-slug-target" style="color: ${tokens.primary}; font-family: var(--stokrova-font-mono);">...</strong>.stokrova.com will be activated as soon as your identity is verified.</div>
               </div>
 
               <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
@@ -1921,7 +1921,7 @@ export class LandingViewModel {
                 Verifying Your Workspace...
               </h3>
               <p style="margin: 0 0 16px 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">
-                Searching registered companies, staff permissions & cryptographic isolation.
+                Searching registered organizations, verified staff permissions & active security profiles.
               </p>
 
               <!-- Scanning Progress Bar -->
@@ -1976,13 +1976,13 @@ export class LandingViewModel {
                   <span id="login-dyn-last-active" style="color: #4ADE80; font-family: var(--stokrova-font-mono); font-size: 0.75rem; font-weight: 600;">Today at 09:42 AM</span>
                 </div>
 
-                <!-- Item 4: Cryptographic Quarantine Status -->
+                <!-- Item 4: Data Privacy & Security Status -->
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                   <div style="display: flex; align-items: center; gap: 8px;">
                     <span style="color: #4ADE80; font-weight: 800; font-size: 0.95rem;">✓</span>
-                    <span style="color: ${tokens.textSecondary};">Tenant Isolation:</span>
+                    <span style="color: ${tokens.textSecondary};">Data Isolation:</span>
                   </div>
-                  <span style="color: #4ADE80; font-family: var(--stokrova-font-mono); font-size: 0.75rem; font-weight: 600;">Rule 21 Verified ✓</span>
+                  <span style="color: #4ADE80; font-family: var(--stokrova-font-mono); font-size: 0.75rem; font-weight: 600;">Dedicated Privacy Active ✓</span>
                 </div>
 
               </div>
@@ -2023,7 +2023,7 @@ export class LandingViewModel {
           </div>
 
           <p style="font-size: 0.875rem; line-height: 1.55; color: ${tokens.textSecondary}; margin: 0 0 16px 0;">
-            You're about to open a live demo workspace as Victoria Sterling (Business Owner). No real data is used.
+            You are about to launch a live interactive preview workspace with full operational access.
           </p>
 
           <div style="background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px 14px; font-size: 0.8125rem; color: ${tokens.textSecondary}; margin-bottom: 20px; display: flex; flex-direction: column; gap: 7px;">
