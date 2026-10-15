@@ -100,9 +100,8 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     expect(html).toContain('Offline-Tolerant Point of Sale Architecture');
     expect(html).toContain('Sub-50ms Scans');
     expect(html).toContain('Multi-Payment Splitting');
-    expect(html).toContain('Zero-Drop Local Queue');
-    expect(html).toContain('Thermal Receipts');
-    expect(html).toContain('Launch Interactive Workspace →');
+    expect(html).toContain('Register Your Business Workspace →');
+    expect(html).not.toContain('Launch Interactive Workspace →');
   });
 
   // ==========================================
@@ -171,19 +170,14 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     expect(html).toContain('ESC/POS');
   });
 
-  it('renders pre-footer closing CTA banner and interactive demo warning modal', () => {
+  it('renders pre-footer closing CTA banner with live business registration and staff sign in actions', () => {
     const view = new LandingViewModel('dark');
     const ctaHtml = view.renderClosingCtaHtml();
-    const demoModalHtml = view.renderDemoConfirmModalHtml();
 
     expect(ctaHtml).toContain('Run every branch from one screen.');
     expect(ctaHtml).toContain('Register your business →');
-    expect(ctaHtml).toContain('Explore the demo');
-
-    expect(demoModalHtml).toContain('id="modal-demo-confirm"');
-    expect(demoModalHtml).toContain('Open Live Interactive Demo');
-    expect(demoModalHtml).toContain('live interactive preview workspace');
-    expect(demoModalHtml).toContain('Open demo →');
+    expect(ctaHtml).toContain('Staff sign in →');
+    expect(ctaHtml).not.toContain('Explore the demo');
   });
 
   it('renders till session reconciliation waterfall and lot expiry tables in features and architecture', () => {
@@ -329,8 +323,12 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
 
     const code = clientScript![1];
 
-    // Verify no undeclared build token leaks
+    // Verify no undeclared build token leaks or synthetic demo data
     expect(code).not.toMatch(/\b(todayRevenue:\s*isDemo\b)/);
+    expect(code).not.toMatch(/\bisDemo\b/);
+    expect(html).not.toContain('Apex Global Retail');
+    expect(html).not.toContain('Victoria Sterling');
+    expect(html).not.toContain('modal-demo-confirm');
 
     const mockStorage: Record<string, string> = {};
     const elements: Record<string, any> = {};

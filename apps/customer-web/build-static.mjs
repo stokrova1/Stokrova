@@ -52,33 +52,20 @@ const closingCtaHtml = landingView.renderClosingCtaHtml();
 
 const registerModalHtml = landingView.renderRegisterModalHtml();
 const loginModalHtml = landingView.renderLoginModalHtml();
-const demoConfirmModalHtml = landingView.renderDemoConfirmModalHtml();
 const legalModalHtml = landingView.renderLegalModalHtml();
 const tourOverlayHtml = landingView.renderTourOverlayHtml();
 
 const footerHtml = landingView.renderFooterHtml();
 
-const isDemo = process.env.STOKROVA_DEMO_MODE === 'true' || process.argv.includes('--demo');
-
 const masterSidebarHtml = renderMasterSidebarHtml({
   activeViewId: 'dashboard',
-  tenantName: isDemo ? 'Apex Global Retail Ltd' : 'Organization Workspace',
-  branchName: isDemo ? 'London Flagship' : 'Main Branch',
+  tenantName: 'Organization Workspace',
+  branchName: 'Main Branch',
   theme: 'dark',
   onItemClickFnName: 'window.stokrovaCustomerApp.showWsView',
 });
 
-const dashboardModel = new DashboardViewModel(isDemo ? {
-  grossMerchandiseValueMinor: 485000000n, // $4,850,000.00
-  netRevenueMinor: 38200000n, // $382,000.00
-  grossMarginBps: 3850, // 38.50%
-  stockoutRiskIndex: 4,
-  warehouseUtilizationPct: 78.5,
-  openTillSessionsCount: 6,
-  cashierVarianceAlertsMinor: 0n,
-  activeWorkflowsRunning: 3,
-  currencyCode: 'USD',
-} : {
+const dashboardModel = new DashboardViewModel({
   grossMerchandiseValueMinor: 0n,
   netRevenueMinor: 0n,
   grossMarginBps: 0,
@@ -90,309 +77,36 @@ const dashboardModel = new DashboardViewModel(isDemo ? {
   currencyCode: 'USD',
 }, 'dark');
 
-if (isDemo) {
-
-dashboardModel.addAlert({
-  id: 'alt_01',
-  severity: 'INFO',
-  title: 'Inter-Branch Stock Dispatched',
-  message: 'TR-LON-BIR-042 dispatched to Birmingham DC (20 units in-transit).',
-  timestampIso: '2026-10-14T14:15:00Z',
-});
-dashboardModel.addAlert({
-  id: 'alt_02',
-  severity: 'WARNING',
-  title: 'Discount Override Requested',
-  message: 'B2B Quote QT-2026-042 requested 14% discount (exceeds 10% manager threshold).',
-  timestampIso: '2026-10-14T13:50:00Z',
-});
-dashboardModel.addAlert({
-  id: 'alt_03',
-  severity: 'INFO',
-  title: 'Daily Register Reconciled',
-  message: 'All London store tills balanced with 0 float discrepancies.',
-  timestampIso: '2026-10-14T12:00:00Z',
-});
-}
-
 const procurementModel = new ProcurementViewModel('dark');
-if (isDemo) {
-  procurementModel.addSupplier({
-    id: 'supp_intel',
-    name: 'Intel Corporation UK Ltd',
-    code: 'SUPP-INTEL',
-    contactEmail: 'orders@intel.co.uk',
-    paymentTermsDays: 30,
-    leadTimeDays: 5,
-    currencyCode: 'USD',
-    isActive: true,
-  });
-  procurementModel.addSupplier({
-    id: 'supp_samsung',
-    name: 'Samsung Electronics Logistics Europe',
-    code: 'SUPP-SAMSUNG',
-    contactEmail: 'b2b@samsung.de',
-    paymentTermsDays: 14,
-    leadTimeDays: 7,
-    currencyCode: 'EUR',
-    isActive: true,
-  });
-  procurementModel.addPurchaseOrder({
-    id: 'po_089',
-    poNumber: 'PO-2026-089',
-    supplierId: 'supp_intel',
-    supplierName: 'Intel Corporation UK Ltd',
-    createdAtIso: '2026-10-12T10:00:00Z',
-    expectedDeliveryIso: '2026-10-17T00:00:00Z',
-    currencyCode: 'USD',
-    status: 'PARTIALLY_RECEIVED',
-    lines: [
-      {
-        id: 'pol_01',
-        sku: 'SKU-CPU-I9',
-        productName: 'Intel Core i9-14900K Processor',
-        orderedQty: 20,
-        receivedQty: 20,
-        invoicedQty: 20,
-        unitCostMinor: 58000n,
-        invoicedUnitCostMinor: 58000n,
-      },
-      {
-        id: 'pol_02',
-        sku: 'SKU-MB-Z790',
-        productName: 'ASUS ROG Maximus Z790 Hero Motherboard',
-        orderedQty: 15,
-        receivedQty: 10,
-        invoicedQty: 10,
-        unitCostMinor: 62000n,
-        invoicedUnitCostMinor: 62000n,
-      },
-      {
-        id: 'pol_03',
-        sku: 'SKU-SSD-2TB',
-        productName: 'Samsung 990 PRO 2TB NVMe SSD',
-        orderedQty: 30,
-        receivedQty: 0,
-        invoicedQty: 0,
-        unitCostMinor: 18000n,
-        invoicedUnitCostMinor: 18000n,
-      },
-    ],
-  });
-}
-
 const financeModel = new FinanceViewModel('dark');
-if (isDemo) {
-  financeModel.addJournalEntry({
-    id: 'jrnl_001',
-    entryNumber: 'JRNL-2026-10-001',
-    reference: 'POS-CLOSE-042',
-    description: 'Daily counter register settlement and merchant settlement transfer',
-    dateIso: '2026-10-14T18:00:00Z',
-    status: 'POSTED',
-    currencyCode: 'USD',
-    preparedBy: 'usr_arthur',
-    preparedByName: 'Arthur Pendelton',
-    postedBy: 'usr_arthur',
-    postedByName: 'Arthur Pendelton',
-    turnaroundMinutes: 24,
-    lines: [
-      { accountCode: '1010', accountName: 'Cash at Bank (Operating)', debitMinor: 284050n, creditMinor: 0n },
-      { accountCode: '4010', accountName: 'Retail Counter Sales', debitMinor: 0n, creditMinor: 284050n },
-    ],
-  });
-  financeModel.addJournalEntry({
-    id: 'jrnl_002',
-    entryNumber: 'JRNL-2026-10-002',
-    reference: 'PO-2026-089',
-    description: 'Intel Workstation partial intake inventory asset capitalisation',
-    dateIso: '2026-10-14T11:30:00Z',
-    status: 'POSTED',
-    currencyCode: 'USD',
-    preparedBy: 'usr_arthur',
-    preparedByName: 'Arthur Pendelton',
-    postedBy: 'usr_arthur',
-    postedByName: 'Arthur Pendelton',
-    turnaroundMinutes: 16,
-    lines: [
-      { accountCode: '1400', accountName: 'Inventory Asset', debitMinor: 2400000n, creditMinor: 0n },
-      { accountCode: '2010', accountName: 'Accounts Payable', debitMinor: 0n, creditMinor: 2400000n },
-    ],
-  });
-  financeModel.addSubledgerReconciliation({
-    id: 'recon_bank_01',
-    reconciliationType: 'BANK_ACCOUNT',
-    title: 'Barclays Commercial Operating Account',
-    accountCode: '1010',
-    periodId: '2026-10',
-    ledgerBalanceMinor: 45000000n,
-    statementBalanceMinor: 45000000n,
-    discrepancyMinor: 0n,
-    status: 'BALANCED',
-    performedBy: 'usr_arthur',
-    performedByName: 'Arthur Pendelton',
-    performedAtIso: '2026-10-14T16:00:00Z',
-    notes: 'Direct Open Banking feed matched statement line items with zero variance.',
-  });
-  financeModel.addSubledgerReconciliation({
-    id: 'recon_ar_01',
-    reconciliationType: 'ACCOUNTS_RECEIVABLE',
-    title: 'B2B Trade Debtors Subledger (A/R)',
-    accountCode: '1200',
-    periodId: '2026-10',
-    ledgerBalanceMinor: 1440000n,
-    statementBalanceMinor: 1440000n,
-    discrepancyMinor: 0n,
-    status: 'BALANCED',
-    performedBy: 'usr_arthur',
-    performedByName: 'Arthur Pendelton',
-    performedAtIso: '2026-10-14T16:15:00Z',
-    notes: 'All open trade invoices reconciled against posted remittances.',
-  });
-}
-
 const registersModel = new RegistersViewModel('dark');
-if (isDemo) {
-  registersModel.addSession({
-    id: 'reg_lon_01',
-    registerCode: 'REG-LON-01',
-    registerName: 'Main Store Checkout Till 01',
-    branchId: 'brn_london_flagship',
-    branchName: 'London Flagship Store',
-    cashierId: 'usr_emma',
-    cashierName: 'Emma Watson',
-    openedAtIso: '2026-10-14T08:00:00Z',
-    openingFloatMinor: 35000n,
-    cashSalesMinor: 113500n,
-    cardSalesMinor: 170550n,
-    cashInMinor: 0n,
-    cashOutMinor: 0n,
-    expectedClosingCashMinor: 148500n,
-    actualClosingCashMinor: 148500n,
-    varianceMinor: 0n,
-    salesCount: 42,
-    averageRingSeconds: 24,
-    status: 'OPEN',
-  });
-}
-
 const rbacModel = new RbacViewModel('dark');
-if (isDemo) {
-  rbacModel.addStaffMember({
-    id: 'usr_victoria',
-    fullName: 'Victoria Sterling',
-    email: 'founder.victoria@apex-global.com',
-    roleCode: 'BUSINESS_OWNER',
-    roleName: 'Executive Business Owner',
-    scope: { tenantId: 'ten_apex_global' },
-    status: 'ACTIVE',
-    joinedDateIso: '2026-01-15T00:00:00Z',
-  });
-  rbacModel.addStaffMember({
-    id: 'usr_david',
-    fullName: "David O'Connor",
-    email: 'david@apex.com',
-    roleCode: 'BRANCH_MANAGER',
-    roleName: 'Store Manager',
-    scope: { tenantId: 'ten_apex_global', branchId: 'brn_london_flagship', branchName: 'London Flagship' },
-    status: 'ACTIVE',
-    joinedDateIso: '2026-02-15T00:00:00Z',
-  });
-  rbacModel.addStaffMember({
-    id: 'usr_emma',
-    fullName: 'Emma Watson',
-    email: 'emma@apex.com',
-    roleCode: 'CASHIER',
-    roleName: 'Head Cashier',
-    scope: { tenantId: 'ten_apex_global', branchId: 'brn_london_flagship', branchName: 'London Flagship' },
-    status: 'ACTIVE',
-    joinedDateIso: '2026-03-01T00:00:00Z',
-  });
-  rbacModel.addStaffMember({
-    id: 'usr_arthur',
-    fullName: 'Arthur Pendelton',
-    email: 'arthur@apex.com',
-    roleCode: 'GENERAL_ACCOUNTANT',
-    roleName: 'Lead Financial Accountant',
-    scope: { tenantId: 'ten_apex_global', companyId: 'cmp_apex_uk', companyName: 'Apex Retail UK Ltd' },
-    status: 'ACTIVE',
-    joinedDateIso: '2026-02-01T00:00:00Z',
-  });
-}
-
 const organizationModel = new OrganizationViewModel('dark');
-if (isDemo) {
-  organizationModel.addCompany({
-    id: 'cmp_apex_uk',
-    name: 'Apex Retail UK Ltd',
-    legalName: 'Apex Retail UK Limited',
-    currency: 'GBP',
-    timezone: 'Europe/London',
-    isHolding: true,
-    branchesCount: 2,
-  });
-  organizationModel.addBranch({
-    id: 'brn_london_flagship',
-    companyId: 'cmp_apex_uk',
-    name: 'London Flagship Store',
-    code: 'LON-FLG',
-    type: 'STORE',
-    isActive: true,
-  });
-  organizationModel.addBranch({
-    id: 'brn_birmingham_dc',
-    companyId: 'cmp_apex_uk',
-    name: 'Birmingham Logistics Hub',
-    code: 'BIR-DC',
-    type: 'WAREHOUSE',
-    isActive: true,
-  });
-}
 
 const accountantHtml = financeModel.renderAccountantWorkspaceHtml({
-  currentMemberId: isDemo ? 'usr_arthur' : 'usr_accountant',
-  currentMemberName: isDemo ? 'Arthur Pendelton' : 'Assigned Accountant',
-  companyName: isDemo ? 'Apex Retail UK Ltd' : 'Organization Workspace',
+  currentMemberId: 'usr_accountant',
+  currentMemberName: 'Assigned Accountant',
+  companyName: 'Organization Workspace',
   currency: 'USD',
   filterMode: 'my',
   isGeneralAccountant: true,
 });
 
 const cashierWorkspaceHtml = registersModel.renderCashierPersonalWorkspaceHtml({
-  cashierId: isDemo ? 'usr_emma' : 'usr_cashier',
-  cashierName: isDemo ? 'Emma Watson' : 'Front Counter Cashier',
-  branchName: isDemo ? 'London Flagship Store' : 'Main Branch',
+  cashierId: 'usr_cashier',
+  cashierName: 'Front Counter Cashier',
+  branchName: 'Main Branch',
   currency: 'USD',
 });
 
-const baseWorkspaceViewsHtml = renderAllWorkspaceViewsHtml({
+let allWorkspaceViewsHtml = renderAllWorkspaceViewsHtml({
   theme: 'dark',
-  tenantName: isDemo ? 'Apex Global Retail Ltd' : 'Organization Workspace',
-  branchName: isDemo ? 'London Flagship' : 'Main Branch',
+  tenantName: 'Organization Workspace',
+  branchName: 'Main Branch',
   currencyCode: 'USD',
   onActionToastFnName: 'window.stokrovaCustomerApp.showToast',
-  isDemo,
+  isDemo: false,
 });
-
-function replaceViewBlock(html, viewId, innerHtml) {
-  const pattern = new RegExp(
-    `<div id="ws-view-${viewId}" class="ws-view-content"[^>]*>[\\s\\S]*?(?=(?:<!-- =+ -->|<div id="ws-view-|$))`,
-    'g'
-  );
-  const replaced = html.replace(pattern, `<div id="ws-view-${viewId}" class="ws-view-content" style="${viewId === 'dashboard' ? 'display: block;' : 'display: none;'}">\n      ${innerHtml}\n    </div>\n\n    `);
-  return replaced;
-}
-
-let allWorkspaceViewsHtml = baseWorkspaceViewsHtml;
-if (isDemo) {
-  allWorkspaceViewsHtml = replaceViewBlock(allWorkspaceViewsHtml, 'dashboard', dashboardModel.renderDashboardHtml());
-  allWorkspaceViewsHtml = replaceViewBlock(allWorkspaceViewsHtml, 'suppliers', procurementModel.renderSuppliersTableHtml());
-  allWorkspaceViewsHtml = replaceViewBlock(allWorkspaceViewsHtml, 'receiving', procurementModel.renderThreeWayMatchAuditHtml());
-  allWorkspaceViewsHtml = replaceViewBlock(allWorkspaceViewsHtml, 'registers', registersModel.renderSessionsTableHtml('USD'));
-  allWorkspaceViewsHtml = replaceViewBlock(allWorkspaceViewsHtml, 'gl', `${financeModel.renderJournalLedgerHtml()}\n<div style="margin-top: 24px;">\n${financeModel.renderChartOfAccountsHtml()}\n</div>`);
-  allWorkspaceViewsHtml = replaceViewBlock(allWorkspaceViewsHtml, 'org', organizationModel.renderOrganizationHtml());
-  allWorkspaceViewsHtml = replaceViewBlock(allWorkspaceViewsHtml, 'rbac', rbacModel.renderStaffManagementHtml());
-}
 
 allWorkspaceViewsHtml += `
     <!-- ========================================== -->
@@ -923,7 +637,6 @@ const completeWebsiteHtml = `
   <!-- AUTH & DIALOG MODALS -->
   ${registerModalHtml}
   ${loginModalHtml}
-  ${demoConfirmModalHtml}
   ${legalModalHtml}
   ${tourOverlayHtml}
 
@@ -992,15 +705,15 @@ const completeWebsiteHtml = `
     </div>
   </div>
 
-  <!-- AUTHENTICATED BUSINESS WORKSPACE (LAUNCHED ON SIGN IN, REGISTER OR DEMO) -->
+  <!-- AUTHENTICATED BUSINESS WORKSPACE (LAUNCHED ON SIGN IN OR REGISTRATION) -->
   <div id="business-workspace-container" style="display: none;">
     <div class="workspace-topbar">
       <div style="display: flex; align-items: center; gap: 16px;">
         <div style="display: flex; align-items: center; gap: 6px; font-weight: 800; color: var(--primary);">
           <span>◆</span>
-          <span id="ws-tenant-display">${isDemo ? 'Apex Global Retail Ltd' : 'Organization Workspace'}</span>
+          <span id="ws-tenant-display">Organization Workspace</span>
         </div>
-        <span style="font-size: 0.75rem; background: rgba(189,150,82,0.18); color: var(--primary); padding: 2px 8px; border-radius: 4px; font-weight: 600;" id="ws-branch-display">${isDemo ? 'London Flagship' : 'Main Branch'}</span>
+        <span style="font-size: 0.75rem; background: rgba(189,150,82,0.18); color: var(--primary); padding: 2px 8px; border-radius: 4px; font-weight: 600;" id="ws-branch-display">Main Branch</span>
         <span style="font-size: 0.75rem; background: #14291F; color: #4ADE80; border: 1px solid #1E4620; padding: 2px 8px; border-radius: 9999px; font-weight: 600;">LIVE PRODUCTION</span>
       </div>
 
@@ -1009,8 +722,8 @@ const completeWebsiteHtml = `
           <span>🌍</span> <span>Take Tour ✦</span>
         </button>
         <div style="font-size: 0.8125rem; color: var(--text-secondary);">
-          Signed in as: <strong id="ws-user-display" style="color: var(--text);">${isDemo ? 'Victoria Sterling' : 'Business Owner'}</strong>
-          (<span id="ws-role-display" style="color: var(--primary); font-weight: 600;">${isDemo ? 'Business Owner' : 'Administrator'}</span>)
+          Signed in as: <strong id="ws-user-display" style="color: var(--text);">Business Owner</strong>
+          (<span id="ws-role-display" style="color: var(--primary); font-weight: 600;">Administrator</span>)
         </div>
         <button onclick="window.stokrovaCustomerApp.signOut()" style="background: rgba(248,81,73,0.1); color: #F87171; border: 1px solid #5C1D24; padding: 6px 14px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-weight: 600;">
           Sign Out →
@@ -1051,7 +764,7 @@ const completeWebsiteHtml = `
 
     window.stokrovaCustomerApp = {
       cart: [],
-      todayRevenue: ${isDemo ? 382000.00 : 0.00},
+      todayRevenue: 0.00,
 
       // Multi-Step Registration State & Cosmic Engine
       currentSignupStep: 1,
@@ -2128,26 +1841,8 @@ const completeWebsiteHtml = `
         if (firstInput) setTimeout(() => firstInput.focus(), 50);
       },
 
-      confirmOpenDemo() {
-        const modal = document.getElementById('modal-demo-confirm');
-        if (modal) modal.style.display = 'flex';
-      },
-
       closeDemoConfirmModal() {
-        const modal = document.getElementById('modal-demo-confirm');
-        if (modal) modal.style.display = 'none';
-      },
-
-      proceedToDemo() {
-        this.closeDemoConfirmModal();
-        let t = null;
-        try { t = JSON.parse(localStorage.getItem('stokrova_active_tenant') || 'null'); } catch (_) {}
-        this.launchWorkspace({
-          tenantName: t?.companyName || 'Interactive Preview Workspace',
-          branchName: t?.branchName || 'Main Store',
-          userName: t?.ownerName || 'Workspace Administrator',
-          userRole: 'Business Owner (Administrator)'
-        });
+        // Purged: All operations are 100% live
       },
 
       showSuspendedScreen(data = {}) {
@@ -3000,7 +2695,6 @@ const completeWebsiteHtml = `
       if (pub) pub.style.display = 'block';
       window.stokrovaCustomerApp.closeLoginModal();
       window.stokrovaCustomerApp.closeRegisterModal();
-      window.stokrovaCustomerApp.closeDemoConfirmModal();
       window.stokrovaCustomerApp.closeLegalModal();
     }
 
@@ -3094,7 +2788,6 @@ const completeWebsiteHtml = `
         window.stokrovaCustomerApp.endTour();
         window.stokrovaCustomerApp.closeRegisterModal();
         window.stokrovaCustomerApp.closeLoginModal();
-        window.stokrovaCustomerApp.closeDemoConfirmModal();
         window.stokrovaCustomerApp.closeLegalModal();
         const drawer = document.getElementById('mobile-nav-drawer');
         if (drawer) drawer.style.display = 'none';
