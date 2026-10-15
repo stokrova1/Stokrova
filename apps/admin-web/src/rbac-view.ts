@@ -181,12 +181,12 @@ export class RbacViewModel {
           </table>
         </div>
 
-        <!-- 5-Tier Scope Hierarchy (Rule 21 & Dimensional Scoping) -->
+        <!-- 5-Tier Scope Hierarchy (Dimensional Scoping) -->
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 20px; margin-top: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
             <div>
               <h4 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: ${tokens.textPrimary};">5-Tier Operational Scope Tree (Dimensional Boundaries)</h4>
-              <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: ${tokens.textSecondary};">Guarantees strict tenant isolation (Rule 21) while enabling precise per-facility delegation</p>
+              <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: ${tokens.textSecondary};">Guarantees strict tenant isolation while enabling precise per-facility delegation</p>
             </div>
             <span style="background: rgba(189,150,82,0.15); color: #BD9652; border: 1px solid #BD9652; padding: 2px 8px; border-radius: 9999px; font-size: 0.7rem; font-weight: 700;">
               Hierarchical RBAC Active
@@ -197,7 +197,7 @@ export class RbacViewModel {
             <div style="background: ${tokens.card}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px; border-top: 3px solid #BD9652;">
               <div style="font-size: 0.65rem; color: ${tokens.textMuted}; text-transform: uppercase; font-weight: 700;">Tier 1: Tenant Scope</div>
               <div style="font-size: 0.85rem; font-weight: 700; color: ${tokens.textPrimary}; margin-top: 4px;">Apex Global Group</div>
-              <div style="font-size: 0.7rem; color: #16A34A; margin-top: 4px;">● Global Root (Rule 21)</div>
+              <div style="font-size: 0.7rem; color: #16A34A; margin-top: 4px;">● Global Tenant Root</div>
             </div>
             <div style="background: ${tokens.card}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px; border-top: 3px solid #3B82F6;">
               <div style="font-size: 0.65rem; color: ${tokens.textMuted}; text-transform: uppercase; font-weight: 700;">Tier 2: Company Scope</div>
@@ -229,7 +229,7 @@ export class RbacViewModel {
               <h4 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: ${tokens.textPrimary};">Enterprise Role Capability Matrix</h4>
               <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: ${tokens.textSecondary};">Granular domain permissions enforced at API, domain invariants, and UI presentation</p>
             </div>
-            <span style="font-size: 0.75rem; color: ${tokens.textMuted};">Rule 9 Enforced Access</span>
+            <span style="font-size: 0.75rem; color: ${tokens.textMuted};">Server-Side Authorization Enforced</span>
           </div>
           <div style="overflow-x: auto;">
             <table style="width: 100%; border-collapse: collapse; font-size: 0.8125rem;">

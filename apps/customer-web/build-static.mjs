@@ -41,6 +41,7 @@ const registerModalHtml = landingView.renderRegisterModalHtml();
 const loginModalHtml = landingView.renderLoginModalHtml();
 const demoConfirmModalHtml = landingView.renderDemoConfirmModalHtml();
 const legalModalHtml = landingView.renderLegalModalHtml();
+const tourOverlayHtml = landingView.renderTourOverlayHtml();
 
 const footerHtml = landingView.renderFooterHtml();
 
@@ -216,6 +217,39 @@ const completeWebsiteHtml = `
       animation: slideIn 0.2s ease-out;
     }
     @keyframes slideIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* Cosmic Motions & Multi-Step Stepper Enhancements */
+    .signup-stepper-card {
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .industry-choice-label:hover {
+      border-color: var(--primary) !important;
+      background: rgba(189,150,82,0.08) !important;
+    }
+    .signup-plan-card:hover {
+      border-color: var(--primary) !important;
+      transform: translateY(-2px);
+    }
+    @keyframes spinPulse {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .btn-spinner {
+      display: inline-block;
+      animation: spinPulse 0.8s linear infinite;
+    }
+
+    /* World-Class Guided Tour Overlay Styles */
+    #stokrova-tour-spotlight {
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #stokrova-tour-card {
+      animation: slideUpTour 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes slideUpTour {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
 
     /* Logged-In Business Workspace Container */
     #business-workspace-container {
@@ -541,6 +575,7 @@ const completeWebsiteHtml = `
   ${loginModalHtml}
   ${demoConfirmModalHtml}
   ${legalModalHtml}
+  ${tourOverlayHtml}
 
   <!-- AUTHENTICATED BUSINESS WORKSPACE (LAUNCHED ON SIGN IN, REGISTER OR DEMO) -->
   <div id="business-workspace-container">
@@ -551,10 +586,13 @@ const completeWebsiteHtml = `
           <span id="ws-tenant-display">Apex Global Retail Ltd</span>
         </div>
         <span style="font-size: 0.75rem; background: rgba(189,150,82,0.18); color: var(--primary); padding: 2px 8px; border-radius: 4px; font-weight: 600;" id="ws-branch-display">London Flagship</span>
-        <span style="font-size: 0.75rem; background: #14291F; color: #4ADE80; border: 1px solid #1E4620; padding: 2px 8px; border-radius: 9999px; font-weight: 600;">LIVE PRODUCTION (Rule 21)</span>
+        <span style="font-size: 0.75rem; background: #14291F; color: #4ADE80; border: 1px solid #1E4620; padding: 2px 8px; border-radius: 9999px; font-weight: 600;">LIVE PRODUCTION</span>
       </div>
 
-      <div style="display: flex; align-items: center; gap: 16px;">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <button onclick="window.stokrovaCustomerApp.startTour()" style="background: rgba(189,150,82,0.18); color: var(--primary); border: 1px solid var(--primary); padding: 5px 12px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s ease;">
+          <span>🌍</span> <span>Take Tour ✦</span>
+        </button>
         <div style="font-size: 0.8125rem; color: var(--text-secondary);">
           Signed in as: <strong id="ws-user-display" style="color: var(--text);">Victoria Sterling</strong>
           (<span id="ws-role-display" style="color: var(--primary); font-weight: 600;">Business Owner</span>)
@@ -585,30 +623,522 @@ const completeWebsiteHtml = `
       cart: [],
       todayRevenue: 382000.00,
 
-      // Modal management
+      // Multi-Step Registration State & Cosmic Engine
+      currentSignupStep: 1,
+      cosmicAnimId: null,
+      cosmicParticles: [],
+      pendingTenant: null,
+      verifiedStaffData: null,
+
       openRegisterModal(planId) {
         const modal = document.getElementById('modal-register');
         if (modal) {
           modal.style.display = 'flex';
+          this.setSignupStep(1);
+          this.startCosmicParticles();
           const firstInput = document.getElementById('reg-company-name');
           if (firstInput) setTimeout(() => firstInput.focus(), 50);
         }
         if (planId) {
-          const select = document.getElementById('reg-tier');
-          if (select) select.value = planId;
+          this.selectSignupPlan(planId);
         }
       },
 
       closeRegisterModal() {
         const modal = document.getElementById('modal-register');
         if (modal) modal.style.display = 'none';
+        this.stopCosmicParticles();
+      },
+
+      setSignupStep(step) {
+        this.currentSignupStep = step;
+        const labels = ['Business Identity', 'Operations & Branches', 'Owner Credentials', 'Scale & Plan', 'Customizing Dashboard'];
+        const widths = ['25%', '50%', '75%', '100%', '100%'];
+        
+        for (let i = 1; i <= 5; i++) {
+          const pane = document.getElementById('reg-step-' + i);
+          if (pane) pane.style.display = (i === step) ? 'block' : 'none';
+          const node = document.getElementById('step-node-' + i);
+          if (node) {
+            if (i === step) {
+              node.style.background = 'rgba(189,150,82,0.2)';
+              node.style.color = '#BD9652';
+              node.style.borderColor = '#BD9652';
+            } else if (i < step) {
+              node.style.background = '#14291F';
+              node.style.color = '#4ADE80';
+              node.style.borderColor = '#1E4620';
+            } else {
+              node.style.background = '#161B1E';
+              node.style.color = '#7E919F';
+              node.style.borderColor = '#333D46';
+            }
+          }
+        }
+
+        const stepperHeader = document.getElementById('signup-stepper-header');
+        if (stepperHeader) {
+          stepperHeader.style.display = (step === 5) ? 'none' : 'block';
+        }
+
+        const numEl = document.getElementById('signup-current-step-num');
+        const lblEl = document.getElementById('signup-current-step-label');
+        const pctEl = document.getElementById('signup-step-percent');
+        const fillEl = document.getElementById('signup-progress-fill');
+
+        if (numEl) numEl.textContent = String(Math.min(step, 4));
+        if (lblEl && labels[step - 1]) lblEl.textContent = labels[step - 1];
+        if (pctEl && widths[step - 1]) pctEl.textContent = widths[step - 1];
+        if (fillEl && widths[step - 1]) fillEl.style.width = widths[step - 1];
+      },
+
+      nextSignupStep(current) {
+        if (current === 1) {
+          const comp = document.getElementById('reg-company-name')?.value.trim();
+          const slug = document.getElementById('reg-slug')?.value.trim();
+          if (!comp || !slug) {
+            this.showToast('Please enter your business legal name and workspace slug.');
+            return;
+          }
+          const btn = document.getElementById('btn-signup-step1');
+          if (btn) {
+            btn.innerHTML = '<span class="btn-spinner">⚡</span> Validating...';
+            setTimeout(() => {
+              btn.innerHTML = 'Continue to Operations →';
+              this.setSignupStep(2);
+            }, 250);
+            return;
+          }
+        } else if (current === 2) {
+          const btn = document.getElementById('btn-signup-step2');
+          if (btn) {
+            btn.innerHTML = '<span class="btn-spinner">⚡</span> Configuring...';
+            setTimeout(() => {
+              btn.innerHTML = 'Continue to Owner Account →';
+              this.setSignupStep(3);
+            }, 250);
+            return;
+          }
+        } else if (current === 3) {
+          const ownerName = document.getElementById('reg-owner-name')?.value.trim();
+          const ownerEmail = document.getElementById('reg-owner-email')?.value.trim();
+          const pass = document.getElementById('reg-password')?.value;
+          if (!ownerName || !ownerEmail || !pass) {
+            this.showToast('Please enter owner full name, work email, and password.');
+            return;
+          }
+          const btn = document.getElementById('btn-signup-step3');
+          if (btn) {
+            btn.innerHTML = '<span class="btn-spinner">⚡</span> Securing...';
+            setTimeout(() => {
+              btn.innerHTML = 'Continue to Scale & Plan →';
+              this.setSignupStep(4);
+            }, 250);
+            return;
+          }
+        }
+        this.setSignupStep(current + 1);
+      },
+
+      prevSignupStep(current) {
+        if (current > 1) {
+          this.setSignupStep(current - 1);
+        }
+      },
+
+      autoSuggestSlug(val) {
+        const slugInput = document.getElementById('reg-slug');
+        if (slugInput && !slugInput.dataset.manuallyEdited) {
+          slugInput.value = val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        }
+      },
+
+      selectSignupPlan(tier) {
+        const select = document.getElementById('reg-tier');
+        if (select) select.value = tier;
+        ['starter', 'growth', 'enterprise'].forEach(t => {
+          const card = document.getElementById('plan-card-' + t);
+          if (card) {
+            if (t === tier) {
+              card.style.borderColor = 'var(--primary)';
+              card.style.borderWidth = '2px';
+            } else {
+              card.style.borderColor = 'var(--border)';
+              card.style.borderWidth = '1px';
+            }
+          }
+        });
+      },
+
+      startCosmicParticles() {
+        const canvas = document.getElementById('signup-cosmic-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        canvas.width = canvas.offsetWidth || window.innerWidth;
+        canvas.height = canvas.offsetHeight || window.innerHeight;
+
+        this.cosmicParticles = [];
+        const count = 45;
+        for (let i = 0; i < count; i++) {
+          this.cosmicParticles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 0.6,
+            vy: (Math.random() - 0.5) * 0.6,
+            radius: Math.random() * 2 + 1,
+            color: (Math.random() > 0.4) ? '#BD9652' : '#E0CB9F',
+            alpha: Math.random() * 0.6 + 0.2
+          });
+        }
+
+        const render = () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          // Draw connections
+          for (let i = 0; i < this.cosmicParticles.length; i++) {
+            for (let j = i + 1; j < this.cosmicParticles.length; j++) {
+              const dx = this.cosmicParticles[i].x - this.cosmicParticles[j].x;
+              const dy = this.cosmicParticles[i].y - this.cosmicParticles[j].y;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+              if (dist < 80) {
+                ctx.strokeStyle = 'rgba(189, 150, 82, ' + (0.15 * (1 - dist / 80)) + ')';
+                ctx.lineWidth = 0.6;
+                ctx.beginPath();
+                ctx.moveTo(this.cosmicParticles[i].x, this.cosmicParticles[i].y);
+                ctx.lineTo(this.cosmicParticles[j].x, this.cosmicParticles[j].y);
+                ctx.stroke();
+              }
+            }
+          }
+
+          // Draw particles
+          this.cosmicParticles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.x < 0) p.x = canvas.width;
+            if (p.x > canvas.width) p.x = 0;
+            if (p.y < 0) p.y = canvas.height;
+            if (p.y > canvas.height) p.y = 0;
+
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = p.alpha;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fill();
+          });
+          ctx.globalAlpha = 1;
+
+          this.cosmicAnimId = requestAnimationFrame(render);
+        };
+
+        if (this.cosmicAnimId) cancelAnimationFrame(this.cosmicAnimId);
+        this.cosmicAnimId = requestAnimationFrame(render);
+      },
+
+      stopCosmicParticles() {
+        if (this.cosmicAnimId) {
+          cancelAnimationFrame(this.cosmicAnimId);
+          this.cosmicAnimId = null;
+        }
+      },
+
+      handleRegisterSubmit(e) {
+        e.preventDefault();
+        const companyName = document.getElementById('reg-company-name')?.value.trim() || 'Apex Global Retail Ltd';
+        const slug = document.getElementById('reg-slug')?.value.trim().toLowerCase() || 'apex';
+        const currency = document.getElementById('reg-currency')?.value || 'USD';
+        const branchName = document.getElementById('reg-branch-name')?.value.trim() || 'London Flagship';
+        const ownerName = document.getElementById('reg-owner-name')?.value.trim() || 'Victoria Sterling';
+        const ownerEmail = document.getElementById('reg-owner-email')?.value.trim() || 'victoria@apex.com';
+        const tier = document.getElementById('reg-tier')?.value || 'growth';
+
+        const tenantData = {
+          companyName,
+          slug,
+          currency,
+          branchName,
+          ownerName,
+          ownerEmail,
+          tier,
+          registeredAt: new Date().toISOString()
+        };
+
+        this.pendingTenant = tenantData;
+
+        // Persist locally
+        try {
+          const stored = JSON.parse(localStorage.getItem('stokrova_tenants') || '{}');
+          stored[slug] = tenantData;
+          localStorage.setItem('stokrova_tenants', JSON.stringify(stored));
+        } catch (_) {}
+
+        // Async notify backend (non-blocking for resilient UX)
+        try {
+          fetch('/api/tenants/onboard', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: companyName,
+              slug: slug,
+              owner_email: ownerEmail,
+              owner_full_name: ownerName,
+              default_currency: currency,
+              initial_branch_name: branchName,
+              plan_tier: tier,
+            })
+          }).catch(() => {});
+        } catch (_) {}
+
+        // Populate Customization Screen Data
+        const compEl = document.getElementById('prov-dyn-company');
+        const brnEl = document.getElementById('prov-dyn-branch');
+        const ownEl = document.getElementById('prov-dyn-owner');
+        const slugEl = document.getElementById('prov-dyn-slug');
+        const welEl = document.getElementById('prov-dyn-welcome');
+
+        if (compEl) compEl.textContent = companyName;
+        if (brnEl) brnEl.textContent = branchName;
+        if (ownEl) ownEl.textContent = ownerName;
+        if (slugEl) slugEl.textContent = slug;
+        if (welEl) welEl.textContent = ownerName;
+
+        // Advance to Step 5
+        this.setSignupStep(5);
+
+        // Run dynamic progress simulation
+        this.runCustomizationSimulation();
+      },
+
+      runCustomizationSimulation() {
+        const pctEl = document.getElementById('prov-percent');
+        const fillEl = document.getElementById('prov-progress-fill');
+        const lblEl = document.getElementById('prov-stage-label');
+        const actionsEl = document.getElementById('prov-completion-actions');
+
+        let pct = 0;
+        const milestones = [
+          { at: 15, id: 'm-step-1', label: 'Tenant database cryptographic isolation established...' },
+          { at: 35, id: 'm-step-2', label: 'Configuring company chart of accounts...' },
+          { at: 55, id: 'm-step-3', label: 'Setting up flagship till laser buffers...' },
+          { at: 75, id: 'm-step-4', label: 'Authorizing double-entry ledger truth...' },
+          { at: 90, id: 'm-step-5', label: 'Issuing cryptographic master key...' },
+          { at: 100, id: 'm-step-6', label: 'Workspace online and live!' },
+        ];
+
+        const timer = setInterval(() => {
+          pct += 5;
+          if (pct > 100) pct = 100;
+
+          if (pctEl) pctEl.textContent = pct + '%';
+          if (fillEl) fillEl.style.width = pct + '%';
+
+          milestones.forEach(m => {
+            if (pct >= m.at) {
+              const el = document.getElementById(m.id);
+              if (el) {
+                el.style.color = '#4ADE80';
+                const icon = el.querySelector('.m-icon');
+                if (icon) icon.textContent = '✓';
+              }
+              if (lblEl) lblEl.textContent = m.label;
+            }
+          });
+
+          if (pct >= 100) {
+            clearInterval(timer);
+            if (actionsEl) actionsEl.style.display = 'block';
+            this.showToast('✓ Workspace customized & ready!');
+          }
+        }, 45);
+      },
+
+      launchWorkspaceWithTour() {
+        this.closeRegisterModal();
+        const t = this.pendingTenant || {
+          companyName: 'Apex Global Retail Ltd',
+          branchName: 'London Flagship',
+          ownerName: 'Victoria Sterling',
+        };
+        this.launchWorkspace({
+          tenantName: t.companyName,
+          branchName: t.branchName,
+          userName: t.ownerName,
+          userRole: 'Business Owner (Administrator)'
+        });
+        setTimeout(() => {
+          this.startTour();
+        }, 350);
+      },
+
+      launchWorkspaceDirect() {
+        this.closeRegisterModal();
+        const t = this.pendingTenant || {
+          companyName: 'Apex Global Retail Ltd',
+          branchName: 'London Flagship',
+          ownerName: 'Victoria Sterling',
+        };
+        this.launchWorkspace({
+          tenantName: t.companyName,
+          branchName: t.branchName,
+          userName: t.ownerName,
+          userRole: 'Business Owner (Administrator)'
+        });
+      },
+
+      // World-Class Interactive Guided Tour Engine
+      currentTourStep: 1,
+      tourData: [
+        {
+          viewId: 'dashboard',
+          targetSelector: '.workspace-topbar',
+          title: 'Universal Operations Command Bar',
+          desc: 'Control every high-street branch, pop-up store, and regional distribution warehouse from a single pane of glass. Your data is protected by enterprise cryptographic tenant isolation—zero cross-tenant data bleed.',
+          snippet: '🌍 Multi-Branch Switcher Active • Status: Live Production (Tenant Isolation Active ✓)'
+        },
+        {
+          viewId: 'dashboard',
+          targetSelector: '.kpi-tiles-grid',
+          title: 'Executive Telemetry & Financial Pulse',
+          desc: 'Monitor GMV, real-time net revenue, and gross margins across all stores. Because STOKROVA uses pure integer minor currency units, every figure is penny-perfect with zero floating-point rounding errors.',
+          snippet: '📊 12-Month Net Revenue: $382,000.00 | Gross Margin: 38.50% | Till Variance: $0.00'
+        },
+        {
+          viewId: 'pos',
+          targetSelector: '.pos-preview-wrapper',
+          title: 'Offline-Tolerant Point of Sale & Laser Buffer',
+          desc: 'Ring up sales at counter speed. Hardware laser scanners are detected automatically (<50ms). If retail internet goes down, sales persist in encrypted local SQLite outbox queues and sync automatically upon reconnection.',
+          snippet: '<button onclick="window.stokrovaCustomerApp.simulateTourScan()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">⚡ Test Laser Barcode Scan (5011000000018)</button>'
+        },
+        {
+          viewId: 'inventory',
+          targetSelector: '.workspace-viewport',
+          title: 'Authoritative FEFO Lots & In-Transit Transfers',
+          desc: 'Eliminate phantom stock. When goods move between branches, they sit in an audited IN-TRANSIT GL custody account until verified by destination receiving. Perishables enforce First-Expired, First-Out picking.',
+          snippet: '📦 Chain of Custody: Central DC Dispatch → In-Transit Custody → Blind Receiving Verified'
+        },
+        {
+          viewId: 'ledger',
+          targetSelector: '.workspace-viewport',
+          title: 'Immutable Double-Entry Ledger & Till Audits',
+          desc: 'Pure accounting truth. Every till sale, inventory movement, and customer refund automatically writes balanced double-entry journals (Debits = Credits). Blind session variance counts ensure drawer integrity.',
+          snippet: '⚖️ Pure Double-Entry: DR 1010 Bank Cash $86.40 = CR 4010 Retail Sales $86.40 (Delta: $0.00)'
+        }
+      ],
+
+      startTour() {
+        const overlay = document.getElementById('stokrova-tour-overlay');
+        if (!overlay) return;
+        overlay.style.display = 'block';
+        this.currentTourStep = 1;
+        this.renderTourStep(1);
+        this.showToast('🌍 Welcome to the STOKROVA guided dashboard walkthrough!');
+      },
+
+      renderTourStep(stepNum) {
+        this.currentTourStep = stepNum;
+        const data = this.tourData[stepNum - 1];
+        if (!data) return;
+
+        // Switch to the relevant workspace view
+        if (data.viewId) {
+          this.showWsView(data.viewId);
+        }
+
+        const numEl = document.getElementById('tour-step-num');
+        const titleEl = document.getElementById('tour-card-title');
+        const descEl = document.getElementById('tour-card-desc');
+        const snippetEl = document.getElementById('tour-action-snippet');
+        const btnPrev = document.getElementById('tour-btn-prev');
+        const btnNext = document.getElementById('tour-btn-next');
+        const spotlight = document.getElementById('stokrova-tour-spotlight');
+
+        if (numEl) numEl.textContent = String(stepNum);
+        if (titleEl) titleEl.textContent = data.title;
+        if (descEl) descEl.textContent = data.desc;
+        if (snippetEl) snippetEl.innerHTML = data.snippet;
+
+        if (btnPrev) {
+          btnPrev.style.display = (stepNum === 1) ? 'none' : 'inline-block';
+        }
+
+        if (btnNext) {
+          if (stepNum === this.tourData.length) {
+            btnNext.textContent = 'Finish Tour & Start Operating ✓';
+            btnNext.style.background = '#4ADE80';
+            btnNext.style.color = '#0E1116';
+          } else {
+            btnNext.textContent = 'Next Feature →';
+            btnNext.style.background = 'var(--primary)';
+            btnNext.style.color = '#0E1116';
+          }
+        }
+
+        // Position Spotlight
+        setTimeout(() => {
+          if (spotlight && data.targetSelector) {
+            const target = document.querySelector(data.targetSelector);
+            if (target) {
+              const rect = target.getBoundingClientRect();
+              spotlight.style.opacity = '1';
+              spotlight.style.top = Math.max(0, rect.top - 6) + 'px';
+              spotlight.style.left = Math.max(0, rect.left - 6) + 'px';
+              spotlight.style.width = (rect.width + 12) + 'px';
+              spotlight.style.height = (rect.height + 12) + 'px';
+            } else {
+              spotlight.style.opacity = '0';
+            }
+          }
+        }, 80);
+      },
+
+      nextTourStep() {
+        if (this.currentTourStep < this.tourData.length) {
+          this.renderTourStep(this.currentTourStep + 1);
+        } else {
+          this.endTour(true);
+        }
+      },
+
+      prevTourStep() {
+        if (this.currentTourStep > 1) {
+          this.renderTourStep(this.currentTourStep - 1);
+        }
+      },
+
+      endTour(completed = false) {
+        const overlay = document.getElementById('stokrova-tour-overlay');
+        if (overlay) overlay.style.display = 'none';
+        const spotlight = document.getElementById('stokrova-tour-spotlight');
+        if (spotlight) spotlight.style.opacity = '0';
+
+        this.showWsView('dashboard');
+        if (completed) {
+          this.showToast('✦ Tour complete! You have full command of your business dashboard.');
+        } else {
+          this.showToast('Tour dismissed. Click "Take Tour ✦" anytime to reopen.');
+        }
+      },
+
+      simulateTourScan() {
+        this.addItemToCart('LAPTOP-PRO-16', 'Apex Pro 16 Laptop', 2499.00);
+        this.showToast('⚡ Laser Scanner Triggered: Added 1x Apex Pro 16 Laptop (<42ms hardware buffer)!');
+        const snippetEl = document.getElementById('tour-action-snippet');
+        if (snippetEl) {
+          snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Scanner Buffer Fired:</span> 1x LAPTOP-PRO-16 added to cart. DR 1010 Bank = CR 4010 Sales balanced!';
+        }
       },
 
       openLoginModal() {
         const modal = document.getElementById('modal-login');
         if (modal) {
           modal.style.display = 'flex';
-          const firstInput = document.getElementById('login-slug');
+          const step1 = document.getElementById('login-step-credentials');
+          const step2 = document.getElementById('login-step-verification');
+          if (step1) step1.style.display = 'block';
+          if (step2) step2.style.display = 'none';
+          const firstInput = document.getElementById('login-email');
           if (firstInput) setTimeout(() => firstInput.focus(), 50);
         }
       },
@@ -616,6 +1146,15 @@ const completeWebsiteHtml = `
       closeLoginModal() {
         const modal = document.getElementById('modal-login');
         if (modal) modal.style.display = 'none';
+      },
+
+      backToLoginCredentials() {
+        const step1 = document.getElementById('login-step-credentials');
+        const step2 = document.getElementById('login-step-verification');
+        if (step1) step1.style.display = 'block';
+        if (step2) step2.style.display = 'none';
+        const firstInput = document.getElementById('login-email');
+        if (firstInput) setTimeout(() => firstInput.focus(), 50);
       },
 
       confirmOpenDemo() {
@@ -730,53 +1269,144 @@ const completeWebsiteHtml = `
 
       handleLoginSubmit(e) {
         e.preventDefault();
-        const slug = document.getElementById('login-slug').value.trim().toLowerCase();
-        const email = document.getElementById('login-email').value.trim().toLowerCase();
-        const password = document.getElementById('login-password').value;
+        const emailEl = document.getElementById('login-email');
+        const passEl = document.getElementById('login-password');
+        const slugEl = document.getElementById('login-slug');
 
-        if (!slug || !email || !password) {
-          this.showToast('Please enter your workspace slug, work email, and password.');
+        const email = emailEl ? emailEl.value.trim().toLowerCase() : '';
+        const password = passEl ? passEl.value : '';
+        let slug = slugEl ? slugEl.value.trim().toLowerCase() : '';
+
+        if (!email || !password) {
+          this.showToast('Please enter your staff work email and password.');
           return;
         }
 
-        this.closeLoginModal();
+        // Switch to Step 2: Searching & Verifying
+        const step1 = document.getElementById('login-step-credentials');
+        const step2 = document.getElementById('login-step-verification');
+        const searchState = document.getElementById('login-searching-state');
+        const verifiedState = document.getElementById('login-verified-state');
+        const progressFill = document.getElementById('login-verify-progress-fill');
 
+        if (step1) step1.style.display = 'none';
+        if (step2) step2.style.display = 'block';
+        if (searchState) searchState.style.display = 'block';
+        if (verifiedState) verifiedState.style.display = 'none';
+        if (progressFill) progressFill.style.width = '25%';
+
+        // Match company and staff data
         let tenantName = 'Apex Global Retail Ltd';
         let branch = 'London Flagship';
         let name = 'Victoria Sterling';
         let role = 'Business Owner (Administrator)';
-
-        if (email.includes('manager') || email.includes('david')) {
-          name = 'David O\\'Connor';
-          role = 'Store Operations Manager';
-        } else if (email.includes('cashier') || email.includes('emma')) {
-          name = 'Emma Watson';
-          role = 'Front Counter Cashier';
-        } else if (email.includes('picker') || email.includes('samuel')) {
-          name = 'Samuel Adebayo';
-          role = 'Warehouse Picker';
-        }
+        let lastActive = 'Today at 09:42 AM • Active Session';
 
         try {
           const stored = JSON.parse(localStorage.getItem('stokrova_tenants') || '{}');
-          if (stored[slug]) {
+          if (slug && stored[slug]) {
             const org = stored[slug];
             tenantName = org.companyName;
-            branch = org.branchName || 'Main Branch';
-            if (email === org.ownerEmail.toLowerCase()) {
+            branch = org.branchName || 'London Flagship';
+            if (email === (org.ownerEmail || '').toLowerCase()) {
               name = org.ownerName;
               role = 'Business Owner (Administrator)';
+            }
+          } else {
+            for (const s in stored) {
+              const org = stored[s];
+              if (org.ownerEmail && org.ownerEmail.toLowerCase() === email) {
+                tenantName = org.companyName;
+                slug = org.slug;
+                branch = org.branchName || 'London Flagship';
+                name = org.ownerName;
+                role = 'Business Owner (Administrator)';
+                break;
+              }
             }
           }
         } catch (_) {}
 
-        this.showToast(\`✓ Authenticated as \${name} (\${role})\`);
-        this.launchWorkspace({
+        if (!slug) slug = 'apex';
+
+        // Determine staff role & name if not matched as registered owner
+        if (role !== 'Business Owner (Administrator)') {
+          if (email.includes('manager') || email.includes('david')) {
+            name = "David O'Connor";
+            role = 'Store Operations Manager';
+            lastActive = 'Today at 08:30 AM • Shift Active';
+          } else if (email.includes('cashier') || email.includes('emma')) {
+            name = 'Emma Watson';
+            role = 'Front Counter Cashier';
+            lastActive = 'Today at 10:15 AM • Till Registered';
+          } else if (email.includes('picker') || email.includes('samuel')) {
+            name = 'Samuel Adebayo';
+            role = 'Warehouse Lead & Picker';
+            lastActive = 'Today at 07:00 AM • Dock Active';
+          } else {
+            const prefix = email.split('@')[0] || 'staff';
+            name = prefix.split(/[._-]/).map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
+            role = 'Store Operations Staff';
+            lastActive = 'Active Today • Verified Identity';
+          }
+        } else if (email.includes('owner') || email.includes('victoria') || email.includes('admin')) {
+          name = 'Victoria Sterling';
+          role = 'Business Owner (Administrator)';
+        }
+
+        // Send non-blocking verification request to backend API
+        try {
+          fetch('http://localhost:3000/api/v1/tenants/verify-staff', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, slug: slug })
+          }).catch(() => {});
+        } catch (_) {}
+
+        // Animate radar scanning progress
+        if (progressFill) {
+          setTimeout(() => { if (progressFill) progressFill.style.width = '65%'; }, 160);
+          setTimeout(() => { if (progressFill) progressFill.style.width = '100%'; }, 340);
+        }
+
+        this.verifiedStaffData = {
           tenantName: tenantName,
           branchName: branch,
           userName: name,
           userRole: role,
-        });
+        };
+
+        // Reveal verified card with green checkmarks
+        setTimeout(() => {
+          const compEl = document.getElementById('login-dyn-company');
+          const slugEl = document.getElementById('login-dyn-slug');
+          const nameEl = document.getElementById('login-dyn-name');
+          const roleEl = document.getElementById('login-dyn-role');
+          const lastEl = document.getElementById('login-dyn-last-active');
+
+          if (compEl) compEl.textContent = tenantName;
+          if (slugEl) slugEl.textContent = slug + '.stokrova.com';
+          if (nameEl) nameEl.textContent = name;
+          if (roleEl) roleEl.textContent = role;
+          if (lastEl) lastEl.textContent = lastActive;
+
+          if (searchState) searchState.style.display = 'none';
+          if (verifiedState) verifiedState.style.display = 'block';
+
+          this.showToast('✓ Workspace found & verified for ' + name);
+        }, 440);
+      },
+
+      confirmLoginLaunch() {
+        this.closeLoginModal();
+        const data = this.verifiedStaffData || {
+          tenantName: 'Apex Global Retail Ltd',
+          branchName: 'London Flagship',
+          userName: 'Victoria Sterling',
+          userRole: 'Business Owner (Administrator)',
+        };
+        this.showToast('✓ Access granted: Welcome back, ' + data.userName + '!');
+        this.launchWorkspace(data);
       },
 
       addItemToCart(sku, name, price) {
@@ -1140,6 +1770,7 @@ const completeWebsiteHtml = `
     // Keyboard Escape Key listener for accessibility
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
+        window.stokrovaCustomerApp.endTour();
         window.stokrovaCustomerApp.closeRegisterModal();
         window.stokrovaCustomerApp.closeLoginModal();
         window.stokrovaCustomerApp.closeDemoConfirmModal();

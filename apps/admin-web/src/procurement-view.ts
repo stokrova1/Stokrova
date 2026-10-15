@@ -208,25 +208,27 @@ export class ProcurementViewModel {
             <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700;">Approved Supplier Directory</h3>
             <p style="margin: 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">Master vendor agreements, payment terms, and lead time metrics</p>
           </div>
-          <button onclick="window.stokrovaApp?.showToast('Supplier creation dialog opened.')" style="padding: 8px 16px; border-radius: 6px; background: ${tokens.primary}; color: ${tokens.primaryForeground}; border: none; font-weight: 600; font-size: 0.8125rem; cursor: pointer;">
+          <button onclick="window.stokrovaApp?.showToast('Supplier creation dialog opened.')" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; background: ${tokens.primary}; color: ${tokens.primaryForeground}; border: none; font-weight: 600; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
             + Enroll Supplier
           </button>
         </div>
-        <table style="width: 100%; border-collapse: collapse; background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px;">
-          <thead>
-            <tr style="background: ${tokens.cardHover}; border-bottom: 2px solid ${tokens.borderStrong}; text-align: left; font-size: 0.8125rem; color: ${tokens.textSecondary};">
-              <th style="padding: 12px 14px;">Vendor Code</th>
-              <th style="padding: 12px 14px;">Company Name & Contact</th>
-              <th style="padding: 12px 14px;">Terms</th>
-              <th style="padding: 12px 14px;">Lead Time</th>
-              <th style="padding: 12px 14px;">Status</th>
-              <th style="padding: 12px 14px; text-align: right;">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows || `<tr><td colspan="6" style="padding: 24px; text-align: center; color: ${tokens.textMuted};">No registered suppliers</td></tr>`}
-          </tbody>
-        </table>
+        <div class="stokrova-table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border: 1px solid ${tokens.border}; border-radius: 8px; background: ${tokens.surface};">
+          <table style="width: 100%; min-width: 680px; border-collapse: collapse;">
+            <thead>
+              <tr style="background: ${tokens.cardHover}; border-bottom: 2px solid ${tokens.borderStrong}; text-align: left; font-size: 0.8125rem; color: ${tokens.textSecondary};">
+                <th style="padding: 12px 14px;">Vendor Code</th>
+                <th style="padding: 12px 14px;">Company Name & Contact</th>
+                <th style="padding: 12px 14px;">Terms</th>
+                <th style="padding: 12px 14px;">Lead Time</th>
+                <th style="padding: 12px 14px;">Status</th>
+                <th style="padding: 12px 14px; text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows || `<tr><td colspan="6" style="padding: 24px; text-align: center; color: ${tokens.textMuted};">No registered suppliers</td></tr>`}
+            </tbody>
+          </table>
+        </div>
       </div>
     `.trim();
   }
@@ -277,23 +279,25 @@ export class ProcurementViewModel {
                 ${match.status}
               </span>
             </div>
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.8125rem;">
-              <thead>
-                <tr style="border-bottom: 1px solid ${tokens.borderStrong}; color: ${tokens.textMuted}; text-transform: uppercase; font-size: 0.7rem;">
-                  <th style="padding: 10px 14px; text-align: left;">SKU</th>
-                  <th style="padding: 10px 14px; text-align: left;">Product</th>
-                  <th style="padding: 10px 14px; text-align: center;">PO Qty</th>
-                  <th style="padding: 10px 14px; text-align: center;">Received GRN</th>
-                  <th style="padding: 10px 14px; text-align: center;">Invoiced Qty</th>
-                  <th style="padding: 10px 14px; text-align: right;">Agreed Price</th>
-                  <th style="padding: 10px 14px; text-align: right;">Billed Price</th>
-                  <th style="padding: 10px 14px; text-align: center;">Verification</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${linesHtml}
-              </tbody>
-            </table>
+            <div class="stokrova-table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%;">
+              <table style="width: 100%; min-width: 680px; border-collapse: collapse; font-size: 0.8125rem;">
+                <thead>
+                  <tr style="border-bottom: 1px solid ${tokens.borderStrong}; color: ${tokens.textMuted}; text-transform: uppercase; font-size: 0.7rem;">
+                    <th style="padding: 10px 14px; text-align: left;">SKU</th>
+                    <th style="padding: 10px 14px; text-align: left;">Product</th>
+                    <th style="padding: 10px 14px; text-align: center;">PO Qty</th>
+                    <th style="padding: 10px 14px; text-align: center;">Received GRN</th>
+                    <th style="padding: 10px 14px; text-align: center;">Invoiced Qty</th>
+                    <th style="padding: 10px 14px; text-align: right;">Agreed Price</th>
+                    <th style="padding: 10px 14px; text-align: right;">Billed Price</th>
+                    <th style="padding: 10px 14px; text-align: center;">Verification</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${linesHtml}
+                </tbody>
+              </table>
+            </div>
           </div>
         `.trim();
       })

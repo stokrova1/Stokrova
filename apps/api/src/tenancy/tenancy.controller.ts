@@ -16,17 +16,59 @@ import type { UserIdentity } from '@stokrova/contracts';
 import {
   CreateTenantRequestSchema,
   UpdateTenantStatusSchema,
+  VerifyStaffWorkspaceSchema,
 } from '@stokrova/validation';
 import type {
   CreateTenantRequest,
   ProvisionedTenantResult,
   TenantResponse,
+  VerifyStaffWorkspaceResponse,
 } from '@stokrova/contracts';
+import { randomUUID } from 'node:crypto';
 import type { TenantStatus } from '@stokrova/domain';
 
 @Controller('tenants')
 export class TenancyController {
   constructor(private readonly tenancyService: TenancyService) {}
+
+  @Post('verify-staff')
+  async verifyStaff(@Body() body: unknown): Promise<VerifyStaffWorkspaceResponse> {
+    const parseResult = VerifyStaffWorkspaceSchema.safeParse(body);
+    if (!parseResult.success) {
+      throw new BadRequestException({
+        error: {
+          code: 'VALIDATION_FAILED',
+          message: 'Invalid staff verification payload.',
+          details: parseResult.error.format(),
+        },
+      });
+    }
+
+    return this.tenancyService.verifyStaffWorkspace(
+      parseResult.data.email,
+      parseResult.data.slug,
+    );
+  }
+
+  @Post('onboard')
+  async onboardTenant(@Body() body: unknown): Promise<ProvisionedTenantResult> {
+    const parseResult = CreateTenantRequestSchema.safeParse(body);
+    if (!parseResult.success) {
+      throw new BadRequestException({
+        error: {
+          code: 'VALIDATION_FAILED',
+          message: 'Invalid business onboarding payload.',
+          details: parseResult.error.format(),
+        },
+      });
+    }
+
+    const ownerId = `usr_${randomUUID().replace(/-/g, '')}`;
+    return this.tenancyService.provisionTenant(
+      parseResult.data as CreateTenantRequest,
+      ownerId,
+    );
+  }
 
   @Post()
   @UseGuards(AuthGuard)

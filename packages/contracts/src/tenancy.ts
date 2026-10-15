@@ -24,6 +24,10 @@ export interface CreateTenantRequest {
   owner_email: string;
   owner_full_name: string;
   default_currency?: string;
+  initial_branch_name?: string;
+  business_type?: string;
+  plan_tier?: string;
+  initial_float_minor?: bigint | number;
 }
 
 export interface TenantResponse {
@@ -57,3 +61,21 @@ export interface ProvisionedTenantResult {
   company: CompanyResponse;
   default_branch: BranchResponse;
 }
+
+export interface VerifyStaffWorkspaceRequest {
+  email: string;
+  slug?: string;
+  password?: string;
+}
+
+export interface VerifyStaffWorkspaceResponse {
+  verified: boolean;
+  tenant_name: string;
+  slug: string;
+  branch_name: string;
+  staff_name: string;
+  role: string;
+  last_active: string;
+  quarantine_status: string;
+}
+

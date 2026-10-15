@@ -232,7 +232,7 @@ describe('Phase BO — Business Owner Workspace Certification Suite', () => {
   });
 
   describe('Finance & Double-Entry Invariants', () => {
-    it('enforces balanced debits and credits on General Ledger entries (Rule 11)', () => {
+    it('enforces balanced debits and credits on General Ledger entries (Double-Entry)', () => {
       const finance = new FinanceViewModel('dark');
 
       finance.addAccount({
@@ -277,7 +277,7 @@ describe('Phase BO — Business Owner Workspace Certification Suite', () => {
   });
 
   describe('Registers & Cash Reconciliation', () => {
-    it('records opening floats and reconciles blind cash counts without discrepancy (Rule 7)', () => {
+    it('records opening floats and reconciles blind cash counts without discrepancy', () => {
       const registers = new RegistersViewModel('dark');
 
       registers.addSession({
@@ -333,7 +333,7 @@ describe('Phase BO — Business Owner Workspace Certification Suite', () => {
   });
 
   describe('RBAC & Scoped Organization Topology', () => {
-    it('proves multi-entity holding structure and branch assignments are intact (Rule 21)', () => {
+    it('proves multi-entity holding structure and branch assignments are intact', () => {
       const org = new OrganizationViewModel('dark');
       org.addCompany({
         id: 'cmp_apex_uk',

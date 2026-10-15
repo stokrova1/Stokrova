@@ -133,10 +133,115 @@ financeModel.addJournalEntry({
   dateIso: '2026-10-14T10:00:00Z',
   status: 'POSTED',
   currencyCode: 'USD',
+  preparedBy: 'usr_arthur',
+  preparedByName: 'Arthur Pendelton',
+  postedBy: 'usr_arthur',
+  postedByName: 'Arthur Pendelton',
+  turnaroundMinutes: 12,
   lines: [
     { accountCode: '1010', accountName: 'Cash at Bank', debitMinor: 249900n, creditMinor: 0n },
     { accountCode: '4010', accountName: 'Retail Revenue', debitMinor: 0n, creditMinor: 249900n },
   ],
+});
+
+financeModel.addJournalEntry({
+  id: 'jrnl_002',
+  entryNumber: 'JRNL-2026-10-002',
+  reference: 'PO-2026-089',
+  description: 'Intel Workstation partial intake inventory asset capitalisation',
+  dateIso: '2026-10-14T11:30:00Z',
+  status: 'POSTED',
+  currencyCode: 'USD',
+  preparedBy: 'usr_arthur',
+  preparedByName: 'Arthur Pendelton',
+  postedBy: 'usr_arthur',
+  postedByName: 'Arthur Pendelton',
+  turnaroundMinutes: 16,
+  lines: [
+    { accountCode: '1400', accountName: 'Inventory Asset', debitMinor: 2400000n, creditMinor: 0n },
+    { accountCode: '2010', accountName: 'Accounts Payable', debitMinor: 0n, creditMinor: 2400000n },
+  ],
+});
+
+financeModel.addJournalEntry({
+  id: 'jrnl_003',
+  entryNumber: 'JRNL-2026-10-003',
+  reference: 'EXP-OCT-01',
+  description: 'Regional logistics hub facility maintenance voucher',
+  dateIso: '2026-10-14T14:00:00Z',
+  status: 'DRAFT',
+  currencyCode: 'USD',
+  preparedBy: 'usr_arthur',
+  preparedByName: 'Arthur Pendelton',
+  lines: [
+    { accountCode: '5010', accountName: 'Cost of Goods Sold (COGS)', debitMinor: 150000n, creditMinor: 0n },
+    { accountCode: '1010', accountName: 'Cash at Bank', debitMinor: 0n, creditMinor: 150000n },
+  ],
+});
+
+// Subledger reconciliations
+financeModel.addSubledgerReconciliation({
+  id: 'recon_bank_01',
+  reconciliationType: 'BANK_ACCOUNT',
+  title: 'Barclays Commercial Operating Account',
+  accountCode: '1010',
+  periodId: '2026-10',
+  ledgerBalanceMinor: 45000000n,
+  statementBalanceMinor: 45000000n,
+  discrepancyMinor: 0n,
+  status: 'BALANCED',
+  performedBy: 'usr_arthur',
+  performedByName: 'Arthur Pendelton',
+  performedAtIso: '2026-10-14T16:00:00Z',
+  notes: 'Direct Open Banking feed matched statement line items with zero variance.',
+});
+
+financeModel.addSubledgerReconciliation({
+  id: 'recon_ar_01',
+  reconciliationType: 'ACCOUNTS_RECEIVABLE',
+  title: 'B2B Trade Debtors Subledger (A/R)',
+  accountCode: '1200',
+  periodId: '2026-10',
+  ledgerBalanceMinor: 1440000n,
+  statementBalanceMinor: 1440000n,
+  discrepancyMinor: 0n,
+  status: 'BALANCED',
+  performedBy: 'usr_arthur',
+  performedByName: 'Arthur Pendelton',
+  performedAtIso: '2026-10-14T16:15:00Z',
+  notes: 'All open trade invoices reconciled against posted remittances.',
+});
+
+financeModel.addSubledgerReconciliation({
+  id: 'recon_inv_01',
+  reconciliationType: 'INVENTORY_LEDGER',
+  title: 'London DC Physical Valuation vs General Ledger',
+  accountCode: '1400',
+  periodId: '2026-10',
+  ledgerBalanceMinor: 124000000n,
+  statementBalanceMinor: 124000000n,
+  discrepancyMinor: 0n,
+  status: 'BALANCED',
+  performedBy: 'usr_arthur',
+  performedByName: 'Arthur Pendelton',
+  performedAtIso: '2026-10-14T16:30:00Z',
+  notes: 'Quarterly perpetual cycle count matches GL Asset 1400 without shrinkage adjustments.',
+});
+
+financeModel.addSubledgerReconciliation({
+  id: 'recon_cash_01',
+  reconciliationType: 'CASH_DRAWER',
+  title: 'Store Front Counter Till Sessions Float Audit',
+  accountCode: '1010',
+  periodId: '2026-10',
+  ledgerBalanceMinor: 684000n,
+  statementBalanceMinor: 684000n,
+  discrepancyMinor: 0n,
+  status: 'BALANCED',
+  performedBy: 'usr_arthur',
+  performedByName: 'Arthur Pendelton',
+  performedAtIso: '2026-10-14T16:45:00Z',
+  notes: 'Blind cashier closing counts for Reg 01 and Reg 02 verified against expected balance.',
 });
 
 const registersModel = new RegistersViewModel('light');
@@ -221,6 +326,36 @@ rbacModel.addStaffMember({
   status: 'ACTIVE',
   joinedDateIso: '2026-03-10T00:00:00Z',
 });
+rbacModel.addStaffMember({
+  id: 'usr_arthur',
+  fullName: 'Arthur Pendelton',
+  email: 'arthur@apex.com',
+  roleCode: 'GENERAL_ACCOUNTANT',
+  roleName: 'Lead Financial Accountant',
+  scope: { tenantId: 'ten_apex_global', companyId: 'cmp_apex_uk', companyName: 'Apex Retail UK Ltd' },
+  status: 'ACTIVE',
+  joinedDateIso: '2026-02-01T00:00:00Z',
+});
+rbacModel.addStaffMember({
+  id: 'usr_marcus',
+  fullName: 'Marcus Bennett',
+  email: 'marcus@apex.com',
+  roleCode: 'DELIVERY_DRIVER',
+  roleName: 'Route Logistics Driver',
+  scope: { tenantId: 'ten_apex_global', branchId: 'brn_london_flagship', branchName: 'London Flagship' },
+  status: 'ACTIVE',
+  joinedDateIso: '2026-03-15T00:00:00Z',
+});
+rbacModel.addStaffMember({
+  id: 'usr_clara',
+  fullName: 'Clara Oswald',
+  email: 'clara@apex.com',
+  roleCode: 'SALES_REPRESENTATIVE',
+  roleName: 'Senior B2B Account Executive',
+  scope: { tenantId: 'ten_apex_global', companyId: 'cmp_apex_uk', companyName: 'Apex Retail UK Ltd' },
+  status: 'ACTIVE',
+  joinedDateIso: '2026-01-15T00:00:00Z',
+});
 
 const organizationModel = new OrganizationViewModel('light');
 organizationModel.addCompany({
@@ -302,6 +437,39 @@ allBusinessViewsHtml = replaceViewBlock(allBusinessViewsHtml, 'registers', regis
 allBusinessViewsHtml = replaceViewBlock(allBusinessViewsHtml, 'gl', `${financeModel.renderJournalLedgerHtml()}\n<div style="margin-top: 24px;">\n${financeModel.renderChartOfAccountsHtml()}\n</div>`);
 allBusinessViewsHtml = replaceViewBlock(allBusinessViewsHtml, 'org', organizationModel.renderOrganizationHtml());
 allBusinessViewsHtml = replaceViewBlock(allBusinessViewsHtml, 'rbac', rbacModel.renderStaffManagementHtml());
+
+// Dedicated Personal Staff Workspaces
+const accountantHtml = financeModel.renderAccountantWorkspaceHtml({
+  currentMemberId: 'usr_arthur',
+  currentMemberName: 'Arthur Pendelton',
+  companyName: 'Apex Retail UK Ltd',
+  currency: 'USD',
+  filterMode: 'my',
+  isGeneralAccountant: true,
+});
+
+const cashierWorkspaceHtml = registersModel.renderCashierPersonalWorkspaceHtml({
+  cashierId: 'usr_emma',
+  cashierName: 'Emma Watson',
+  branchName: 'London Flagship Store',
+  currency: 'USD',
+});
+
+allBusinessViewsHtml += `
+    <!-- ========================================== -->
+    <!-- ACCOUNTANT WORKSPACE (/finance/accountant) -->
+    <!-- ========================================== -->
+    <div id="ws-view-accountant" class="ws-view-content" style="display: none;">
+      ${accountantHtml}
+    </div>
+
+    <!-- ========================================== -->
+    <!-- CASHIER SHIFT & DESK (/pos/cashier-desk) -->
+    <!-- ========================================== -->
+    <div id="ws-view-cashier-desk" class="ws-view-content" style="display: none;">
+      ${cashierWorkspaceHtml}
+    </div>
+`;
 
 // 3. Assemble Complete Interactive Application HTML
 const completeAppHtml = `
@@ -535,10 +703,13 @@ ${generateCssVariableString('dark')}
       <span style="color: var(--text-muted); font-size: 0.75rem;">Simulated Active Persona:</span>
       <select id="persona-select" class="persona-select" onchange="window.stokrovaApp.handlePersonaChange(this.value)">
         <option value="OWNER" selected>🏢 Business Owner (Victoria Sterling - Full Access)</option>
+        <option value="ACCOUNTANT">⚖️ Lead Financial Accountant (Arthur Pendelton - General Ledger & Reconciliation)</option>
         <option value="FOUNDER">👑 Platform Founder (Global Super-Admin)</option>
         <option value="MANAGER">🏪 Store Manager (David O'Connor - Operations)</option>
-        <option value="CASHIER">💳 Head Cashier (Emma Watson - POS Terminal)</option>
+        <option value="CASHIER">💳 Head Cashier (Emma Watson - POS Terminal & Shift Desk)</option>
         <option value="PICKER">📦 Warehouse Operator (Samuel Adebayo - Wave Picking)</option>
+        <option value="DRIVER">🚚 Logistics Driver (Marcus Bennett - Route & POD)</option>
+        <option value="SALES_REP">💼 B2B Sales Executive (Clara Oswald - Quotes & Accounts)</option>
       </select>
     </div>
   </div>
@@ -577,7 +748,7 @@ ${generateCssVariableString('dark')}
 
       <div style="margin-top: auto; padding: 16px; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-muted);">
         <div>Active Tenant: <strong id="sidebar-tenant-name" style="color: var(--text-primary);">Apex Global Ltd</strong></div>
-        <div style="margin-top: 2px;">Multi-Tenant Rule 21 Active</div>
+        <div style="margin-top: 2px;">Multi-Tenant Isolation Active</div>
       </div>
     </aside>
 
@@ -656,6 +827,8 @@ ${generateCssVariableString('dark')}
         { id: 'bom', title: 'Bills of Materials (BOM)', group: 'Make', icon: '⚙️' },
         { id: 'production', title: 'Production Work Orders & Assembly', group: 'Make', icon: '🏭' },
         { id: 'registers', title: 'Till Sessions, Floats & Cash Count', group: 'Money', icon: '💰' },
+        { id: 'accountant', title: 'Accountant Desk & Subledger Reconciliations', group: 'Money', icon: '⚖️', shortcut: 'A' },
+        { id: 'cashier-desk', title: 'Cashier Shift & Terminal Desk', group: 'Sell', icon: '🧾' },
         { id: 'gl', title: 'Double-Entry General Ledger & Accounts', group: 'Money', icon: '⚖️' },
         { id: 'compliance', title: 'Fiscal E-Invoicing & VAT/Tax Audit', group: 'Money', icon: '🛡️' },
         { id: 'consolidation', title: 'Multi-Entity Group Consolidation', group: 'Money', icon: '🌐' },
@@ -938,7 +1111,7 @@ ${generateCssVariableString('dark')}
             }
           }
         }
-        this.showToast('Tenant status updated. Multi-tenant isolation preserved (Rule 21).');
+        this.showToast('Tenant status updated. Multi-tenant isolation preserved.');
       },
 
       inspectTenant(id) {
@@ -957,14 +1130,23 @@ ${generateCssVariableString('dark')}
         const isCashier = persona === 'CASHIER';
         const isPicker = persona === 'PICKER';
         const isManager = persona === 'MANAGER';
+        const isAccountant = persona === 'ACCOUNTANT';
+        const isDriver = persona === 'DRIVER';
+        const isSalesRep = persona === 'SALES_REP';
 
         const allNavItems = document.querySelectorAll('.workspace-nav-item');
         allNavItems.forEach(item => {
           const vId = item.getAttribute('data-view-id');
-          if (isCashier) {
-            item.style.display = (vId === 'pos' || vId === 'catalog' || vId === 'orders') ? 'flex' : 'none';
+          if (isAccountant) {
+            item.style.display = (vId === 'accountant' || vId === 'gl' || vId === 'registers' || vId === 'invoices' || vId === 'tax' || vId === 'treasury') ? 'flex' : 'none';
+          } else if (isCashier) {
+            item.style.display = (vId === 'cashier-desk' || vId === 'pos' || vId === 'catalog' || vId === 'orders' || vId === 'registers') ? 'flex' : 'none';
           } else if (isPicker) {
-            item.style.display = (vId === 'inventory' || vId === 'picking' || vId === 'locations' || vId === 'ledger') ? 'flex' : 'none';
+            item.style.display = (vId === 'picking' || vId === 'inventory' || vId === 'locations' || vId === 'ledger') ? 'flex' : 'none';
+          } else if (isDriver) {
+            item.style.display = (vId === 'fleet' || vId === 'dispatch' || vId === 'orders') ? 'flex' : 'none';
+          } else if (isSalesRep) {
+            item.style.display = (vId === 'crm' || vId === 'quotes' || vId === 'pricing' || vId === 'orders') ? 'flex' : 'none';
           } else if (isManager) {
             item.style.display = (vId === 'org' || vId === 'compliance') ? 'none' : 'flex';
           } else {
@@ -973,19 +1155,82 @@ ${generateCssVariableString('dark')}
           }
         });
 
-        if (isCashier) {
-          this.showView('pos');
-          this.showToast('Active Persona: Emma Watson (Cashier - Front Counter)');
+        if (isAccountant) {
+          this.showView('accountant');
+          this.showToast('Active Persona: Arthur Pendelton (Lead Financial Accountant)');
+        } else if (isCashier) {
+          this.showView('cashier-desk');
+          this.showToast('Active Persona: Emma Watson (Head Cashier - Shift Desk)');
         } else if (isPicker) {
           this.showView('picking');
-          this.showToast('Active Persona: Samuel Adebayo (Warehouse Picker)');
+          this.showToast('Active Persona: Samuel Adebayo (Warehouse Picker - Zone A)');
+        } else if (isDriver) {
+          this.showView('fleet');
+          this.showToast('Active Persona: Marcus Bennett (Logistics Driver - Route 4)');
+        } else if (isSalesRep) {
+          this.showView('crm');
+          this.showToast('Active Persona: Clara Oswald (Senior B2B Account Executive)');
         } else if (isManager) {
           this.showView('dashboard');
-          this.showToast('Active Persona: David O\\'Connor (Store Manager)');
+          this.showToast("Active Persona: David O'Connor (Store Manager)");
         } else {
           this.showView('dashboard');
           this.showToast('Active Persona: Victoria Sterling (Business Owner - Full Access)');
         }
+      },
+
+      toggleAccountantViewScope(scope) {
+        const rows = document.querySelectorAll('#accountant-journals-table tr[data-posted-by]');
+        const btnMy = document.getElementById('btn-accountant-filter-my');
+        const btnAll = document.getElementById('btn-accountant-filter-all');
+        if (btnMy && btnAll) {
+          if (scope === 'my') {
+            btnMy.style.background = '#BD9652';
+            btnMy.style.color = '#FFFFFF';
+            btnAll.style.background = 'transparent';
+            btnAll.style.color = 'var(--text-secondary)';
+          } else {
+            btnAll.style.background = '#BD9652';
+            btnAll.style.color = '#FFFFFF';
+            btnMy.style.background = 'transparent';
+            btnMy.style.color = 'var(--text-secondary)';
+          }
+        }
+        rows.forEach(r => {
+          if (scope === 'my') {
+            const author = r.getAttribute('data-posted-by');
+            r.style.display = (author === 'usr_arthur') ? '' : 'none';
+          } else {
+            r.style.display = '';
+          }
+        });
+        this.showToast(scope === 'my' ? "Filtered to Arthur Pendelton's attributed postings" : 'Showing all company general journal entries');
+      },
+
+      reconcileSubledger(recId) {
+        const row = document.querySelector(\`tr[data-rec-id="\${recId}"]\`);
+        if (row) {
+          const statusCell = row.querySelector('.rec-status-badge');
+          if (statusCell) {
+            statusCell.textContent = 'BALANCED';
+            statusCell.style.background = '#14291F';
+            statusCell.style.color = '#4ADE80';
+            statusCell.style.borderColor = '#1E4620';
+          }
+          const diffCell = row.querySelector('.rec-diff-cell');
+          if (diffCell) {
+            diffCell.textContent = '$0.00';
+            diffCell.style.color = '#4ADE80';
+          }
+          const actionBtn = row.querySelector('.rec-action-btn');
+          if (actionBtn) {
+            actionBtn.disabled = true;
+            actionBtn.textContent = 'Balanced ✓';
+            actionBtn.style.opacity = '0.5';
+            actionBtn.style.cursor = 'default';
+          }
+        }
+        this.showToast(\`✓ Subledger reconciliation \${recId} verified and balanced to General Ledger.\`);
       },
 
       addItemToCart(sku, name, price) {
@@ -1277,6 +1522,8 @@ ${generateCssVariableString('dark')}
     window.openStaffInviteModal = () => window.stokrovaApp.openStaffInviteModal();
     window.closeStaffInviteModal = () => window.stokrovaApp.closeStaffInviteModal();
     window.handleStaffInviteSubmit = (e) => window.stokrovaApp.handleStaffInviteSubmit(e);
+    window.toggleAccountantViewScope = (scope) => window.stokrovaApp.toggleAccountantViewScope(scope);
+    window.reconcileSubledger = (recId) => window.stokrovaApp.reconcileSubledger(recId);
 
     // Initialize brand settings
     window.stokrovaApp.loadBrandSettings();

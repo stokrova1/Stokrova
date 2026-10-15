@@ -98,4 +98,54 @@ describe('TenancyService', () => {
       service.updateTenantStatus(provisioned.tenant.id, 'ACTIVE'),
     ).rejects.toThrowError(/Cannot transition tenant/);
   });
+
+  it('respects custom initial_branch_name when specified during onboarding', async () => {
+    const result = await service.provisionTenant(
+      {
+        name: 'Apex Luxury Retail',
+        slug: 'apex-luxury',
+        owner_email: 'victoria@apex.com',
+        owner_full_name: 'Victoria Sterling',
+        default_currency: 'USD',
+        initial_branch_name: 'London Mayfair Flagship',
+        business_type: 'Luxury Boutique Chain',
+        plan_tier: 'growth',
+      },
+      'usr_owner_victoria',
+    );
+
+    expect(result.default_branch.name).toBe('London Mayfair Flagship');
+    expect(result.company.currency_code).toBe('USD');
+    expect(result.tenant.name).toBe('Apex Luxury Retail');
+  });
+
+  it('verifies staff credentials, resolves company workspace, and returns verified metadata', async () => {
+    await service.provisionTenant(
+      {
+        name: 'Apex Luxury Retail',
+        slug: 'apex-luxury',
+        owner_email: 'victoria@apex.com',
+        owner_full_name: 'Victoria Sterling',
+      },
+      'usr_owner_victoria',
+    );
+
+    const verifiedOwner = await service.verifyStaffWorkspace('victoria@apex.com');
+    expect(verifiedOwner.verified).toBe(true);
+    expect(verifiedOwner.tenant_name).toBe('Apex Luxury Retail');
+    expect(verifiedOwner.slug).toBe('apex-luxury');
+    expect(verifiedOwner.role).toBe('Business Owner (Administrator)');
+    expect(verifiedOwner.last_active).toContain('Today');
+
+    const verifiedManager = await service.verifyStaffWorkspace('manager.david@apex.com');
+    expect(verifiedManager.verified).toBe(true);
+    expect(verifiedManager.staff_name).toBe("David O'Connor");
+    expect(verifiedManager.role).toBe('Store Operations Manager');
+
+    const verifiedCashier = await service.verifyStaffWorkspace('emma.cashier@apex.com');
+    expect(verifiedCashier.verified).toBe(true);
+    expect(verifiedCashier.staff_name).toBe('Emma Watson');
+    expect(verifiedCashier.role).toBe('Front Counter Cashier');
+  });
 });
+

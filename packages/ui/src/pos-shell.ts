@@ -1,7 +1,7 @@
 /**
  * STOKROVA High-Speed POS Shell Engine & State Descriptors
  * Touch-screen and keyboard-first retail terminal abstractions.
- * Golden Rules: Pure integer minor arithmetic (Rule 26), decoupled payments (Rule 7 & 8).
+ * Invariants: Pure integer minor arithmetic, decoupled payments.
  */
 
 export interface PosCartItem {

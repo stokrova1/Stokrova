@@ -48,6 +48,8 @@ export function getViewIdFromNavId(navId: string): string {
     nav_mo: 'mo',
     nav_registers: 'registers',
     nav_gl: 'gl',
+    nav_accountant: 'accountant',
+    nav_cashier_desk: 'cashier-desk',
     nav_tax: 'tax',
     nav_dashboards: 'dashboard',
     nav_abc: 'abc',
@@ -86,6 +88,8 @@ export const MODULE_EMOJIS: Record<string, string> = {
   nav_mo: '🏭',
   nav_registers: '💵',
   nav_gl: '⚖️',
+  nav_accountant: '⚖️',
+  nav_cashier_desk: '🧾',
   nav_tax: '🧾',
   nav_dashboards: '📊',
   nav_abc: '📈',
@@ -124,6 +128,7 @@ export function renderMasterSidebarHtml(options: WorkspaceSidebarOptions = {}): 
       title: 'Sell',
       items: [
         { id: 'nav_pos', label: 'Point of Sale (POS)', path: '/pos', icon: 'calculator', shortcut: 'F1' },
+        { id: 'nav_cashier_desk', label: 'Cashier Shift & Terminal Desk', path: '/pos/cashier-desk', icon: 'clipboard' },
         { id: 'nav_orders', label: 'Sales Orders', path: '/orders', icon: 'shopping-bag', shortcut: 'O' },
         { id: 'nav_invoices', label: 'Invoices & Payments', path: '/invoices', icon: 'credit-card', shortcut: 'I' },
         { id: 'nav_quotes', label: 'Quotations & B2B', path: '/quotes', icon: 'file-text' },
@@ -173,6 +178,7 @@ export function renderMasterSidebarHtml(options: WorkspaceSidebarOptions = {}): 
       id: 'finance',
       title: 'Money',
       items: [
+        { id: 'nav_accountant', label: 'Accountant Desk & Reconciliations', path: '/finance/accountant', icon: 'award' },
         { id: 'nav_registers', label: 'Till Sessions & Cash Count', path: '/registers', icon: 'dollar-sign', shortcut: 'R' },
         { id: 'nav_gl', label: 'Double-Entry General Ledger', path: '/finance/ledger', icon: 'book' },
         { id: 'nav_tax', label: 'Fiscal E-Invoicing & Taxes', path: '/finance/tax', icon: 'percent' },
@@ -260,7 +266,7 @@ export function renderMasterSidebarHtml(options: WorkspaceSidebarOptions = {}): 
           <span>Branch:</span>
           <span style="color: ${isDark ? '#E0CB9F' : '#85642D'}; font-weight: 600;">${options.branchName || 'London Flagship'}</span>
         </div>
-        <div style="font-size: 0.6875rem; color: #16A34A; margin-top: 2px; font-weight: 600;">● Rule 21 Tenant Isolation Active</div>
+        <div style="font-size: 0.6875rem; color: #16A34A; margin-top: 2px; font-weight: 600;">● Tenant Isolation Active</div>
       </div>
     </aside>
   `.trim();
@@ -271,6 +277,8 @@ export function renderMasterSidebarHtml(options: WorkspaceSidebarOptions = {}): 
  */
 export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {}): string {
   const theme = options.theme || 'dark';
+  const isDark = theme === 'dark';
+  const goldText = isDark ? '#E0CB9F' : '#85642D';
   const tokens = themeTokens[theme];
   const st = semanticTokens;
   const toastFn = options.onActionToastFnName || 'window.stokrovaCustomerApp.showToast';
@@ -383,7 +391,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
 
       <!-- Capital Efficiency Intelligence -->
       <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
-        <h3 style="margin: 0 0 14px 0; font-size: 1rem; color: ${tokens.textPrimary};">Working Capital & Inventory Efficiency (Rule 26)</h3>
+        <h3 style="margin: 0 0 14px 0; font-size: 1rem; color: ${tokens.textPrimary};">Working Capital & Inventory Efficiency</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
           <div style="padding: 12px; background: rgba(255,255,255,0.02); border-radius: 6px; border: 1px solid ${tokens.border};">
             <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Inventory Turnover Ratio (ITR)</div>
@@ -557,8 +565,103 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
     <!-- 6. CRM & ACCOUNTS (/crm) -->
     <!-- ========================================== -->
     <div id="ws-view-crm" class="ws-view-content" style="display: none;">
-      <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">CRM & Customer Accounts Directory</h1>
-      <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Credit balances, payment reliability ratings, and contact profiles.</p>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap; gap: 14px;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+            <span style="background: rgba(189,150,82,0.15); color: ${goldText}; border: 1px solid #BD9652; padding: 3px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">
+              Sales Representative Workspace
+            </span>
+            <span style="font-size: 0.8125rem; color: ${tokens.textSecondary};">
+              Account Executive: <strong>Clara Oswald</strong> • Commercial B2B Accounts
+            </span>
+          </div>
+          <h1 style="margin: 0; font-size: 1.5rem; color: ${tokens.textPrimary}; font-weight: 800;">
+            CRM & Customer Accounts Directory
+          </h1>
+          <p style="margin: 4px 0 0 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">
+            Personal deal pipeline, credit limits, quotation conversion, and client account health.
+          </p>
+        </div>
+
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button onclick="${toastFn}('New wholesale opportunity modal opened.')" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; font-weight: 700; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+            <span>+ New B2B Deal</span>
+          </button>
+          <button onclick="${toastFn}('Drafting wholesale quotation for customer...')" style="min-height: 44px; padding: 10px 16px; border-radius: 6px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-weight: 600; font-size: 0.8125rem; cursor: pointer;">
+            <span>📑 Draft Quote</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 4 Personal Sales KPIs -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px;">
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
+          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">My Active Deals</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">12 deals</div>
+          <div style="font-size: 0.75rem; color: ${goldText}; font-weight: 600;">8 quotes pending decision</div>
+        </div>
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
+          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Pipeline Value (MTD)</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">$184,500.00</div>
+          <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">Weighted: $122,000.00</div>
+        </div>
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
+          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Quote Conversion Rate</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: #4ADE80; margin: 6px 0 2px 0;">34.5%</div>
+          <div style="font-size: 0.75rem; color: #4ADE80; font-weight: 600;">▲ +4.2% vs team baseline</div>
+        </div>
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
+          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Monthly Quota Progress</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: #4ADE80; margin: 6px 0 2px 0;">78.2%</div>
+          <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">$156,400 / $200,000 target</div>
+        </div>
+      </div>
+
+      <!-- Active Assigned Pipeline Table -->
+      <div style="margin-bottom: 24px;">
+        <h3 style="margin: 0 0 12px 0; font-size: 1.05rem; font-weight: 700; color: ${tokens.textPrimary};">My Assigned Pipeline Opportunities</h3>
+        <div class="stokrova-table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border: 1px solid ${tokens.border}; border-radius: 8px; background: ${tokens.surface};">
+          <table style="width: 100%; min-width: 680px; border-collapse: collapse; font-size: 0.8125rem;">
+            <thead>
+              <tr style="background: ${tokens.cardHover}; border-bottom: 2px solid ${tokens.borderStrong}; text-align: left; color: ${tokens.textSecondary};">
+                <th style="padding: 12px 14px;">Deal Ref</th>
+                <th style="padding: 12px 14px;">Account / Client</th>
+                <th style="padding: 12px 14px; text-align: right;">Deal Value</th>
+                <th style="padding: 12px 14px; text-align: center;">Stage</th>
+                <th style="padding: 12px 14px; text-align: center;">Probability</th>
+                <th style="padding: 12px 14px; text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid ${tokens.border};">
+                <td style="padding: 12px 14px; font-weight: 700; font-family: var(--stokrova-font-mono);">OPP-2026-104</td>
+                <td style="padding: 12px 14px;">
+                  <div style="font-weight: 600;">Metro Department Stores PLC</div>
+                  <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Q4 Electronics Bulk Replenishment</div>
+                </td>
+                <td style="padding: 12px 14px; text-align: right; font-weight: 700; font-family: var(--stokrova-font-mono);">$65,000.00</td>
+                <td style="padding: 12px 14px; text-align: center;"><span style="color: ${goldText}; font-weight: 700;">PROPOSAL PRESENTED</span></td>
+                <td style="padding: 12px 14px; text-align: center; font-weight: 700; color: #4ADE80;">70%</td>
+                <td style="padding: 12px 14px; text-align: right;"><button onclick="${toastFn}('Converting quote QT-2026-042 to Sales Order...')" style="min-height: 40px; padding: 6px 14px; border-radius: 6px; border: none; background: ${brandColors.gold[500]}; color: #0E1116; font-size: 0.75rem; font-weight: 700; cursor: pointer;">Convert to SO →</button></td>
+              </tr>
+              <tr>
+                <td style="padding: 12px 14px; font-weight: 700; font-family: var(--stokrova-font-mono);">OPP-2026-108</td>
+                <td style="padding: 12px 14px;">
+                  <div style="font-weight: 600;">Trans-European Logistics</div>
+                  <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Barcode Scanner Fleet Hardware Upgrade</div>
+                </td>
+                <td style="padding: 12px 14px; text-align: right; font-weight: 700; font-family: var(--stokrova-font-mono);">$28,500.00</td>
+                <td style="padding: 12px 14px; text-align: center;"><span style="color: #3B82F6; font-weight: 700;">TECHNICAL EVALUATION</span></td>
+                <td style="padding: 12px 14px; text-align: center; font-weight: 700;">50%</td>
+                <td style="padding: 12px 14px; text-align: right;"><button onclick="${toastFn}('Dispatching sample scanner unit...')" style="min-height: 40px; padding: 6px 14px; border-radius: 6px; border: 1px solid ${tokens.borderStrong}; background: ${tokens.surface}; color: ${tokens.textPrimary}; font-size: 0.75rem; font-weight: 600; cursor: pointer;">Send Demo</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Client Accounts Summary -->
+      <h3 style="margin: 0 0 12px 0; font-size: 1.05rem; font-weight: 700; color: ${tokens.textPrimary};">Managed Key Accounts</h3>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
         <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 18px;">
           <div style="font-weight: 700; font-size: 1rem;">Trans-European Freight Logistics</div>
@@ -761,15 +864,114 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
     <!-- 14. WAVE & ZONE PICKING (/logistics/picking) -->
     <!-- ========================================== -->
     <div id="ws-view-picking" class="ws-view-content" style="display: none;">
-      <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Wave & Zone Warehouse Picking</h1>
-      <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Route-optimized pick lists, barcode scan verification, and batch staging.</p>
-      <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div>
-            <div style="font-weight: 700;">WAVE-LON-042 • Zone A & B</div>
-            <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Picker: Samuel Adebayo • 18 Items • 75% Completed</div>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap; gap: 14px;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+            <span style="background: rgba(189,150,82,0.15); color: ${goldText}; border: 1px solid #BD9652; padding: 3px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">
+              Warehouse Picker Workbench
+            </span>
+            <span style="font-size: 0.8125rem; color: ${tokens.textSecondary};">
+              Operator: <strong>Samuel Adebayo</strong> • London Central DC (Zone A & B)
+            </span>
           </div>
-          <button onclick="${toastFn}('Wave-042 marked completed and sent to packing dock.')" style="padding: 6px 12px; background: #14291F; color: #4ADE80; border: 1px solid #1E4620; border-radius: 6px; font-weight: 600; font-size: 0.75rem; cursor: pointer;">Complete Wave</button>
+          <h1 style="margin: 0; font-size: 1.5rem; color: ${tokens.textPrimary}; font-weight: 800;">
+            Wave & Zone Warehouse Picking
+          </h1>
+          <p style="margin: 4px 0 0 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">
+            Route-optimized pick sequence, bin verification scans, and batch staging telemetry.
+          </p>
+        </div>
+
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button onclick="${toastFn}('Active pick wave submitted to container packing dock!')" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; font-weight: 700; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+            <span>✓ Complete & Stage Wave</span>
+          </button>
+          <button onclick="${toastFn}('Scanner calibrated. Ready for barcode scan.')" style="min-height: 44px; padding: 10px 16px; border-radius: 6px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-weight: 600; font-size: 0.8125rem; cursor: pointer;">
+            <span>🔍 Calibrate Scanner</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 5 Personal Picker KPIs -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px;">
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
+          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Active Wave</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">WAVE-LON-042</div>
+          <div style="font-size: 0.75rem; color: ${goldText}; font-weight: 600;">Zone A (High-Velocity)</div>
+        </div>
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
+          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Lines Picked Today</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: #4ADE80; margin: 6px 0 2px 0;">64 / 72 <span style="font-size: 0.8rem; font-weight: 500; color: ${tokens.textSecondary};">lines</span></div>
+          <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">88.9% wave progress</div>
+        </div>
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
+          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Units Handled</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">128 units</div>
+          <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">FEFO rule enforced</div>
+        </div>
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
+          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Pick Accuracy</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: #4ADE80; margin: 6px 0 2px 0;">99.8%</div>
+          <div style="font-size: 0.75rem; color: #4ADE80; font-weight: 600;">0 mispicks flagged</div>
+        </div>
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
+          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Average Pick Pace</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">42s <span style="font-size: 0.8rem; font-weight: 500; color: ${tokens.textSecondary};">/ item</span></div>
+          <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">Target: &lt; 50s / unit</div>
+        </div>
+      </div>
+
+      <!-- Active Pick List Table with Responsive Wrapper -->
+      <div style="margin-bottom: 24px;">
+        <h3 style="margin: 0 0 12px 0; font-size: 1.05rem; font-weight: 700; color: ${tokens.textPrimary};">Active Pick Sequence (Route Optimized)</h3>
+        <div class="stokrova-table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border: 1px solid ${tokens.border}; border-radius: 8px; background: ${tokens.surface};">
+          <table style="width: 100%; min-width: 680px; border-collapse: collapse; font-size: 0.8125rem;">
+            <thead>
+              <tr style="background: ${tokens.cardHover}; border-bottom: 2px solid ${tokens.borderStrong}; text-align: left; color: ${tokens.textSecondary};">
+                <th style="padding: 12px 14px;">Bin Location</th>
+                <th style="padding: 12px 14px;">SKU & Item Name</th>
+                <th style="padding: 12px 14px; text-align: center;">Required Qty</th>
+                <th style="padding: 12px 14px; text-align: center;">Picked Qty</th>
+                <th style="padding: 12px 14px; text-align: center;">Verification</th>
+                <th style="padding: 12px 14px; text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid ${tokens.border};">
+                <td style="padding: 12px 14px; font-family: var(--stokrova-font-mono); font-weight: 700; color: ${goldText};">A-02-01-B</td>
+                <td style="padding: 12px 14px;">
+                  <div style="font-weight: 600;">LAPTOP-PRO-16</div>
+                  <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Apex Pro 16 Workstation • Lot #LOT-2026-088</div>
+                </td>
+                <td style="padding: 12px 14px; text-align: center; font-weight: 700;">6</td>
+                <td style="padding: 12px 14px; text-align: center; font-weight: 700; color: #4ADE80;">6</td>
+                <td style="padding: 12px 14px; text-align: center;"><span style="color: #4ADE80; font-weight: 700;">✓ SCANNED</span></td>
+                <td style="padding: 12px 14px; text-align: right;"><button disabled style="min-height: 40px; padding: 6px 14px; border-radius: 6px; border: 1px solid #1E4620; background: #14291F; color: #4ADE80; font-size: 0.75rem; font-weight: 600;">Picked ✓</button></td>
+              </tr>
+              <tr style="border-bottom: 1px solid ${tokens.border};">
+                <td style="padding: 12px 14px; font-family: var(--stokrova-font-mono); font-weight: 700; color: ${goldText};">A-03-04-A</td>
+                <td style="padding: 12px 14px;">
+                  <div style="font-weight: 600;">PHONE-ULTRA-5G</div>
+                  <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Apex Ultra 5G Phone • Serial Tracked</div>
+                </td>
+                <td style="padding: 12px 14px; text-align: center; font-weight: 700;">10</td>
+                <td style="padding: 12px 14px; text-align: center; font-weight: 700; color: #4ADE80;">10</td>
+                <td style="padding: 12px 14px; text-align: center;"><span style="color: #4ADE80; font-weight: 700;">✓ SCANNED</span></td>
+                <td style="padding: 12px 14px; text-align: right;"><button disabled style="min-height: 40px; padding: 6px 14px; border-radius: 6px; border: 1px solid #1E4620; background: #14291F; color: #4ADE80; font-size: 0.75rem; font-weight: 600;">Picked ✓</button></td>
+              </tr>
+              <tr>
+                <td style="padding: 12px 14px; font-family: var(--stokrova-font-mono); font-weight: 700; color: ${goldText};">B-01-02-C</td>
+                <td style="padding: 12px 14px;">
+                  <div style="font-weight: 600;">SHIRT-OXFORD-BLU</div>
+                  <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Oxford Cotton Shirt (Medium Blue)</div>
+                </td>
+                <td style="padding: 12px 14px; text-align: center; font-weight: 700;">20</td>
+                <td style="padding: 12px 14px; text-align: center; font-weight: 700; color: ${goldText};">12</td>
+                <td style="padding: 12px 14px; text-align: center;"><span style="color: ${goldText}; font-weight: 700;">IN PROGRESS</span></td>
+                <td style="padding: 12px 14px; text-align: right;"><button onclick="${toastFn}('Scan barcode for Oxford Shirt...')" style="min-height: 40px; padding: 6px 14px; border-radius: 6px; border: none; background: ${brandColors.gold[500]}; color: #0E1116; font-size: 0.75rem; font-weight: 700; cursor: pointer;">Scan Unit (8 left)</button></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -784,7 +986,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
         <div>PALLET SSCC-18: 006141411234567890</div>
         <div style="color: ${tokens.textSecondary}; margin-top: 4px;">Cartons: 24 • Gross Weight: 420 kg • Destination: Birmingham Hub</div>
         <div style="margin-top: 14px;">
-          <button onclick="${toastFn}('Printing official Bill of Lading (BOL)...')" style="padding: 6px 14px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">Print BOL Manifest</button>
+          <button onclick="${toastFn}('Printing official Bill of Lading (BOL)...')" style="min-height: 44px; padding: 10px 18px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center;">Print BOL Manifest</button>
         </div>
       </div>
     </div>
@@ -793,11 +995,106 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
     <!-- 16. FLEET & PROOF OF DELIVERY (/logistics/fleet) -->
     <!-- ========================================== -->
     <div id="ws-view-fleet" class="ws-view-content" style="display: none;">
-      <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Fleet & Proof of Delivery (POD)</h1>
-      <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Delivery manifests, vehicle tracking, GPS waypoints, and recipient signatures.</p>
-      <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
-        <div style="font-weight: 700;">Delivery Route RUN-LON-01 • Mercedes Sprinter (Reg: LK26 XYZ)</div>
-        <div style="font-size: 0.8125rem; color: ${tokens.textSecondary}; margin-top: 4px;">Driver: Mark Davies • 4/6 Drops Complete (All with signature POD & photo)</div>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap; gap: 14px;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+            <span style="background: rgba(74, 222, 128, 0.15); color: #4ADE80; border: 1px solid #1E4620; padding: 3px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">
+              ● Active Driver Manifest
+            </span>
+            <span style="font-size: 0.8125rem; color: ${tokens.textSecondary};">
+              Driver: <strong>Marcus Bennett</strong> • Mercedes Sprinter (Reg: LK26 XYZ)
+            </span>
+          </div>
+          <h1 style="margin: 0; font-size: 1.5rem; color: ${tokens.textPrimary}; font-weight: 800;">
+            Fleet Delivery Route & Proof of Delivery (POD)
+          </h1>
+          <p style="margin: 4px 0 0 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">
+            Turn-by-turn route dispatch, recipient digital signature capture, and delivery compliance telemetry.
+          </p>
+        </div>
+
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button onclick="${toastFn}('Digital POD signature pad opened for current drop.')" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; font-weight: 700; font-size: 0.8125rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+            <span>✍️ Capture POD Signature</span>
+          </button>
+          <button onclick="${toastFn}('Syncing GPS coordinates and offline drop queue...')" style="min-height: 44px; padding: 10px 16px; border-radius: 6px; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; font-weight: 600; font-size: 0.8125rem; cursor: pointer;">
+            <span>🧭 Sync Route Telemetry</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 4 Personal Driver KPIs -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px;">
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
+          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Current Route Run</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">RUN-LON-04</div>
+          <div style="font-size: 0.75rem; color: ${goldText}; font-weight: 600;">London Zone 2 North</div>
+        </div>
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
+          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Drops Completed</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: #4ADE80; margin: 6px 0 2px 0;">12 / 14 <span style="font-size: 0.8rem; font-weight: 500; color: ${tokens.textSecondary};">drops</span></div>
+          <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">85.7% route progress</div>
+        </div>
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
+          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">On-Time Delivery Rate</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: #4ADE80; margin: 6px 0 2px 0;">100%</div>
+          <div style="font-size: 0.75rem; color: #4ADE80; font-weight: 600;">0 SLA delivery breaches</div>
+        </div>
+        <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
+          <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">POD Signatures Captured</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">12 / 12</div>
+          <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">Photos + Signatures verified</div>
+        </div>
+      </div>
+
+      <!-- Driver Route Stop Manifest Table with Responsive Wrapper -->
+      <div style="margin-bottom: 24px;">
+        <h3 style="margin: 0 0 12px 0; font-size: 1.05rem; font-weight: 700; color: ${tokens.textPrimary};">Route Stops Manifest</h3>
+        <div class="stokrova-table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border: 1px solid ${tokens.border}; border-radius: 8px; background: ${tokens.surface};">
+          <table style="width: 100%; min-width: 680px; border-collapse: collapse; font-size: 0.8125rem;">
+            <thead>
+              <tr style="background: ${tokens.cardHover}; border-bottom: 2px solid ${tokens.borderStrong}; text-align: left; color: ${tokens.textSecondary};">
+                <th style="padding: 12px 14px;">Stop #</th>
+                <th style="padding: 12px 14px;">Recipient & Destination</th>
+                <th style="padding: 12px 14px;">Packages / Consignment</th>
+                <th style="padding: 12px 14px; text-align: center;">Status</th>
+                <th style="padding: 12px 14px; text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid ${tokens.border};">
+                <td style="padding: 12px 14px; font-weight: 700; font-family: var(--stokrova-font-mono);">#12</td>
+                <td style="padding: 12px 14px;">
+                  <div style="font-weight: 600;">Camden Tech Solutions Ltd</div>
+                  <div style="font-size: 0.75rem; color: ${tokens.textMuted};">14 Chalk Farm Rd, NW1 8EH</div>
+                </td>
+                <td style="padding: 12px 14px;">2x Workstations (BOL-8849)</td>
+                <td style="padding: 12px 14px; text-align: center;"><span style="color: #4ADE80; font-weight: 700;">✓ DELIVERED (14:22)</span></td>
+                <td style="padding: 12px 14px; text-align: right;"><button disabled style="min-height: 40px; padding: 6px 12px; border-radius: 6px; border: 1px solid #1E4620; background: #14291F; color: #4ADE80; font-size: 0.75rem; font-weight: 600;">POD Signed ✓</button></td>
+              </tr>
+              <tr style="border-bottom: 1px solid ${tokens.border};">
+                <td style="padding: 12px 14px; font-weight: 700; font-family: var(--stokrova-font-mono); color: ${goldText};">#13</td>
+                <td style="padding: 12px 14px;">
+                  <div style="font-weight: 600;">Islington High Street Retail</div>
+                  <div style="font-size: 0.75rem; color: ${tokens.textMuted};">82 Upper Street, N1 0NU</div>
+                </td>
+                <td style="padding: 12px 14px;">4x Cartons Apparel (BOL-8850)</td>
+                <td style="padding: 12px 14px; text-align: center;"><span style="color: ${goldText}; font-weight: 700;">NEXT STOP (ETA 15:15)</span></td>
+                <td style="padding: 12px 14px; text-align: right;"><button onclick="${toastFn}('Arrived at Islington. Capturing recipient signature...')" style="min-height: 40px; padding: 6px 14px; border-radius: 6px; border: none; background: ${brandColors.gold[500]}; color: #0E1116; font-size: 0.75rem; font-weight: 700; cursor: pointer;">Deliver & Sign</button></td>
+              </tr>
+              <tr>
+                <td style="padding: 12px 14px; font-weight: 700; font-family: var(--stokrova-font-mono);">#14</td>
+                <td style="padding: 12px 14px;">
+                  <div style="font-weight: 600;">Highbury Distribution Annex</div>
+                  <div style="font-size: 0.75rem; color: ${tokens.textMuted};">20 Highbury Park, N5 2AB</div>
+                </td>
+                <td style="padding: 12px 14px;">1x Pallet Container (BOL-8851)</td>
+                <td style="padding: 12px 14px; text-align: center;"><span style="color: ${tokens.textMuted}; font-weight: 600;">QUEUED (ETA 16:00)</span></td>
+                <td style="padding: 12px 14px; text-align: right;"><button disabled style="min-height: 40px; padding: 6px 12px; border-radius: 6px; border: 1px solid ${tokens.borderStrong}; background: ${tokens.surface}; color: ${tokens.textMuted}; font-size: 0.75rem;">Pending</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -859,7 +1156,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
     <!-- ========================================== -->
     <div id="ws-view-gl" class="ws-view-content" style="display: none;">
       <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Double-Entry General Ledger</h1>
-      <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Authoritative financial truth. Debits equal Credits at all times (Rule 11).</p>
+      <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Authoritative financial truth. Debits equal Credits at all times.</p>
       <div id="ws-ledger-entries" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px; font-family: var(--stokrova-font-mono); font-size: 0.8125rem; display: flex; flex-direction: column; gap: 14px;">
         <div class="ledger-row" style="border-bottom: 1px solid ${tokens.border}; padding-bottom: 12px;">
           <div style="color: #4ADE80; margin-bottom: 4px;">✓ JRNL-2026-10-001 | Sales Order SO-2026-001</div>
@@ -1066,7 +1363,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
                 <span>$2,499.00</span>
               </div>
               <div style="text-align: center; margin-top: 6px; font-size: 0.6rem; color: #444444;">
-                QR CRYPTOGRAPHIC VERIFICATION • RULE 21
+                QR CRYPTOGRAPHIC VERIFICATION • FISCAL SEAL
               </div>
             </div>
           </div>

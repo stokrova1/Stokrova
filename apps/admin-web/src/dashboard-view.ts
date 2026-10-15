@@ -357,7 +357,7 @@ export class DashboardViewModel {
           <!-- Panel A: Capital Efficiency Intelligence -->
           <div style="grid-column: span 4; background: ${cardBg}; border: 1px solid ${borderCol}; border-radius: 10px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-              <h4 style="margin: 0; font-size: 0.875rem; font-weight: 700; color: ${textPri};">Capital Efficiency (Rule 26)</h4>
+              <h4 style="margin: 0; font-size: 0.875rem; font-weight: 700; color: ${textPri};">Capital Efficiency & Turnover</h4>
               <span style="font-size: 0.7rem; color: #16A34A; font-weight: 600;">Healthy</span>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">

@@ -11,7 +11,7 @@
  *   - Body: 14–16px (16px on inputs to prevent iOS auto-zoom).
  *   - Touch targets >= 44x44px on all controls.
  *   - Section spacing 24–36px, page gutters 12–16px.
- * - Integer minor currency math, Rule 21 multi-tenant cryptographic quarantine.
+ * - Integer minor currency math, multi-tenant cryptographic quarantine.
  * - Pure TypeScript + inline SVG and CSS (zero third-party chart/framework bloat).
  */
 
@@ -80,7 +80,7 @@ export class LandingViewModel {
           'Unlimited Branches & Regional Warehouses',
           'Rugged Warehouse Wave-Picking Checklist',
           'Visual DAG Business Workflow Engine',
-          'Dedicated Multi-Tenant Isolation (Rule 21)',
+          'Dedicated Multi-Tenant Isolation',
           'Custom Webhooks & REST/GraphQL API Access',
           'Dedicated Solution Architect & Custom Onboarding',
         ],
@@ -551,7 +551,7 @@ export class LandingViewModel {
             <div>✓ Offline-First POS Engine</div>
             <div>✓ Multi-Branch Stock Transfers</div>
             <div>✓ Balanced Double-Entry Journals</div>
-            <div>✓ Strict Multi-Tenant Isolation (Rule 21)</div>
+            <div>✓ Strict Multi-Tenant Isolation</div>
           </div>
         </div>
       </section>
@@ -791,7 +791,7 @@ export class LandingViewModel {
               Enforce branch-scoped permissions across Cashiers, Store Managers, Warehouse Pickers, and Business Owners.
             </p>
             <div style="font-size: 0.75rem; font-family: var(--stokrova-font-mono); color: #4ADE80; background: #14291F; padding: 6px 10px; border-radius: 4px; border: 1px solid #1E4620;">
-              Branch-Scoped Token Authentication (Rule 21)
+              Branch-Scoped Token Authentication
             </div>
           </div>
 
@@ -871,12 +871,12 @@ export class LandingViewModel {
             </ol>
           </div>
 
-          <!-- Card 3: Rule 21 Multi-Tenant Isolation -->
+          <!-- Card 3: Multi-Tenant Security & Isolation -->
           <div class="arch-card" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 12px; padding: 24px;">
             <div style="background: rgba(189,150,82,0.1); border: 1px solid rgba(189,150,82,0.25); border-radius: 8px; padding: 8px; display: inline-flex; margin-bottom: 10px;">
               ${this.renderSvgIcon('lock', 22)}
             </div>
-            <h3 class="card-h3" style="font-size: 1.1rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 6px 0;">Rule 21 Multi-Tenant Isolation</h3>
+            <h3 class="card-h3" style="font-size: 1.1rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 6px 0;">Multi-Tenant Security & Isolation</h3>
             <p style="font-size: 0.85rem; line-height: 1.5; color: ${tokens.textSecondary}; margin: 0 0 14px 0;">
               Every subscriber's catalog, ledger, orders, and customer data are cryptographically quarantined. No cross-tenant bleed, no shared unencrypted state.
             </p>
@@ -1158,7 +1158,7 @@ export class LandingViewModel {
           'Parent holding intercompany elimination',
           'Visual DAG Kahn workflow orchestration',
           'Wave-picking & dock receiving checklists',
-          'Strict cryptographic Rule 21 tenant isolation',
+          'Strict cryptographic tenant isolation',
         ],
       },
     ];
@@ -1274,8 +1274,8 @@ export class LandingViewModel {
         a: 'STOKROVA is built with an offline-first transactional engine. All counter actions, barcode scans, and split payments persist to encrypted local IndexedDB and SQLite outbox queues with deterministic UUID idempotency keys. When connection returns, transactions sync automatically with zero dropped records or duplicate charges.',
       },
       {
-        q: 'How does Rule 21 guarantee our business and financial data is kept isolated?',
-        a: 'Every database query, API contract, and general ledger journal strictly enforces tenant-scoped row-level security. We enforce our architectural Golden Rule 21: every tenant operates in cryptographic quarantine. There is zero cross-tenant query bleed, shared unencrypted caches, or unauthenticated data leakage.',
+        q: 'How does STOKROVA guarantee our business and financial data is kept isolated?',
+        a: 'Every database query, API contract, and general ledger journal strictly enforces tenant-scoped row-level security. Every tenant operates in cryptographic quarantine: zero cross-tenant query bleed, shared unencrypted caches, or unauthenticated data leakage.',
       },
       {
         q: 'What receipt printers, barcode scanners, and counter hardware are supported?',
@@ -1366,82 +1366,403 @@ export class LandingViewModel {
   public renderRegisterModalHtml(): string {
     const tokens = themeTokens[this.theme];
     return `
-      <div id="modal-register" role="dialog" aria-modal="true" aria-labelledby="reg-modal-title" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
-        <div class="modal-dialog-inner" style="background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; border-radius: 12px; width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.6); padding: 28px 24px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
-            <div>
-              <h2 id="reg-modal-title" style="margin: 0; font-size: 1.3rem; color: ${tokens.textPrimary};">Register Your Business</h2>
-              <p style="margin: 3px 0 0 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">Create your isolated multi-branch workspace (Rule 21 Multi-Tenant Isolation)</p>
+      <div id="modal-register" role="dialog" aria-modal="true" aria-labelledby="reg-modal-title" style="display: none; position: fixed; inset: 0; background: rgba(14, 17, 22, 0.88); backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
+        
+        <!-- Ambient High-Class Cosmic Particle Canvas -->
+        <canvas id="signup-cosmic-canvas" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;"></canvas>
+
+        <div class="modal-dialog-inner signup-stepper-card" style="position: relative; z-index: 1; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; border-radius: 14px; width: 100%; max-width: 620px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 60px rgba(0,0,0,0.75), 0 0 25px rgba(189,150,82,0.15); padding: 24px;">
+          
+          <!-- Stepper Header -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="color: ${tokens.primary}; font-size: 1.25rem; font-weight: 800;">◆</span>
+              <div>
+                <h2 id="reg-modal-title" style="margin: 0; font-size: 1.25rem; font-weight: 800; color: ${tokens.textPrimary};">Register Your Business</h2>
+                <div style="margin: 2px 0 0 0; font-size: 0.75rem; color: ${tokens.textSecondary};">
+                  Enterprise Cryptographic Tenant Isolation • Multi-Branch Operations
+                </div>
+              </div>
             </div>
             <button onclick="window.stokrovaCustomerApp.closeRegisterModal()" aria-label="Close dialog" style="background: none; border: none; width: 44px; height: 44px; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; color: ${tokens.textMuted}; cursor: pointer;">&times;</button>
           </div>
 
-          <form id="form-register-customer" onsubmit="window.stokrovaCustomerApp.handleRegisterSubmit(event)">
-            <div style="margin-bottom: 14px;">
-              <label for="reg-company-name" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">BUSINESS / COMPANY LEGAL NAME *</label>
-              <input id="reg-company-name" class="form-input" type="text" required placeholder="e.g. Apex Global Retail Ltd" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+          <!-- Progress Stepper Bar & Badges (Visible on Steps 1 to 4) -->
+          <div id="signup-stepper-header" style="margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; margin-bottom: 8px;">
+              <span style="font-weight: 700; color: ${tokens.primary}; font-family: var(--stokrova-font-mono);">
+                Step <span id="signup-current-step-num">1</span> of 4: <span id="signup-current-step-label" style="color: ${tokens.textPrimary};">Business Identity</span>
+              </span>
+              <span id="signup-step-percent" style="font-family: var(--stokrova-font-mono); color: ${tokens.textMuted}; font-weight: 600;">25%</span>
             </div>
 
-            <div class="modal-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
-              <div>
+            <!-- Glowing Gold Progress Track -->
+            <div style="height: 5px; background: #161B1E; border-radius: 3px; overflow: hidden; border: 1px solid ${tokens.border};">
+              <div id="signup-progress-fill" style="width: 25%; height: 100%; background: linear-gradient(90deg, #BD9652, #E0CB9F); box-shadow: 0 0 10px rgba(189,150,82,0.6); transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);"></div>
+            </div>
+
+            <!-- 4 Step Pill Nodes -->
+            <div class="signup-step-nodes" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px;">
+              <div id="step-node-1" class="step-node active" style="font-size: 0.6875rem; padding: 4px 6px; border-radius: 4px; text-align: center; font-weight: 700; background: rgba(189,150,82,0.18); color: ${tokens.primary}; border: 1px solid ${tokens.primary};">
+                1. Business
+              </div>
+              <div id="step-node-2" class="step-node" style="font-size: 0.6875rem; padding: 4px 6px; border-radius: 4px; text-align: center; font-weight: 600; background: #161B1E; color: ${tokens.textMuted}; border: 1px solid ${tokens.border};">
+                2. Operations
+              </div>
+              <div id="step-node-3" class="step-node" style="font-size: 0.6875rem; padding: 4px 6px; border-radius: 4px; text-align: center; font-weight: 600; background: #161B1E; color: ${tokens.textMuted}; border: 1px solid ${tokens.border};">
+                3. Owner
+              </div>
+              <div id="step-node-4" class="step-node" style="font-size: 0.6875rem; padding: 4px 6px; border-radius: 4px; text-align: center; font-weight: 600; background: #161B1E; color: ${tokens.textMuted}; border: 1px solid ${tokens.border};">
+                4. Scale & Plan
+              </div>
+            </div>
+          </div>
+
+          <form id="form-register-customer" onsubmit="window.stokrovaCustomerApp.handleRegisterSubmit(event)">
+            
+            <!-- STEP 1: Business Identity & Legal Entity -->
+            <div id="reg-step-1" class="signup-step-pane" style="display: block;">
+              <div style="background: rgba(189,150,82,0.06); border: 1px solid rgba(189,150,82,0.25); border-radius: 8px; padding: 10px 12px; margin-bottom: 16px; font-size: 0.8125rem; color: ${tokens.textSecondary}; display: flex; align-items: center; gap: 8px;">
+                <span>🔒</span>
+                <span>Enterprise Isolation: Your business database is partitioned and cryptographically quarantined.</span>
+              </div>
+
+              <div style="margin-bottom: 14px;">
+                <label for="reg-company-name" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">BUSINESS / COMPANY LEGAL NAME *</label>
+                <input id="reg-company-name" class="form-input" type="text" required placeholder="e.g. Apex Global Retail Ltd" oninput="window.stokrovaCustomerApp.autoSuggestSlug(this.value)" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+              </div>
+
+              <div style="margin-bottom: 14px;">
                 <label for="reg-slug" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">WORKSPACE SLUG (SUBDOMAIN) *</label>
                 <div style="display: flex; align-items: center; background: ${tokens.background}; border: 1px solid ${tokens.border}; border-radius: 6px; overflow: hidden; min-height: 44px;">
                   <input id="reg-slug" class="form-input" type="text" required placeholder="apex" style="flex: 1; min-height: 44px; padding: 10px 12px; background: transparent; border: none; color: ${tokens.textPrimary}; font-size: 16px;" />
-                  <span style="padding: 0 10px; font-size: 0.75rem; color: ${tokens.textMuted};">.stokrova.com</span>
+                  <span style="padding: 0 12px; font-size: 0.75rem; color: ${tokens.textMuted}; font-family: var(--stokrova-font-mono);">.stokrova.com</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 0.7rem;">
+                  <span style="color: ${tokens.textMuted};">Only lowercase letters, numbers, and hyphens.</span>
+                  <span id="reg-slug-badge" style="color: #4ADE80; font-weight: 600;">✓ Subdomain available</span>
                 </div>
               </div>
-              <div>
-                <label for="reg-currency" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">BASE CURRENCY *</label>
-                <select id="reg-currency" class="form-input" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;">
-                  <option value="USD">USD ($) — US Dollar</option>
-                  <option value="GBP">GBP (£) — British Pound</option>
-                  <option value="EUR">EUR (€) — Euro</option>
-                  <option value="NGN">NGN (₦) — Nigerian Naira</option>
-                  <option value="KES">KES (KSh) — Kenyan Shilling</option>
-                </select>
+
+              <div class="modal-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+                <div>
+                  <label for="reg-currency" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">BASE CURRENCY *</label>
+                  <select id="reg-currency" class="form-input" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;">
+                    <option value="USD">USD ($) — US Dollar</option>
+                    <option value="GBP">GBP (£) — British Pound</option>
+                    <option value="EUR">EUR (€) — Euro</option>
+                    <option value="NGN">NGN (₦) — Nigerian Naira</option>
+                    <option value="KES">KES (KSh) — Kenyan Shilling</option>
+                    <option value="ZAR">ZAR (R) — South African Rand</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="reg-country" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">PRIMARY JURISDICTION *</label>
+                  <select id="reg-country" class="form-input" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;">
+                    <option value="GB">United Kingdom (HMRC Compliant)</option>
+                    <option value="US">United States (State Sales Tax)</option>
+                    <option value="NG">Nigeria (FIRS Fiscal Invoicing)</option>
+                    <option value="KE">Kenya (KRA TIMS / eTIMS)</option>
+                    <option value="ZA">South Africa (SARS Compliant)</option>
+                    <option value="EU">European Union (EU VAT MOSS)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" onclick="window.stokrovaCustomerApp.closeRegisterModal()" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
+                  Cancel
+                </button>
+                <button id="btn-signup-step1" type="button" onclick="window.stokrovaCustomerApp.nextSignupStep(1)" style="min-height: 44px; padding: 10px 22px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer; box-shadow: 0 2px 10px rgba(189,150,82,0.35);">
+                  Continue to Operations →
+                </button>
               </div>
             </div>
 
-            <div class="modal-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
-              <div>
-                <label for="reg-owner-name" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">OWNER FULL NAME *</label>
-                <input id="reg-owner-name" class="form-input" type="text" required placeholder="Victoria Sterling" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+            <!-- STEP 2: Store / Branch & Operational Configuration -->
+            <div id="reg-step-2" class="signup-step-pane" style="display: none;">
+              <div style="margin-bottom: 14px;">
+                <label class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 8px;">OPERATIONAL INDUSTRY MODEL *</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                  <label class="industry-choice-label" style="background: #161B1E; border: 1px solid ${tokens.primary}; border-radius: 8px; padding: 10px 12px; cursor: pointer; display: flex; align-items: flex-start; gap: 8px;">
+                    <input type="radio" name="reg-industry" value="retail" checked style="accent-color: ${tokens.primary}; margin-top: 2px;" />
+                    <div>
+                      <div style="font-weight: 700; font-size: 0.8125rem; color: ${tokens.textPrimary};">High-Street Retail & Store</div>
+                      <div style="font-size: 0.7rem; color: ${tokens.textMuted};">Offline POS, split tenders & receipt engine</div>
+                    </div>
+                  </label>
+                  <label class="industry-choice-label" style="background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 10px 12px; cursor: pointer; display: flex; align-items: flex-start; gap: 8px;">
+                    <input type="radio" name="reg-industry" value="supermarket" style="accent-color: ${tokens.primary}; margin-top: 2px;" />
+                    <div>
+                      <div style="font-weight: 700; font-size: 0.8125rem; color: ${tokens.textPrimary};">Supermarket & FMCG</div>
+                      <div style="font-size: 0.7rem; color: ${tokens.textMuted};">Laser scanner buffer, multi-till cashiers</div>
+                    </div>
+                  </label>
+                  <label class="industry-choice-label" style="background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 10px 12px; cursor: pointer; display: flex; align-items: flex-start; gap: 8px;">
+                    <input type="radio" name="reg-industry" value="warehouse" style="accent-color: ${tokens.primary}; margin-top: 2px;" />
+                    <div>
+                      <div style="font-weight: 700; font-size: 0.8125rem; color: ${tokens.textPrimary};">Distribution & Warehouse</div>
+                      <div style="font-size: 0.7rem; color: ${tokens.textMuted};">In-transit transfers, bin waves & FEFO</div>
+                    </div>
+                  </label>
+                  <label class="industry-choice-label" style="background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 10px 12px; cursor: pointer; display: flex; align-items: flex-start; gap: 8px;">
+                    <input type="radio" name="reg-industry" value="electronics" style="accent-color: ${tokens.primary}; margin-top: 2px;" />
+                    <div>
+                      <div style="font-weight: 700; font-size: 0.8125rem; color: ${tokens.textPrimary};">Serialized Electronics</div>
+                      <div style="font-size: 0.7rem; color: ${tokens.textMuted};">Serial warranty tracking & lot history</div>
+                    </div>
+                  </label>
+                </div>
               </div>
-              <div>
-                <label for="reg-owner-email" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">OWNER WORK EMAIL *</label>
-                <input id="reg-owner-email" class="form-input" type="email" required placeholder="victoria@apex.com" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+
+              <div style="margin-bottom: 14px;">
+                <label for="reg-branch-name" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">INITIAL FLAGSHIP / STORE BRANCH NAME *</label>
+                <input id="reg-branch-name" class="form-input" type="text" placeholder="e.g. London Central Flagship" value="London Flagship" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+              </div>
+
+              <div class="modal-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+                <div>
+                  <label for="reg-initial-float" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">INITIAL CASH TILL FLOAT</label>
+                  <input id="reg-initial-float" class="form-input" type="text" value="$200.00" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px; font-family: var(--stokrova-font-mono);" />
+                </div>
+                <div style="display: flex; flex-direction: column; justify-content: center;">
+                  <div style="font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">HARDWARE DETECTORS</div>
+                  <label style="display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: #4ADE80; cursor: pointer;">
+                    <input type="checkbox" checked disabled style="accent-color: #4ADE80;" />
+                    <span>Sub-50ms Laser Scanner Buffer Active</span>
+                  </label>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; gap: 10px;">
+                <button type="button" onclick="window.stokrovaCustomerApp.prevSignupStep(2)" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
+                  ← Back
+                </button>
+                <button id="btn-signup-step2" type="button" onclick="window.stokrovaCustomerApp.nextSignupStep(2)" style="min-height: 44px; padding: 10px 22px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer;">
+                  Continue to Owner Account →
+                </button>
               </div>
             </div>
 
-            <div class="modal-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
-              <div>
-                <label for="reg-password" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">PASSWORD *</label>
-                <input id="reg-password" class="form-input" type="password" required placeholder="••••••••••••" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+            <!-- STEP 3: Business Owner & Executive Access -->
+            <div id="reg-step-3" class="signup-step-pane" style="display: none;">
+              <div class="modal-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                  <label for="reg-owner-name" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">OWNER FULL NAME *</label>
+                  <input id="reg-owner-name" class="form-input" type="text" required placeholder="Victoria Sterling" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+                </div>
+                <div>
+                  <label for="reg-owner-email" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">OWNER WORK EMAIL *</label>
+                  <input id="reg-owner-email" class="form-input" type="email" required placeholder="victoria@apex.com" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+                </div>
               </div>
-              <div>
-                <label for="reg-tier" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">PLAN TIER</label>
+
+              <div class="modal-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                <div>
+                  <label for="reg-password" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">PASSWORD *</label>
+                  <input id="reg-password" class="form-input" type="password" required placeholder="••••••••••••" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+                </div>
+                <div>
+                  <label for="reg-owner-phone" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">EMERGENCY AUDIT PHONE (OPTIONAL)</label>
+                  <input id="reg-owner-phone" class="form-input" type="tel" placeholder="+44 20 7946 0912" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+                </div>
+              </div>
+
+              <div style="background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 10px 12px; margin-bottom: 20px; font-size: 0.75rem; color: ${tokens.textMuted}; line-height: 1.45;">
+                🛡️ Master owner receives root tenant administrative privileges across all branches, till sessions, and general ledger accounts.
+              </div>
+
+              <div style="display: flex; justify-content: space-between; gap: 10px;">
+                <button type="button" onclick="window.stokrovaCustomerApp.prevSignupStep(3)" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
+                  ← Back
+                </button>
+                <button id="btn-signup-step3" type="button" onclick="window.stokrovaCustomerApp.nextSignupStep(3)" style="min-height: 44px; padding: 10px 22px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer;">
+                  Continue to Scale & Plan →
+                </button>
+              </div>
+            </div>
+
+            <!-- STEP 4: Operational Scale & Subscription Plan Selection -->
+            <div id="reg-step-4" class="signup-step-pane" style="display: none;">
+              <div style="margin-bottom: 16px;">
+                <label for="reg-tier" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 8px;">PLAN TIER</label>
+                
+                <!-- Plan Card Options -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px;">
+                  
+                  <div class="signup-plan-card" onclick="window.stokrovaCustomerApp.selectSignupPlan('starter')" id="plan-card-starter" style="background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 14px 10px; cursor: pointer; text-align: center; transition: all 0.15s ease;">
+                    <div style="font-weight: 800; font-size: 0.95rem; color: ${tokens.textPrimary};">Starter</div>
+                    <div style="font-family: var(--stokrova-font-mono); font-size: 1.25rem; font-weight: 900; color: ${tokens.textPrimary}; margin: 4px 0;">$49</div>
+                    <div style="font-size: 0.6875rem; color: ${tokens.textMuted};">1 Store • Touch POS</div>
+                  </div>
+
+                  <div class="signup-plan-card" onclick="window.stokrovaCustomerApp.selectSignupPlan('growth')" id="plan-card-growth" style="background: #161B1E; border: 2px solid ${tokens.primary}; border-radius: 8px; padding: 14px 10px; cursor: pointer; text-align: center; position: relative; transition: all 0.15s ease;">
+                    <span style="position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: ${tokens.primary}; color: #0E1116; font-size: 0.6rem; font-weight: 800; padding: 1px 8px; border-radius: 9999px;">POPULAR</span>
+                    <div style="font-weight: 800; font-size: 0.95rem; color: ${tokens.textPrimary};">Growth</div>
+                    <div style="font-family: var(--stokrova-font-mono); font-size: 1.25rem; font-weight: 900; color: ${tokens.primary}; margin: 4px 0;">$149</div>
+                    <div style="font-size: 0.6875rem; color: ${tokens.textMuted};">5 Stores • In-Transit & FEFO</div>
+                  </div>
+
+                  <div class="signup-plan-card" onclick="window.stokrovaCustomerApp.selectSignupPlan('enterprise')" id="plan-card-enterprise" style="background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 14px 10px; cursor: pointer; text-align: center; transition: all 0.15s ease;">
+                    <div style="font-weight: 800; font-size: 0.95rem; color: ${tokens.textPrimary};">Enterprise</div>
+                    <div style="font-family: var(--stokrova-font-mono); font-size: 1.25rem; font-weight: 900; color: ${tokens.textPrimary}; margin: 4px 0;">$399</div>
+                    <div style="font-size: 0.6875rem; color: ${tokens.textMuted};">Warehouses • DAG Kahn</div>
+                  </div>
+
+                </div>
+
+                <!-- Hidden / Synced Select for Complete Contract & Test Compatibility -->
                 <select id="reg-tier" class="form-input" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;">
                   <option value="starter">Starter — $49/mo</option>
                   <option value="growth" selected>Growth — $149/mo (Recommended)</option>
                   <option value="enterprise">Enterprise — $399/mo</option>
                 </select>
               </div>
+
+              <div style="background: #14291F; border: 1px solid #1E4620; border-radius: 8px; padding: 12px 14px; margin-bottom: 20px; font-size: 0.75rem; color: #4ADE80; line-height: 1.5;">
+                ✓ 14-Day Zero-Risk Trial included • Automatic Double-Entry Ledger • Cancel or scale branches anytime.
+              </div>
+
+              <div style="display: flex; justify-content: space-between; gap: 10px;">
+                <button type="button" onclick="window.stokrovaCustomerApp.prevSignupStep(4)" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
+                  ← Back
+                </button>
+                <button id="btn-submit-registration" type="submit" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 16px rgba(189,150,82,0.4);">
+                  Provision Workspace & Customize →
+                </button>
+              </div>
             </div>
 
-            <div style="margin-bottom: 20px;">
-              <label for="reg-branch-name" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">INITIAL FLAGSHIP / STORE BRANCH NAME</label>
-              <input id="reg-branch-name" class="form-input" type="text" placeholder="e.g. London Central Flagship" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+            <!-- STEP 5: High-Class Cosmic Motions & Dynamic Dashboard Customization Screen -->
+            <div id="reg-step-5" class="signup-step-pane" style="display: none; text-align: center; padding: 10px 0;">
+              
+              <!-- Cosmic Emblem with Pulse Glow -->
+              <div style="position: relative; width: 84px; height: 84px; margin: 0 auto 16px auto; display: flex; align-items: center; justify-content: center;">
+                <div class="command-center-glow" style="position: absolute; inset: -8px; border-radius: 50%; background: radial-gradient(circle, rgba(189,150,82,0.4), transparent 70%);"></div>
+                <div style="width: 72px; height: 72px; border-radius: 50%; background: #161B1E; border: 2px solid ${tokens.primary}; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(189,150,82,0.5);">
+                  <span style="font-size: 2rem; color: ${tokens.primary}; animation: pulseDot 1.2s infinite alternate;">◆</span>
+                </div>
+              </div>
+
+              <h3 id="prov-headline" style="margin: 0 0 6px 0; font-size: 1.3rem; font-weight: 800; color: ${tokens.textPrimary};">
+                Customizing Your Business Dashboard...
+              </h3>
+              <p style="margin: 0 0 20px 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">
+                Calibrating multi-branch telemetry, ledger journals, and hardware scanner buffers.
+              </p>
+
+              <!-- Progress Percentage & Bar -->
+              <div style="max-width: 440px; margin: 0 auto 24px auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-family: var(--stokrova-font-mono); font-size: 0.875rem;">
+                  <span id="prov-stage-label" style="color: ${tokens.textSecondary};">Initializing cryptographic partition...</span>
+                  <span id="prov-percent" style="font-weight: 900; color: ${tokens.primary};">0%</span>
+                </div>
+                <div style="height: 6px; background: #161B1E; border-radius: 3px; overflow: hidden; border: 1px solid ${tokens.border};">
+                  <div id="prov-progress-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #BD9652, #4ADE80); box-shadow: 0 0 12px rgba(189,150,82,0.8); transition: width 0.25s ease-out;"></div>
+                </div>
+              </div>
+
+              <!-- Dynamic Real-Time Milestone Checklist -->
+              <div id="prov-milestones" style="max-width: 440px; margin: 0 auto 24px auto; background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 14px 16px; text-align: left; font-size: 0.75rem; font-family: var(--stokrova-font-mono); display: flex; flex-direction: column; gap: 8px;">
+                <div id="m-step-1" style="color: ${tokens.textMuted}; transition: all 0.2s ease;">
+                  <span class="m-icon">⬡</span> <span>Tenant Cryptographic Quarantine Active</span>
+                </div>
+                <div id="m-step-2" style="color: ${tokens.textMuted}; transition: all 0.2s ease;">
+                  <span class="m-icon">⬡</span> <span>Configuring legal entity '<strong id="prov-dyn-company" style="color: ${tokens.textPrimary};">...</strong>'</span>
+                </div>
+                <div id="m-step-3" style="color: ${tokens.textMuted}; transition: all 0.2s ease;">
+                  <span class="m-icon">⬡</span> <span>Setting up flagship branch '<strong id="prov-dyn-branch" style="color: ${tokens.textPrimary};">...</strong>'</span>
+                </div>
+                <div id="m-step-4" style="color: ${tokens.textMuted}; transition: all 0.2s ease;">
+                  <span class="m-icon">⬡</span> <span>Generating automated double-entry ledger & chart of accounts</span>
+                </div>
+                <div id="m-step-5" style="color: ${tokens.textMuted}; transition: all 0.2s ease;">
+                  <span class="m-icon">⬡</span> <span>Provisioning root credentials for <strong id="prov-dyn-owner" style="color: ${tokens.textPrimary};">...</strong></span>
+                </div>
+                <div id="m-step-6" style="color: ${tokens.textMuted}; transition: all 0.2s ease;">
+                  <span class="m-icon">⬡</span> <span>Deploying workspace to <strong id="prov-dyn-slug" style="color: ${tokens.primary};">...</strong>.stokrova.com</span>
+                </div>
+              </div>
+
+              <!-- Celebratory Completion Actions (Shown at 100%) -->
+              <div id="prov-completion-actions" style="display: none; animation: fadeIn 0.3s ease-out;">
+                <div style="background: rgba(74, 222, 128, 0.1); border: 1px solid #1E4620; border-radius: 8px; padding: 10px 14px; max-width: 440px; margin: 0 auto 18px auto; color: #4ADE80; font-size: 0.8125rem; font-weight: 700;">
+                  ✦ Workspace Ready: Welcome to STOKROVA, <span id="prov-dyn-welcome">Victoria</span>!
+                </div>
+                <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+                  <button type="button" onclick="window.stokrovaCustomerApp.launchWorkspaceWithTour()" style="min-height: 44px; padding: 12px 24px; border-radius: 8px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 16px rgba(189,150,82,0.45); display: inline-flex; align-items: center; gap: 8px;">
+                    <span>🌍</span> <span>Take Interactive Tour (Recommended)</span>
+                  </button>
+                  <button type="button" onclick="window.stokrovaCustomerApp.launchWorkspaceDirect()" style="min-height: 44px; padding: 12px 20px; border-radius: 8px; border: 1px solid ${tokens.borderStrong}; background: #161B1E; color: ${tokens.textPrimary}; font-weight: 600; font-size: 0.9rem; cursor: pointer;">
+                    Open Dashboard Directly →
+                  </button>
+                </div>
+              </div>
+
             </div>
 
-            <div style="display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
-              <button type="button" onclick="window.stokrovaCustomerApp.closeRegisterModal()" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
-                Cancel
-              </button>
-              <button type="submit" style="min-height: 44px; padding: 10px 22px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer;">
-                Complete Registration & Launch Workspace →
-              </button>
-            </div>
           </form>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * World-Class Interactive Guided Tour Overlay
+   * Seamless step-by-step walkthrough simulating world-best onboarding with dismissal, cancellation, and live interactive feature exploration.
+   */
+  public renderTourOverlayHtml(): string {
+    const tokens = themeTokens[this.theme];
+    return `
+      <div id="stokrova-tour-overlay" style="display: none; position: fixed; inset: 0; z-index: 100000; pointer-events: none;">
+        
+        <!-- Dark Translucent Spotlight Backdrop -->
+        <div id="stokrova-tour-backdrop" style="position: absolute; inset: 0; background: rgba(14, 17, 22, 0.78); backdrop-filter: blur(4px); pointer-events: auto;" onclick="window.stokrovaCustomerApp.endTour()"></div>
+
+        <!-- Spotlight Focus Halo with Golden Glow -->
+        <div id="stokrova-tour-spotlight" style="position: absolute; pointer-events: none; border: 2px solid ${tokens.primary}; border-radius: 10px; box-shadow: 0 0 40px rgba(189,150,82,0.5), inset 0 0 20px rgba(189,150,82,0.15); transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1); opacity: 0; z-index: 100001;" aria-hidden="true"></div>
+
+        <!-- Floating Tour Popover Card -->
+        <div id="stokrova-tour-card" style="position: fixed; bottom: 32px; right: 32px; background: ${tokens.surface}; border: 1px solid ${tokens.primary}; border-radius: 14px; padding: 22px 24px; width: 440px; max-width: calc(100vw - 32px); box-shadow: 0 25px 60px rgba(0,0,0,0.85), 0 0 25px rgba(189,150,82,0.25); z-index: 100002; pointer-events: auto; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+          
+          <!-- Card Header with Globe Icon -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.3rem; animation: pulseDot 1.5s infinite;">🌍</span>
+              <span style="font-size: 0.75rem; font-weight: 800; color: ${tokens.primary}; text-transform: uppercase; letter-spacing: 0.08em;">STOKROVA TOUR</span>
+              <span style="font-size: 0.75rem; color: ${tokens.textMuted}; font-family: var(--stokrova-font-mono);">• Step <span id="tour-step-num">1</span> of 5</span>
+            </div>
+            <button onclick="window.stokrovaCustomerApp.endTour()" aria-label="Dismiss tour" style="background: none; border: none; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; color: ${tokens.textMuted}; cursor: pointer;">&times;</button>
+          </div>
+
+          <!-- Tour Step Content -->
+          <h3 id="tour-card-title" style="margin: 0 0 6px 0; font-size: 1.2rem; font-weight: 800; color: ${tokens.textPrimary};">
+            Universal Operations Command Bar
+          </h3>
+          <p id="tour-card-desc" style="margin: 0 0 16px 0; font-size: 0.875rem; line-height: 1.55; color: ${tokens.textSecondary};">
+            Control every high-street branch, pop-up store, and regional distribution warehouse from a single pane of glass. Your data is protected by enterprise cryptographic tenant isolation—zero cross-tenant data bleed.
+          </p>
+
+          <!-- Interactive Action Snippet Box -->
+          <div id="tour-card-action-box" style="margin-bottom: 18px; background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 10px 14px; font-size: 0.8125rem;">
+            <span style="color: #4ADE80; font-weight: 700;">✓ Live Status:</span> <span id="tour-action-snippet" style="color: ${tokens.textSecondary};">Multi-Branch Telemetry Synchronized</span>
+          </div>
+
+          <!-- Tour Footer Navigation -->
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid ${tokens.border}; padding-top: 14px;">
+            <button onclick="window.stokrovaCustomerApp.endTour()" style="background: transparent; border: none; color: ${tokens.textMuted}; font-size: 0.8125rem; font-weight: 600; cursor: pointer; padding: 8px 0;">
+              Dismiss Tour (Esc)
+            </button>
+            <div style="display: flex; gap: 8px;">
+              <button id="tour-btn-prev" onclick="window.stokrovaCustomerApp.prevTourStep()" style="min-height: 40px; background: #161B1E; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; padding: 8px 16px; border-radius: 6px; font-size: 0.8125rem; font-weight: 600; cursor: pointer;">
+                ← Back
+              </button>
+              <button id="tour-btn-next" onclick="window.stokrovaCustomerApp.nextTourStep()" style="min-height: 40px; background: ${tokens.primary}; border: none; color: #0E1116; padding: 8px 18px; border-radius: 6px; font-size: 0.8125rem; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(189,150,82,0.4);">
+                Next Feature →
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
     `;
@@ -1450,47 +1771,158 @@ export class LandingViewModel {
   public renderLoginModalHtml(): string {
     const tokens = themeTokens[this.theme];
     return `
-      <div id="modal-login" role="dialog" aria-modal="true" aria-labelledby="login-modal-title" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
-        <div class="modal-dialog-inner" style="background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; border-radius: 12px; width: 100%; max-width: 480px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); padding: 28px 24px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div>
-              <h2 id="login-modal-title" style="margin: 0; font-size: 1.3rem; color: ${tokens.textPrimary};">Staff Sign In</h2>
-              <p style="margin: 3px 0 0 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">Enter your business slug and credentials to access your live workspace</p>
+      <div id="modal-login" role="dialog" aria-modal="true" aria-labelledby="login-modal-title" style="display: none; position: fixed; inset: 0; background: rgba(14, 17, 22, 0.88); backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
+        <div class="modal-dialog-inner login-stepper-card" style="position: relative; z-index: 1; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; border-radius: 14px; width: 100%; max-width: 490px; box-shadow: 0 25px 60px rgba(0,0,0,0.75), 0 0 25px rgba(189,150,82,0.12); padding: 26px 24px;">
+          
+          <!-- Modal Header -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="color: ${tokens.primary}; font-size: 1.25rem; font-weight: 800;">◆</span>
+              <div>
+                <h2 id="login-modal-title" style="margin: 0; font-size: 1.25rem; font-weight: 800; color: ${tokens.textPrimary};">Staff Sign In</h2>
+                <div style="margin: 2px 0 0 0; font-size: 0.75rem; color: ${tokens.textSecondary};">
+                  Smart Workspace Auto-Discovery • Cryptographic Access
+                </div>
+              </div>
             </div>
             <button onclick="window.stokrovaCustomerApp.closeLoginModal()" aria-label="Close dialog" style="background: none; border: none; width: 44px; height: 44px; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; color: ${tokens.textMuted}; cursor: pointer;">&times;</button>
           </div>
 
-          <form id="form-login-customer" onsubmit="window.stokrovaCustomerApp.handleLoginSubmit(event)">
-            <div style="margin-bottom: 14px;">
-              <label for="login-slug" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">BUSINESS WORKSPACE / SLUG *</label>
-              <input id="login-slug" class="form-input" type="text" required placeholder="e.g. apex" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
-              <div style="text-align: right; margin-top: 4px;">
-                <a href="#" onclick="window.stokrovaCustomerApp.showToast('Demo workspace slug is: apex'); return false;" style="font-size: 0.7rem; color: ${tokens.primary}; text-decoration: none;">Forgot your workspace name?</a>
+          <!-- STEP 1: Enter Staff Email & Password -->
+          <div id="login-step-credentials" style="display: block;">
+            <form id="form-login-customer" onsubmit="window.stokrovaCustomerApp.handleLoginSubmit(event)">
+              
+              <div style="margin-bottom: 14px;">
+                <label for="login-email" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">STAFF WORK EMAIL *</label>
+                <input id="login-email" class="form-input" type="email" required placeholder="name@company.com" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+                <div style="font-size: 0.725rem; color: ${tokens.textMuted}; margin-top: 4px;">
+                  Enter your work email — STOKROVA will automatically verify your business workspace.
+                </div>
+              </div>
+
+              <div style="margin-bottom: 14px;">
+                <label for="login-password" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">PASSWORD / PIN *</label>
+                <input id="login-password" class="form-input" type="password" required placeholder="••••••••••••" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+              </div>
+
+              <!-- Optional Workspace Slug (Preserves contract ID & test expectations) -->
+              <div style="margin-bottom: 18px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                  <label for="login-slug" class="form-label" style="font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary};">BUSINESS WORKSPACE / SLUG</label>
+                  <span style="font-size: 0.6875rem; color: ${tokens.primary}; background: rgba(189,150,82,0.12); padding: 2px 6px; border-radius: 4px; font-weight: 600;">Auto-Discovered</span>
+                </div>
+                <input id="login-slug" class="form-input" type="text" placeholder="Auto-detected from email (or enter slug)" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 14px; font-family: var(--stokrova-font-mono);" />
+                <div style="font-size: 0.7rem; color: ${tokens.textMuted}; margin-top: 3px;">
+                  Optional: Leave blank for instant automatic workspace discovery.
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
+                <button type="button" onclick="window.stokrovaCustomerApp.closeLoginModal()" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
+                  Cancel
+                </button>
+                <button id="btn-submit-login" type="submit" style="min-height: 44px; padding: 10px 22px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer; box-shadow: 0 2px 10px rgba(189,150,82,0.35);">
+                  Sign In & Find Workspace →
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- STEP 2: Searching & Verifying Workspace Screen -->
+          <div id="login-step-verification" style="display: none; text-align: center; padding: 6px 0;">
+            
+            <!-- Searching State Spinner / Pulse -->
+            <div id="login-searching-state" style="display: block; padding: 14px 0;">
+              <div style="position: relative; width: 68px; height: 68px; margin: 0 auto 16px auto; display: flex; align-items: center; justify-content: center;">
+                <div class="command-center-glow" style="position: absolute; inset: -6px; border-radius: 50%; background: radial-gradient(circle, rgba(189,150,82,0.35), transparent 70%);"></div>
+                <div style="width: 58px; height: 58px; border-radius: 50%; background: #161B1E; border: 2px solid ${tokens.primary}; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(189,150,82,0.45);">
+                  <span style="font-size: 1.5rem; color: ${tokens.primary}; animation: pulseDot 1s infinite alternate;">🔍</span>
+                </div>
+              </div>
+              <h3 id="login-verify-headline" style="margin: 0 0 6px 0; font-size: 1.15rem; font-weight: 800; color: ${tokens.textPrimary};">
+                Verifying Your Workspace...
+              </h3>
+              <p style="margin: 0 0 16px 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">
+                Searching registered companies, staff permissions & cryptographic isolation.
+              </p>
+
+              <!-- Scanning Progress Bar -->
+              <div style="height: 5px; background: #161B1E; border-radius: 3px; overflow: hidden; border: 1px solid ${tokens.border}; margin: 0 auto; max-width: 320px;">
+                <div id="login-verify-progress-fill" style="width: 25%; height: 100%; background: linear-gradient(90deg, #BD9652, #4ADE80); box-shadow: 0 0 10px rgba(189,150,82,0.6); transition: width 0.35s ease;"></div>
               </div>
             </div>
 
-            <div style="margin-bottom: 14px;">
-              <label for="login-email" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">STAFF WORK EMAIL *</label>
-              <input id="login-email" class="form-input" type="email" required placeholder="name@company.com" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
-              <div style="font-size: 0.75rem; color: ${tokens.primary}; margin-top: 5px; line-height: 1.4;">
-                💡 Demo roles hint: Use an email containing manager, cashier, or picker to preview those specific staff views.
+            <!-- Verified Staff Record Card (Revealed upon search completion with all green checkmarks) -->
+            <div id="login-verified-state" style="display: none; animation: fadeIn 0.3s ease-out;">
+              <div style="background: rgba(74, 222, 128, 0.08); border: 1px solid #1E4620; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; color: #4ADE80; font-size: 0.8125rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span>✓</span> <span>Workspace Verified Successfully</span>
               </div>
+
+              <div style="background: #161B1E; border: 1px solid ${tokens.borderStrong}; border-radius: 10px; padding: 16px 18px; text-align: left; margin-bottom: 20px; font-size: 0.8125rem; display: flex; flex-direction: column; gap: 10px;">
+                
+                <!-- Item 1: Company / Workspace -->
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222830; padding-bottom: 8px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="color: #4ADE80; font-weight: 800; font-size: 0.95rem;">✓</span>
+                    <span style="color: ${tokens.textSecondary};">Company Workspace:</span>
+                  </div>
+                  <div style="text-align: right;">
+                    <strong id="login-dyn-company" style="color: ${tokens.textPrimary};">Apex Global Retail Ltd</strong>
+                    <div id="login-dyn-slug" style="font-size: 0.7rem; color: ${tokens.primary}; font-family: var(--stokrova-font-mono);">apex.stokrova.com</div>
+                  </div>
+                </div>
+
+                <!-- Item 2: Staff Member & Role -->
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222830; padding-bottom: 8px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="color: #4ADE80; font-weight: 800; font-size: 0.95rem;">✓</span>
+                    <span style="color: ${tokens.textSecondary};">Staff Member:</span>
+                  </div>
+                  <strong id="login-dyn-name" style="color: ${tokens.textPrimary};">Staff Member</strong>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222830; padding-bottom: 8px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="color: #4ADE80; font-weight: 800; font-size: 0.95rem;">✓</span>
+                    <span style="color: ${tokens.textSecondary};">Assigned Role:</span>
+                  </div>
+                  <span id="login-dyn-role" style="background: rgba(189,150,82,0.18); color: ${tokens.primary}; font-weight: 700; font-size: 0.75rem; padding: 2px 8px; border-radius: 4px;">Verified Staff</span>
+                </div>
+
+                <!-- Item 3: Last Active Time/Day -->
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222830; padding-bottom: 8px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="color: #4ADE80; font-weight: 800; font-size: 0.95rem;">✓</span>
+                    <span style="color: ${tokens.textSecondary};">Last Active:</span>
+                  </div>
+                  <span id="login-dyn-last-active" style="color: #4ADE80; font-family: var(--stokrova-font-mono); font-size: 0.75rem; font-weight: 600;">Today at 09:42 AM</span>
+                </div>
+
+                <!-- Item 4: Cryptographic Quarantine Status -->
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="color: #4ADE80; font-weight: 800; font-size: 0.95rem;">✓</span>
+                    <span style="color: ${tokens.textSecondary};">Tenant Isolation:</span>
+                  </div>
+                  <span style="color: #4ADE80; font-family: var(--stokrova-font-mono); font-size: 0.75rem; font-weight: 600;">Rule 21 Verified ✓</span>
+                </div>
+
+              </div>
+
+              <!-- Confirmation Actions -->
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                <button type="button" onclick="window.stokrovaCustomerApp.backToLoginCredentials()" style="min-height: 44px; padding: 10px 16px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.8125rem; cursor: pointer;">
+                  ← Switch Account
+                </button>
+                <button id="btn-confirm-login" type="button" onclick="window.stokrovaCustomerApp.confirmLoginLaunch()" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.9rem; cursor: pointer; box-shadow: 0 4px 14px rgba(189,150,82,0.4);">
+                  Confirm & Enter Dashboard →
+                </button>
+              </div>
+
             </div>
 
-            <div style="margin-bottom: 20px;">
-              <label for="login-password" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">PASSWORD / PIN *</label>
-              <input id="login-password" class="form-input" type="password" required placeholder="••••••••••••" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
-            </div>
+          </div>
 
-            <div style="display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
-              <button type="button" onclick="window.stokrovaCustomerApp.closeLoginModal()" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
-                Cancel
-              </button>
-              <button type="submit" style="min-height: 44px; padding: 10px 22px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer;">
-                Sign In to Workspace →
-              </button>
-            </div>
-          </form>
         </div>
       </div>
     `;
@@ -1550,7 +1982,7 @@ export class LandingViewModel {
           </div>
 
           <div id="legal-modal-body" style="font-size: 0.875rem; line-height: 1.6; color: ${tokens.textSecondary};">
-            <h4 style="color: ${tokens.textPrimary}; margin: 14px 0 4px 0;">Rule 21 Multi-Tenant Data Quarantine</h4>
+            <h4 style="color: ${tokens.textPrimary}; margin: 14px 0 4px 0;">Enterprise Multi-Tenant Data Isolation</h4>
             <p>Every business subscriber's catalog, double-entry financial ledger, orders, and customer information are cryptographically isolated with tenant-scoped row security. Cross-tenant leakage is strictly prevented at the architectural layer.</p>
 
             <h4 style="color: ${tokens.textPrimary}; margin: 14px 0 4px 0;">Offline Outbox & Financial Ledger Immutability</h4>
@@ -1585,7 +2017,7 @@ export class LandingViewModel {
               Enterprise multi-branch inventory, retail POS, and financial orchestration operating platform.
             </p>
             <div style="font-family: var(--stokrova-font-mono); font-size: 0.75rem; color: ${tokens.primary};">
-              Strict Multi-Tenant Rule 21 • Pure Minor Currency Math
+              Enterprise Multi-Tenant Security • Precision Currency Engine
             </div>
           </div>
 
@@ -1602,7 +2034,7 @@ export class LandingViewModel {
             <div>
               <div style="font-weight: 700; color: ${tokens.textPrimary}; margin-bottom: 10px; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.08em;">Legal & Compliance</div>
               <div style="display: flex; flex-direction: column; gap: 6px;">
-                <a href="#" onclick="window.stokrovaCustomerApp.openLegalModal('isolation'); return false;" style="color: ${tokens.textSecondary}; text-decoration: none; min-height: 32px; display: inline-flex; align-items: center;">Tenant Isolation Guarantee (Rule 21)</a>
+                <a href="#" onclick="window.stokrovaCustomerApp.openLegalModal('isolation'); return false;" style="color: ${tokens.textSecondary}; text-decoration: none; min-height: 32px; display: inline-flex; align-items: center;">Tenant Isolation Guarantee</a>
                 <a href="#" onclick="window.stokrovaCustomerApp.openLegalModal('ledger'); return false;" style="color: ${tokens.textSecondary}; text-decoration: none; min-height: 32px; display: inline-flex; align-items: center;">Immutable Financial History</a>
                 <a href="#" onclick="window.stokrovaCustomerApp.openLegalModal('privacy'); return false;" style="color: ${tokens.textSecondary}; text-decoration: none; min-height: 32px; display: inline-flex; align-items: center;">Privacy Policy</a>
                 <a href="#" onclick="window.stokrovaCustomerApp.openLegalModal('terms'); return false;" style="color: ${tokens.textSecondary}; text-decoration: none; min-height: 32px; display: inline-flex; align-items: center;">Terms of Service</a>

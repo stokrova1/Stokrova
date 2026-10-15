@@ -55,7 +55,7 @@ describe('Phase 25 @stokrova/ui — Cross-Platform UI Shell Cohesion & Accessibi
     });
   });
 
-  describe('2. Pure Minor Unit Currency Formatting Across Currencies (Rule 26)', () => {
+  describe('2. Pure Minor Unit Currency Formatting Across Currencies', () => {
     it('formats pure integer minor units into locale-aware currency strings without floats', () => {
       expect(formatCurrencyMinor(0n, 'USD')).toBe('$0.00');
       expect(formatCurrencyMinor(4900n, 'USD')).toBe('$49.00');

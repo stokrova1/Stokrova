@@ -40,7 +40,7 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     expect(html).toContain('Staff Sign In to Workspace');
     expect(html).not.toContain('Start 14-Day Free Trial');
     expect(html).not.toContain('Explore Live Demo Business');
-    expect(html).toContain('Rule 21');
+    expect(html).toContain('Strict Multi-Tenant Isolation');
     expect(html).toContain('Offline-First POS');
   });
 
@@ -81,7 +81,7 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     expect(html).not.toContain('demo1234');
   });
 
-  it('renders multi-branch architecture section with holding hierarchy and Rule 21 isolation', () => {
+  it('renders multi-branch architecture section with holding hierarchy and multi-tenant isolation', () => {
     const view = new LandingViewModel('dark');
     const html = view.renderArchitectureSectionHtml();
 
@@ -89,7 +89,7 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     expect(html).toContain('Multi-Company & Multi-Branch Topology');
     expect(html).toContain('Multi-Entity Holding Hierarchy');
     expect(html).toContain('Two-Step In-Transit Transfers');
-    expect(html).toContain('Rule 21 Multi-Tenant Isolation');
+    expect(html).toContain('Multi-Tenant Security & Isolation');
   });
 
   it('renders offline POS showcase section with sub-50ms scanner buffer and split tender', () => {
@@ -167,7 +167,7 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     expect(html).toContain('<details');
     expect(html).toContain('<summary');
     expect(html).toContain('How does STOKROVA maintain 100% uptime when retail internet goes down?');
-    expect(html).toContain('Rule 21');
+    expect(html).toContain('How does STOKROVA guarantee our business and financial data is kept isolated?');
     expect(html).toContain('ESC/POS');
   });
 
@@ -217,4 +217,66 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     expect(regModalHtml).toContain('for="reg-company-name"');
     expect(regModalHtml).toContain('for="reg-slug"');
   });
+
+  it('renders 5-step onboarding stepper with cosmic particle canvas and dynamic customization screen', () => {
+    const view = new LandingViewModel('dark');
+    const regModalHtml = view.renderRegisterModalHtml();
+
+    expect(regModalHtml).toContain('id="signup-cosmic-canvas"');
+    expect(regModalHtml).toContain('id="signup-stepper-header"');
+    expect(regModalHtml).toContain('id="signup-current-step-num"');
+    expect(regModalHtml).toContain('id="signup-progress-fill"');
+    expect(regModalHtml).toContain('id="reg-step-1"');
+    expect(regModalHtml).toContain('id="reg-step-2"');
+    expect(regModalHtml).toContain('id="reg-step-3"');
+    expect(regModalHtml).toContain('id="reg-step-4"');
+    expect(regModalHtml).toContain('id="reg-step-5"');
+    expect(regModalHtml).toContain('id="reg-branch-name"');
+    expect(regModalHtml).toContain('id="prov-percent"');
+    expect(regModalHtml).toContain('id="prov-progress-fill"');
+    expect(regModalHtml).toContain('id="prov-milestones"');
+    expect(regModalHtml).toContain('id="prov-completion-actions"');
+    expect(regModalHtml).toContain('Take Interactive Tour (Recommended)');
+    expect(regModalHtml).toContain('Open Dashboard Directly →');
+  });
+
+  it('renders world-class guided tour overlay with globe icon and interactive navigation steps', () => {
+    const view = new LandingViewModel('dark');
+    const tourHtml = view.renderTourOverlayHtml();
+
+    expect(tourHtml).toContain('id="stokrova-tour-overlay"');
+    expect(tourHtml).toContain('id="stokrova-tour-backdrop"');
+    expect(tourHtml).toContain('id="stokrova-tour-spotlight"');
+    expect(tourHtml).toContain('id="stokrova-tour-card"');
+    expect(tourHtml).toContain('STOKROVA TOUR');
+    expect(tourHtml).toContain('🌍');
+    expect(tourHtml).toContain('id="tour-step-num"');
+    expect(tourHtml).toContain('id="tour-card-title"');
+    expect(tourHtml).toContain('id="tour-card-desc"');
+    expect(tourHtml).toContain('id="tour-btn-next"');
+    expect(tourHtml).toContain('id="tour-btn-prev"');
+    expect(tourHtml).toContain('Dismiss Tour (Esc)');
+  });
+
+  it('renders staff login modal with two-stage verification screen and green confirmation checks', () => {
+    const view = new LandingViewModel('dark');
+    const html = view.renderLoginModalHtml();
+
+    expect(html).toContain('id="modal-login"');
+    expect(html).toContain('id="login-step-credentials"');
+    expect(html).toContain('id="login-step-verification"');
+    expect(html).toContain('id="login-searching-state"');
+    expect(html).toContain('id="login-verified-state"');
+    expect(html).toContain('id="login-dyn-company"');
+    expect(html).toContain('id="login-dyn-slug"');
+    expect(html).toContain('id="login-dyn-name"');
+    expect(html).toContain('id="login-dyn-role"');
+    expect(html).toContain('id="login-dyn-last-active"');
+    expect(html).toContain('id="btn-confirm-login"');
+    expect(html).toContain('Confirm & Enter Dashboard →');
+    expect(html).toContain('Switch Account');
+    expect(html).toContain('Rule 21 Verified');
+  });
 });
+
+

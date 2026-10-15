@@ -1,7 +1,7 @@
 /**
  * STOKROVA Brand Design System & Design Tokens
  * Extracted directly from official brand logo & identity standards.
- * Golden Rules Compliance:
+ * Design Invariants:
  * - Brand discipline: Gold & Slate palettes with pure tonal harmony.
  * - Accessibility: WCAG AAA compliance checks with high contrast ratios.
  * - Pure TypeScript: Zero runtime dependencies.

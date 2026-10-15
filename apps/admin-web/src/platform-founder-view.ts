@@ -258,7 +258,7 @@ export class PlatformFounderView {
         <div style="padding: 16px 20px; border-bottom: 1px solid ${tokens.border}; display: flex; align-items: center; justify-content: space-between;">
           <div>
             <h3 style="margin: 0 0 4px 0; color: ${tokens.textPrimary}; font-size: 1.1rem; font-weight: 700;">Enrolled Business Organizations (Tenants)</h3>
-            <p style="margin: 0; color: ${tokens.textSecondary}; font-size: 0.8125rem;">Multi-tenant isolation barrier active (Rule 21). Each business is cryptographically quarantined.</p>
+            <p style="margin: 0; color: ${tokens.textSecondary}; font-size: 0.8125rem;">Multi-tenant isolation barrier active. Each business is cryptographically quarantined with dedicated row-level security.</p>
           </div>
           <button onclick="window.stokrovaFounder.openEnrollModal()" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 6px; background: ${tokens.primary}; color: ${tokens.primaryForeground}; border: none; font-weight: 600; font-size: 0.875rem; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
             <span>+</span>
