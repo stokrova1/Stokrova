@@ -1391,7 +1391,7 @@ export class LandingViewModel {
           <div id="signup-stepper-header" style="margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; margin-bottom: 8px;">
               <span style="font-weight: 700; color: ${tokens.primary}; font-family: var(--stokrova-font-mono);">
-                Step <span id="signup-current-step-num">1</span> of 4: <span id="signup-current-step-label" style="color: ${tokens.textPrimary};">Business Identity</span>
+                Step <span id="signup-current-step-num">1</span> of 4
               </span>
               <span id="signup-step-percent" style="font-family: var(--stokrova-font-mono); color: ${tokens.textMuted}; font-weight: 600;">25%</span>
             </div>
@@ -1400,22 +1400,22 @@ export class LandingViewModel {
             <div style="height: 5px; background: #161B1E; border-radius: 3px; overflow: hidden; border: 1px solid ${tokens.border};">
               <div id="signup-progress-fill" style="width: 25%; height: 100%; background: linear-gradient(90deg, #BD9652, #E0CB9F); box-shadow: 0 0 10px rgba(189,150,82,0.6); transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);"></div>
             </div>
+          </div>
 
-            <!-- 4 Step Pill Nodes -->
-            <div class="signup-step-nodes" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px;">
-              <div id="step-node-1" class="step-node active" style="font-size: 0.6875rem; padding: 4px 6px; border-radius: 4px; text-align: center; font-weight: 700; background: rgba(189,150,82,0.18); color: ${tokens.primary}; border: 1px solid ${tokens.primary};">
-                1. Business
-              </div>
-              <div id="step-node-2" class="step-node" style="font-size: 0.6875rem; padding: 4px 6px; border-radius: 4px; text-align: center; font-weight: 600; background: #161B1E; color: ${tokens.textMuted}; border: 1px solid ${tokens.border};">
-                2. Operations
-              </div>
-              <div id="step-node-3" class="step-node" style="font-size: 0.6875rem; padding: 4px 6px; border-radius: 4px; text-align: center; font-weight: 600; background: #161B1E; color: ${tokens.textMuted}; border: 1px solid ${tokens.border};">
-                3. Owner
-              </div>
-              <div id="step-node-4" class="step-node" style="font-size: 0.6875rem; padding: 4px 6px; border-radius: 4px; text-align: center; font-weight: 600; background: #161B1E; color: ${tokens.textMuted}; border: 1px solid ${tokens.border};">
-                4. Scale & Plan
+          <!-- Inter-Step Micro-Loader (Displayed during smooth transitions between dedicated pages) -->
+          <div id="signup-step-loader" style="display: none; text-align: center; padding: 48px 20px;">
+            <div style="position: relative; width: 64px; height: 64px; margin: 0 auto 16px auto; display: flex; align-items: center; justify-content: center;">
+              <div class="command-center-glow" style="position: absolute; inset: -4px; border-radius: 50%; background: radial-gradient(circle, rgba(189,150,82,0.35), transparent 70%);"></div>
+              <div style="width: 52px; height: 52px; border-radius: 50%; background: #161B1E; border: 2px solid ${tokens.primary}; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(189,150,82,0.4);">
+                <span style="font-size: 1.5rem; color: ${tokens.primary}; animation: pulseDot 1.2s infinite alternate;">◆</span>
               </div>
             </div>
+            <h3 id="signup-loader-title" style="margin: 0 0 6px 0; font-size: 1.15rem; font-weight: 800; color: ${tokens.textPrimary};">
+              Loading Next Step...
+            </h3>
+            <p id="signup-loader-sub" style="margin: 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">
+              Calibrating your business parameters and security partition...
+            </p>
           </div>
 
           <form id="form-register-customer" onsubmit="window.stokrovaCustomerApp.handleRegisterSubmit(event)">
@@ -1633,27 +1633,78 @@ export class LandingViewModel {
               </div>
             </div>
 
-            <!-- STEP 5: High-Class Cosmic Motions & Dynamic Dashboard Customization Screen -->
-            <div id="reg-step-5" class="signup-step-pane" style="display: none; text-align: center; padding: 10px 0;">
+            <!-- STEP 5: High-Class Cosmic Motions & Dedicated Welcoming / Platform Promise Screen -->
+            <div id="reg-step-5" class="signup-step-pane" style="display: none; text-align: center; padding: 6px 0;">
               
-              <!-- Cosmic Emblem with Pulse Glow -->
-              <div style="position: relative; width: 84px; height: 84px; margin: 0 auto 16px auto; display: flex; align-items: center; justify-content: center;">
-                <div class="command-center-glow" style="position: absolute; inset: -8px; border-radius: 50%; background: radial-gradient(circle, rgba(189,150,82,0.4), transparent 70%);"></div>
-                <div style="width: 72px; height: 72px; border-radius: 50%; background: #161B1E; border: 2px solid ${tokens.primary}; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(189,150,82,0.5);">
-                  <span style="font-size: 2rem; color: ${tokens.primary}; animation: pulseDot 1.2s infinite alternate;">◆</span>
+              <!-- Grand Welcoming & Congratulations Banner -->
+              <div style="background: linear-gradient(135deg, rgba(189,150,82,0.18), rgba(22,27,30,0.92)); border: 1px solid ${tokens.primary}; border-radius: 12px; padding: 22px 20px; margin-bottom: 18px; text-align: center; box-shadow: 0 0 25px rgba(189,150,82,0.2);">
+                <div style="display: inline-flex; align-items: center; gap: 6px; background: ${tokens.primary}; color: #0E1116; font-size: 0.7rem; font-weight: 800; padding: 3px 12px; border-radius: 9999px; letter-spacing: 0.08em; margin-bottom: 10px;">
+                  ✦ CONGRATULATIONS • WORKSPACE DEPLOYED ✦
+                </div>
+                <h2 id="prov-headline" style="margin: 0 0 6px 0; font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary};">
+                  Welcome to STOKROVA, <span id="prov-dyn-welcome">Victoria</span>!
+                </h2>
+                <p style="margin: 0; font-size: 0.8125rem; color: ${tokens.textSecondary}; line-height: 1.5;">
+                  Your sovereign business workspace for <strong id="prov-dyn-company" style="color: ${tokens.textPrimary};">Apex Global Retail Ltd</strong> is live and cryptographically partitioned at <span id="prov-dyn-slug" style="color: ${tokens.primary}; font-family: var(--stokrova-font-mono); font-weight: 700;">apex.stokrova.com</span>.
+                </p>
+              </div>
+
+              <!-- The STOKROVA Operational Promise Banner (Simulated detailed promise when trusting the platform) -->
+              <div id="stokrova-promise-banner" style="background: #161B1E; border: 1px solid ${tokens.borderStrong}; border-radius: 10px; padding: 18px 20px; margin-bottom: 18px; text-align: left;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; border-bottom: 1px solid ${tokens.border}; padding-bottom: 8px;">
+                  <span style="font-size: 1.1rem; color: ${tokens.primary};">⚖️</span>
+                  <span style="font-weight: 800; font-size: 0.875rem; color: ${tokens.textPrimary}; text-transform: uppercase; letter-spacing: 0.06em;">The STOKROVA Operational Promise</span>
+                </div>
+                <p style="margin: 0 0 12px 0; font-size: 0.75rem; color: ${tokens.textSecondary}; line-height: 1.45;">
+                  When you entrust your physical stores, warehouses, and books to STOKROVA, our core architecture provides these unwavering guarantees:
+                </p>
+
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                  <div style="display: flex; gap: 10px; align-items: flex-start;">
+                    <span style="color: #4ADE80; font-weight: 800; font-size: 0.95rem; line-height: 1.2;">✓</span>
+                    <div>
+                      <strong style="color: ${tokens.textPrimary}; font-size: 0.8125rem;">100% Offline Transaction Resilience</strong>
+                      <div style="font-size: 0.725rem; color: ${tokens.textSecondary}; line-height: 1.4;">
+                        Your counters never freeze. Sub-50ms barcode scans and split payments persist to encrypted local SQLite/IndexedDB outbox queues, syncing with deterministic UUID idempotency when connection restores.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; gap: 10px; align-items: flex-start;">
+                    <span style="color: #4ADE80; font-weight: 800; font-size: 0.95rem; line-height: 1.2;">✓</span>
+                    <div>
+                      <strong style="color: ${tokens.textPrimary}; font-size: 0.8125rem;">Rule 21 Sovereign Cryptographic Quarantine</strong>
+                      <div style="font-size: 0.725rem; color: ${tokens.textSecondary}; line-height: 1.4;">
+                        Your financial ledger and inventory belong exclusively to you. Strict tenant database isolation prevents cross-tenant query bleed, shared unencrypted caches, or data leakage.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; gap: 10px; align-items: flex-start;">
+                    <span style="color: #4ADE80; font-weight: 800; font-size: 0.95rem; line-height: 1.2;">✓</span>
+                    <div>
+                      <strong style="color: ${tokens.textPrimary}; font-size: 0.8125rem;">Pure Integer Double-Entry Ledger Truth</strong>
+                      <div style="font-size: 0.725rem; color: ${tokens.textSecondary}; line-height: 1.4;">
+                        Every till sale, return, and inventory intake automatically posts balanced double-entry journals (Debits = Credits) in exact minor units. Blind cash drawer audits enforce $0.00 till variance.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; gap: 10px; align-items: flex-start;">
+                    <span style="color: #4ADE80; font-weight: 800; font-size: 0.95rem; line-height: 1.2;">✓</span>
+                    <div>
+                      <strong style="color: ${tokens.textPrimary}; font-size: 0.8125rem;">Unified Multi-Branch Command Telemetry</strong>
+                      <div style="font-size: 0.725rem; color: ${tokens.textSecondary}; line-height: 1.4;">
+                        Control high-street shops, flagship boutiques, and regional warehouses from a single pane of glass with live margins, FEFO batch tracking, and in-transit custody.
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <h3 id="prov-headline" style="margin: 0 0 6px 0; font-size: 1.3rem; font-weight: 800; color: ${tokens.textPrimary};">
-                Customizing Your Business Dashboard...
-              </h3>
-              <p style="margin: 0 0 20px 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">
-                Calibrating multi-branch telemetry, ledger journals, and hardware scanner buffers.
-              </p>
-
               <!-- Progress Percentage & Bar -->
-              <div style="max-width: 440px; margin: 0 auto 24px auto;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-family: var(--stokrova-font-mono); font-size: 0.875rem;">
+              <div style="max-width: 480px; margin: 0 auto 18px auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-family: var(--stokrova-font-mono); font-size: 0.8125rem;">
                   <span id="prov-stage-label" style="color: ${tokens.textSecondary};">Initializing cryptographic partition...</span>
                   <span id="prov-percent" style="font-weight: 900; color: ${tokens.primary};">0%</span>
                 </div>
@@ -1663,7 +1714,7 @@ export class LandingViewModel {
               </div>
 
               <!-- Dynamic Real-Time Milestone Checklist -->
-              <div id="prov-milestones" style="max-width: 440px; margin: 0 auto 24px auto; background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 14px 16px; text-align: left; font-size: 0.75rem; font-family: var(--stokrova-font-mono); display: flex; flex-direction: column; gap: 8px;">
+              <div id="prov-milestones" style="max-width: 480px; margin: 0 auto 20px auto; background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px 16px; text-align: left; font-size: 0.75rem; font-family: var(--stokrova-font-mono); display: flex; flex-direction: column; gap: 7px;">
                 <div id="m-step-1" style="color: ${tokens.textMuted}; transition: all 0.2s ease;">
                   <span class="m-icon">⬡</span> <span>Tenant Cryptographic Quarantine Active</span>
                 </div>
@@ -1686,15 +1737,15 @@ export class LandingViewModel {
 
               <!-- Celebratory Completion Actions (Shown at 100%) -->
               <div id="prov-completion-actions" style="display: none; animation: fadeIn 0.3s ease-out;">
-                <div style="background: rgba(74, 222, 128, 0.1); border: 1px solid #1E4620; border-radius: 8px; padding: 10px 14px; max-width: 440px; margin: 0 auto 18px auto; color: #4ADE80; font-size: 0.8125rem; font-weight: 700;">
-                  ✦ Workspace Ready: Welcome to STOKROVA, <span id="prov-dyn-welcome">Victoria</span>!
+                <div style="background: rgba(74, 222, 128, 0.1); border: 1px solid #1E4620; border-radius: 8px; padding: 10px 14px; max-width: 480px; margin: 0 auto 16px auto; color: #4ADE80; font-size: 0.8125rem; font-weight: 700;">
+                  ✦ Workspace Live: Ready to launch your enterprise dashboard!
                 </div>
                 <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
-                  <button type="button" onclick="window.stokrovaCustomerApp.launchWorkspaceWithTour()" style="min-height: 44px; padding: 12px 24px; border-radius: 8px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 16px rgba(189,150,82,0.45); display: inline-flex; align-items: center; gap: 8px;">
+                  <button id="btn-launch-tour" type="button" onclick="window.stokrovaCustomerApp.launchWorkspaceWithTour()" style="min-height: 44px; padding: 12px 24px; border-radius: 8px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 16px rgba(189,150,82,0.45); display: inline-flex; align-items: center; gap: 8px;">
                     <span>🌍</span> <span>Take Interactive Tour (Recommended)</span>
                   </button>
-                  <button type="button" onclick="window.stokrovaCustomerApp.launchWorkspaceDirect()" style="min-height: 44px; padding: 12px 20px; border-radius: 8px; border: 1px solid ${tokens.borderStrong}; background: #161B1E; color: ${tokens.textPrimary}; font-weight: 600; font-size: 0.9rem; cursor: pointer;">
-                    Open Dashboard Directly →
+                  <button id="btn-launch-direct" type="button" onclick="window.stokrovaCustomerApp.launchWorkspaceDirect()" style="min-height: 44px; padding: 12px 20px; border-radius: 8px; border: 1px solid ${tokens.borderStrong}; background: #161B1E; color: ${tokens.textPrimary}; font-weight: 600; font-size: 0.9rem; cursor: pointer;">
+                    Enter Dashboard Directly →
                   </button>
                 </div>
               </div>
@@ -1800,29 +1851,17 @@ export class LandingViewModel {
                 </div>
               </div>
 
-              <div style="margin-bottom: 14px;">
+              <div style="margin-bottom: 20px;">
                 <label for="login-password" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">PASSWORD / PIN *</label>
                 <input id="login-password" class="form-input" type="password" required placeholder="••••••••••••" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
-              </div>
-
-              <!-- Optional Workspace Slug (Preserves contract ID & test expectations) -->
-              <div style="margin-bottom: 18px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                  <label for="login-slug" class="form-label" style="font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary};">BUSINESS WORKSPACE / SLUG</label>
-                  <span style="font-size: 0.6875rem; color: ${tokens.primary}; background: rgba(189,150,82,0.12); padding: 2px 6px; border-radius: 4px; font-weight: 600;">Auto-Discovered</span>
-                </div>
-                <input id="login-slug" class="form-input" type="text" placeholder="Auto-detected from email (or enter slug)" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 14px; font-family: var(--stokrova-font-mono);" />
-                <div style="font-size: 0.7rem; color: ${tokens.textMuted}; margin-top: 3px;">
-                  Optional: Leave blank for instant automatic workspace discovery.
-                </div>
               </div>
 
               <div style="display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
                 <button type="button" onclick="window.stokrovaCustomerApp.closeLoginModal()" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
                   Cancel
                 </button>
-                <button id="btn-submit-login" type="submit" style="min-height: 44px; padding: 10px 22px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer; box-shadow: 0 2px 10px rgba(189,150,82,0.35);">
-                  Sign In & Find Workspace →
+                <button id="btn-submit-login" type="submit" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer; box-shadow: 0 2px 10px rgba(189,150,82,0.35);">
+                  Sign In →
                 </button>
               </div>
             </form>

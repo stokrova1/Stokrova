@@ -67,12 +67,12 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     expect(html).toContain('.stokrova.com');
   });
 
-  it('renders staff login modal with live credential fields and no demo presets', () => {
+  it('renders staff login modal with live credential fields and automatic workspace discovery', () => {
     const view = new LandingViewModel('dark');
     const html = view.renderLoginModalHtml();
 
     expect(html).toContain('Staff Sign In');
-    expect(html).toContain('BUSINESS WORKSPACE / SLUG');
+    expect(html).not.toContain('BUSINESS WORKSPACE / SLUG');
     expect(html).toContain('STAFF WORK EMAIL');
     expect(html).toContain('PASSWORD / PIN');
     expect(html).toContain('form-login-customer');
@@ -218,7 +218,7 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     expect(regModalHtml).toContain('for="reg-slug"');
   });
 
-  it('renders 5-step onboarding stepper with cosmic particle canvas and dynamic customization screen', () => {
+  it('renders 5-step onboarding stepper with dedicated pages, inter-step loader, and welcoming promise screen', () => {
     const view = new LandingViewModel('dark');
     const regModalHtml = view.renderRegisterModalHtml();
 
@@ -226,18 +226,25 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     expect(regModalHtml).toContain('id="signup-stepper-header"');
     expect(regModalHtml).toContain('id="signup-current-step-num"');
     expect(regModalHtml).toContain('id="signup-progress-fill"');
+    expect(regModalHtml).not.toContain('id="step-node-1"');
+    expect(regModalHtml).toContain('id="signup-step-loader"');
     expect(regModalHtml).toContain('id="reg-step-1"');
     expect(regModalHtml).toContain('id="reg-step-2"');
     expect(regModalHtml).toContain('id="reg-step-3"');
     expect(regModalHtml).toContain('id="reg-step-4"');
     expect(regModalHtml).toContain('id="reg-step-5"');
+    expect(regModalHtml).toContain('id="stokrova-promise-banner"');
+    expect(regModalHtml).toContain('The STOKROVA Operational Promise');
+    expect(regModalHtml).toContain('100% Offline Transaction Resilience');
+    expect(regModalHtml).toContain('Rule 21 Sovereign Cryptographic Quarantine');
+    expect(regModalHtml).toContain('Pure Integer Double-Entry Ledger Truth');
     expect(regModalHtml).toContain('id="reg-branch-name"');
     expect(regModalHtml).toContain('id="prov-percent"');
     expect(regModalHtml).toContain('id="prov-progress-fill"');
     expect(regModalHtml).toContain('id="prov-milestones"');
     expect(regModalHtml).toContain('id="prov-completion-actions"');
     expect(regModalHtml).toContain('Take Interactive Tour (Recommended)');
-    expect(regModalHtml).toContain('Open Dashboard Directly →');
+    expect(regModalHtml).toContain('Enter Dashboard Directly →');
   });
 
   it('renders world-class guided tour overlay with globe icon and interactive navigation steps', () => {
@@ -263,6 +270,7 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     const html = view.renderLoginModalHtml();
 
     expect(html).toContain('id="modal-login"');
+    expect(html).not.toContain('id="login-slug"');
     expect(html).toContain('id="login-step-credentials"');
     expect(html).toContain('id="login-step-verification"');
     expect(html).toContain('id="login-searching-state"');
@@ -278,5 +286,6 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     expect(html).toContain('Rule 21 Verified');
   });
 });
+
 
 

@@ -652,29 +652,15 @@ const completeWebsiteHtml = `
 
       setSignupStep(step) {
         this.currentSignupStep = step;
-        const labels = ['Business Identity', 'Operations & Branches', 'Owner Credentials', 'Scale & Plan', 'Customizing Dashboard'];
         const widths = ['25%', '50%', '75%', '100%', '100%'];
         
         for (let i = 1; i <= 5; i++) {
           const pane = document.getElementById('reg-step-' + i);
           if (pane) pane.style.display = (i === step) ? 'block' : 'none';
-          const node = document.getElementById('step-node-' + i);
-          if (node) {
-            if (i === step) {
-              node.style.background = 'rgba(189,150,82,0.2)';
-              node.style.color = '#BD9652';
-              node.style.borderColor = '#BD9652';
-            } else if (i < step) {
-              node.style.background = '#14291F';
-              node.style.color = '#4ADE80';
-              node.style.borderColor = '#1E4620';
-            } else {
-              node.style.background = '#161B1E';
-              node.style.color = '#7E919F';
-              node.style.borderColor = '#333D46';
-            }
-          }
         }
+
+        const loader = document.getElementById('signup-step-loader');
+        if (loader) loader.style.display = 'none';
 
         const stepperHeader = document.getElementById('signup-stepper-header');
         if (stepperHeader) {
@@ -682,62 +668,58 @@ const completeWebsiteHtml = `
         }
 
         const numEl = document.getElementById('signup-current-step-num');
-        const lblEl = document.getElementById('signup-current-step-label');
         const pctEl = document.getElementById('signup-step-percent');
         const fillEl = document.getElementById('signup-progress-fill');
 
         if (numEl) numEl.textContent = String(Math.min(step, 4));
-        if (lblEl && labels[step - 1]) lblEl.textContent = labels[step - 1];
         if (pctEl && widths[step - 1]) pctEl.textContent = widths[step - 1];
         if (fillEl && widths[step - 1]) fillEl.style.width = widths[step - 1];
       },
 
       nextSignupStep(current) {
         if (current === 1) {
-          const comp = document.getElementById('reg-company-name')?.value.trim();
-          const slug = document.getElementById('reg-slug')?.value.trim();
-          if (!comp || !slug) {
+          const comp = document.getElementById('reg-company-name');
+          const slug = document.getElementById('reg-slug');
+          const compVal = comp ? comp.value.trim() : '';
+          const slugVal = slug ? slug.value.trim() : '';
+          if (!compVal || !slugVal) {
             this.showToast('Please enter your business legal name and workspace slug.');
             return;
           }
-          const btn = document.getElementById('btn-signup-step1');
-          if (btn) {
-            btn.innerHTML = '<span class="btn-spinner">⚡</span> Validating...';
-            setTimeout(() => {
-              btn.innerHTML = 'Continue to Operations →';
-              this.setSignupStep(2);
-            }, 250);
-            return;
-          }
         } else if (current === 2) {
-          const btn = document.getElementById('btn-signup-step2');
-          if (btn) {
-            btn.innerHTML = '<span class="btn-spinner">⚡</span> Configuring...';
-            setTimeout(() => {
-              btn.innerHTML = 'Continue to Owner Account →';
-              this.setSignupStep(3);
-            }, 250);
+          const branch = document.getElementById('reg-branch-name');
+          const branchVal = branch ? branch.value.trim() : '';
+          if (!branchVal) {
+            this.showToast('Please enter your flagship store or warehouse branch name.');
             return;
           }
         } else if (current === 3) {
-          const ownerName = document.getElementById('reg-owner-name')?.value.trim();
-          const ownerEmail = document.getElementById('reg-owner-email')?.value.trim();
-          const pass = document.getElementById('reg-password')?.value;
-          if (!ownerName || !ownerEmail || !pass) {
-            this.showToast('Please enter owner full name, work email, and password.');
-            return;
-          }
-          const btn = document.getElementById('btn-signup-step3');
-          if (btn) {
-            btn.innerHTML = '<span class="btn-spinner">⚡</span> Securing...';
-            setTimeout(() => {
-              btn.innerHTML = 'Continue to Scale & Plan →';
-              this.setSignupStep(4);
-            }, 250);
+          const ownerName = document.getElementById('reg-owner-name');
+          const ownerEmail = document.getElementById('reg-owner-email');
+          const pass = document.getElementById('reg-password');
+          const nameVal = ownerName ? ownerName.value.trim() : '';
+          const emailVal = ownerEmail ? ownerEmail.value.trim() : '';
+          const passVal = pass ? pass.value : '';
+          if (!nameVal || !emailVal || !passVal) {
+            this.showToast('Please enter owner full name, work email, and master password.');
             return;
           }
         }
-        this.setSignupStep(current + 1);
+
+        // Dedicated Page Loading State: hide current step & show loader
+        const currentPane = document.getElementById('reg-step-' + current);
+        const loader = document.getElementById('signup-step-loader');
+        const header = document.getElementById('signup-stepper-header');
+        const loaderTitle = document.getElementById('signup-loader-title');
+
+        if (currentPane) currentPane.style.display = 'none';
+        if (header) header.style.display = 'none';
+        if (loader) loader.style.display = 'block';
+        if (loaderTitle) loaderTitle.textContent = 'Calibrating Step ' + (current + 1) + '...';
+
+        setTimeout(() => {
+          this.setSignupStep(current + 1);
+        }, 320);
       },
 
       prevSignupStep(current) {
