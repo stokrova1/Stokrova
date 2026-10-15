@@ -17,6 +17,7 @@
     "@stokrova/ui": "workspace:*"
   },
   "devDependencies": {
+    "@stokrova/database": "workspace:*",
     "typescript": "^5.7.3"
   }
 }

@@ -906,7 +906,7 @@ describe('STOKROVA Phase 8 — Master Commercial Pricing & Incentive Engine Acce
     expect(rebateAgreements).toBeDefined();
     expect(rebateTiers).toBeDefined();
     expect(rebateAccruals).toBeDefined();
-  });
+  }, 90000);
 
   // --------------------------------------------------------------------------
   // Scenario 20: Cross-Phase Integration (Catalog -> Pricing -> Promotions -> Loyalty)

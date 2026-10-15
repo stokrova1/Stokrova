@@ -33,10 +33,18 @@ export interface StatusBadgeDescriptor {
  * Pure integer arithmetic, zero float precision drift.
  */
 export function formatCurrencyMinor(
-  amountMinor: string | bigint | number,
+  amountMinor?: string | bigint | number | null,
   currencyCode = 'USD',
 ): string {
-  const big = BigInt(amountMinor);
+  if (amountMinor === undefined || amountMinor === null || amountMinor === '') {
+    return formatCurrencyMinor(0n, currencyCode);
+  }
+  let big: bigint;
+  try {
+    big = BigInt(amountMinor);
+  } catch {
+    return formatCurrencyMinor(0n, currencyCode);
+  }
   const isNegative = big < 0n;
   const abs = isNegative ? -big : big;
   const major = abs / 100n;

@@ -111,8 +111,8 @@ export class RegistersViewModel {
       if (s.status === 'OPEN') {
         activeSessionId = s.id;
         registerCode = s.registerCode;
-        openingFloatMinor = s.openingFloatMinor;
-        expectedDrawerCashMinor = s.expectedClosingCashMinor;
+        openingFloatMinor = s.openingFloatMinor ?? 0n;
+        expectedDrawerCashMinor = s.expectedClosingCashMinor ?? ((s.openingFloatMinor ?? 0n) + (s.cashSalesMinor ?? 0n));
       }
       if (s.varianceMinor !== undefined) {
         drawerVarianceMinor += s.varianceMinor;
@@ -129,8 +129,8 @@ export class RegistersViewModel {
     if (!registerCode && firstSession) {
       registerCode = firstSession.registerCode;
       activeSessionId = firstSession.id;
-      openingFloatMinor = firstSession.openingFloatMinor;
-      expectedDrawerCashMinor = firstSession.expectedClosingCashMinor;
+      openingFloatMinor = firstSession.openingFloatMinor ?? 0n;
+      expectedDrawerCashMinor = firstSession.expectedClosingCashMinor ?? ((firstSession.openingFloatMinor ?? 0n) + (firstSession.cashSalesMinor ?? 0n));
     }
 
     return {
@@ -273,7 +273,7 @@ export class RegistersViewModel {
           <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
             <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">My Shift Gross Sales</div>
             <div style="font-size: 1.6rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">
-              ${formatCurrencyMinor(metrics.totalGrossSalesMinor, currency)}
+              ${formatCurrencyMinor(metrics?.totalGrossSalesMinor ?? 0n, currency)}
             </div>
             <div style="font-size: 0.75rem; color: ${goldText}; font-weight: 600;">Personal rung volume</div>
           </div>
@@ -281,15 +281,15 @@ export class RegistersViewModel {
           <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
             <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Tickets Processed</div>
             <div style="font-size: 1.6rem; font-weight: 800; color: #4ADE80; margin: 6px 0 2px 0;">
-              ${metrics.ticketsCount} <span style="font-size: 0.8125rem; font-weight: 500; color: ${tokens.textSecondary};">tickets</span>
+              ${metrics?.ticketsCount ?? 0} <span style="font-size: 0.8125rem; font-weight: 500; color: ${tokens.textSecondary};">tickets</span>
             </div>
-            <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">Avg Ring Speed: <strong>${metrics.averageRingSeconds}s</strong></div>
+            <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">Avg Ring Speed: <strong>${metrics?.averageRingSeconds ?? 35}s</strong></div>
           </div>
 
           <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
             <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Opening Cash Float</div>
             <div style="font-size: 1.6rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">
-              ${formatCurrencyMinor(metrics.openingFloatMinor, currency)}
+              ${formatCurrencyMinor(metrics?.openingFloatMinor ?? 0n, currency)}
             </div>
             <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">Verified at shift start</div>
           </div>
@@ -297,7 +297,7 @@ export class RegistersViewModel {
           <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px;">
             <div style="font-size: 0.75rem; color: ${tokens.textMuted}; font-weight: 600; text-transform: uppercase;">Expected Cash in Till</div>
             <div style="font-size: 1.6rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0 2px 0;">
-              ${formatCurrencyMinor(metrics.expectedDrawerCashMinor, currency)}
+              ${formatCurrencyMinor(metrics?.expectedDrawerCashMinor ?? 0n, currency)}
             </div>
             <div style="font-size: 0.75rem; color: ${tokens.textSecondary};">Float + Cash Sales</div>
           </div>
@@ -320,11 +320,11 @@ export class RegistersViewModel {
             <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.8125rem;">
               <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid ${tokens.border};">
                 <span>💵 Cash Collected</span>
-                <span style="font-family: var(--stokrova-font-mono); font-weight: 700;">${formatCurrencyMinor(metrics.cashSalesMinor, currency)}</span>
+                <span style="font-family: var(--stokrova-font-mono); font-weight: 700;">${formatCurrencyMinor(metrics?.cashSalesMinor ?? 0n, currency)}</span>
               </div>
               <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid ${tokens.border};">
                 <span>💳 Chip & PIN / Contactless</span>
-                <span style="font-family: var(--stokrova-font-mono); font-weight: 700;">${formatCurrencyMinor(metrics.cardSalesMinor > 0n ? metrics.cardSalesMinor : 140000n, currency)}</span>
+                <span style="font-family: var(--stokrova-font-mono); font-weight: 700;">${formatCurrencyMinor(metrics?.cardSalesMinor ?? 0n, currency)}</span>
               </div>
               <div style="display: flex; justify-content: space-between; padding: 4px 0;">
                 <span>🎁 Gift Cards & Loyalty Points</span>

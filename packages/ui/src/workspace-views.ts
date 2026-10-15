@@ -1660,3 +1660,46 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
     </div>
   `.trim();
 }
+
+/**
+ * Renders the standalone Executive Operations Command Center dashboard view.
+ */
+export function renderWorkspaceDashboard(options: WorkspaceViewsOptions = {}): string {
+  const fullHtml = renderAllWorkspaceViewsHtml(options);
+  const match = fullHtml.match(/<div id="ws-view-dashboard"[\s\S]*?<\/div>\s*<!-- ========================================== -->\s*<!-- 2\. POINT OF SALE/);
+  if (match) {
+    return match[0].replace(/<!-- ========================================== -->\s*<!-- 2\. POINT OF SALE/, '').trim();
+  }
+  return fullHtml;
+}
+
+/**
+ * Renders the standalone Staff Roster & Scoped Dynamic RBAC workspace view.
+ */
+export function renderStaffRosterWorkspace(options: WorkspaceViewsOptions = {}): string {
+  const fullHtml = renderAllWorkspaceViewsHtml(options);
+  const startIdx = fullHtml.indexOf('id="ws-view-rbac"');
+  if (startIdx !== -1) {
+    const endIdx = fullHtml.indexOf('id="ws-view-devices"', startIdx);
+    if (endIdx !== -1) {
+      return fullHtml.slice(startIdx - 5, endIdx - 20).trim();
+    }
+  }
+  return fullHtml;
+}
+
+/**
+ * Renders the standalone Rebranding & Corporate Identity workspace view.
+ */
+export function renderRebrandingStudioWorkspace(options: WorkspaceViewsOptions = {}): string {
+  const fullHtml = renderAllWorkspaceViewsHtml(options);
+  const startIdx = fullHtml.indexOf('id="ws-view-rebranding"');
+  if (startIdx !== -1) {
+    const endIdx = fullHtml.indexOf('id="ws-view-rbac"', startIdx);
+    if (endIdx !== -1) {
+      return fullHtml.slice(startIdx - 5, endIdx - 20).trim();
+    }
+  }
+  return fullHtml;
+}
+

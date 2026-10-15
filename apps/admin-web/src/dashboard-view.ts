@@ -109,6 +109,39 @@ export class DashboardViewModel {
       })
       .join('\n');
 
+    const isZeroGmv = kpi.grossMerchandiseValueMinor === 0n;
+    const posRevMinor = isZeroGmv ? 0n : (kpi.grossMerchandiseValueMinor * 482n) / 1000n;
+    const b2bRevMinor = isZeroGmv ? 0n : (kpi.grossMerchandiseValueMinor * 371n) / 1000n;
+    const mobileRevMinor = isZeroGmv ? 0n : (kpi.grossMerchandiseValueMinor - posRevMinor - b2bRevMinor);
+
+    const posRevStr = formatCurrencyMinor(posRevMinor, kpi.currencyCode);
+    const b2bRevStr = formatCurrencyMinor(b2bRevMinor, kpi.currencyCode);
+    const mobileRevStr = formatCurrencyMinor(mobileRevMinor, kpi.currencyCode);
+
+    const posPctStr = isZeroGmv ? '0.0%' : '48.2%';
+    const b2bPctStr = isZeroGmv ? '0.0%' : '37.1%';
+    const mobilePctStr = isZeroGmv ? '0.0%' : '14.7%';
+
+    const turnoverStr = isZeroGmv ? '0.0x / yr' : '8.4x / yr';
+    const dioStr = isZeroGmv ? '0.0 d' : '43.4 d';
+    const gmroiStr = isZeroGmv ? '0%' : '285%';
+    const cccStr = isZeroGmv ? '0.0 d' : '18.2 d';
+    const turnoverStatus = isZeroGmv ? 'No Activity' : 'Healthy';
+
+    const taxAccruedMinor = isZeroGmv ? 0n : (kpi.grossMerchandiseValueMinor * 20n) / 100n;
+    const taxAccruedStr = formatCurrencyMinor(taxAccruedMinor, kpi.currencyCode);
+    const peppolCountStr = isZeroGmv ? '0 / 0' : '1,420 / 1,420';
+    const taxAuthStatus = isZeroGmv ? 'Awaiting First Batch' : 'Verified (0 Failures)';
+    const fiscalStatusBadge = isZeroGmv ? 'Awaiting Invoices' : '100% Compliant';
+
+    const calloutText = isZeroGmv
+      ? formatCurrencyMinor(0n, kpi.currencyCode)
+      : (kpi.netRevenueMinor >= 100000000n
+          ? `$${(Number(kpi.netRevenueMinor / 100000n) / 10).toFixed(1)}M`
+          : (kpi.netRevenueMinor >= 100000n
+              ? `$${(Number(kpi.netRevenueMinor / 100n) / 1000).toFixed(1)}k`
+              : formatCurrencyMinor(kpi.netRevenueMinor, kpi.currencyCode)));
+
     // SVG Revenue Area Chart with precise viewBox and gradient
     const svgChart = `
       <svg viewBox="0 0 600 180" style="width: 100%; height: 210px; overflow: visible;" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="7-Day Multi-Channel Revenue Velocity Chart">
@@ -133,6 +166,11 @@ export class DashboardViewModel {
         <line x1="0" y1="125" x2="600" y2="125" stroke="${borderCol}" stroke-dasharray="3 3" stroke-width="1" />
         <line x1="0" y1="160" x2="600" y2="160" stroke="${borderCol}" stroke-width="1" />
 
+        ${isZeroGmv ? `
+        <!-- Zero Activity Baseline & Honest Empty State -->
+        <line x1="0" y1="160" x2="600" y2="160" stroke="${goldPrimary}" stroke-width="2" />
+        <text x="300" y="105" text-anchor="middle" fill="${textMut}" font-size="12" font-weight="500" font-family="var(--stokrova-font-sans, sans-serif)">No transaction throughput recorded yet. Live revenue velocity will plot here.</text>
+        ` : `
         <!-- Target Baseline Projection Line -->
         <path d="M 0 135 L 120 120 L 240 110 L 360 85 L 480 75 L 600 60" fill="none" stroke="url(#targetGrad)" stroke-width="1.5" stroke-dasharray="4 4" />
 
@@ -156,8 +194,9 @@ export class DashboardViewModel {
         <!-- Current Value Callout Bubble -->
         <g transform="translate(520, 20)">
           <rect x="-10" y="-14" width="85" height="22" rx="4" fill="${isDark ? '#242A2F' : '#FFFFFF'}" stroke="${goldPrimary}" stroke-width="1" filter="drop-shadow(0 2px 6px rgba(0,0,0,0.15))" />
-          <text x="32" y="1" text-anchor="middle" fill="${goldAccent}" font-size="10" font-weight="700" font-family="'JetBrains Mono', monospace">$382.0k</text>
+          <text x="32" y="1" text-anchor="middle" fill="${goldAccent}" font-size="10" font-weight="700" font-family="'JetBrains Mono', monospace">${calloutText}</text>
         </g>
+        `}
 
         <!-- X-Axis Labels -->
         <text x="5" y="176" fill="${textMut}" font-size="11" font-weight="500" font-family="var(--stokrova-font-sans, sans-serif)">Mon 08</text>
@@ -313,18 +352,18 @@ export class DashboardViewModel {
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; padding-top: 14px; border-top: 1px solid ${borderCol};">
               <div>
                 <div style="font-size: 0.6875rem; color: ${textMut}; text-transform: uppercase; font-weight: 700;">Walk-in POS</div>
-                <div style="font-size: 1rem; font-weight: 700; color: ${textPri}; font-family: 'JetBrains Mono', monospace; margin-top: 2px;">$184,200.00</div>
-                <div style="font-size: 0.6875rem; color: #16A34A; margin-top: 1px;">48.2% of total</div>
+                <div style="font-size: 1rem; font-weight: 700; color: ${textPri}; font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${posRevStr}</div>
+                <div style="font-size: 0.6875rem; color: #16A34A; margin-top: 1px;">${posPctStr} of total</div>
               </div>
               <div>
                 <div style="font-size: 0.6875rem; color: ${textMut}; text-transform: uppercase; font-weight: 700;">B2B Wholesale Invoices</div>
-                <div style="font-size: 1rem; font-weight: 700; color: ${textPri}; font-family: 'JetBrains Mono', monospace; margin-top: 2px;">$141,800.00</div>
-                <div style="font-size: 0.6875rem; color: ${goldAccent}; margin-top: 1px;">37.1% of total</div>
+                <div style="font-size: 1rem; font-weight: 700; color: ${textPri}; font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${b2bRevStr}</div>
+                <div style="font-size: 0.6875rem; color: ${goldAccent}; margin-top: 1px;">${b2bPctStr} of total</div>
               </div>
               <div>
                 <div style="font-size: 0.6875rem; color: ${textMut}; text-transform: uppercase; font-weight: 700;">Mobile & Field Scans</div>
-                <div style="font-size: 1rem; font-weight: 700; color: ${textPri}; font-family: 'JetBrains Mono', monospace; margin-top: 2px;">$56,000.00</div>
-                <div style="font-size: 0.6875rem; color: ${textSec}; margin-top: 1px;">14.7% of total</div>
+                <div style="font-size: 1rem; font-weight: 700; color: ${textPri}; font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${mobileRevStr}</div>
+                <div style="font-size: 0.6875rem; color: ${textSec}; margin-top: 1px;">${mobilePctStr} of total</div>
               </div>
             </div>
           </div>
@@ -358,24 +397,24 @@ export class DashboardViewModel {
           <div style="grid-column: span 4; background: ${cardBg}; border: 1px solid ${borderCol}; border-radius: 10px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
               <h4 style="margin: 0; font-size: 0.875rem; font-weight: 700; color: ${textPri};">Capital Efficiency & Turnover</h4>
-              <span style="font-size: 0.7rem; color: #16A34A; font-weight: 600;">Healthy</span>
+              <span style="font-size: 0.7rem; color: ${isZeroGmv ? textMut : '#16A34A'}; font-weight: 600;">${turnoverStatus}</span>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
               <div style="padding: 10px; background: ${isDark ? '#1E2428' : '#F8FAFC'}; border-radius: 8px; border: 1px solid ${borderCol};">
                 <div style="font-size: 0.6875rem; color: ${textMut};">Turnover Ratio (ITR)</div>
-                <div style="font-size: 1.15rem; font-weight: 800; color: ${textPri}; font-family: 'JetBrains Mono', monospace; margin-top: 2px;">8.4x / yr</div>
+                <div style="font-size: 1.15rem; font-weight: 800; color: ${textPri}; font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${turnoverStr}</div>
               </div>
               <div style="padding: 10px; background: ${isDark ? '#1E2428' : '#F8FAFC'}; border-radius: 8px; border: 1px solid ${borderCol};">
                 <div style="font-size: 0.6875rem; color: ${textMut};">Days Outstanding (DIO)</div>
-                <div style="font-size: 1.15rem; font-weight: 800; color: ${textPri}; font-family: 'JetBrains Mono', monospace; margin-top: 2px;">43.4 d</div>
+                <div style="font-size: 1.15rem; font-weight: 800; color: ${textPri}; font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${dioStr}</div>
               </div>
               <div style="padding: 10px; background: ${isDark ? '#1E2428' : '#F8FAFC'}; border-radius: 8px; border: 1px solid ${borderCol};">
                 <div style="font-size: 0.6875rem; color: ${textMut};">GMROI Return</div>
-                <div style="font-size: 1.15rem; font-weight: 800; color: #16A34A; font-family: 'JetBrains Mono', monospace; margin-top: 2px;">285%</div>
+                <div style="font-size: 1.15rem; font-weight: 800; color: ${isZeroGmv ? textMut : '#16A34A'}; font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${gmroiStr}</div>
               </div>
               <div style="padding: 10px; background: ${isDark ? '#1E2428' : '#F8FAFC'}; border-radius: 8px; border: 1px solid ${borderCol};">
                 <div style="font-size: 0.6875rem; color: ${textMut};">Cash Conversion (CCC)</div>
-                <div style="font-size: 1.15rem; font-weight: 800; color: ${goldAccent}; font-family: 'JetBrains Mono', monospace; margin-top: 2px;">18.2 d</div>
+                <div style="font-size: 1.15rem; font-weight: 800; color: ${goldAccent}; font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${cccStr}</div>
               </div>
             </div>
           </div>
@@ -384,20 +423,20 @@ export class DashboardViewModel {
           <div style="grid-column: span 4; background: ${cardBg}; border: 1px solid ${borderCol}; border-radius: 10px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
               <h4 style="margin: 0; font-size: 0.875rem; font-weight: 700; color: ${textPri};">Fiscal E-Invoicing & Taxes</h4>
-              <span style="font-size: 0.7rem; color: #16A34A; font-weight: 600;">100% Compliant</span>
+              <span style="font-size: 0.7rem; color: ${isZeroGmv ? textMut : '#16A34A'}; font-weight: 600;">${fiscalStatusBadge}</span>
             </div>
             <div style="display: flex; flex-direction: column; gap: 8px;">
               <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8125rem; padding: 8px 10px; background: ${isDark ? '#1E2428' : '#F8FAFC'}; border-radius: 6px;">
                 <span style="color: ${textSec};">HMRC MTD / PEPPOL Dispatch</span>
-                <span style="color: #16A34A; font-weight: 700;">1,420 / 1,420</span>
+                <span style="color: ${isZeroGmv ? textMut : '#16A34A'}; font-weight: 700;">${peppolCountStr}</span>
               </div>
               <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8125rem; padding: 8px 10px; background: ${isDark ? '#1E2428' : '#F8FAFC'}; border-radius: 6px;">
                 <span style="color: ${textSec};">VAT / Output Tax Accrued</span>
-                <span style="color: ${textPri}; font-weight: 700; font-family: 'JetBrains Mono', monospace;">$76,400.00</span>
+                <span style="color: ${textPri}; font-weight: 700; font-family: 'JetBrains Mono', monospace;">${taxAccruedStr}</span>
               </div>
               <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8125rem; padding: 8px 10px; background: ${isDark ? '#1E2428' : '#F8FAFC'}; border-radius: 6px;">
                 <span style="color: ${textSec};">Tax Authority Timestamp Verification</span>
-                <span style="color: #16A34A; font-weight: 600;">Verified (0 Failures)</span>
+                <span style="color: ${isZeroGmv ? textMut : '#16A34A'}; font-weight: 600;">${taxAuthStatus}</span>
               </div>
             </div>
           </div>

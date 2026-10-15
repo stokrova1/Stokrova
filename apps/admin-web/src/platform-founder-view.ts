@@ -43,8 +43,14 @@ export interface PlatformMetrics {
   suspendedTenants: number;
   totalGmvMinor: bigint;
   platformMrrMinor: bigint;
+  grossMerchandiseVolumeMinor: bigint;
+  monthlyRecurringRevenueMinor: bigint;
+  totalBranchesProvisioned: number;
   activeWorkCenters: number;
   systemHealthPct: number;
+  totalGmv: bigint;
+  mrrMinor: bigint;
+  totalBranches: number;
 }
 
 export class PlatformFounderView {
@@ -252,8 +258,14 @@ export class PlatformFounderView {
       suspendedTenants: suspended.length,
       totalGmvMinor: totalGmv,
       platformMrrMinor: mrrMinor,
+      grossMerchandiseVolumeMinor: totalGmv,
+      monthlyRecurringRevenueMinor: mrrMinor,
+      totalBranchesProvisioned: totalBranches,
       activeWorkCenters: totalBranches * 3, // avg 3 till registers/scanner stations per branch
       systemHealthPct: 99.98,
+      totalGmv,
+      mrrMinor,
+      totalBranches,
     };
   }
 
@@ -401,47 +413,55 @@ export class PlatformFounderView {
     const tokens = themeTokens[this.theme];
     const users = this.listUsers();
 
-    const rowsHtml = users
-      .map((u) => {
-        const isRootAdmin = u.role === 'PLATFORM_SUPER_ADMIN';
-        const roleBadge = isRootAdmin
-          ? `<span style="background: rgba(189,150,82,0.2); color: #BD9652; border: 1px solid #BD9652; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">ROOT ADMIN</span>`
-          : `<span style="background: rgba(41,49,54,0.3); color: ${tokens.textPrimary}; border: 1px solid ${tokens.borderStrong}; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">BUSINESS OWNER</span>`;
+    const rowsHtml = users.length > 0
+      ? users
+          .map((u) => {
+            const isRootAdmin = u.role === 'PLATFORM_SUPER_ADMIN';
+            const roleBadge = isRootAdmin
+              ? `<span style="background: rgba(189,150,82,0.2); color: #BD9652; border: 1px solid #BD9652; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">ROOT ADMIN</span>`
+              : `<span style="background: rgba(41,49,54,0.3); color: ${tokens.textPrimary}; border: 1px solid ${tokens.borderStrong}; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">BUSINESS OWNER</span>`;
 
-        const isSuspended = u.status === 'SUSPENDED';
-        const statusBadgeColor = isSuspended
-          ? semanticTokens.error[this.theme]
-          : semanticTokens.success[this.theme];
+            const isSuspended = u.status === 'SUSPENDED';
+            const statusBadgeColor = isSuspended
+              ? semanticTokens.error[this.theme]
+              : semanticTokens.success[this.theme];
 
-        return `
-          <tr style="border-bottom: 1px solid ${tokens.border};">
-            <td style="padding: 14px 16px; font-weight: 600; color: ${tokens.textPrimary};">
-              <div>${u.name}</div>
-              <div style="font-size: 0.75rem; color: ${tokens.textMuted};">${u.email}</div>
-            </td>
-            <td style="padding: 14px 16px;">
-              ${roleBadge}
-            </td>
-            <td style="padding: 14px 16px; color: ${tokens.textSecondary}; font-size: 0.8125rem;">
-              ${u.tenantName || 'Global Platform Root (All Tenants)'}
-            </td>
-            <td style="padding: 14px 16px; font-size: 0.8125rem; color: ${tokens.textMuted};">
-              ${u.lastActiveIso.split('T')[0]}
-            </td>
-            <td style="padding: 14px 16px;">
-              <span style="background: ${statusBadgeColor.bg}; color: ${statusBadgeColor.text}; border: 1px solid ${statusBadgeColor.border}; padding: 3px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">
-                ${u.status}
-              </span>
-            </td>
-            <td style="padding: 14px 16px; text-align: right;">
-              <button onclick="window.stokrovaFounder.showToast('Authentication token rotated for ${u.name}.')" style="padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; background: ${tokens.surface}; color: ${tokens.textPrimary}; border: 1px solid ${tokens.borderStrong};">
-                Rotate Access Token
-              </button>
-            </td>
-          </tr>
-        `;
-      })
-      .join('\n');
+            return `
+              <tr style="border-bottom: 1px solid ${tokens.border};">
+                <td style="padding: 14px 16px; font-weight: 600; color: ${tokens.textPrimary};">
+                  <div>${u.name}</div>
+                  <div style="font-size: 0.75rem; color: ${tokens.textMuted};">${u.email}</div>
+                </td>
+                <td style="padding: 14px 16px;">
+                  ${roleBadge}
+                </td>
+                <td style="padding: 14px 16px; color: ${tokens.textSecondary}; font-size: 0.8125rem;">
+                  ${u.tenantName || 'Global Platform Root (All Tenants)'}
+                </td>
+                <td style="padding: 14px 16px; font-size: 0.8125rem; color: ${tokens.textMuted};">
+                  ${u.lastActiveIso.split('T')[0]}
+                </td>
+                <td style="padding: 14px 16px;">
+                  <span style="background: ${statusBadgeColor.bg}; color: ${statusBadgeColor.text}; border: 1px solid ${statusBadgeColor.border}; padding: 3px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">
+                    ${u.status}
+                  </span>
+                </td>
+                <td style="padding: 14px 16px; text-align: right;">
+                  <button onclick="window.stokrovaFounder.showToast('Authentication token rotated for ${u.name}.')" style="padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; background: ${tokens.surface}; color: ${tokens.textPrimary}; border: 1px solid ${tokens.borderStrong};">
+                    Rotate Access Token
+                  </button>
+                </td>
+              </tr>
+            `;
+          })
+          .join('\n')
+      : `<tr>
+          <td colspan="6" style="padding: 36px 16px; text-align: center; color: ${tokens.textMuted}; font-size: 0.875rem;">
+            <div style="font-size: 1.5rem; margin-bottom: 8px;">👤</div>
+            <div style="font-weight: 600; color: ${tokens.textSecondary};">No platform root users registered yet.</div>
+            <div style="font-size: 0.8125rem; margin-top: 4px;">Platform root administrators will appear here once authenticated.</div>
+          </td>
+        </tr>`;
 
     return `
       <div class="platform-users-container" style="background: ${tokens.card}; border: 1px solid ${tokens.border}; border-radius: 8px; overflow: hidden; margin-top: 24px;">

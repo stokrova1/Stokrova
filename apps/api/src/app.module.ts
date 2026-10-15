@@ -46,6 +46,7 @@ import { EdiModule } from './edi/edi.module.js';
 import { CrmModule } from './crm/crm.module.js';
 import { LogisticsModule } from './logistics/logistics.module.js';
 import { BillingModule } from './billing/billing.module.js';
+import { PlatformAdminModule } from './platform-admin/platform-admin.module.js';
 
 @Module({
   imports: [
@@ -94,6 +95,7 @@ import { BillingModule } from './billing/billing.module.js';
     CrmModule,
     LogisticsModule,
     BillingModule,
+    PlatformAdminModule,
   ],
 
 })

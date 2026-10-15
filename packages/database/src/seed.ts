@@ -47,6 +47,12 @@ export const CORE_PERMISSIONS = [
 ];
 
 export async function seedDatabase(db: DatabaseClient, _options: SeedOptions = {}): Promise<void> {
+  if (process.env['NODE_ENV'] === 'production' && process.env['ALLOW_PRODUCTION_SEED'] !== 'true') {
+    throw new Error(
+      'Refusing to seed sample/demo data in production environment without explicit ALLOW_PRODUCTION_SEED=true authorization.',
+    );
+  }
+
   // 1. Seed Permissions
   for (const perm of CORE_PERMISSIONS) {
     await db

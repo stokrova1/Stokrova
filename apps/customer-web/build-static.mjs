@@ -231,20 +231,22 @@ const registersModel = new RegistersViewModel('dark');
 registersModel.addSession({
   id: 'reg_lon_01',
   registerCode: 'REG-LON-01',
+  registerName: 'Main Store Checkout Till 01',
   branchId: 'brn_london_flagship',
   branchName: 'London Flagship Store',
   cashierId: 'usr_emma',
   cashierName: 'Emma Watson',
   openedAtIso: '2026-10-14T08:00:00Z',
-  closedAtIso: undefined,
   openingFloatMinor: 35000n,
-  expectedCashMinor: 148500n,
-  actualCashMinor: 148500n,
   cashSalesMinor: 113500n,
   cardSalesMinor: 170550n,
+  cashInMinor: 0n,
+  cashOutMinor: 0n,
+  expectedClosingCashMinor: 148500n,
+  actualClosingCashMinor: 148500n,
+  varianceMinor: 0n,
   salesCount: 42,
   averageRingSeconds: 24,
-  discrepancyMinor: 0n,
   status: 'OPEN',
 });
 
@@ -343,11 +345,11 @@ const baseWorkspaceViewsHtml = renderAllWorkspaceViewsHtml({
 
 function replaceViewBlock(html, viewId, innerHtml) {
   const pattern = new RegExp(
-    `<!-- =+ -->\\s*<!-- \\d+\\.[^>]* -->\\s*<!-- =+ -->\\s*<div id="ws-view-${viewId}" class="ws-view-content"[^>]*>[\\s\\S]*?(?=(?:<!-- =+ -->|\\s*</main>|$))`,
+    `<div id="ws-view-${viewId}" class="ws-view-content"[^>]*>[\\s\\S]*?(?=(?:<!-- =+ -->|<div id="ws-view-|$))`,
     'g'
   );
-  const replacement = `<!-- ========================================== -->\n    <div id="ws-view-${viewId}" class="ws-view-content" style="${viewId === 'dashboard' ? 'display: block;' : 'display: none;'}">\n      ${innerHtml}\n    </div>\n\n    `;
-  return html.replace(pattern, replacement);
+  const replaced = html.replace(pattern, `<div id="ws-view-${viewId}" class="ws-view-content" style="${viewId === 'dashboard' ? 'display: block;' : 'display: none;'}">\n      ${innerHtml}\n    </div>\n\n    `);
+  return replaced;
 }
 
 let allWorkspaceViewsHtml = baseWorkspaceViewsHtml;
