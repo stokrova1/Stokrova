@@ -23,6 +23,7 @@ export interface UserSessionResponse {
     id: string;
     name: string;
     slug: string;
+    status?: string;
   };
 }
 
@@ -42,22 +43,26 @@ export class AuthService {
             m.status as membership_status,
             t.name as tenant_name, 
             t.slug as tenant_slug,
+            t.status as tenant_status,
             COALESCE(u.role, 'staff') as user_role,
             COALESCE(u.full_name, $2) as user_full_name
           FROM public.memberships m
           JOIN public.tenants t ON t.id = m.tenant_id
           LEFT JOIN public.users u ON u.id = m.user_id AND u.tenant_id = m.tenant_id
-          WHERE m.user_id = $1 AND m.status = 'ACTIVE'
+          WHERE m.user_id = $1
         `;
         const res = await this.pool.query(query, [user.id, user.full_name]);
         if (res.rows && res.rows.length > 0) {
-          const memberships = res.rows.map((r: any) => ({
-            tenant_id: r.tenant_id,
-            tenant_name: r.tenant_name,
-            tenant_slug: r.tenant_slug,
-            role: r.user_role,
-            status: r.membership_status,
-          }));
+          const memberships = res.rows.map((r: any) => {
+            const isSuspended = r.tenant_status === 'SUSPENDED' || r.membership_status === 'SUSPENDED';
+            return {
+              tenant_id: r.tenant_id,
+              tenant_name: r.tenant_name,
+              tenant_slug: r.tenant_slug,
+              role: r.user_role,
+              status: isSuspended ? 'SUSPENDED' : r.membership_status,
+            };
+          });
 
           const active = memberships[0];
 
@@ -75,6 +80,7 @@ export class AuthService {
                   id: active.tenant_id,
                   name: active.tenant_name,
                   slug: active.tenant_slug,
+                  status: active.status,
                 }
               : undefined,
           };

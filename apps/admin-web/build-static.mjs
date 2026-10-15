@@ -273,7 +273,7 @@ ${generateCssVariableString('dark')}
       </div>
       <div class="founder-nav-item" onclick="window.stokrovaFounder.scrollToSection('tenants')">
         <span>🏛️ Enrolled Businesses (Tenants)</span>
-        <span id="nav-tenant-count" style="background: rgba(189,150,82,0.2); color: var(--primary); padding: 1px 6px; border-radius: 9999px; font-size: 0.7rem;">4</span>
+        <span id="nav-tenant-count" style="background: rgba(189,150,82,0.2); color: var(--primary); padding: 1px 6px; border-radius: 9999px; font-size: 0.7rem;">${founderViewModel.listTenants().length}</span>
       </div>
       <div class="founder-nav-item" onclick="window.stokrovaFounder.scrollToSection('users')">
         <span>👥 Platform Accounts & Owners</span>
@@ -499,19 +499,13 @@ ${generateCssVariableString('dark')}
           this.showToast('Successfully enrolled business: ' + name + ' (Tier: ' + tier + ')');
         },
 
-        toggleTenantStatus(id) {
-          const tenant = tenantData[id];
-          if (!tenant) return;
-
-          const isCurrentlyActive = tenant.status === 'ACTIVE';
-          tenant.status = isCurrentlyActive ? 'SUSPENDED' : 'ACTIVE';
-
+        updateTenantRowUi(id, status) {
           const badge = document.getElementById('badge-status-' + id);
           const btn = document.getElementById('btn-status-' + id);
 
           if (badge) {
-            badge.innerText = tenant.status;
-            if (tenant.status === 'ACTIVE') {
+            badge.innerText = status;
+            if (status === 'ACTIVE') {
               badge.style.background = 'rgba(74,222,128,0.1)';
               badge.style.color = '#4ADE80';
               badge.style.border = '1px solid rgba(74,222,128,0.3)';
@@ -523,8 +517,8 @@ ${generateCssVariableString('dark')}
           }
 
           if (btn) {
-            btn.innerText = tenant.status === 'ACTIVE' ? 'Suspend' : 'Reactivate';
-            if (tenant.status === 'ACTIVE') {
+            btn.innerText = status === 'ACTIVE' ? 'Suspend' : 'Reactivate';
+            if (status === 'ACTIVE') {
               btn.style.background = 'rgba(248,113,113,0.1)';
               btn.style.color = '#F87171';
               btn.style.border = '1px solid rgba(248,113,113,0.3)';
@@ -540,9 +534,44 @@ ${generateCssVariableString('dark')}
             const activeCount = Object.values(tenantData).filter(t => t.status === 'ACTIVE').length;
             activeCountEl.innerText = activeCount;
           }
+        },
 
-          const actionWord = tenant.status === 'ACTIVE' ? 'reactivated' : 'suspended';
-          this.showToast('Tenant ' + tenant.name + ' has been ' + actionWord + '.');
+        async toggleTenantStatus(id) {
+          const tenant = tenantData[id];
+          const isCurrentlyActive = tenant ? tenant.status === 'ACTIVE' : true;
+          const nextStatus = isCurrentlyActive ? 'SUSPENDED' : 'ACTIVE';
+          const endpoint = '/api/v1/platform-admin/businesses/' + encodeURIComponent(id) + (isCurrentlyActive ? '/suspend' : '/reactivate');
+
+          const btn = document.getElementById('btn-status-' + id);
+          if (btn) btn.disabled = true;
+
+          try {
+            const res = await fetch(endpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ reason: 'Platform administration governance killswitch' })
+            });
+
+            if (res.ok) {
+              if (tenant) tenant.status = nextStatus;
+              this.updateTenantRowUi(id, nextStatus);
+              const actionWord = nextStatus === 'ACTIVE' ? 'reactivated' : 'suspended';
+              this.showToast('✓ Tenant ' + (tenant ? tenant.name : id) + ' successfully ' + actionWord + ' in database.');
+            } else {
+              const errData = await res.json().catch(() => ({}));
+              this.showToast('Server update failed: ' + (errData.message || res.statusText));
+            }
+          } catch (netErr) {
+            // Local fallback if running static preview without live backend
+            if (tenant) {
+              tenant.status = nextStatus;
+              this.updateTenantRowUi(id, nextStatus);
+              const actionWord = nextStatus === 'ACTIVE' ? 'reactivated' : 'suspended';
+              this.showToast('Tenant ' + tenant.name + ' ' + actionWord + ' (offline preview).');
+            }
+          } finally {
+            if (btn) btn.disabled = false;
+          }
         },
 
         filterTenants(query) {
@@ -589,8 +618,8 @@ ${generateCssVariableString('dark')}
               </div>
 
               <div style="background: rgba(189,150,82,0.1); border: 1px solid rgba(189,150,82,0.3); border-radius: 6px; padding: 12px; font-size: 0.8125rem; color: var(--text-primary);">
-                <strong>Multi-Tenant Quarantine Proof:</strong><br>
-                Dedicated PostgreSQL row-level security boundary active. Zero data sharing across tenants.
+                <strong>Enterprise Data Isolation:</strong><br>
+                Dedicated organizational security boundary active. Complete data privacy across businesses.
               </div>
             \`;
           }
@@ -600,8 +629,31 @@ ${generateCssVariableString('dark')}
         closeInspectModal() {
           const modal = document.getElementById('inspect-modal-backdrop');
           if (modal) modal.style.display = 'none';
+        },
+
+        async hydrateLivePlatformData() {
+          try {
+            const overviewRes = await fetch('/api/v1/platform-admin/overview').then(r => r.ok ? r.json() : null).catch(() => null);
+            if (overviewRes && overviewRes.data) {
+              const o = overviewRes.data;
+              const totalEl = document.getElementById('stat-total-tenants');
+              const activeEl = document.getElementById('stat-active-tenants');
+              const mrrEl = document.getElementById('stat-mrr');
+              const gmvEl = document.getElementById('stat-total-gmv');
+              const navCount = document.getElementById('nav-tenant-count');
+              if (totalEl) totalEl.innerText = o.subscriber_tenants ?? 0;
+              if (activeEl) activeEl.innerText = o.active_subscribers ?? 0;
+              if (mrrEl) mrrEl.innerText = '$' + ((o.platform_mrr_cents || 0) / 100).toFixed(2);
+              if (gmvEl) gmvEl.innerText = '$' + ((o.gross_merchandise_volume_cents || 0) / 100).toFixed(2);
+              if (navCount) navCount.innerText = o.subscriber_tenants ?? 0;
+            }
+          } catch (_) {}
         }
       };
+
+      window.addEventListener('DOMContentLoaded', () => {
+        window.stokrovaFounder.hydrateLivePlatformData();
+      });
     })();
   </script>
 </body>

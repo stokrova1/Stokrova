@@ -58,7 +58,10 @@ export class PlatformFounderView {
   private users: Map<string, PlatformUser> = new Map();
   private theme: 'light' | 'dark';
 
-  constructor(theme: 'light' | 'dark' = 'dark', seedDemoData: boolean = true) {
+  constructor(
+    theme: 'light' | 'dark' = 'dark',
+    seedDemoData: boolean = (typeof globalThis !== 'undefined' && (globalThis as unknown as Record<string, { env?: Record<string, string> }>)['process']?.env?.['NODE_ENV'] === 'test'),
+  ) {
     this.theme = theme;
     if (seedDemoData) {
       this.seedDefaultPlatformTenants();
@@ -293,7 +296,7 @@ export class PlatformFounderView {
 
         <div class="kpi-card" style="background: ${tokens.card}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 18px;">
           <div style="font-size: 0.8125rem; color: ${tokens.textSecondary}; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">Aggregated 30D GMV</div>
-          <div style="font-size: 1.85rem; font-weight: 700; color: ${tokens.textPrimary};">$7,092,000+</div>
+          <div id="stat-total-gmv" style="font-size: 1.85rem; font-weight: 700; color: ${tokens.textPrimary};">${metrics.grossMerchandiseVolumeMinor === 0n ? '$0.00' : formatCurrencyMinor(metrics.grossMerchandiseVolumeMinor, 'USD')}</div>
           <div style="font-size: 0.75rem; color: ${tokens.textMuted}; margin-top: 4px;">Across all sovereign tenants</div>
         </div>
 
@@ -364,8 +367,8 @@ export class PlatformFounderView {
       : `<tr>
           <td colspan="7" style="padding: 36px 16px; text-align: center; color: ${tokens.textMuted}; font-size: 0.875rem;">
             <div style="font-size: 1.5rem; margin-bottom: 8px;">🌐</div>
-            <div style="font-weight: 600; color: ${tokens.textSecondary};">No live business tenants enrolled yet.</div>
-            <div style="font-size: 0.8125rem; margin-top: 4px;">Click "+ Enroll New Business" to provision the first sovereign enterprise organization.</div>
+            <div style="font-weight: 600; color: ${tokens.textSecondary};">No businesses are registered on this platform yet.</div>
+            <div style="font-size: 0.8125rem; margin-top: 4px;">No live business tenants enrolled yet. Click "+ Enroll New Business" to provision the first sovereign enterprise organization.</div>
           </td>
         </tr>`;
 
@@ -374,7 +377,7 @@ export class PlatformFounderView {
         <div style="padding: 16px 20px; border-bottom: 1px solid ${tokens.border}; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
           <div>
             <h3 style="margin: 0 0 4px 0; color: ${tokens.textPrimary}; font-size: 1.1rem; font-weight: 700;">Enrolled Business Organizations (Tenants)</h3>
-            <p style="margin: 0; color: ${tokens.textSecondary}; font-size: 0.8125rem;">Multi-tenant isolation barrier active. Each business is cryptographically quarantined with dedicated row-level security.</p>
+            <p style="margin: 0; color: ${tokens.textSecondary}; font-size: 0.8125rem;">Dedicated business isolation active. Each organization operates within a private, fully protected operational environment.</p>
           </div>
           <div style="display: flex; align-items: center; gap: 10px;">
             <div style="position: relative;">
@@ -458,8 +461,8 @@ export class PlatformFounderView {
       : `<tr>
           <td colspan="6" style="padding: 36px 16px; text-align: center; color: ${tokens.textMuted}; font-size: 0.875rem;">
             <div style="font-size: 1.5rem; margin-bottom: 8px;">👤</div>
-            <div style="font-weight: 600; color: ${tokens.textSecondary};">No platform root users registered yet.</div>
-            <div style="font-size: 0.8125rem; margin-top: 4px;">Platform root administrators will appear here once authenticated.</div>
+            <div style="font-weight: 600; color: ${tokens.textSecondary};">No registered business owners or staff accounts exist on this platform yet.</div>
+            <div style="font-size: 0.8125rem; margin-top: 4px;">No platform root users registered yet. Platform root administrators will appear here once authenticated.</div>
           </td>
         </tr>`;
 
@@ -495,6 +498,10 @@ export class PlatformFounderView {
 
   public renderSaaSPlansHtml(): string {
     const tokens = themeTokens[this.theme];
+    const all = this.listTenants();
+    const starterCount = all.filter((t) => t.subscriptionTier === 'STARTER' && t.status === 'ACTIVE').length;
+    const proCount = all.filter((t) => t.subscriptionTier === 'COMMERCE_PRO' && t.status === 'ACTIVE').length;
+    const enterpriseCount = all.filter((t) => t.subscriptionTier === 'ENTERPRISE_LOGISTICS' && t.status === 'ACTIVE').length;
 
     return `
       <div class="saas-plans-container" style="background: ${tokens.card}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px; margin-top: 24px;">
@@ -514,7 +521,7 @@ export class PlatformFounderView {
               ✓ Core Inventory Ledger & Stock Counts<br>
               ✓ Single-Branch Standard Sync
             </div>
-            <div style="margin-top: 14px; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary};">1 Active Business</div>
+            <div style="margin-top: 14px; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary};">${starterCount} Active ${starterCount === 1 ? 'Business' : 'Businesses'}</div>
           </div>
 
           <!-- Commerce Pro -->
@@ -529,9 +536,9 @@ export class PlatformFounderView {
               ✓ Up to 10 Branches & Warehouses<br>
               ✓ Double-Entry GL & Subledger Reconciliation<br>
               ✓ 3-Way Match Inbound Procurement<br>
-              ✓ Dedicated Staff Workspaces & Offline CRDT
+              ✓ Dedicated Staff Workspaces & Offline POS Mode
             </div>
-            <div style="margin-top: 14px; font-size: 0.75rem; font-weight: 600; color: #BD9652;">2 Active Businesses</div>
+            <div style="margin-top: 14px; font-size: 0.75rem; font-weight: 600; color: #BD9652;">${proCount} Active ${proCount === 1 ? 'Business' : 'Businesses'}</div>
           </div>
 
           <!-- Enterprise Logistics -->
@@ -543,11 +550,11 @@ export class PlatformFounderView {
             <p style="color: ${tokens.textSecondary}; font-size: 0.8125rem; margin: 0 0 14px 0; flex: 1;">Multinational logistics, distribution hubs, manufacturing plants, and fleet.</p>
             <div style="font-size: 0.75rem; color: ${tokens.textMuted}; line-height: 1.6; border-top: 1px solid ${tokens.border}; padding-top: 10px;">
               ✓ Unlimited Branches, DCs & Factories<br>
-              ✓ DAG Workflows Studio & Kahn's Cycle Detection<br>
+              ✓ Visual Workflow Automation Studio<br>
               ✓ Fleet Dispatch & Digital POD Signatures<br>
-              ✓ Sovereign Multi-Tenant Quarantine & SLA
+              ✓ Dedicated Business Organization Privacy & SLA
             </div>
-            <div style="margin-top: 14px; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary};">1 Active Business</div>
+            <div style="margin-top: 14px; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary};">${enterpriseCount} Active ${enterpriseCount === 1 ? 'Business' : 'Businesses'}</div>
           </div>
         </div>
       </div>
@@ -560,31 +567,31 @@ export class PlatformFounderView {
     return `
       <div class="telemetry-container" style="background: ${tokens.card}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px; margin-top: 24px;">
         <h3 style="margin: 0 0 4px 0; color: ${tokens.textPrimary}; font-size: 1.1rem; font-weight: 700;">Global Infrastructure & Telemetry Health</h3>
-        <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.8125rem;">Live cluster health, database connection pooling, and Merkle cryptographic audit proofs.</p>
+        <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.8125rem;">Live platform operational health, cloud services, and verified audit trails.</p>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
           <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 6px; padding: 14px;">
-            <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Supabase Postgres Cluster</div>
+            <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Core Database Infrastructure</div>
             <div style="font-weight: 700; font-size: 1.1rem; color: #4ADE80; margin-top: 2px;">Healthy (12ms Latency)</div>
             <div style="font-size: 0.75rem; color: ${tokens.textSecondary}; margin-top: 4px;">16 active pools • 0 dropped queries</div>
           </div>
 
           <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 6px; padding: 14px;">
-            <div style="font-size: 0.75rem; color: ${tokens.textMuted};">CRDT Sync & Event Bus</div>
+            <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Real-Time Data Synchronization</div>
             <div style="font-weight: 700; font-size: 1.1rem; color: #4ADE80; margin-top: 2px;">Synchronized (0 Lag)</div>
-            <div style="font-size: 0.75rem; color: ${tokens.textSecondary}; margin-top: 4px;">Hybrid Logical Clocks verified</div>
+            <div style="font-size: 0.75rem; color: ${tokens.textSecondary}; margin-top: 4px;">Multi-location event sync verified</div>
           </div>
 
           <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 6px; padding: 14px;">
-            <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Merkle Tamper Chain</div>
-            <div style="font-weight: 700; font-size: 1.1rem; color: #BD9652; margin-top: 2px;">Cryptographically Sealed</div>
-            <div style="font-size: 0.75rem; color: ${tokens.textSecondary}; margin-top: 4px;">Zero hash divergence detected</div>
+            <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Audit Trail & Compliance Ledger</div>
+            <div style="font-weight: 700; font-size: 1.1rem; color: #BD9652; margin-top: 2px;">Tamper-Proof & Sealed</div>
+            <div style="font-size: 0.75rem; color: ${tokens.textSecondary}; margin-top: 4px;">All business records verified intact</div>
           </div>
 
           <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 6px; padding: 14px;">
-            <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Multi-Tenant Quarantine</div>
-            <div style="font-weight: 700; font-size: 1.1rem; color: #4ADE80; margin-top: 2px;">100% Isolated</div>
-            <div style="font-size: 0.75rem; color: ${tokens.textSecondary}; margin-top: 4px;">Row-level security enforcement: Active</div>
+            <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Business Privacy & Security</div>
+            <div style="font-weight: 700; font-size: 1.1rem; color: #4ADE80; margin-top: 2px;">Fully Protected</div>
+            <div style="font-size: 0.75rem; color: ${tokens.textSecondary}; margin-top: 4px;">Enterprise data isolation: Active</div>
           </div>
         </div>
       </div>

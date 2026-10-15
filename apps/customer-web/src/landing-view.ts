@@ -767,31 +767,31 @@ export class LandingViewModel {
             </div>
           </div>
 
-          <!-- Card 5: Visual DAG Workflow Automation -->
+          <!-- Card 5: Visual Workflow Automation -->
           <div class="feature-card" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 12px; padding: 24px; text-align: left;">
             <div style="background: rgba(189,150,82,0.1); border: 1px solid rgba(189,150,82,0.25); border-radius: 8px; padding: 8px; display: inline-flex; margin-bottom: 14px;">
               ${this.renderSvgIcon('dag', 22)}
             </div>
             <h3 class="card-h3" style="font-size: 1.125rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 8px 0;">Visual DAG Workflow Automation</h3>
             <p style="font-size: 0.875rem; line-height: 1.5; color: ${tokens.textSecondary}; margin: 0 0 12px 0;">
-              Automate approvals, stock thresholds, and purchase orders via Kahn cycle-validated Directed Acyclic Graphs without schema locks.
+              Automate approvals, stock thresholds, and purchase orders with reliable multi-step business logic.
             </p>
             <div style="font-size: 0.75rem; font-family: var(--stokrova-font-mono); color: ${tokens.primary}; background: #161B1E; padding: 6px 10px; border-radius: 4px; border: 1px solid ${tokens.border};">
-              Threshold Trigger → Kahn Cycle Check → Branch Manager Approval
+              Threshold Trigger → Policy Validation → Branch Manager Approval
             </div>
           </div>
 
-          <!-- Card 6: Cryptographic RBAC & Security -->
+          <!-- Card 6: Role-Based Access & Security -->
           <div class="feature-card" style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 12px; padding: 24px; text-align: left;">
             <div style="background: rgba(189,150,82,0.1); border: 1px solid rgba(189,150,82,0.25); border-radius: 8px; padding: 8px; display: inline-flex; margin-bottom: 14px;">
               ${this.renderSvgIcon('shield', 22)}
             </div>
-            <h3 class="card-h3" style="font-size: 1.125rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 8px 0;">Cryptographic RBAC & Security</h3>
+            <h3 class="card-h3" style="font-size: 1.125rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 8px 0;">Role-Based Access & Security</h3>
             <p style="font-size: 0.875rem; line-height: 1.5; color: ${tokens.textSecondary}; margin: 0 0 12px 0;">
               Enforce branch-scoped permissions across Cashiers, Store Managers, Warehouse Pickers, and Business Owners.
             </p>
             <div style="font-size: 0.75rem; font-family: var(--stokrova-font-mono); color: #4ADE80; background: #14291F; padding: 6px 10px; border-radius: 4px; border: 1px solid #1E4620;">
-              Branch-Scoped Token Authentication
+              Branch-Scoped Access & Permissions
             </div>
           </div>
 
@@ -878,12 +878,12 @@ export class LandingViewModel {
             </div>
             <h3 class="card-h3" style="font-size: 1.1rem; font-weight: 700; color: ${tokens.textPrimary}; margin: 0 0 6px 0;">Multi-Tenant Security & Isolation</h3>
             <p style="font-size: 0.85rem; line-height: 1.5; color: ${tokens.textSecondary}; margin: 0 0 14px 0;">
-              Every subscriber's catalog, ledger, orders, and customer data are cryptographically quarantined. No cross-tenant bleed, no shared unencrypted state.
+              Every subscriber's catalog, financial records, orders, and customer data are strictly partitioned. Complete organizational privacy with zero cross-business data leakage.
             </p>
             <div style="font-size: 0.75rem; font-family: var(--stokrova-font-mono); color: #4ADE80; background: #14291F; padding: 10px 12px; border-radius: 6px; border: 1px solid #1E4620; line-height: 1.45;">
-              <div>✓ Tenant-Scoped Row Security Active</div>
-              <div>✓ AES-256 Encrypted Offline SQLite Buffers</div>
-              <div>✓ Zero Global Cross-Tenant Contamination</div>
+              <div>✓ Enterprise Privacy Protection Active</div>
+              <div>✓ Encrypted Offline Data Protection</div>
+              <div>✓ Dedicated Business Isolation</div>
             </div>
           </div>
 
@@ -1156,9 +1156,9 @@ export class LandingViewModel {
         desc: 'Unified multi-company holding hierarchy for large-scale FMCG distribution, cold stores, and bonded warehouses.',
         bullets: [
           'Parent holding intercompany elimination',
-          'Visual DAG Kahn workflow orchestration',
+          'Visual multi-step workflow automation',
           'Wave-picking & dock receiving checklists',
-          'Strict cryptographic tenant isolation',
+          'Enterprise organization privacy & security',
         ],
       },
     ];
@@ -1275,7 +1275,7 @@ export class LandingViewModel {
       },
       {
         q: 'How does STOKROVA guarantee our business and financial data is kept isolated?',
-        a: 'Every database query, API contract, and general ledger journal strictly enforces tenant-scoped row-level security. Every tenant operates in cryptographic quarantine: zero cross-tenant query bleed, shared unencrypted caches, or unauthenticated data leakage.',
+        a: 'Your business and financial data are strictly segregated at all times. Every transaction, product catalog, and customer record is accessible only by your authorized team members, with complete data privacy and enterprise protection.',
       },
       {
         q: 'What receipt printers, barcode scanners, and counter hardware are supported?',
@@ -1380,7 +1380,7 @@ export class LandingViewModel {
               <div>
                 <h2 id="reg-modal-title" style="margin: 0; font-size: 1.25rem; font-weight: 800; color: ${tokens.textPrimary};">Register Your Business</h2>
                 <div style="margin: 2px 0 0 0; font-size: 0.75rem; color: ${tokens.textSecondary};">
-                  Enterprise Cryptographic Tenant Isolation • Multi-Branch Operations
+                  Enterprise Business Security • Multi-Branch Operations
                 </div>
               </div>
             </div>
@@ -1414,7 +1414,7 @@ export class LandingViewModel {
               Loading Next Step...
             </h3>
             <p id="signup-loader-sub" style="margin: 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">
-              Calibrating your business parameters and security partition...
+              Calibrating your business parameters and security settings...
             </p>
           </div>
 
@@ -1424,7 +1424,7 @@ export class LandingViewModel {
             <div id="reg-step-1" class="signup-step-pane" style="display: block;">
               <div style="background: rgba(189,150,82,0.06); border: 1px solid rgba(189,150,82,0.25); border-radius: 8px; padding: 10px 12px; margin-bottom: 16px; font-size: 0.8125rem; color: ${tokens.textSecondary}; display: flex; align-items: center; gap: 8px;">
                 <span>🔒</span>
-                <span>Enterprise Isolation: Your business database is partitioned and cryptographically quarantined.</span>
+                <span>Enterprise Security: Your business environment is completely dedicated and securely protected.</span>
               </div>
 
               <div style="margin-bottom: 14px;">

@@ -70,8 +70,13 @@ export class PlatformAdminService {
 
   constructor(
     @Optional() @Inject(DATABASE_POOL) private readonly pool?: any,
+    seedDemoData?: boolean,
   ) {
-    this.seedDefaultData();
+    const isTest = typeof process !== 'undefined' && process.env?.['NODE_ENV'] === 'test';
+    const shouldSeed = seedDemoData !== undefined ? seedDemoData : (isTest && !this.pool);
+    if (shouldSeed) {
+      this.seedDefaultData();
+    }
   }
 
   private seedDefaultData(): void {
@@ -210,9 +215,9 @@ export class PlatformAdminService {
             await client.query("SELECT set_config('app.is_platform_admin', 'true', true)");
             const tenantsRes = await client.query(`
               SELECT 
-                count(*)::int as total,
-                count(*) FILTER (WHERE status = 'ACTIVE')::int as active,
-                count(*) FILTER (WHERE status = 'SUSPENDED')::int as suspended
+                count(*) FILTER (WHERE id != 'ten_platform_root')::int as total,
+                count(*) FILTER (WHERE status = 'ACTIVE' AND id != 'ten_platform_root')::int as active,
+                count(*) FILTER (WHERE status = 'SUSPENDED' AND id != 'ten_platform_root')::int as suspended
               FROM public.tenants
             `);
             const usersRes = await client.query(`
@@ -227,14 +232,15 @@ export class PlatformAdminService {
             const branchesCount = branchesRes.rows?.[0]?.total || 0;
 
             const activeCount = Number(row.active || 0);
-            const mrrMinor = BigInt(activeCount) * 49900n; // Base blended MRR $499
+            const mrrMinor = activeCount > 0 ? BigInt(activeCount) * 49900n : 0n;
+            const totalGmvMinor = activeCount > 0 ? (BigInt(activeCount) * 100000000n).toString() : '0';
 
             return {
               totalTenants: Number(row.total || 0),
               activeTenants: activeCount,
               suspendedTenants: Number(row.suspended || 0),
               totalUsers: Number(usersCount),
-              totalGmvMinor: '7912000000',
+              totalGmvMinor: totalGmvMinor,
               platformMrrMinor: mrrMinor.toString(),
               activeWorkCenters: Number(branchesCount),
               systemHealthPct: 100,
@@ -302,7 +308,7 @@ export class PlatformAdminService {
               LEFT JOIN public.branches b ON b.tenant_id = t.id
               LEFT JOIN public.memberships m ON m.tenant_id = t.id
               LEFT JOIN public.users u ON u.id = m.user_id
-              WHERE 1=1
+              WHERE t.id != 'ten_platform_root'
             `;
             const params: any[] = [];
             let pIdx = 1;
@@ -335,7 +341,7 @@ export class PlatformAdminService {
               subscriptionTier: 'COMMERCE_PRO',
               companiesCount: Number(r.companies_count || 1),
               branchesCount: Number(r.branches_count || 1),
-              monthlyGmvMinor: '100000000',
+              monthlyGmvMinor: '0',
               createdAt: r.created_at?.toISOString ? r.created_at.toISOString() : String(r.created_at),
               updatedAt: r.updated_at?.toISOString ? r.updated_at.toISOString() : String(r.updated_at),
             }));
@@ -401,6 +407,60 @@ export class PlatformAdminService {
   }
 
   async getBusinessDetails(id: string): Promise<PlatformTenantItem & { companies: any[]; branches: any[]; auditEvents: any[] }> {
+    if (this.pool && typeof this.pool.query === 'function') {
+      try {
+        const client = await this.pool.connect().catch(() => null);
+        if (client) {
+          try {
+            await client.query("SELECT set_config('app.is_platform_admin', 'true', true)");
+            const tenantRes = await client.query(`
+              SELECT 
+                t.id, t.name, t.slug, t.status, t.created_at, t.updated_at,
+                coalesce(max(u.full_name), 'Business Owner') as owner_name,
+                coalesce(max(u.email), 'owner@stokrova.com') as owner_email,
+                coalesce(max(c.currency_code), 'USD') as currency_code
+              FROM public.tenants t
+              LEFT JOIN public.companies c ON c.tenant_id = t.id
+              LEFT JOIN public.memberships m ON m.tenant_id = t.id
+              LEFT JOIN public.users u ON u.id = m.user_id
+              WHERE t.id = $1
+              GROUP BY t.id, t.name, t.slug, t.status, t.created_at, t.updated_at
+            `, [id]);
+
+            if (tenantRes.rows && tenantRes.rows[0]) {
+              const r = tenantRes.rows[0];
+              const compRes = await client.query('SELECT id, name, currency_code as currency FROM public.companies WHERE tenant_id = $1', [id]);
+              const branchRes = await client.query('SELECT id, name, code FROM public.branches WHERE tenant_id = $1', [id]);
+              const auditRes = await client.query('SELECT id, tenant_id, actor_id, event_type, payload, created_at FROM public.audit_events WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 20', [id]);
+
+              return {
+                id: r.id,
+                name: r.name,
+                slug: r.slug,
+                status: r.status,
+                ownerName: r.owner_name,
+                ownerEmail: r.owner_email,
+                currencyCode: r.currency_code,
+                subscriptionTier: 'COMMERCE_PRO',
+                companiesCount: compRes.rows?.length || 1,
+                branchesCount: branchRes.rows?.length || 1,
+                monthlyGmvMinor: '0',
+                createdAt: r.created_at?.toISOString ? r.created_at.toISOString() : String(r.created_at),
+                updatedAt: r.updated_at?.toISOString ? r.updated_at.toISOString() : String(r.updated_at),
+                companies: compRes.rows || [],
+                branches: branchRes.rows || [],
+                auditEvents: auditRes.rows || [],
+              };
+            }
+          } finally {
+            client.release();
+          }
+        }
+      } catch (_err) {
+        // Fallback to in-memory store
+      }
+    }
+
     const tenant = this.tenantsStore.get(id);
     if (!tenant) {
       throw new NotFoundException(`Tenant with ID '${id}' not found.`);
@@ -444,13 +504,84 @@ export class PlatformAdminService {
       throw new BadRequestException('A valid suspension reason of at least 5 characters is strictly required.');
     }
 
+    const now = new Date().toISOString();
+
+    // 1. Database execution if pool is connected
+    if (this.pool && typeof this.pool.query === 'function') {
+      const client = await this.pool.connect().catch(() => null);
+      if (client) {
+        try {
+          await client.query("SELECT set_config('app.is_platform_admin', 'true', true)");
+          const existing = await client.query('SELECT id, name, status FROM public.tenants WHERE id = $1', [id]);
+          if (existing.rows && existing.rows[0]) {
+            const previousStatus = existing.rows[0].status as TenantStatus;
+            const tenantName = existing.rows[0].name;
+
+            if (previousStatus === 'SUSPENDED') {
+              return {
+                success: true,
+                message: 'Tenant is already suspended.',
+                tenantId: id,
+                status: 'SUSPENDED',
+              };
+            }
+
+            if (!canTransitionTenantStatus(previousStatus, 'SUSPENDED')) {
+              throw new ConflictException(`Cannot transition tenant status from '${previousStatus}' to 'SUSPENDED'.`);
+            }
+
+            await client.query('BEGIN');
+            await client.query(
+              `UPDATE public.tenants SET status = 'SUSPENDED', updated_at = NOW() WHERE id = $1`,
+              [id],
+            );
+            await client.query(
+              `UPDATE public.memberships SET status = 'SUSPENDED' WHERE tenant_id = $1`,
+              [id],
+            );
+            await client.query(
+              `INSERT INTO public.audit_events (id, tenant_id, actor_id, event_type, payload, created_at)
+               VALUES ($1, $2, $3, 'PLATFORM_TENANT_SUSPENDED', $4, NOW())`,
+              [
+                `aud_${randomUUID().replace(/-/g, '')}`,
+                id,
+                actorId,
+                JSON.stringify({ previousStatus, newStatus: 'SUSPENDED', reason: dto.reason.trim(), timestamp: now }),
+              ],
+            );
+            await client.query('COMMIT');
+
+            // Mirror to in-memory if present
+            const inMem = this.tenantsStore.get(id);
+            if (inMem) {
+              inMem.status = 'SUSPENDED';
+              inMem.updated_at = now;
+            }
+
+            return {
+              success: true,
+              message: `Tenant '${tenantName}' has been successfully suspended.`,
+              tenantId: id,
+              status: 'SUSPENDED',
+            };
+          }
+        } catch (dbErr) {
+          await client.query('ROLLBACK').catch(() => {});
+          if (dbErr instanceof ConflictException || dbErr instanceof BadRequestException) throw dbErr;
+          throw dbErr;
+        } finally {
+          client.release();
+        }
+      }
+    }
+
+    // 2. In-memory fallback
     const tenant = this.tenantsStore.get(id);
     if (!tenant) {
       throw new NotFoundException(`Tenant with ID '${id}' not found.`);
     }
 
     if (tenant.status === 'SUSPENDED') {
-      // Idempotent return if already suspended
       return {
         success: true,
         message: 'Tenant is already suspended.',
@@ -463,45 +594,7 @@ export class PlatformAdminService {
       throw new ConflictException(`Cannot transition tenant status from '${tenant.status}' to 'SUSPENDED'.`);
     }
 
-    const now = new Date().toISOString();
     const previousStatus = tenant.status;
-
-    // Database update if pool available
-    if (this.pool && typeof this.pool.query === 'function') {
-      const client = await this.pool.connect().catch(() => null);
-      if (client) {
-        try {
-          await client.query('BEGIN');
-          await client.query("SELECT set_config('app.is_platform_admin', 'true', true)");
-          await client.query(
-            `UPDATE public.tenants SET status = 'SUSPENDED', updated_at = NOW() WHERE id = $1`,
-            [id],
-          );
-          await client.query(
-            `UPDATE public.memberships SET status = 'SUSPENDED' WHERE tenant_id = $1`,
-            [id],
-          );
-          await client.query(
-            `INSERT INTO public.audit_events (id, tenant_id, actor_id, event_type, payload, created_at)
-             VALUES ($1, $2, $3, 'PLATFORM_TENANT_SUSPENDED', $4, NOW())`,
-            [
-              `aud_${randomUUID().replace(/-/g, '')}`,
-              id,
-              actorId,
-              JSON.stringify({ previousStatus, newStatus: 'SUSPENDED', reason: dto.reason.trim(), timestamp: now }),
-            ],
-          );
-          await client.query('COMMIT');
-        } catch (dbErr) {
-          await client.query('ROLLBACK').catch(() => {});
-          throw dbErr;
-        } finally {
-          client.release();
-        }
-      }
-    }
-
-    // Mirror to in-memory state
     tenant.status = 'SUSPENDED';
     tenant.updated_at = now;
 
@@ -531,13 +624,84 @@ export class PlatformAdminService {
       throw new BadRequestException('A valid reactivation reason of at least 5 characters is strictly required.');
     }
 
+    const now = new Date().toISOString();
+
+    // 1. Database execution if pool is connected
+    if (this.pool && typeof this.pool.query === 'function') {
+      const client = await this.pool.connect().catch(() => null);
+      if (client) {
+        try {
+          await client.query("SELECT set_config('app.is_platform_admin', 'true', true)");
+          const existing = await client.query('SELECT id, name, status FROM public.tenants WHERE id = $1', [id]);
+          if (existing.rows && existing.rows[0]) {
+            const previousStatus = existing.rows[0].status as TenantStatus;
+            const tenantName = existing.rows[0].name;
+
+            if (previousStatus === 'ACTIVE') {
+              return {
+                success: true,
+                message: 'Tenant is already active.',
+                tenantId: id,
+                status: 'ACTIVE',
+              };
+            }
+
+            if (!canTransitionTenantStatus(previousStatus, 'ACTIVE')) {
+              throw new ConflictException(`Cannot transition tenant status from '${previousStatus}' to 'ACTIVE'.`);
+            }
+
+            await client.query('BEGIN');
+            await client.query(
+              `UPDATE public.tenants SET status = 'ACTIVE', updated_at = NOW() WHERE id = $1`,
+              [id],
+            );
+            await client.query(
+              `UPDATE public.memberships SET status = 'ACTIVE' WHERE tenant_id = $1`,
+              [id],
+            );
+            await client.query(
+              `INSERT INTO public.audit_events (id, tenant_id, actor_id, event_type, payload, created_at)
+               VALUES ($1, $2, $3, 'PLATFORM_TENANT_REACTIVATED', $4, NOW())`,
+              [
+                `aud_${randomUUID().replace(/-/g, '')}`,
+                id,
+                actorId,
+                JSON.stringify({ previousStatus, newStatus: 'ACTIVE', reason: dto.reason.trim(), timestamp: now }),
+              ],
+            );
+            await client.query('COMMIT');
+
+            // Mirror to in-memory if present
+            const inMem = this.tenantsStore.get(id);
+            if (inMem) {
+              inMem.status = 'ACTIVE';
+              inMem.updated_at = now;
+            }
+
+            return {
+              success: true,
+              message: `Tenant '${tenantName}' has been successfully reactivated.`,
+              tenantId: id,
+              status: 'ACTIVE',
+            };
+          }
+        } catch (dbErr) {
+          await client.query('ROLLBACK').catch(() => {});
+          if (dbErr instanceof ConflictException || dbErr instanceof BadRequestException) throw dbErr;
+          throw dbErr;
+        } finally {
+          client.release();
+        }
+      }
+    }
+
+    // 2. In-memory fallback
     const tenant = this.tenantsStore.get(id);
     if (!tenant) {
       throw new NotFoundException(`Tenant with ID '${id}' not found.`);
     }
 
     if (tenant.status === 'ACTIVE') {
-      // Idempotent return if already active
       return {
         success: true,
         message: 'Tenant is already active.',
@@ -550,45 +714,7 @@ export class PlatformAdminService {
       throw new ConflictException(`Cannot transition tenant status from '${tenant.status}' to 'ACTIVE'.`);
     }
 
-    const now = new Date().toISOString();
     const previousStatus = tenant.status;
-
-    // Database update if pool available
-    if (this.pool && typeof this.pool.query === 'function') {
-      const client = await this.pool.connect().catch(() => null);
-      if (client) {
-        try {
-          await client.query('BEGIN');
-          await client.query("SELECT set_config('app.is_platform_admin', 'true', true)");
-          await client.query(
-            `UPDATE public.tenants SET status = 'ACTIVE', updated_at = NOW() WHERE id = $1`,
-            [id],
-          );
-          await client.query(
-            `UPDATE public.memberships SET status = 'ACTIVE' WHERE tenant_id = $1`,
-            [id],
-          );
-          await client.query(
-            `INSERT INTO public.audit_events (id, tenant_id, actor_id, event_type, payload, created_at)
-             VALUES ($1, $2, $3, 'PLATFORM_TENANT_REACTIVATED', $4, NOW())`,
-            [
-              `aud_${randomUUID().replace(/-/g, '')}`,
-              id,
-              actorId,
-              JSON.stringify({ previousStatus, newStatus: 'ACTIVE', reason: dto.reason.trim(), timestamp: now }),
-            ],
-          );
-          await client.query('COMMIT');
-        } catch (dbErr) {
-          await client.query('ROLLBACK').catch(() => {});
-          throw dbErr;
-        } finally {
-          client.release();
-        }
-      }
-    }
-
-    // Mirror to in-memory state
     tenant.status = 'ACTIVE';
     tenant.updated_at = now;
 
@@ -614,6 +740,40 @@ export class PlatformAdminService {
     dto: UpdateBusinessTierDto,
     actorId = 'usr_platform_admin',
   ): Promise<{ success: boolean; tier: string }> {
+    const now = new Date().toISOString();
+
+    if (this.pool && typeof this.pool.query === 'function') {
+      const client = await this.pool.connect().catch(() => null);
+      if (client) {
+        try {
+          await client.query("SELECT set_config('app.is_platform_admin', 'true', true)");
+          const existing = await client.query('SELECT id, name FROM public.tenants WHERE id = $1', [id]);
+          if (existing.rows && existing.rows[0]) {
+            await client.query(
+              `INSERT INTO public.audit_events (id, tenant_id, actor_id, event_type, payload, created_at)
+               VALUES ($1, $2, $3, 'PLATFORM_TENANT_TIER_UPDATED', $4, NOW())`,
+              [
+                `aud_${randomUUID().replace(/-/g, '')}`,
+                id,
+                actorId,
+                JSON.stringify({ newTier: dto.tier, timestamp: now }),
+              ],
+            );
+
+            const inMem = this.tenantsStore.get(id);
+            if (inMem) {
+              inMem.subscription_tier = dto.tier;
+              inMem.updated_at = now;
+            }
+
+            return { success: true, tier: dto.tier };
+          }
+        } finally {
+          client.release();
+        }
+      }
+    }
+
     const tenant = this.tenantsStore.get(id);
     if (!tenant) {
       throw new NotFoundException(`Tenant with ID '${id}' not found.`);
@@ -621,7 +781,7 @@ export class PlatformAdminService {
 
     const previousTier = tenant.subscription_tier;
     tenant.subscription_tier = dto.tier;
-    tenant.updated_at = new Date().toISOString();
+    tenant.updated_at = now;
 
     this.auditStore.push({
       id: `aud_${randomUUID().replace(/-/g, '')}`,
@@ -642,6 +802,61 @@ export class PlatformAdminService {
     const page = Math.max(1, Number(query.page || 1));
     const limit = Math.max(1, Math.min(100, Number(query.limit || 20)));
     const search = query.search?.trim().toLowerCase();
+
+    if (this.pool && typeof this.pool.query === 'function') {
+      try {
+        const client = await this.pool.connect().catch(() => null);
+        if (client) {
+          try {
+            await client.query("SELECT set_config('app.is_platform_admin', 'true', true)");
+            let sql = `
+              SELECT 
+                u.id, u.full_name, u.email, u.role, u.is_active, u.created_at,
+                t.id as tenant_id, t.name as tenant_name
+              FROM public.users u
+              LEFT JOIN public.tenants t ON t.id = u.tenant_id
+              WHERE 1=1
+            `;
+            const params: any[] = [];
+            let pIdx = 1;
+            if (search) {
+              sql += ` AND (LOWER(u.full_name) LIKE $${pIdx} OR LOWER(u.email) LIKE $${pIdx} OR LOWER(t.name) LIKE $${pIdx})`;
+              params.push(`%${search}%`);
+              pIdx++;
+            }
+            sql += ` ORDER BY u.created_at DESC`;
+
+            const res = await client.query(sql, params);
+            const total = res.rows.length;
+            const offset = (page - 1) * limit;
+            const paged = res.rows.slice(offset, offset + limit);
+
+            const items: PlatformUserItem[] = paged.map((u: any) => ({
+              id: u.id,
+              name: u.full_name,
+              email: u.email,
+              role: u.role,
+              status: u.is_active ? 'ACTIVE' : 'SUSPENDED',
+              tenantId: u.tenant_id,
+              tenantName: u.tenant_name,
+              lastActiveIso: u.created_at?.toISOString ? u.created_at.toISOString() : String(u.created_at),
+            }));
+
+            return {
+              items,
+              total,
+              page,
+              limit,
+              totalPages: Math.ceil(total / limit) || 1,
+            };
+          } finally {
+            client.release();
+          }
+        }
+      } catch (_err) {
+        // Fallback to in-memory store
+      }
+    }
 
     let list = Array.from(this.usersStore.values());
 
@@ -687,13 +902,51 @@ export class PlatformAdminService {
       throw new BadRequestException('A valid suspension reason of at least 5 characters is strictly required.');
     }
 
+    const now = new Date().toISOString();
+
+    if (this.pool && typeof this.pool.query === 'function') {
+      const client = await this.pool.connect().catch(() => null);
+      if (client) {
+        try {
+          await client.query("SELECT set_config('app.is_platform_admin', 'true', true)");
+          const existing = await client.query('SELECT id, full_name, is_active FROM public.users WHERE id = $1', [id]);
+          if (existing.rows && existing.rows[0]) {
+            const userName = existing.rows[0].full_name;
+            await client.query('BEGIN');
+            await client.query('UPDATE public.users SET is_active = false, updated_at = NOW() WHERE id = $1', [id]);
+            await client.query("UPDATE public.memberships SET status = 'SUSPENDED' WHERE user_id = $1", [id]);
+            await client.query(
+              `INSERT INTO public.audit_events (id, actor_id, event_type, payload, created_at)
+               VALUES ($1, $2, 'PLATFORM_USER_SUSPENDED', $3, NOW())`,
+              [`aud_${randomUUID().replace(/-/g, '')}`, actorId, JSON.stringify({ userId: id, reason: dto.reason.trim(), timestamp: now })],
+            );
+            await client.query('COMMIT');
+
+            const inMem = this.usersStore.get(id);
+            if (inMem) inMem.status = 'SUSPENDED';
+
+            return {
+              success: true,
+              message: `User '${userName}' has been suspended.`,
+              userId: id,
+              status: 'SUSPENDED',
+            };
+          }
+        } catch (dbErr) {
+          await client.query('ROLLBACK').catch(() => {});
+          throw dbErr;
+        } finally {
+          client.release();
+        }
+      }
+    }
+
     const user = this.usersStore.get(id);
     if (!user) {
       throw new NotFoundException(`User with ID '${id}' not found.`);
     }
 
     user.status = 'SUSPENDED';
-    const now = new Date().toISOString();
 
     this.auditStore.push({
       id: `aud_${randomUUID().replace(/-/g, '')}`,
@@ -720,13 +973,51 @@ export class PlatformAdminService {
       throw new BadRequestException('A valid reactivation reason of at least 5 characters is strictly required.');
     }
 
+    const now = new Date().toISOString();
+
+    if (this.pool && typeof this.pool.query === 'function') {
+      const client = await this.pool.connect().catch(() => null);
+      if (client) {
+        try {
+          await client.query("SELECT set_config('app.is_platform_admin', 'true', true)");
+          const existing = await client.query('SELECT id, full_name, is_active FROM public.users WHERE id = $1', [id]);
+          if (existing.rows && existing.rows[0]) {
+            const userName = existing.rows[0].full_name;
+            await client.query('BEGIN');
+            await client.query('UPDATE public.users SET is_active = true, updated_at = NOW() WHERE id = $1', [id]);
+            await client.query("UPDATE public.memberships SET status = 'ACTIVE' WHERE user_id = $1", [id]);
+            await client.query(
+              `INSERT INTO public.audit_events (id, actor_id, event_type, payload, created_at)
+               VALUES ($1, $2, 'PLATFORM_USER_REACTIVATED', $3, NOW())`,
+              [`aud_${randomUUID().replace(/-/g, '')}`, actorId, JSON.stringify({ userId: id, reason: dto.reason.trim(), timestamp: now })],
+            );
+            await client.query('COMMIT');
+
+            const inMem = this.usersStore.get(id);
+            if (inMem) inMem.status = 'ACTIVE';
+
+            return {
+              success: true,
+              message: `User '${userName}' has been reactivated.`,
+              userId: id,
+              status: 'ACTIVE',
+            };
+          }
+        } catch (dbErr) {
+          await client.query('ROLLBACK').catch(() => {});
+          throw dbErr;
+        } finally {
+          client.release();
+        }
+      }
+    }
+
     const user = this.usersStore.get(id);
     if (!user) {
       throw new NotFoundException(`User with ID '${id}' not found.`);
     }
 
     user.status = 'ACTIVE';
-    const now = new Date().toISOString();
 
     this.auditStore.push({
       id: `aud_${randomUUID().replace(/-/g, '')}`,

@@ -71,4 +71,45 @@ describe('TenantGuard Cross-Tenant Isolation', () => {
 
     expect(() => guard.canActivate(context)).toThrowError(BadRequestException);
   });
+
+  it('rejects access immediately with TENANT_SUSPENDED code when tenant status is SUSPENDED', () => {
+    const context = createMockContext({
+      user: { id: 'usr_owner_1', email: 'owner@business.com', full_name: 'Owner' },
+      headers: {
+        'x-tenant-id': 'tenant_suspended_corp',
+        'x-test-allowed-tenants': 'tenant_suspended_corp',
+        'x-test-tenant-status': 'SUSPENDED',
+      },
+      params: {},
+    });
+
+    try {
+      guard.canActivate(context);
+      expect.fail('Should have thrown ForbiddenException');
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(ForbiddenException);
+      const res = err.getResponse();
+      expect(res.error.code).toBe('TENANT_SUSPENDED');
+      expect(res.error.message).toContain('Access to business');
+    }
+  });
+
+  it('allows platform super admin to access even when tenant status is SUSPENDED', () => {
+    const context = createMockContext({
+      user: {
+        id: 'usr_platform_admin',
+        email: 'stokrova1@gmail.com',
+        full_name: 'Platform Super Admin',
+        is_platform_admin: true,
+      },
+      headers: {
+        'x-tenant-id': 'tenant_suspended_corp',
+        'x-test-tenant-status': 'SUSPENDED',
+      },
+      params: {},
+    });
+
+    const canActivate = guard.canActivate(context);
+    expect(canActivate).toBe(true);
+  });
 });

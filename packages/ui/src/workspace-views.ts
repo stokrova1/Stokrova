@@ -422,19 +422,19 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
           <div style="padding: 12px; background: rgba(255,255,255,0.02); border-radius: 6px; border: 1px solid ${tokens.border};">
             <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Inventory Turnover Ratio (ITR)</div>
-            <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin-top: 4px;">8.4x / year</div>
+            <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin-top: 4px;">${isDemo ? '8.4x / year' : '0.0x / year'}</div>
           </div>
           <div style="padding: 12px; background: rgba(255,255,255,0.02); border-radius: 6px; border: 1px solid ${tokens.border};">
             <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Days Inventory Outstanding (DIO)</div>
-            <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin-top: 4px;">43.4 Days</div>
+            <div style="font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary}; margin-top: 4px;">${isDemo ? '43.4 Days' : '0.0 Days'}</div>
           </div>
           <div style="padding: 12px; background: rgba(255,255,255,0.02); border-radius: 6px; border: 1px solid ${tokens.border};">
             <div style="font-size: 0.75rem; color: ${tokens.textMuted};">GMROI (Gross Margin Return)</div>
-            <div style="font-size: 1.4rem; font-weight: 800; color: #4ADE80; margin-top: 4px;">285%</div>
+            <div style="font-size: 1.4rem; font-weight: 800; color: #4ADE80; margin-top: 4px;">${isDemo ? '285%' : '0.00%'}</div>
           </div>
           <div style="padding: 12px; background: rgba(255,255,255,0.02); border-radius: 6px; border: 1px solid ${tokens.border};">
             <div style="font-size: 0.75rem; color: ${tokens.textMuted};">Tied-Up Working Capital</div>
-            <div style="font-size: 1.4rem; font-weight: 800; color: ${brandColors.gold[400]}; margin-top: 4px;">$1,240,000.00</div>
+            <div style="font-size: 1.4rem; font-weight: 800; color: ${brandColors.gold[400]}; margin-top: 4px;">${isDemo ? '$1,240,000.00' : '$0.00'}</div>
           </div>
         </div>
       </div>
@@ -523,6 +523,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
             </tr>
           </thead>
           <tbody>
+            ${isDemo ? `
             <tr style="border-bottom: 1px solid ${tokens.border};">
               <td style="padding: 14px 16px; font-family: var(--stokrova-font-mono); font-weight: 600;">SO-2026-901</td>
               <td style="padding: 14px 16px;">Trans-European Freight Logistics SA</td>
@@ -547,6 +548,13 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
               <td style="padding: 14px 16px; text-align: right; font-family: var(--stokrova-font-mono); font-weight: 700;">$28,900.00</td>
               <td style="padding: 14px 16px; text-align: right;"><button onclick="${toastFn}('Releasing wave pick for SO-2026-903...')" style="padding: 4px 10px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; border-radius: 4px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">Pick Wave</button></td>
             </tr>
+            ` : `
+            <tr>
+              <td colspan="6" style="padding: 36px 16px; text-align: center; color: ${tokens.textMuted}; font-size: 0.8125rem;">
+                No sales orders recorded yet. Omnichannel customer orders will appear here.
+              </td>
+            </tr>
+            `}
           </tbody>
         </table>
       </div>
@@ -559,6 +567,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
       <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Invoices & Accounts Receivable</h1>
       <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Commercial billing, Net 30 payment terms, customer credit tracking, and tax compliance.</p>
       <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
+        ${isDemo ? `
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid ${tokens.border}; padding-bottom: 12px; margin-bottom: 14px;">
           <div>
             <div style="font-weight: 700;">INV-2026-084 • Trans-European Logistics</div>
@@ -570,6 +579,11 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
           </div>
         </div>
         <button onclick="${toastFn}('Generating Statement of Account for customer...')" style="padding: 8px 16px; background: ${tokens.cardHover}; border: 1px solid ${tokens.borderStrong}; color: ${tokens.textPrimary}; border-radius: 6px; font-size: 0.8125rem; cursor: pointer;">Export Statement</button>
+        ` : `
+        <div style="padding: 24px 16px; text-align: center; color: ${tokens.textMuted}; font-size: 0.8125rem;">
+          No invoices issued yet. Commercial invoices generated from sales orders or quotes will appear here.
+        </div>
+        `}
       </div>
     </div>
 
@@ -580,11 +594,17 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
       <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Quotations & Wholesale B2B Contracts</h1>
       <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Price tiering, margin protection rules, and quotation conversion workflows.</p>
       <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px;">
+        ${isDemo ? `
         <div style="font-weight: 600; margin-bottom: 8px;">Active Quote: QT-2026-042 (Metro Stores PLC)</div>
         <p style="font-size: 0.875rem; color: ${tokens.textSecondary}; margin: 0 0 16px 0;">Quote Amount: $45,000.00 • Calculated Gross Margin: 24.20% (Pre-Approved)</p>
         <button onclick="${toastFn}('Quotation converted to confirmed Sales Order SO-2026-904!')" style="padding: 8px 16px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;">
           Convert to Confirmed Sales Order →
         </button>
+        ` : `
+        <div style="padding: 24px 16px; text-align: center; color: ${tokens.textMuted}; font-size: 0.8125rem;">
+          No quotations drafted yet. Create a B2B quotation to initiate customer pricing.
+        </div>
+        `}
       </div>
     </div>
 
@@ -1627,13 +1647,13 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
     </div>
 
     <!-- ========================================== -->
-    <!-- 29. DAG WORKFLOWS STUDIO (/workflows) -->
+    <!-- 29. WORKFLOW AUTOMATION STUDIO (/workflows) -->
     <!-- ========================================== -->
     <div id="ws-view-workflows" class="ws-view-content" style="display: none;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <div>
-          <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Visual DAG Workflows Studio</h1>
-          <p style="margin: 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Orchestrates automated business logic with Kahn's algorithm cycle detection.</p>
+          <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Visual Workflow Automation Studio</h1>
+          <p style="margin: 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Orchestrates automated business logic with validated multi-step execution flows.</p>
         </div>
         <button onclick="window.stokrovaApp?.simulateWorkflowDryRun ? window.stokrovaApp.simulateWorkflowDryRun(this) : ${toastFn}('Workflow dry-run simulation executed: 0 cycles, 3 steps completed.')" style="padding: 8px 16px; background: ${brandColors.gold[500]}; color: #0E1116; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;">
           ▶ Run Workflow Test

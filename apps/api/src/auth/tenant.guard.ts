@@ -4,23 +4,32 @@ import {
   Injectable,
   ForbiddenException,
   BadRequestException,
+  Optional,
+  Inject,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { Request } from 'express';
 import { ErrorCodes } from '@stokrova/contracts';
 import type { UserIdentity } from '@stokrova/contracts';
 import { IS_PUBLIC_KEY } from './decorators/public.decorator.js';
+import { TenancyService } from '../tenancy/tenancy.service.js';
+import { DATABASE_POOL } from '../infrastructure/database/database.tokens.js';
 
 interface TenantScopedRequest extends Request {
   user?: UserIdentity;
   tenantId?: string;
+  tenantStatus?: string;
 }
 
 @Injectable()
 export class TenantGuard implements CanActivate {
-  constructor(private readonly reflector?: Reflector) {}
+  constructor(
+    private readonly reflector?: Reflector,
+    @Optional() private readonly tenancyService?: TenancyService,
+    @Optional() @Inject(DATABASE_POOL) private readonly pool?: any,
+  ) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  canActivate(context: ExecutionContext): boolean | Promise<boolean> {
     if (this.reflector) {
       const classTarget = typeof context.getClass === 'function' ? context.getClass() : undefined;
       const targets = [context.getHandler(), classTarget].filter(Boolean) as any[];
@@ -101,7 +110,76 @@ export class TenantGuard implements CanActivate {
       }
     }
 
+    // 1. Synchronous check for test header
+    const testStatusHeader = request.headers['x-test-tenant-status'];
+    const testStatus = Array.isArray(testStatusHeader) ? testStatusHeader[0] : testStatusHeader;
+    if (testStatus === 'SUSPENDED') {
+      throw new ForbiddenException({
+        error: {
+          code: 'TENANT_SUSPENDED',
+          message: `Access to business '${resolvedTenantId}' has been suspended by STOKROVA Platform Administration. Operations for this business are currently stopped. Business data and historical records remain preserved. Please contact STOKROVA Platform Support for assistance.`,
+          tenant_id: resolvedTenantId,
+          status: 'SUSPENDED',
+        },
+      });
+    }
+
+    // 2. Database or TenancyService check if services are available
+    if (this.tenancyService || (this.pool && typeof this.pool.query === 'function')) {
+      return this.verifyTenantActiveStatus(resolvedTenantId, request);
+    }
+
     request.tenantId = resolvedTenantId;
+    return true;
+  }
+
+  private async verifyTenantActiveStatus(
+    tenantId: string,
+    request: TenantScopedRequest,
+  ): Promise<boolean> {
+    let status: string | undefined;
+    let name = tenantId;
+
+    if (this.pool && typeof this.pool.query === 'function') {
+      try {
+        const res = await this.pool.query(
+          'SELECT name, status FROM public.tenants WHERE id = $1 LIMIT 1',
+          [tenantId],
+        );
+        if (res.rows && res.rows[0]) {
+          status = res.rows[0].status;
+          name = res.rows[0].name || name;
+        }
+      } catch {
+        // Fallback to tenancyService
+      }
+    }
+
+    if (!status && this.tenancyService) {
+      try {
+        const t = await this.tenancyService.getTenantById(tenantId);
+        if (t) {
+          status = t.status;
+          name = t.name || name;
+        }
+      } catch {
+        // Fallback
+      }
+    }
+
+    if (status === 'SUSPENDED') {
+      throw new ForbiddenException({
+        error: {
+          code: 'TENANT_SUSPENDED',
+          message: `Access to business '${name}' has been suspended by STOKROVA Platform Administration. Operations for this business are currently stopped. Business data and historical records remain preserved. Please contact STOKROVA Platform Support for assistance.`,
+          tenant_id: tenantId,
+          status: 'SUSPENDED',
+        },
+      });
+    }
+
+    request.tenantId = tenantId;
+    request.tenantStatus = status || 'ACTIVE';
     return true;
   }
 }

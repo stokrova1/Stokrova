@@ -898,6 +898,71 @@ const completeWebsiteHtml = `
   ${legalModalHtml}
   ${tourOverlayHtml}
 
+  <!-- BRANDED INTERRUPTION SCREEN: BUSINESS ACCESS SUSPENDED -->
+  <div id="stokrova-suspended-screen" style="display: none; position: fixed; inset: 0; background: #0E1116; z-index: 100000; flex-direction: column; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box; overflow-y: auto;">
+    <div style="max-width: 580px; width: 100%; background: #161B1E; border: 1px solid #333D46; border-radius: 12px; box-shadow: 0 25px 60px rgba(0,0,0,0.7); overflow: hidden;">
+      <!-- Top Crimson Security Warning Bar -->
+      <div style="background: rgba(248,113,113,0.12); border-bottom: 1px solid rgba(248,113,113,0.25); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.1rem;">🔒</span>
+          <span style="font-size: 0.75rem; font-weight: 800; color: #F87171; letter-spacing: 0.08em; text-transform: uppercase;">Security & Access Enforcement</span>
+        </div>
+        <span id="suspended-badge-status" style="background: rgba(248,113,113,0.2); color: #F87171; border: 1px solid #F87171; padding: 2px 8px; border-radius: 9999px; font-size: 0.7rem; font-weight: 700;">SUSPENDED</span>
+      </div>
+
+      <!-- Main Body -->
+      <div style="padding: 32px 28px;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+          <span style="color: #BD9652; font-size: 1.25rem;">◆</span>
+          <span style="font-size: 1.15rem; font-weight: 900; letter-spacing: 0.05em; color: #BD9652;">STOKROVA</span>
+        </div>
+
+        <h1 style="margin: 0 0 8px 0; font-size: 1.5rem; font-weight: 800; color: #F8FAFC;">Business Access Suspended</h1>
+        <p style="margin: 0 0 20px 0; font-size: 0.875rem; color: #ACB8C3; line-height: 1.5;">Operations for this enterprise organization have been temporarily interrupted by Platform Administration.</p>
+
+        <!-- Organization Snapshot Card -->
+        <div style="background: #1E2428; border: 1px solid #333D46; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.8125rem;">
+            <div>
+              <span style="color: #7E919F; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Business Entity</span>
+              <div id="suspended-tenant-name-display" style="font-weight: 700; color: #F8FAFC; margin-top: 2px;">Your Organization</div>
+            </div>
+            <div>
+              <span style="color: #7E919F; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Operational State</span>
+              <div style="font-weight: 700; color: #F87171; margin-top: 2px;">Locked by Platform Super-Admin</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Restriction Details Notice -->
+        <div style="background: rgba(248,113,113,0.06); border-left: 3px solid #F87171; padding: 14px 16px; border-radius: 0 6px 6px 0; margin-bottom: 24px; font-size: 0.8125rem; color: #E2E8F0; line-height: 1.6;">
+          <strong>Why is this workspace locked?</strong><br>
+          Platform Administration has placed this business tenant in a suspended state. All active operations—including till transactions, POS checkout, warehouse dispatch, procurement 3-way matching, stock ledger movements, and financial journals—are strictly denied until reactivated.
+        </div>
+
+        <!-- Resolution Steps -->
+        <div style="margin-bottom: 28px;">
+          <h4 style="margin: 0 0 10px 0; font-size: 0.8125rem; font-weight: 700; color: #BD9652; text-transform: uppercase; letter-spacing: 0.05em;">Required Resolution Steps</h4>
+          <ol style="margin: 0; padding-left: 18px; font-size: 0.8125rem; color: #ACB8C3; line-height: 1.7;">
+            <li>Verify billing, commercial contract standing, or compliance notices sent to your primary business owner email.</li>
+            <li>Contact STOKROVA Platform Administration directly at <strong style="color: #F8FAFC;">support@stokrova.com</strong> to initiate reactivation review.</li>
+            <li>Once Platform Super-Admin issues the reactivation order, full multi-tenant access is restored immediately without data loss.</li>
+          </ol>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap;">
+          <button onclick="window.stokrovaCustomerApp.signOutAndReturnHome()" style="padding: 10px 18px; border-radius: 6px; background: #1E2428; border: 1px solid #414F5A; color: #F8FAFC; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.15s ease;">
+            Sign Out / Return to Home
+          </button>
+          <a href="mailto:support@stokrova.com?subject=Business%20Suspension%20Resolution%20Inquiry" style="display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: 6px; background: #BD9652; border: 1px solid #CEB274; color: #0E1116; font-weight: 700; font-size: 0.875rem; text-decoration: none; cursor: pointer; transition: all 0.15s ease;">
+            <span>✉</span> Contact Platform Support
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- AUTHENTICATED BUSINESS WORKSPACE (LAUNCHED ON SIGN IN, REGISTER OR DEMO) -->
   <div id="business-workspace-container">
     <div class="workspace-topbar">
@@ -2012,6 +2077,48 @@ const completeWebsiteHtml = `
         });
       },
 
+      showSuspendedScreen(data = {}) {
+        const tenantName = data.tenantName || 'Your Business Organization';
+        const scr = document.getElementById('stokrova-suspended-screen');
+        const pub = document.getElementById('customer-public-surface');
+        const ws = document.getElementById('business-workspace-container');
+        const modalLogin = document.getElementById('modal-login');
+        const modalReg = document.getElementById('modal-register');
+
+        if (modalLogin) modalLogin.style.display = 'none';
+        if (modalReg) modalReg.style.display = 'none';
+        if (ws) ws.style.display = 'none';
+        if (pub) pub.style.display = 'none';
+
+        const nameEl = document.getElementById('suspended-tenant-name-display');
+        if (nameEl) nameEl.textContent = tenantName;
+
+        if (scr) scr.style.display = 'flex';
+
+        sessionStorage.setItem('stokrova_tenant_suspended', JSON.stringify({
+          suspended: true,
+          tenantName: tenantName,
+          timestamp: new Date().toISOString()
+        }));
+      },
+
+      signOutAndReturnHome() {
+        sessionStorage.removeItem('stokrova_tenant_suspended');
+        const scr = document.getElementById('stokrova-suspended-screen');
+        const pub = document.getElementById('customer-public-surface');
+        const ws = document.getElementById('business-workspace-container');
+
+        if (scr) scr.style.display = 'none';
+        if (ws) ws.style.display = 'none';
+        if (pub) pub.style.display = 'block';
+
+        const sb = getSupabase();
+        if (sb) {
+          sb.auth.signOut().catch(() => {});
+        }
+        window.location.hash = '';
+      },
+
       openLegalModal(topic) {
         const modal = document.getElementById('modal-legal');
         if (modal) modal.style.display = 'flex';
@@ -2129,12 +2236,20 @@ const completeWebsiteHtml = `
               if (sessionRes && sessionRes.ok) {
                 const sessData = await sessionRes.json();
                 if (sessData.authenticated && sessData.active_tenant) {
+                  if (sessData.active_tenant.status === 'SUSPENDED' || sessData.active_tenant.quarantine_status === 'BUSINESS_SUSPENDED') {
+                    if (step1) step1.style.display = 'block';
+                    if (step2) step2.style.display = 'none';
+                    this.showSuspendedScreen({
+                      tenantName: sessData.active_tenant.tenant_name || tenantName
+                    });
+                    return;
+                  }
                   tenantName = sessData.active_tenant.tenant_name || tenantName;
                   branch = sessData.active_tenant.branch_name || branch;
                   name = sessData.user.name || (data.user?.user_metadata?.full_name) || email.split('@')[0];
                   role = sessData.active_tenant.role === 'owner' ? 'Business Owner (Administrator)' : (sessData.active_tenant.role || role);
                   slug = sessData.active_tenant.workspace_slug || slug || 'apex';
-                  lastActive = 'Just Now • Cryptographically Verified';
+                  lastActive = 'Just Now • Verified';
                 } else if (sessData.onboarding_status === 'ONBOARDING_REQUIRED') {
                   let pending = null;
                   try { pending = JSON.parse(localStorage.getItem('stokrova_pending_onboarding') || 'null'); } catch (_) {}
@@ -2336,6 +2451,13 @@ const completeWebsiteHtml = `
       },
 
       launchWorkspace({ tenantName, branchName, userName, userRole }) {
+        if (sessionStorage.getItem('stokrova_tenant_suspended')) {
+          let saved = null;
+          try { saved = JSON.parse(sessionStorage.getItem('stokrova_tenant_suspended')); } catch (_) {}
+          this.showSuspendedScreen(saved || { tenantName });
+          return;
+        }
+
         this.currentUserName = userName;
         this.currentWorkspaceRole = userRole;
 
@@ -2599,8 +2721,33 @@ const completeWebsiteHtml = `
     // Initialize brand settings
     window.stokrovaCustomerApp.loadBrandSettings();
 
+    // Global 403 TENANT_SUSPENDED Interceptor
+    const _origFetch = window.fetch;
+    window.fetch = async function(...args) {
+      const res = await _origFetch.apply(this, args);
+      if (res && res.status === 403) {
+        try {
+          const clone = res.clone();
+          const data = await clone.json();
+          if (data && (data.code === 'TENANT_SUSPENDED' || data.message?.includes('TENANT_SUSPENDED') || data.message?.includes('suspended'))) {
+            window.stokrovaCustomerApp.showSuspendedScreen({
+              tenantName: document.getElementById('ws-tenant-display')?.textContent || 'Your Business Organization'
+            });
+          }
+        } catch (_) {}
+      }
+      return res;
+    };
+
     // Automatic Live Supabase Session Restoration & Onboarding Recovery
     window.addEventListener('DOMContentLoaded', async () => {
+      if (sessionStorage.getItem('stokrova_tenant_suspended')) {
+        let saved = null;
+        try { saved = JSON.parse(sessionStorage.getItem('stokrova_tenant_suspended')); } catch (_) {}
+        window.stokrovaCustomerApp.showSuspendedScreen(saved || {});
+        return;
+      }
+
       const sb = getSupabase();
       if (!sb) return;
 
@@ -2612,6 +2759,13 @@ const completeWebsiteHtml = `
           }).then(r => r.json()).catch(() => null);
 
           if (res && res.authenticated && res.active_tenant) {
+            if (res.active_tenant.status === 'SUSPENDED') {
+              window.stokrovaCustomerApp.showSuspendedScreen({
+                tenantName: res.active_tenant.tenant_name
+              });
+              return;
+            }
+
             const signinBtns = document.querySelectorAll('button[onclick*="openLoginModal"]');
             signinBtns.forEach(btn => {
               btn.textContent = res.active_tenant.tenant_name + ' (' + (res.user?.email || '').split('@')[0] + ') →';

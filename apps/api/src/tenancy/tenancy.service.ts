@@ -385,6 +385,7 @@ export class TenancyService {
           SELECT 
             t.name as tenant_name,
             t.slug as tenant_slug,
+            t.status as tenant_status,
             COALESCE(b.name, 'Main Branch') as branch_name,
             u.full_name as staff_name,
             COALESCE(u.role, 'staff') as staff_role
@@ -403,6 +404,18 @@ export class TenancyService {
         const res = await this.pool.query(query, params);
         if (res.rows && res.rows[0]) {
           const row = res.rows[0];
+          if (row.tenant_status === 'SUSPENDED') {
+            return {
+              verified: false,
+              tenant_name: row.tenant_name,
+              slug: row.tenant_slug,
+              branch_name: '',
+              staff_name: '',
+              role: '',
+              last_active: 'Access Suspended by Platform Administration',
+              quarantine_status: 'BUSINESS_SUSPENDED',
+            };
+          }
           return {
             verified: true,
             tenant_name: row.tenant_name,
@@ -411,7 +424,7 @@ export class TenancyService {
             staff_name: row.staff_name,
             role: row.staff_role === 'tenant_admin' ? 'Business Owner (Administrator)' : row.staff_role,
             last_active: 'Active Session Verified',
-            quarantine_status: 'Rule 21 Cryptographic Quarantine Active',
+            quarantine_status: 'Dedicated Privacy Active ✓',
           };
         }
         // Connected to live database and record not found
@@ -467,6 +480,19 @@ export class TenancyService {
       };
     }
 
+    if (matchedTenant.status === 'SUSPENDED') {
+      return {
+        verified: false,
+        tenant_name: matchedTenant.name,
+        slug: matchedTenant.slug,
+        branch_name: '',
+        staff_name: '',
+        role: '',
+        last_active: 'Access Suspended by Platform Administration',
+        quarantine_status: 'BUSINESS_SUSPENDED',
+      };
+    }
+
     const tenantName = matchedTenant.name;
     const tenantSlug = matchedTenant.slug;
 
@@ -510,7 +536,7 @@ export class TenancyService {
       staff_name: staffName,
       role,
       last_active: 'Today • Secure Session Verified',
-      quarantine_status: 'Rule 21 Cryptographic Quarantine Active',
+      quarantine_status: 'Dedicated Privacy Active ✓',
     };
   }
 

@@ -1,6 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "services": {
+    "customer-web": {
+      "root": "apps/customer-web",
+      "outputDirectory": "dist",
+      "buildCommand": "pnpm build"
+    },
     "admin-web": {
       "root": "apps/admin-web",
       "outputDirectory": "dist",
@@ -41,9 +46,22 @@
       }
     },
     {
-      "source": "/(.*)",
+      "source": "/admin",
       "destination": {
         "service": "admin-web"
+      }
+    },
+    {
+      "source": "/admin/(.*)",
+      "destination": {
+        "service": "admin-web",
+        "path": "/$1"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "customer-web"
       }
     }
   ]
