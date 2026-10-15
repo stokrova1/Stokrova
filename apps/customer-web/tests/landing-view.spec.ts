@@ -314,7 +314,96 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     }
   });
 
-  it('ensures client script wires up window.stokrovaCustomerApp with registration and login handlers', async () => {
+  it('guarantees client script evaluates in browser context without ReferenceError or TypeError', async () => {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const vm = await import('node:vm');
+
+    const htmlPath = path.resolve(__dirname, '../dist/index.html');
+    if (!fs.existsSync(htmlPath)) return;
+
+    const html = fs.readFileSync(htmlPath, 'utf8');
+    const scriptMatches = [...html.matchAll(/<script[\s\S]*?>([\s\S]*?)<\/script>/gi)];
+    const clientScript = scriptMatches.find((m) => m[1] && m[1].includes('window.stokrovaCustomerApp'));
+    expect(clientScript).toBeDefined();
+
+    const code = clientScript![1];
+
+    // Verify no undeclared build token leaks
+    expect(code).not.toMatch(/\b(todayRevenue:\s*isDemo\b)/);
+
+    const mockStorage: Record<string, string> = {};
+    const elements: Record<string, any> = {};
+    const mockWindow: any = {
+      location: { hostname: 'localhost', port: '3000', hash: '', origin: 'http://localhost:3000' },
+      addEventListener: () => {},
+      sessionStorage: {
+        getItem: (k: string) => mockStorage[k] || null,
+        setItem: (k: string, v: string) => { mockStorage[k] = v; },
+        removeItem: (k: string) => { delete mockStorage[k]; },
+      },
+      localStorage: {
+        getItem: (k: string) => mockStorage[k] || null,
+        setItem: (k: string, v: string) => { mockStorage[k] = v; },
+        removeItem: (k: string) => { delete mockStorage[k]; },
+      },
+      document: {
+        getElementById: (id: string) => {
+          if (!elements[id]) {
+            elements[id] = {
+              id,
+              style: {},
+              classList: { add: () => {}, remove: () => {} },
+              value: '',
+              querySelectorAll: () => [],
+              focus: () => {},
+            };
+          }
+          return elements[id];
+        },
+        querySelectorAll: () => [],
+        querySelector: () => null,
+        documentElement: { style: { setProperty: () => {} } },
+        addEventListener: () => {},
+      },
+      setTimeout: (fn: Function) => fn(),
+      clearTimeout: () => {},
+      setInterval: () => {},
+      clearInterval: () => {},
+      console: { log: () => {}, warn: () => {}, error: () => {} },
+    };
+    mockWindow.window = mockWindow;
+    mockWindow.document.defaultView = mockWindow;
+
+    const ctx = vm.createContext(mockWindow);
+    expect(() => vm.runInContext(code, ctx)).not.toThrow();
+
+    expect(ctx.window.stokrovaCustomerApp).toBeDefined();
+    expect(typeof ctx.window.stokrovaCustomerApp.openLoginModal).toBe('function');
+    expect(typeof ctx.window.stokrovaCustomerApp.openRegisterModal).toBe('function');
+
+    // Test calling openLoginModal
+    elements['mobile-nav-drawer'] = { style: { display: 'flex' } };
+    expect(() => ctx.window.stokrovaCustomerApp.openLoginModal()).not.toThrow();
+    expect(elements['modal-login']?.style.display).toBe('flex');
+    expect(elements['mobile-nav-drawer']?.style.display).toBe('none');
+
+    // Test calling closeLoginModal
+    expect(() => ctx.window.stokrovaCustomerApp.closeLoginModal()).not.toThrow();
+    expect(elements['modal-login']?.style.display).toBe('none');
+
+    // Test calling openRegisterModal
+    elements['mobile-nav-drawer'] = { style: { display: 'flex' } };
+    expect(() => ctx.window.stokrovaCustomerApp.openRegisterModal()).not.toThrow();
+    expect(elements['modal-register']?.style.display).toBe('flex');
+    expect(elements['mobile-nav-drawer']?.style.display).toBe('none');
+
+    // Test calling closeRegisterModal
+    expect(() => ctx.window.stokrovaCustomerApp.closeRegisterModal()).not.toThrow();
+    expect(elements['modal-register']?.style.display).toBe('none');
+  });
+
+  it('ensures modals have top-layer z-index and registration/login forms have novalidate to prevent browser freeze', async () => {
     const fs = await import('node:fs');
     const path = await import('node:path');
 
@@ -322,12 +411,14 @@ describe('LandingViewModel & Customer Portal Suite (@stokrova/customer-web)', ()
     if (!fs.existsSync(htmlPath)) return;
 
     const html = fs.readFileSync(htmlPath, 'utf8');
-    expect(html).toContain('window.stokrovaCustomerApp = {');
-    expect(html).toContain('openLoginModal');
-    expect(html).toContain('handleLoginSubmit');
-    expect(html).toContain('openRegisterModal');
-    expect(html).toContain('handleRegisterSubmit');
-    expect(html).toContain('confirmLoginLaunch');
+
+    // Both primary dialogs must be at z-index 20000 (above mobile drawer 10000)
+    expect(html).toMatch(/id="modal-register"[^>]*z-index:\s*20000/);
+    expect(html).toMatch(/id="modal-login"[^>]*z-index:\s*20000/);
+
+    // Multi-step form must have novalidate so hidden steps do not block submission
+    expect(html).toMatch(/<form id="form-register-customer"[^>]*novalidate/);
+    expect(html).toMatch(/<form id="form-login-customer"[^>]*novalidate/);
   });
 });
 

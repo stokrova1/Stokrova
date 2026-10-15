@@ -1,5 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import * as vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 import { LandingViewModel } from './dist/index.js';
 import { renderMasterSidebarHtml, renderAllWorkspaceViewsHtml } from '@stokrova/ui';
@@ -562,7 +563,7 @@ const completeWebsiteHtml = `
       align-items: center;
       gap: 10px;
       font-size: 0.875rem;
-      z-index: 10000;
+      z-index: 30000;
       animation: slideIn 0.2s ease-out;
     }
     @keyframes slideIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -1050,7 +1051,7 @@ const completeWebsiteHtml = `
 
     window.stokrovaCustomerApp = {
       cart: [],
-      todayRevenue: isDemo ? 382000.00 : 0.00,
+      todayRevenue: ${isDemo ? 382000.00 : 0.00},
 
       // Multi-Step Registration State & Cosmic Engine
       currentSignupStep: 1,
@@ -1060,11 +1061,18 @@ const completeWebsiteHtml = `
       verifiedStaffData: null,
 
       openRegisterModal(planId) {
+        const drawer = document.getElementById('mobile-nav-drawer');
+        if (drawer) drawer.style.display = 'none';
         const modal = document.getElementById('modal-register');
         if (modal) {
           modal.style.display = 'flex';
           this.setSignupStep(1);
           this.startCosmicParticles();
+          const submitBtn = document.getElementById('btn-submit-registration');
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Provision Workspace & Customize →';
+          }
           const firstInput = document.getElementById('reg-company-name');
           if (firstInput) setTimeout(() => firstInput.focus(), 50);
         }
@@ -1186,77 +1194,90 @@ const completeWebsiteHtml = `
       },
 
       startCosmicParticles() {
-        const canvas = document.getElementById('signup-cosmic-canvas');
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
+        try {
+          const canvas = document.getElementById('signup-cosmic-canvas');
+          if (!canvas || typeof canvas.getContext !== 'function') return;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return;
+          if (typeof requestAnimationFrame !== 'function') return;
 
-        canvas.width = canvas.offsetWidth || window.innerWidth;
-        canvas.height = canvas.offsetHeight || window.innerHeight;
+          canvas.width = canvas.offsetWidth || (typeof window !== 'undefined' ? window.innerWidth : 800);
+          canvas.height = canvas.offsetHeight || (typeof window !== 'undefined' ? window.innerHeight : 600);
 
-        this.cosmicParticles = [];
-        const count = 45;
-        for (let i = 0; i < count; i++) {
-          this.cosmicParticles.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            vx: (Math.random() - 0.5) * 0.6,
-            vy: (Math.random() - 0.5) * 0.6,
-            radius: Math.random() * 2 + 1,
-            color: (Math.random() > 0.4) ? '#BD9652' : '#E0CB9F',
-            alpha: Math.random() * 0.6 + 0.2
-          });
-        }
-
-        const render = () => {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-          // Draw connections
-          for (let i = 0; i < this.cosmicParticles.length; i++) {
-            for (let j = i + 1; j < this.cosmicParticles.length; j++) {
-              const dx = this.cosmicParticles[i].x - this.cosmicParticles[j].x;
-              const dy = this.cosmicParticles[i].y - this.cosmicParticles[j].y;
-              const dist = Math.sqrt(dx * dx + dy * dy);
-              if (dist < 80) {
-                ctx.strokeStyle = 'rgba(189, 150, 82, ' + (0.15 * (1 - dist / 80)) + ')';
-                ctx.lineWidth = 0.6;
-                ctx.beginPath();
-                ctx.moveTo(this.cosmicParticles[i].x, this.cosmicParticles[i].y);
-                ctx.lineTo(this.cosmicParticles[j].x, this.cosmicParticles[j].y);
-                ctx.stroke();
-              }
-            }
+          this.cosmicParticles = [];
+          const count = 45;
+          for (let i = 0; i < count; i++) {
+            this.cosmicParticles.push({
+              x: Math.random() * canvas.width,
+              y: Math.random() * canvas.height,
+              vx: (Math.random() - 0.5) * 0.6,
+              vy: (Math.random() - 0.5) * 0.6,
+              radius: Math.random() * 2 + 1,
+              color: (Math.random() > 0.4) ? '#BD9652' : '#E0CB9F',
+              alpha: Math.random() * 0.6 + 0.2
+            });
           }
 
-          // Draw particles
-          this.cosmicParticles.forEach(p => {
-            p.x += p.vx;
-            p.y += p.vy;
-            if (p.x < 0) p.x = canvas.width;
-            if (p.x > canvas.width) p.x = 0;
-            if (p.y < 0) p.y = canvas.height;
-            if (p.y > canvas.height) p.y = 0;
+          const render = () => {
+            try {
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = p.color;
-            ctx.globalAlpha = p.alpha;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-            ctx.fill();
-          });
-          ctx.globalAlpha = 1;
+              // Draw connections
+              for (let i = 0; i < this.cosmicParticles.length; i++) {
+                for (let j = i + 1; j < this.cosmicParticles.length; j++) {
+                  const dx = this.cosmicParticles[i].x - this.cosmicParticles[j].x;
+                  const dy = this.cosmicParticles[i].y - this.cosmicParticles[j].y;
+                  const dist = Math.sqrt(dx * dx + dy * dy);
+                  if (dist < 80) {
+                    ctx.strokeStyle = 'rgba(189, 150, 82, ' + (0.15 * (1 - dist / 80)) + ')';
+                    ctx.lineWidth = 0.6;
+                    ctx.beginPath();
+                    ctx.moveTo(this.cosmicParticles[i].x, this.cosmicParticles[i].y);
+                    ctx.lineTo(this.cosmicParticles[j].x, this.cosmicParticles[j].y);
+                    ctx.stroke();
+                  }
+                }
+              }
 
-          this.cosmicAnimId = requestAnimationFrame(render);
-        };
+              // Draw particles
+              this.cosmicParticles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x < 0) p.x = canvas.width;
+                if (p.x > canvas.width) p.x = 0;
+                if (p.y < 0) p.y = canvas.height;
+                if (p.y > canvas.height) p.y = 0;
 
-        if (this.cosmicAnimId) cancelAnimationFrame(this.cosmicAnimId);
-        this.cosmicAnimId = requestAnimationFrame(render);
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.alpha;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+              });
+              ctx.globalAlpha = 1;
+
+              if (typeof requestAnimationFrame === 'function') {
+                this.cosmicAnimId = requestAnimationFrame(render);
+              }
+            } catch (_) {}
+          };
+
+          if (this.cosmicAnimId && typeof cancelAnimationFrame === 'function') {
+            cancelAnimationFrame(this.cosmicAnimId);
+          }
+          if (typeof requestAnimationFrame === 'function') {
+            this.cosmicAnimId = requestAnimationFrame(render);
+          }
+        } catch (_) {}
       },
 
       stopCosmicParticles() {
-        if (this.cosmicAnimId) {
-          cancelAnimationFrame(this.cosmicAnimId);
-          this.cosmicAnimId = null;
-        }
+        try {
+          if (this.cosmicAnimId && typeof cancelAnimationFrame === 'function') {
+            cancelAnimationFrame(this.cosmicAnimId);
+            this.cosmicAnimId = null;
+          }
+        } catch (_) {}
       },
 
       async handleRegisterSubmit(e) {
@@ -2065,13 +2086,22 @@ const completeWebsiteHtml = `
       },
 
       openLoginModal() {
+        const drawer = document.getElementById('mobile-nav-drawer');
+        if (drawer) drawer.style.display = 'none';
         const modal = document.getElementById('modal-login');
         if (modal) {
           modal.style.display = 'flex';
           const step1 = document.getElementById('login-step-credentials');
           const step2 = document.getElementById('login-step-verification');
+          const notFound = document.getElementById('login-not-found-state');
           if (step1) step1.style.display = 'block';
           if (step2) step2.style.display = 'none';
+          if (notFound) notFound.style.display = 'none';
+          const submitBtn = document.getElementById('btn-submit-login');
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Sign In →';
+          }
           const firstInput = document.getElementById('login-email');
           if (firstInput) setTimeout(() => firstInput.focus(), 50);
         }
@@ -2089,6 +2119,11 @@ const completeWebsiteHtml = `
         if (step1) step1.style.display = 'block';
         if (step2) step2.style.display = 'none';
         if (notFound) notFound.style.display = 'none';
+        const submitBtn = document.getElementById('btn-submit-login');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Sign In →';
+        }
         const firstInput = document.getElementById('login-email');
         if (firstInput) setTimeout(() => firstInput.focus(), 50);
       },
@@ -2251,6 +2286,7 @@ const completeWebsiteHtml = `
 
         // 1. Authenticate credentials if online
         const sb = getSupabase();
+        let sbError = null;
         if (sb) {
           try {
             if (progressFill) progressFill.style.width = '60%';
@@ -2259,7 +2295,9 @@ const completeWebsiteHtml = `
               password: password,
             });
 
-            if (!error && data.session && data.session.access_token) {
+            if (error) {
+              sbError = error.message;
+            } else if (data.session && data.session.access_token) {
               const sessionRes = await fetch(SUPABASE_CONFIG.apiBase + '/auth/session', {
                 headers: { 'Authorization': 'Bearer ' + data.session.access_token }
               }).catch(() => null);
@@ -2282,6 +2320,17 @@ const completeWebsiteHtml = `
                   slug = sessData.active_tenant.workspace_slug || slug;
                   verified = true;
                 }
+              }
+
+              // Fallback to Supabase User Metadata if API session endpoint is unreachable
+              if (!verified && data.user) {
+                const meta = data.user.user_metadata || {};
+                tenantName = meta.company_name || activeTenant?.companyName || 'My Business Organization';
+                branch = meta.branch_name || activeTenant?.branchName || 'Main Branch';
+                name = meta.full_name || (data.user.email ? data.user.email.split('@')[0] : 'Staff Member');
+                role = meta.role || (meta.company_name ? 'Business Owner (Administrator)' : 'Store Operations Staff');
+                slug = meta.workspace_slug || activeTenant?.slug || 'workspace';
+                verified = true;
               }
             }
           } catch (sbErr) {
@@ -2316,9 +2365,14 @@ const completeWebsiteHtml = `
 
         if (progressFill) progressFill.style.width = '100%';
 
-        // 3. Truthful unverified handling: Display Not Found screen
+        // 3. Truthful unverified handling: Display Not Found screen or specific auth error
         if (!verified) {
           setTimeout(() => {
+            if (sbError) {
+              this.backToLoginCredentials();
+              this.showToast('Authentication Error: ' + sbError);
+              return;
+            }
             if (searchState) searchState.style.display = 'none';
             if (notFoundState) {
               notFoundState.style.display = 'block';
@@ -3051,9 +3105,68 @@ const completeWebsiteHtml = `
 </html>
 `;
 
+// -----------------------------------------------------------------------------
+// Automated Build Quality Gate: Parse and evaluate generated inline scripts in mock VM
+// Prevents syntax errors, undeclared variable leaks, or broken event handlers from ever reaching production.
+// -----------------------------------------------------------------------------
+const scriptMatches = [...completeWebsiteHtml.matchAll(/<script[\s\S]*?>([\s\S]*?)<\/script>/gi)];
+for (const match of scriptMatches) {
+  const code = match[1]?.trim();
+  if (!code) continue;
+
+  // 1. Syntax check
+  new vm.Script(code);
+
+  // 2. Runtime execution check with mock browser context
+  const mockStorage = {};
+  const mockWindow = {
+    location: { hostname: 'localhost', port: '3000', hash: '', origin: 'http://localhost:3000' },
+    addEventListener: () => {},
+    sessionStorage: {
+      getItem: (k) => mockStorage[k] || null,
+      setItem: (k, v) => { mockStorage[k] = v; },
+      removeItem: (k) => { delete mockStorage[k]; },
+    },
+    localStorage: {
+      getItem: (k) => mockStorage[k] || null,
+      setItem: (k, v) => { mockStorage[k] = v; },
+      removeItem: (k) => { delete mockStorage[k]; },
+    },
+    document: {
+      getElementById: (id) => ({ id, style: {}, classList: { add: () => {}, remove: () => {} }, value: '', querySelectorAll: () => [] }),
+      querySelectorAll: () => [],
+      querySelector: () => null,
+      documentElement: { style: { setProperty: () => {} } },
+      addEventListener: () => {},
+    },
+    setTimeout: setTimeout,
+    clearTimeout: clearTimeout,
+    setInterval: setInterval,
+    clearInterval: clearInterval,
+    console: console,
+  };
+  mockWindow.window = mockWindow;
+  mockWindow.document.defaultView = mockWindow;
+
+  const ctx = vm.createContext(mockWindow);
+  vm.runInContext(code, ctx);
+
+  if (!ctx.window.stokrovaCustomerApp) {
+    throw new Error('Build Verification Failed: window.stokrovaCustomerApp was not instantiated by client script.');
+  }
+  if (
+    typeof ctx.window.stokrovaCustomerApp.openLoginModal !== 'function' ||
+    typeof ctx.window.stokrovaCustomerApp.openRegisterModal !== 'function' ||
+    typeof ctx.window.stokrovaCustomerApp.handleLoginSubmit !== 'function' ||
+    typeof ctx.window.stokrovaCustomerApp.handleRegisterSubmit !== 'function'
+  ) {
+    throw new Error('Build Verification Failed: Critical auth handlers missing on window.stokrovaCustomerApp.');
+  }
+}
+
 if (!fs.existsSync(distDir)) {
   fs.mkdirSync(distDir, { recursive: true });
 }
 
 fs.writeFileSync(path.join(distDir, 'index.html'), completeWebsiteHtml.trim(), 'utf-8');
-console.log('✅ Generated STOKROVA Customer Website & Complete Business Portal index.html at', path.join(distDir, 'index.html'));
+console.log('✅ Generated & Verified STOKROVA Customer Website & Complete Business Portal index.html at', path.join(distDir, 'index.html'));

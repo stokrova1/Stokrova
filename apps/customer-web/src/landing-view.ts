@@ -1366,7 +1366,7 @@ export class LandingViewModel {
   public renderRegisterModalHtml(): string {
     const tokens = themeTokens[this.theme];
     return `
-      <div id="modal-register" role="dialog" aria-modal="true" aria-labelledby="reg-modal-title" style="display: none; position: fixed; inset: 0; background: rgba(14, 17, 22, 0.88); backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
+      <div id="modal-register" role="dialog" aria-modal="true" aria-labelledby="reg-modal-title" style="display: none; position: fixed; inset: 0; background: rgba(14, 17, 22, 0.88); backdrop-filter: blur(8px); z-index: 20000; align-items: center; justify-content: center; padding: 16px;">
         
         <!-- Ambient High-Class Cosmic Particle Canvas -->
         <canvas id="signup-cosmic-canvas" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;"></canvas>
@@ -1418,7 +1418,7 @@ export class LandingViewModel {
             </p>
           </div>
 
-          <form id="form-register-customer" onsubmit="window.stokrovaCustomerApp.handleRegisterSubmit(event)">
+          <form id="form-register-customer" novalidate onsubmit="window.stokrovaCustomerApp.handleRegisterSubmit(event)">
             
             <!-- STEP 1: Business Identity & Legal Entity -->
             <div id="reg-step-1" class="signup-step-pane" style="display: block;">
@@ -1861,7 +1861,7 @@ export class LandingViewModel {
   public renderLoginModalHtml(): string {
     const tokens = themeTokens[this.theme];
     return `
-      <div id="modal-login" role="dialog" aria-modal="true" aria-labelledby="login-modal-title" style="display: none; position: fixed; inset: 0; background: rgba(14, 17, 22, 0.88); backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
+      <div id="modal-login" role="dialog" aria-modal="true" aria-labelledby="login-modal-title" style="display: none; position: fixed; inset: 0; background: rgba(14, 17, 22, 0.88); backdrop-filter: blur(8px); z-index: 20000; align-items: center; justify-content: center; padding: 16px;">
         <div class="modal-dialog-inner login-stepper-card" style="position: relative; z-index: 1; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; border-radius: 14px; width: 100%; max-width: 490px; box-shadow: 0 25px 60px rgba(0,0,0,0.75), 0 0 25px rgba(189,150,82,0.12); padding: 26px 24px;">
           
           <!-- Modal Header -->
@@ -1880,7 +1880,7 @@ export class LandingViewModel {
 
           <!-- STEP 1: Enter Staff Email & Password -->
           <div id="login-step-credentials" style="display: block;">
-            <form id="form-login-customer" onsubmit="window.stokrovaCustomerApp.handleLoginSubmit(event)">
+            <form id="form-login-customer" novalidate onsubmit="window.stokrovaCustomerApp.handleLoginSubmit(event)">
               
               <div style="margin-bottom: 14px;">
                 <label for="login-email" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">STAFF WORK EMAIL *</label>
@@ -2031,7 +2031,7 @@ export class LandingViewModel {
   public renderDemoConfirmModalHtml(): string {
     const tokens = themeTokens[this.theme];
     return `
-      <div id="modal-demo-confirm" role="dialog" aria-modal="true" aria-labelledby="demo-confirm-title" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
+      <div id="modal-demo-confirm" role="dialog" aria-modal="true" aria-labelledby="demo-confirm-title" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index: 20000; align-items: center; justify-content: center; padding: 16px;">
         <div class="modal-dialog-inner" style="background: ${tokens.surface}; border: 1px solid ${tokens.primary}; border-radius: 12px; width: 100%; max-width: 480px; box-shadow: 0 20px 40px rgba(0,0,0,0.7); padding: 28px 22px;">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
             <div style="display: flex; align-items: center; gap: 10px;">
@@ -2071,7 +2071,7 @@ export class LandingViewModel {
   public renderLegalModalHtml(): string {
     const tokens = themeTokens[this.theme];
     return `
-      <div id="modal-legal" role="dialog" aria-modal="true" aria-labelledby="legal-modal-title" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
+      <div id="modal-legal" role="dialog" aria-modal="true" aria-labelledby="legal-modal-title" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index: 20000; align-items: center; justify-content: center; padding: 16px;">
         <div class="modal-dialog-inner" style="background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; border-radius: 12px; width: 100%; max-width: 580px; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.7); padding: 28px 22px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <h2 id="legal-modal-title" style="margin: 0; font-size: 1.2rem; color: ${tokens.textPrimary}; font-weight: 800;">Legal & Security Compliance</h2>
