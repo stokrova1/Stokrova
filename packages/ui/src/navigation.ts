@@ -121,7 +121,7 @@ export const MASTER_NAVIGATION_SECTIONS: NavigationSection[] = [
     items: [
       { id: 'nav_dashboards', label: 'Executive Dashboard', path: '/analytics/dashboards', icon: 'bar-chart-2', shortcut: 'D', requiredPermission: 'reporting.dashboard.view' },
       { id: 'nav_abc', label: 'ABC Velocity & Dead Stock', path: '/analytics/inventory', icon: 'pie-chart', requiredPermission: 'analytics.view' },
-      { id: 'nav_audit', label: 'Audit Forensics & Merkle Ledger', path: '/audit/forensics', icon: 'shield', shortcut: 'S', requiredPermission: 'audit.view' },
+      { id: 'nav_audit', label: 'Audit Trail & Compliance Log', path: '/audit/forensics', icon: 'shield', shortcut: 'S', requiredPermission: 'audit.view' },
       { id: 'nav_compliance', label: 'GDPR & SOX 404 Compliance', path: '/compliance', icon: 'lock', requiredPermission: 'audit.view' },
     ],
   },

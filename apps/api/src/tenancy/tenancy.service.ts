@@ -52,12 +52,23 @@ export interface StoredMembership {
   created_at: string;
 }
 
+export interface StoredStaffMember {
+  id: string;
+  tenant_id: string;
+  email: string;
+  name: string;
+  role: string;
+  branch_name?: string;
+  created_at: string;
+}
+
 @Injectable()
 export class TenancyService {
   private tenantsStore = new Map<string, StoredTenant>();
   private companiesStore = new Map<string, StoredCompany>();
   private branchesStore = new Map<string, StoredBranch>();
   private membershipsStore = new Map<string, StoredMembership>();
+  private staffStore = new Map<string, StoredStaffMember>();
 
   constructor(
     @Optional() @Inject(DATABASE_POOL) private readonly pool?: any,
@@ -507,25 +518,32 @@ export class TenancyService {
 
     let staffName = '';
     let role = 'Store Operations Staff';
-    if (cleanEmail === (matchedTenant.owner_email || '').toLowerCase() || cleanEmail.includes('owner') || cleanEmail.includes('victoria') || cleanEmail.includes('admin') || cleanEmail.includes('founder')) {
+    if (cleanEmail === (matchedTenant.owner_email || '').toLowerCase() || cleanEmail.includes('owner') || cleanEmail.includes('admin') || cleanEmail.includes('founder')) {
       staffName = matchedTenant.owner_full_name || 'Business Owner';
       role = 'Business Owner (Administrator)';
-    } else if (cleanEmail.includes('manager') || cleanEmail.includes('david')) {
-      staffName = "David O'Connor";
-      role = 'Store Operations Manager';
-    } else if (cleanEmail.includes('cashier') || cleanEmail.includes('emma')) {
-      staffName = 'Emma Watson';
-      role = 'Front Counter Cashier';
-    } else if (cleanEmail.includes('picker') || cleanEmail.includes('samuel')) {
-      staffName = 'Samuel Adebayo';
-      role = 'Warehouse Lead & Picker';
     } else {
-      const prefix = cleanEmail.split('@')[0] || 'staff';
-      staffName = prefix
-        .split(/[._-]/)
-        .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
-        .join(' ');
-      role = 'Store Operations Staff';
+      let foundStaff: StoredStaffMember | undefined;
+      for (const s of this.staffStore.values()) {
+        if (s.tenant_id === matchedTenant.id && s.email.toLowerCase() === cleanEmail) {
+          foundStaff = s;
+          break;
+        }
+      }
+
+      if (foundStaff) {
+        staffName = foundStaff.name;
+        role = foundStaff.role;
+        if (foundStaff.branch_name) {
+          branchName = foundStaff.branch_name;
+        }
+      } else {
+        const prefix = cleanEmail.split('@')[0] || 'staff';
+        staffName = prefix
+          .split(/[._-]/)
+          .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+          .join(' ');
+        role = 'Store Operations Staff';
+      }
     }
 
     return {
@@ -540,11 +558,30 @@ export class TenancyService {
     };
   }
 
+  async registerStaffMember(
+    tenantId: string,
+    member: { email: string; name: string; role: string; branch_name?: string }
+  ): Promise<StoredStaffMember> {
+    const id = `stf_${randomUUID().replace(/-/g, '')}`;
+    const record: StoredStaffMember = {
+      id,
+      tenant_id: tenantId,
+      email: member.email.trim().toLowerCase(),
+      name: member.name.trim(),
+      role: member.role.trim(),
+      branch_name: member.branch_name,
+      created_at: new Date().toISOString(),
+    };
+    this.staffStore.set(id, record);
+    return record;
+  }
+
   // Helper for tests/reset
   clearStore(): void {
     this.tenantsStore.clear();
     this.companiesStore.clear();
     this.branchesStore.clear();
     this.membershipsStore.clear();
+    this.staffStore.clear();
   }
 }

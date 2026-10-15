@@ -191,9 +191,9 @@ export function renderMasterSidebarHtml(options: WorkspaceSidebarOptions = {}): 
       id: 'intelligence',
       title: 'Control',
       items: [
-        { id: 'nav_audit', label: 'Audit Forensics & Merkle Ledger', path: '/audit/forensics', icon: 'shield', shortcut: 'S' },
+        { id: 'nav_audit', label: 'Audit Trail & Compliance Log', path: '/audit/forensics', icon: 'shield', shortcut: 'S' },
         { id: 'nav_compliance', label: 'GDPR & SOX 404 Compliance', path: '/compliance', icon: 'lock' },
-        { id: 'nav_workflows', label: 'DAG Workflows Studio', path: '/workflows', icon: 'git-branch', shortcut: 'W' },
+        { id: 'nav_workflows', label: 'Workflow Automation Studio', path: '/workflows', icon: 'git-branch', shortcut: 'W' },
       ],
     },
     {
@@ -1355,10 +1355,10 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
     <!-- 23. AUDIT FORENSICS (/audit/forensics) -->
     <!-- ========================================== -->
     <div id="ws-view-audit" class="ws-view-content" style="display: none;">
-      <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Audit Forensics & Merkle Ledger</h1>
-      <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Cryptographic hash verification of all state changes across every workspace.</p>
+      <h1 style="margin: 0 0 6px 0; font-size: 1.5rem; color: ${tokens.textPrimary};">Audit Trail & Compliance Log</h1>
+      <p style="margin: 0 0 20px 0; color: ${tokens.textSecondary}; font-size: 0.875rem;">Immutable audit records and compliance tracking across all business operations.</p>
       <div style="background: ${tokens.surface}; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 20px; font-family: var(--stokrova-font-mono); font-size: 0.8125rem;">
-        <div style="color: #4ADE80; margin-bottom: 6px;">✓ MERKLE_ROOT: ${isDemo ? '8f49a2c3e1b7...' : '000000000000...'} (${isDemo ? 'Tree verified intact' : 'Genesis Root Initialized'})</div>
+        <div style="color: #4ADE80; margin-bottom: 6px;">✓ AUDIT_SEAL: ${isDemo ? '8f49a2c3e1b7...' : '000000000000...'} (${isDemo ? 'Audit log verified intact' : 'Audit Log Initialized'})</div>
         <div style="color: ${tokens.textSecondary}; line-height: 1.6;">
           ${isDemo ? `
           • [2026-10-14 14:22:01] EVENT: POS_CHECKOUT | Actor: cashier.operator | Ref: POS-SALE-9912<br>
@@ -1518,7 +1518,7 @@ export function renderAllWorkspaceViewsHtml(options: WorkspaceViewsOptions = {})
                 <span>$0.00</span>
               </div>
               <div style="text-align: center; margin-top: 6px; font-size: 0.6rem; color: #444444;">
-                QR CRYPTOGRAPHIC VERIFICATION • FISCAL SEAL
+                OFFICIAL FISCAL RECEIPT • VERIFIED TRANSACTION
               </div>
             </div>
           </div>

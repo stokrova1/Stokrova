@@ -120,7 +120,7 @@ describe('TenancyService', () => {
   });
 
   it('verifies staff credentials, resolves company workspace, and returns verified metadata', async () => {
-    await service.provisionTenant(
+    const provisioned = await service.provisionTenant(
       {
         name: 'Apex Luxury Retail',
         slug: 'apex-luxury',
@@ -137,14 +137,26 @@ describe('TenancyService', () => {
     expect(verifiedOwner.role).toBe('Business Owner (Administrator)');
     expect(verifiedOwner.last_active).toContain('Today');
 
-    const verifiedManager = await service.verifyStaffWorkspace('manager.david@apex.com');
+    // Register actual staff members
+    await service.registerStaffMember(provisioned.tenant.id, {
+      email: 'manager.ops@apex.com',
+      name: 'Operations Manager',
+      role: 'Store Operations Manager',
+    });
+    await service.registerStaffMember(provisioned.tenant.id, {
+      email: 'cashier.desk@apex.com',
+      name: 'Counter Cashier',
+      role: 'Front Counter Cashier',
+    });
+
+    const verifiedManager = await service.verifyStaffWorkspace('manager.ops@apex.com');
     expect(verifiedManager.verified).toBe(true);
-    expect(verifiedManager.staff_name).toBe("David O'Connor");
+    expect(verifiedManager.staff_name).toBe('Operations Manager');
     expect(verifiedManager.role).toBe('Store Operations Manager');
 
-    const verifiedCashier = await service.verifyStaffWorkspace('emma.cashier@apex.com');
+    const verifiedCashier = await service.verifyStaffWorkspace('cashier.desk@apex.com');
     expect(verifiedCashier.verified).toBe(true);
-    expect(verifiedCashier.staff_name).toBe('Emma Watson');
+    expect(verifiedCashier.staff_name).toBe('Counter Cashier');
     expect(verifiedCashier.role).toBe('Front Counter Cashier');
   });
 });

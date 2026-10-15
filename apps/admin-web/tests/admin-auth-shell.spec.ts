@@ -36,7 +36,7 @@ describe('Phase 26 @stokrova/admin-web — Platform Founder Authentication & Gov
       expect(html).toContain('id="admin-login-error"');
       expect(html).toContain('id="btn-admin-login-submit"');
       expect(html).toContain('Authenticate & Unlock Terminal');
-      expect(html).toContain('256-Bit Cryptographic Session • Ed25519 Audited Ledger');
+      expect(html).toContain('Enterprise Encrypted Session • Verified Audit Trail');
     });
   });
 

@@ -340,8 +340,8 @@ ${generateCssVariableString('dark')}
 
       <!-- Security Guarantee -->
       <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid #333D46; text-align: center; font-size: 0.6875rem; color: #7E919F; line-height: 1.6;">
-        <div>🔒 256-Bit Cryptographic Session • Ed25519 Audited Ledger</div>
-        <div style="margin-top: 2px;">All access attempts are cryptographically signed & timestamped.</div>
+        <div>🔒 Enterprise Encrypted Session • Verified Audit Trail</div>
+        <div style="margin-top: 2px;">All access attempts are securely authenticated and recorded.</div>
       </div>
     </div>
   </div>

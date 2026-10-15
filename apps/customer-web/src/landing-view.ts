@@ -1830,7 +1830,7 @@ export class LandingViewModel {
             Universal Operations Command Bar
           </h3>
           <p id="tour-card-desc" style="margin: 0 0 16px 0; font-size: 0.875rem; line-height: 1.55; color: ${tokens.textSecondary};">
-            Control every high-street branch, pop-up store, and regional distribution warehouse from a single pane of glass. Your data is protected by enterprise cryptographic tenant isolation—zero cross-tenant data bleed.
+            Control every high-street branch, pop-up store, and regional distribution warehouse from a single pane of glass. Your business operates with dedicated enterprise security and zero cross-account data leakage.
           </p>
 
           <!-- Interactive Action Snippet Box -->
@@ -1871,7 +1871,7 @@ export class LandingViewModel {
               <div>
                 <h2 id="login-modal-title" style="margin: 0; font-size: 1.25rem; font-weight: 800; color: ${tokens.textPrimary};">Staff Sign In</h2>
                 <div style="margin: 2px 0 0 0; font-size: 0.75rem; color: ${tokens.textSecondary};">
-                  Smart Workspace Auto-Discovery • Cryptographic Access
+                  Smart Workspace Auto-Discovery • Enterprise Single Sign-On
                 </div>
               </div>
             </div>
@@ -1999,6 +1999,25 @@ export class LandingViewModel {
 
             </div>
 
+            <!-- Unregistered / Not Found State -->
+            <div id="login-not-found-state" style="display: none; animation: fadeIn 0.3s ease-out;">
+              <div style="background: rgba(248, 113, 113, 0.1); border: 1px solid #5C1D24; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; color: #F87171; font-size: 0.8125rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span>⚠️</span> <span>Workspace Not Found</span>
+              </div>
+              <div style="background: #161B1E; border: 1px solid ${tokens.borderStrong}; border-radius: 10px; padding: 16px 18px; text-align: left; margin-bottom: 20px; font-size: 0.8125rem; color: ${tokens.textSecondary}; line-height: 1.6;">
+                No registered business workspace was found for <strong id="login-not-found-email" style="color: ${tokens.textPrimary}; font-family: var(--stokrova-font-mono);">...</strong>.<br><br>
+                Please ask your organization administrator to invite you to their workspace, or register a new company.
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <button type="button" onclick="window.stokrovaCustomerApp.backToLoginCredentials()" style="min-height: 44px; padding: 10px 16px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.8125rem; cursor: pointer;">
+                  ← Try Another Email
+                </button>
+                <button type="button" onclick="window.stokrovaCustomerApp.closeLoginModal(); window.stokrovaCustomerApp.openRegisterModal();" style="min-height: 44px; padding: 10px 20px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.85rem; cursor: pointer;">
+                  Register Your Business →
+                </button>
+              </div>
+            </div>
+
           </div>
 
         </div>
@@ -2061,7 +2080,7 @@ export class LandingViewModel {
 
           <div id="legal-modal-body" style="font-size: 0.875rem; line-height: 1.6; color: ${tokens.textSecondary};">
             <h4 style="color: ${tokens.textPrimary}; margin: 14px 0 4px 0;">Enterprise Multi-Tenant Data Isolation</h4>
-            <p>Every business subscriber's catalog, double-entry financial ledger, orders, and customer information are cryptographically isolated with tenant-scoped row security. Cross-tenant leakage is strictly prevented at the architectural layer.</p>
+            <p>Every business subscriber's catalog, financial records, orders, and customer information are kept strictly isolated in dedicated, protected environments. Cross-organization data sharing is strictly prevented.</p>
 
             <h4 style="color: ${tokens.textPrimary}; margin: 14px 0 4px 0;">Offline Outbox & Financial Ledger Immutability</h4>
             <p>All sales and inventory adjustments post append-only journal entries. Financial transactions are never overwritten or silently deleted; corrections require explicit compensating debit/credit reversals.</p>
