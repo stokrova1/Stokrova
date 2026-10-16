@@ -2,6 +2,8 @@ import {
   Injectable,
   BadRequestException,
   ConflictException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import type {
   PosCheckoutRequest,
@@ -32,7 +34,7 @@ export class PosCheckoutService {
     private readonly ordersService: OrdersService,
     private readonly stockLedgerService: StockLedgerService,
     private readonly invoicingService: InvoicingService,
-    private readonly paymentsService: PaymentsService,
+    @Inject(forwardRef(() => PaymentsService)) private readonly paymentsService: PaymentsService,
     private readonly customersService: CustomersService,
     private readonly auditService?: AuditService,
     private readonly outboxService?: OutboxService,

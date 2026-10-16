@@ -6,6 +6,8 @@ import {
   ConflictException,
   BadRequestException,
   Optional,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type {
@@ -128,7 +130,7 @@ export class PaymentsService {
 
   constructor(
     private readonly registersService: RegistersService,
-    @Optional() private readonly posService?: PosService,
+    @Optional() @Inject(forwardRef(() => PosService)) private readonly posService?: PosService,
     @Optional() private readonly ledger?: SalesLedgerWriter,
   ) {}
 

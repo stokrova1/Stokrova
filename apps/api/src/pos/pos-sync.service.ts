@@ -1,5 +1,5 @@
 import { DurableMap } from '../infrastructure/database/durable-map.js';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type {
   PosSyncBatchRequest,
@@ -57,7 +57,7 @@ export class PosSyncService {
     private readonly posService: PosService,
     private readonly ordersService: OrdersService,
     private readonly stockLedgerService: StockLedgerService,
-    private readonly paymentsService: PaymentsService,
+    @Inject(forwardRef(() => PaymentsService)) private readonly paymentsService: PaymentsService,
     private readonly invoicingService: InvoicingService,
     private readonly auditService?: AuditService,
     private readonly outboxService?: OutboxService,

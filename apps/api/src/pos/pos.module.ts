@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { PosController } from './pos.controller.js';
 import { PosService } from './pos.service.js';
 import { PosCheckoutService } from './pos-checkout.service.js';
@@ -28,7 +28,7 @@ import { RbacModule } from '../rbac/rbac.module.js';
     OrdersModule,
     InventoryModule,
     InvoicingModule,
-    PaymentsModule,
+    forwardRef(() => PaymentsModule),
     CustomersModule,
     AuditModule,
     OutboxModule,
