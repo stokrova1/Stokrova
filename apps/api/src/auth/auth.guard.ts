@@ -167,10 +167,21 @@ export class AuthGuard implements CanActivate {
       const expectedBuf = Buffer.from(expectedSignature, 'utf8');
       const actualBuf = Buffer.from(signatureB64, 'utf8');
 
-      if (
-        expectedBuf.length !== actualBuf.length ||
-        !timingSafeEqual(expectedBuf, actualBuf)
-      ) {
+      let isValidSignature =
+        expectedBuf.length === actualBuf.length &&
+        timingSafeEqual(expectedBuf, actualBuf);
+
+      // Live Supabase user tokens are HS256 but signed with the project's own
+      // signing secret, not the engine's JWT_SECRET. Verify them against
+      // Supabase Auth directly instead of rejecting every real sign-in.
+      if (!isValidSignature && this.supabaseService) {
+        const user = await this.supabaseService.getUserFromToken(token);
+        if (user) {
+          isValidSignature = true;
+        }
+      }
+
+      if (!isValidSignature) {
         throw new Error('Invalid JWT signature.');
       }
     }
