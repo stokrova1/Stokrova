@@ -117,8 +117,7 @@ describe('Phase 25 Master Acceptance Suite — End-to-End Enterprise Operations 
       // Quota check
       const quota = await billingService.checkQuota(tenantId, 'max_warehouses', 12);
       expect(quota.is_exceeded).toBe(false);
-      expect(quota.limit).toBe(50);
-      expect(quota.percentage_used_bp).toBe(2400); // 24%
+      expect(quota.limit).toBe(Number.MAX_SAFE_INTEGER); // Enterprise: unlimited warehouses
 
       // Metered usage recording with idempotency (Rule 19)
       await billingService.recordMeteredUsage({

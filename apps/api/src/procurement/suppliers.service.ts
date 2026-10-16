@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -28,8 +29,8 @@ import { VariantsService } from '../catalog/variants.service.js';
 
 @Injectable()
 export class SuppliersService {
-  private suppliersStore = new Map<string, Supplier>();
-  private mappingsStore = new Map<string, SupplierProductMapping>();
+  private suppliersStore = new DurableMap<Supplier>('suppliers');
+  private mappingsStore = new DurableMap<SupplierProductMapping>('supplier_product_mappings');
 
   constructor(private readonly variantsService: VariantsService) {}
 

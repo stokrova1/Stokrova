@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -18,7 +19,7 @@ import { SuppliersService } from './suppliers.service.js';
 
 @Injectable()
 export class PurchaseInvoicesService {
-  private invoicesStore = new Map<string, PurchaseInvoice>();
+  private invoicesStore = new DurableMap<PurchaseInvoice>('purchase_invoices');
 
   constructor(
     private readonly poService: PurchaseOrdersService,

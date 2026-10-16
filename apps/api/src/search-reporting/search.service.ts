@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import { Injectable } from '@nestjs/common';
 import type {
   GlobalSearchResponse,
@@ -11,7 +12,7 @@ import {
 
 @Injectable()
 export class SearchService {
-  private readonly searchIndex = new Map<string, SearchIndexEntry>();
+  private readonly searchIndex = new DurableMap<SearchIndexEntry>('search_index_entries');
 
   /**
    * Upsert an entity into the high-speed search index.

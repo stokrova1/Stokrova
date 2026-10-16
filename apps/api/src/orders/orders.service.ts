@@ -32,6 +32,7 @@ import { VariantsService } from '../catalog/variants.service.js';
 import { StockReservationsService } from '../inventory/stock-reservations.service.js';
 import { StockLedgerService } from '../inventory/stock-ledger.service.js';
 import { PosService } from '../pos/pos.service.js';
+import { SalesLedgerWriter } from '../infrastructure/database/sales-ledger.writer.js';
 
 export interface StoredSalesOrder {
   id: string;
@@ -80,7 +81,13 @@ export class OrdersService {
     private readonly stockReservationsService: StockReservationsService,
     private readonly stockLedgerService: StockLedgerService,
     @Optional() private readonly posService?: PosService,
+    @Optional() private readonly ledger?: SalesLedgerWriter,
   ) {}
+
+  /** Write-through to the tenant database so dashboards read durable records. */
+  private async persist(order: StoredSalesOrder): Promise<void> {
+    await this.ledger?.saveOrder(order);
+  }
 
   // --------------------------------------------------------------------------
   // Sales Order Lifecycle Management
@@ -139,7 +146,12 @@ export class OrdersService {
           discount_minor: lineTotals.discount_minor.toString(),
           tax_minor: lineTotals.tax_minor.toString(),
           line_total_minor: lineTotals.line_total_minor.toString(),
-        };
+          // Historical cost at time of sale; null when the variant has no recorded cost.
+          cogs_minor: (() => {
+            const unitCost = BigInt((variant as { cost_price_minor?: string | number | bigint }).cost_price_minor ?? 0);
+            return unitCost > 0n ? (unitCost * BigInt(lineTotals.quantity)).toString() : null;
+          })(),
+        } as SalesOrderLineItem & { cogs_minor: string | null };
 
         lineItems.push(lineItem);
       } catch (err) {
@@ -189,6 +201,7 @@ export class OrdersService {
     };
 
     this.ordersStore.set(orderId, storedOrder);
+    await this.persist(storedOrder);
     return this.mapToResponse(storedOrder);
   }
 
@@ -253,6 +266,7 @@ export class OrdersService {
     order.updated_at = now;
     order.reservation_ids = reservationIds;
 
+    await this.persist(order);
     return this.mapToResponse(order);
   }
 
@@ -303,6 +317,7 @@ export class OrdersService {
     }
 
     order.updated_at = new Date().toISOString();
+    await this.persist(order);
     return this.mapToResponse(order);
   }
 
@@ -356,6 +371,7 @@ export class OrdersService {
     order.dispatched_at = now;
     order.updated_at = now;
 
+    await this.persist(order);
     return this.mapToResponse(order);
   }
 
@@ -377,6 +393,7 @@ export class OrdersService {
     order.fulfillment_status = 'FULFILLED';
     order.updated_at = now;
 
+    await this.persist(order);
     return this.mapToResponse(order);
   }
 
@@ -406,6 +423,7 @@ export class OrdersService {
     order.cancelled_at = now;
     order.updated_at = now;
 
+    await this.persist(order);
     return this.mapToResponse(order);
   }
 
@@ -429,6 +447,7 @@ export class OrdersService {
     }
 
     order.updated_at = new Date().toISOString();
+    await this.persist(order);
     return this.mapToResponse(order);
   }
 

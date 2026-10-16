@@ -22,7 +22,7 @@ import { CrmMarketingService } from './crm-marketing.service.js';
 import { CrmAutomationService } from './crm-automation.service.js';
 import { CrmAnalyticsService } from './crm-analytics.service.js';
 
-@Controller('v1/crm')
+@Controller('crm')
 @UseGuards(AuthGuard, TenantGuard, RbacGuard)
 export class CrmController {
   constructor(

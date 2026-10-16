@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -30,9 +31,9 @@ import {
 
 @Injectable()
 export class WebhooksService {
-  private readonly subscriptions = new Map<string, WebhookSubscription>();
-  private readonly deliveryAttempts = new Map<string, WebhookDeliveryAttempt>();
-  private readonly deadLetters = new Map<string, WebhookDeadLetter>();
+  private readonly subscriptions = new DurableMap<WebhookSubscription>('webhook_subscriptions');
+  private readonly deliveryAttempts = new DurableMap<WebhookDeliveryAttempt>('webhook_delivery_attempts');
+  private readonly deadLetters = new DurableMap<WebhookDeadLetter>('webhook_dead_letters');
 
   // ==========================================================================
   // Subscription CRUD & Secret Management

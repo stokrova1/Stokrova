@@ -1,4 +1,5 @@
 import {
+  Optional,
   Controller,
   Get,
   Post,
@@ -37,10 +38,17 @@ import type {
 } from '@stokrova/contracts';
 import { StandardPermissions } from '@stokrova/domain';
 
+import { PlanEntitlementsService } from '../billing/plan-entitlements.service.js';
+
 @Controller('registers')
 @UseGuards(AuthGuard, TenantGuard, RbacGuard)
 export class RegistersController {
-  constructor(private readonly registersService: RegistersService) {}
+  constructor(
+    private readonly registersService: RegistersService,
+    @Optional() private readonly plans?: PlanEntitlementsService,
+  ) {
+    this.plans?.registerCounter('max_active_registers', async (t) => (await this.registersService.getRegisters(t)).length);
+  }
 
   @Post()
   @RequirePermission(StandardPermissions.REGISTERS_MANAGE)
@@ -59,6 +67,7 @@ export class RegistersController {
       });
     }
 
+    await this.plans?.assertCanAdd(tenantId, 'max_active_registers');
     return this.registersService.createRegister(
       tenantId,
       parseResult.data as CreateRegisterRequest,
@@ -66,6 +75,7 @@ export class RegistersController {
   }
 
   @Get()
+  @RequirePermission(StandardPermissions.REGISTER_OPEN)
   async getRegisters(
     @CurrentTenant() tenantId: string,
     @Query('branch_id') branchId?: string,
@@ -75,6 +85,7 @@ export class RegistersController {
   }
 
   @Get(':id')
+  @RequirePermission(StandardPermissions.REGISTER_OPEN)
   async getRegister(
     @CurrentTenant() tenantId: string,
     @Param('id') id: string,
@@ -135,6 +146,7 @@ export class RegistersController {
   }
 
   @Get(':id/sessions/active')
+  @RequirePermission(StandardPermissions.REGISTER_OPEN)
   async getActiveSession(
     @CurrentTenant() tenantId: string,
     @Param('id') registerId: string,
@@ -170,6 +182,7 @@ export class RegistersController {
   }
 
   @Get('sessions/:sessionId/summary')
+  @RequirePermission(StandardPermissions.REGISTER_OPEN)
   async getSessionSummary(
     @CurrentTenant() tenantId: string,
     @Param('sessionId') sessionId: string,

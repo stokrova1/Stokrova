@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -22,7 +23,7 @@ import { ConnectorCatalogService } from './connector-catalog.service.js';
 
 @Injectable()
 export class IntegrationInstancesService {
-  private readonly instances = new Map<string, IntegrationInstance>();
+  private readonly instances = new DurableMap<IntegrationInstance>('integration_instances');
 
   constructor(private readonly catalogService: ConnectorCatalogService) {}
 

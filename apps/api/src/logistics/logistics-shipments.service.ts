@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -38,7 +39,7 @@ import { MockCarrierAdapter } from './adapters/carrier.adapter.js';
 @Injectable()
 export class LogisticsShipmentsService {
   private readonly logger = new Logger(LogisticsShipmentsService.name);
-  private readonly shipments = new Map<string, Shipment>();
+  private readonly shipments = new DurableMap<Shipment>('shipments');
   private readonly processedWebhooks = new Set<string>();
   private readonly bookedOperations = new Map<string, string>(); // operationId -> shipmentId
   private shipmentSeq = 1001;

@@ -4,6 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import type {
   FiscalEntityProfile,
   FiscalReceiptSignatureRecord,
@@ -33,8 +34,8 @@ import {
 
 @Injectable()
 export class FiscalComplianceService {
-  private readonly entities = new Map<string, FiscalEntityProfile>();
-  private readonly receiptChains = new Map<string, FiscalReceiptSignatureRecord>();
+  private readonly entities = new DurableMap<FiscalEntityProfile>('fiscal_entities');
+  private readonly receiptChains = new DurableMap<FiscalReceiptSignatureRecord>('fiscal_receipt_chains');
   private readonly lastHashByRegister = new Map<string, string>(); // tenant:registerId -> lastHash
 
   // ==========================================================================
@@ -150,6 +151,7 @@ export class FiscalComplianceService {
     const previousHash =
       parsed.previous_signature_hash ||
       this.lastHashByRegister.get(chainKey) ||
+      this.lastSavedHash(tenantId, parsed.register_id) ||
       'GENESIS_0000000000000000000000000000000000000000000000000000000000000000';
 
     const { signatureHash, qrPayload } = generateFiscalReceiptSignature({
@@ -180,6 +182,15 @@ export class FiscalComplianceService {
     this.receiptChains.set(record.id, record);
     this.lastHashByRegister.set(chainKey, signatureHash);
     return record;
+  }
+
+  /** After a restart the chain continues from the latest saved receipt, so signatures stay linked. */
+  private lastSavedHash(tenantId: string, registerId: string): string | null {
+    let best: FiscalReceiptSignatureRecord | null = null;
+    for (const r of this.receiptChains.values()) {
+      if (r.tenant_id === tenantId && r.register_id === registerId && (!best || r.sequence_number > best.sequence_number)) best = r;
+    }
+    return best?.signature_hash ?? null;
   }
 
   // ==========================================================================

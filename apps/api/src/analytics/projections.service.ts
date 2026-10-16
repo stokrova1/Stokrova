@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import { Injectable, Logger } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type {
@@ -9,7 +10,7 @@ import { reconcileProjectionLedger } from '@stokrova/domain';
 @Injectable()
 export class ProjectionsService {
   private readonly logger = new Logger(ProjectionsService.name);
-  private readonly projections = new Map<string, ReportingProjection>();
+  private readonly projections = new DurableMap<ReportingProjection>('reporting_projections');
 
   constructor() {
     this.seedBaselineProjections();

@@ -11,6 +11,9 @@ import {
 } from '@nestjs/common';
 import { HardwareDevicesService } from './hardware-devices.service.js';
 import { HardwarePrinterService } from './hardware-printer.service.js';
+import { RbacGuard } from '../rbac/rbac.guard.js';
+import { RequirePermission } from '../rbac/decorators/require-permission.decorator.js';
+import { StandardPermissions } from '@stokrova/domain';
 import { AuthGuard } from '../auth/auth.guard.js';
 import { TenantGuard } from '../auth/tenant.guard.js';
 import { CurrentTenant } from '../auth/decorators/current-tenant.decorator.js';
@@ -33,6 +36,7 @@ import type {
 } from '@stokrova/contracts';
 
 @Controller('hardware')
+@RequirePermission(StandardPermissions.DEVICES_MANAGE)
 export class HardwareController {
   constructor(
     private readonly devicesService: HardwareDevicesService,
@@ -44,7 +48,7 @@ export class HardwareController {
   // ==========================================================================
 
   @Post('devices')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async createDevice(
     @CurrentTenant() tenant: { id: string },
     @Body() body: CreateHardwareDeviceRequest,
@@ -53,7 +57,7 @@ export class HardwareController {
   }
 
   @Get('devices')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async listDevices(
     @CurrentTenant() tenant: { id: string },
     @Query('branch_id') branchId?: string,
@@ -68,7 +72,7 @@ export class HardwareController {
   }
 
   @Get('devices/:id')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async getDevice(
     @CurrentTenant() tenant: { id: string },
     @Param('id') id: string,
@@ -77,7 +81,7 @@ export class HardwareController {
   }
 
   @Put('devices/:id')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async updateDevice(
     @CurrentTenant() tenant: { id: string },
     @Param('id') id: string,
@@ -87,7 +91,7 @@ export class HardwareController {
   }
 
   @Post('devices/:id/heartbeat')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async heartbeat(
     @CurrentTenant() tenant: { id: string },
     @Param('id') id: string,
@@ -97,7 +101,7 @@ export class HardwareController {
   }
 
   @Delete('devices/:id')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async deleteDevice(
     @CurrentTenant() tenant: { id: string },
     @Param('id') id: string,
@@ -110,7 +114,7 @@ export class HardwareController {
   // ==========================================================================
 
   @Post('profiles')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async createProfile(
     @CurrentTenant() tenant: { id: string },
     @Body() body: CreateHardwareProfileRequest,
@@ -119,7 +123,7 @@ export class HardwareController {
   }
 
   @Get('profiles')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async listProfiles(
     @CurrentTenant() tenant: { id: string },
   ): Promise<HardwareProfile[]> {
@@ -127,7 +131,7 @@ export class HardwareController {
   }
 
   @Get('profiles/:id')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async getProfile(
     @CurrentTenant() tenant: { id: string },
     @Param('id') id: string,
@@ -147,7 +151,7 @@ export class HardwareController {
   }
 
   @Post('printers/print-jobs')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async createPrintJob(
     @CurrentTenant() tenant: { id: string },
     @Body() body: CreateHardwarePrintJobRequest,
@@ -156,7 +160,7 @@ export class HardwareController {
   }
 
   @Get('printers/print-jobs')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async listPrintJobs(
     @CurrentTenant() tenant: { id: string },
     @Query('device_id') deviceId?: string,
@@ -166,7 +170,7 @@ export class HardwareController {
   }
 
   @Get('printers/print-jobs/:id')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async getPrintJob(
     @CurrentTenant() tenant: { id: string },
     @Param('id') id: string,
@@ -175,7 +179,7 @@ export class HardwareController {
   }
 
   @Post('printers/:id/test-print')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async executeTestPrint(
     @CurrentTenant() tenant: { id: string },
     @Param('id') id: string,

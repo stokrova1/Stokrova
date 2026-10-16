@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -21,8 +22,8 @@ import { OrdersService } from '../orders/orders.service.js';
 
 @Injectable()
 export class CrmActivitiesService {
-  private readonly activities = new Map<string, CrmActivity>();
-  private readonly tasks = new Map<string, CrmTask>();
+  private readonly activities = new DurableMap<CrmActivity>('crm_activities');
+  private readonly tasks = new DurableMap<CrmTask>('crm_tasks');
 
   constructor(
     private readonly ordersService?: OrdersService,

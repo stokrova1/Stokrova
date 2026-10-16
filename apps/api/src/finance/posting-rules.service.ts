@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -21,7 +22,7 @@ import {
 
 @Injectable()
 export class PostingRulesService {
-  private readonly rules = new Map<string, AccountingPostingRule>();
+  private readonly rules = new DurableMap<AccountingPostingRule>('accounting_posting_rules');
 
   async createPostingRule(
     tenantId: string,

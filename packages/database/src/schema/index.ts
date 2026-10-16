@@ -43,3 +43,6 @@ export * from './crm.js';
 export * from './logistics.js';
 export * from './reporting.js';
 export * from './integration_hub.js';
+export * from './executive.js';
+export * from './billing.js';
+export * from './sales-tickets.js';

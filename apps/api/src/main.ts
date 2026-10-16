@@ -19,7 +19,7 @@ if (typeof process.loadEnvFile === 'function') {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { rawBody: true });
 
   // Security Headers Middleware (nosniff, DENY, CSP, HSTS, Permissions-Policy)
   const securityHeaders = new SecurityHeadersMiddleware();

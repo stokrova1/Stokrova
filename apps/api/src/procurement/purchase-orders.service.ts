@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -27,7 +28,7 @@ import { WarehousesService } from '../warehouse/warehouses.service.js';
 
 @Injectable()
 export class PurchaseOrdersService {
-  private purchaseOrdersStore = new Map<string, PurchaseOrder>();
+  private purchaseOrdersStore = new DurableMap<PurchaseOrder>('purchase_orders');
   private poCounter = 1000;
 
   constructor(

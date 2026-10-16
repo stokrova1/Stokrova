@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -15,7 +16,7 @@ import { PickingService } from './picking.service.js';
 
 @Injectable()
 export class WavesService {
-  private wavesStore = new Map<string, PickWave>();
+  private wavesStore = new DurableMap<PickWave>('pick_waves');
 
   constructor(
     private readonly warehousesService: WarehousesService,

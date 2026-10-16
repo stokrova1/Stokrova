@@ -1,3 +1,5 @@
+import type { SubscriptionTier } from '@stokrova/contracts';
+
 export interface PlatformAdminQueryDto {
   search?: string;
   status?: string;
@@ -14,7 +16,12 @@ export interface ReactivateBusinessDto {
 }
 
 export interface UpdateBusinessTierDto {
-  tier: 'STARTER' | 'COMMERCE_PRO' | 'ENTERPRISE_LOGISTICS';
+  tier: SubscriptionTier;
+}
+
+export interface UpdatePlanPriceDto {
+  monthly_price_minor?: string | number;
+  annual_price_minor?: string | number;
 }
 
 export interface SuspendUserDto {
@@ -44,7 +51,7 @@ export interface PlatformTenantItem {
   ownerName: string;
   ownerEmail: string;
   currencyCode: string;
-  subscriptionTier: 'STARTER' | 'COMMERCE_PRO' | 'ENTERPRISE_LOGISTICS';
+  subscriptionTier: SubscriptionTier;
   companiesCount: number;
   branchesCount: number;
   monthlyGmvMinor: string;

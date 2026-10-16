@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -20,7 +21,7 @@ import {
 
 @Injectable()
 export class CategoriesService {
-  private categoriesStore = new Map<string, ProductCategory>();
+  private categoriesStore = new DurableMap<ProductCategory>('product_categories');
 
   async createCategory(
     tenantId: string,

@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -19,7 +20,7 @@ import { VariantsService } from '../catalog/variants.service.js';
 
 @Injectable()
 export class BomService {
-  private bomsStore = new Map<string, BillOfMaterials>();
+  private bomsStore = new DurableMap<BillOfMaterials>('bill_of_materials');
   private bomCounter = 1000;
 
   constructor(private readonly variantsService: VariantsService) {}

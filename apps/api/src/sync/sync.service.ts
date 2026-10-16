@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type {
@@ -46,7 +47,7 @@ export interface StoredSyncChange {
 
 @Injectable()
 export class SyncService {
-  private readonly operations = new Map<string, StoredSyncOperation>();
+  private readonly operations = new DurableMap<StoredSyncOperation>('sync_operations');
   private readonly changes: StoredSyncChange[] = [];
   private currentSequence = 0;
 

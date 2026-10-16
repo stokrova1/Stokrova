@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -24,7 +25,7 @@ export interface PopulatedDashboardResponse {
 
 @Injectable()
 export class DashboardsService {
-  private readonly dashboards = new Map<string, AnalyticsDashboard>();
+  private readonly dashboards = new DurableMap<AnalyticsDashboard>('analytics_dashboards');
 
   constructor(private readonly reportingEngine: ReportingEngineService) {}
 

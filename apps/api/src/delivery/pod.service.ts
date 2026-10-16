@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -27,7 +28,7 @@ import { FleetService } from './fleet.service.js';
 
 @Injectable()
 export class PodService {
-  private readonly pods = new Map<string, ProofOfDelivery>();
+  private readonly pods = new DurableMap<ProofOfDelivery>('proof_of_deliveries');
 
   constructor(
     private readonly routingService: DeliveryRoutingService,

@@ -1,3 +1,6 @@
+import { signupPlanTier } from '../billing/signup-plan.js';
+import { ServiceUnavailableException } from '@nestjs/common';
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   ConflictException,
@@ -64,10 +67,10 @@ export interface StoredStaffMember {
 
 @Injectable()
 export class TenancyService {
-  private tenantsStore = new Map<string, StoredTenant>();
-  private companiesStore = new Map<string, StoredCompany>();
-  private branchesStore = new Map<string, StoredBranch>();
-  private membershipsStore = new Map<string, StoredMembership>();
+  private tenantsStore = new DurableMap<StoredTenant>('tenants');
+  private companiesStore = new DurableMap<StoredCompany>('companies');
+  private branchesStore = new DurableMap<StoredBranch>('branches');
+  private membershipsStore = new DurableMap<StoredMembership>('memberships');
   private staffStore = new Map<string, StoredStaffMember>();
 
   constructor(
@@ -119,7 +122,11 @@ export class TenancyService {
     // 3. Persist to PostgreSQL if database connection is available
     if (this.pool && typeof this.pool.query === 'function') {
       const client = await this.pool.connect().catch(() => null);
-      if (client) {
+      if (!client) {
+        // Never pretend a company was created when the database is configured but unreachable.
+        throw new ServiceUnavailableException('The database is unavailable. Your workspace was not created; please try again.');
+      }
+      {
         try {
           await client.query('BEGIN');
           // Grant admin context for initial tenant creation
@@ -127,9 +134,9 @@ export class TenancyService {
 
           // Insert tenant
           await client.query(
-            `INSERT INTO public.tenants (id, name, slug, status, created_at, updated_at)
-             VALUES ($1, $2, $3, 'ACTIVE', NOW(), NOW())`,
-            [tenantId, dto.name, slug],
+            `INSERT INTO public.tenants (id, name, slug, status, subscription_tier, created_at, updated_at)
+             VALUES ($1, $2, $3, 'ACTIVE', $4, NOW(), NOW())`,
+            [tenantId, dto.name, slug, signupPlanTier((dto as { plan_tier?: string }).plan_tier)],
           );
 
           // Insert company
@@ -188,7 +195,6 @@ export class TenancyService {
           await client.query('COMMIT');
         } catch (dbErr) {
           await client.query('ROLLBACK').catch(() => {});
-          client.release();
           throw dbErr;
         } finally {
           client.release();
@@ -352,6 +358,11 @@ export class TenancyService {
       return null;
     }
     return company;
+  }
+
+  /** Staff names for one business (manager's live board). */
+  listStaff(tenantId: string): StoredStaffMember[] {
+    return [...this.staffStore.values()].filter((s) => s.tenant_id === tenantId);
   }
 
   async getBranchesByTenant(tenantId: string): Promise<StoredBranch[]> {
@@ -558,6 +569,7 @@ export class TenancyService {
     };
   }
 
+  // Helper for tests/reset
   async registerStaffMember(
     tenantId: string,
     member: { email: string; name: string; role: string; branch_name?: string }
@@ -576,7 +588,6 @@ export class TenancyService {
     return record;
   }
 
-  // Helper for tests/reset
   clearStore(): void {
     this.tenantsStore.clear();
     this.companiesStore.clear();

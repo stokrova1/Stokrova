@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import * as vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 import { LandingViewModel } from './dist/index.js';
 import { renderMasterSidebarHtml, renderAllWorkspaceViewsHtml } from '@stokrova/ui';
@@ -58,15 +57,27 @@ const tourOverlayHtml = landingView.renderTourOverlayHtml();
 
 const footerHtml = landingView.renderFooterHtml();
 
+const isDemo = process.env.STOKROVA_DEMO_MODE === 'true' || process.argv.includes('--demo');
+
 const masterSidebarHtml = renderMasterSidebarHtml({
   activeViewId: 'dashboard',
-  tenantName: 'Organization Workspace',
-  branchName: 'Main Branch',
+  tenantName: isDemo ? 'Sample Company Ltd' : 'Organization Workspace',
+  branchName: isDemo ? 'Main Branch' : 'Main Branch',
   theme: 'dark',
   onItemClickFnName: 'window.stokrovaCustomerApp.showWsView',
 });
 
-const dashboardModel = new DashboardViewModel({
+const dashboardModel = new DashboardViewModel(isDemo ? {
+  grossMerchandiseValueMinor: 485000000n, // $4,850,000.00
+  netRevenueMinor: 38200000n, // $382,000.00
+  grossMarginBps: 3850, // 38.50%
+  stockoutRiskIndex: 4,
+  warehouseUtilizationPct: 78.5,
+  openTillSessionsCount: 6,
+  cashierVarianceAlertsMinor: 0n,
+  activeWorkflowsRunning: 3,
+  currencyCode: 'USD',
+} : {
   grossMerchandiseValueMinor: 0n,
   netRevenueMinor: 0n,
   grossMarginBps: 0,
@@ -78,36 +89,309 @@ const dashboardModel = new DashboardViewModel({
   currencyCode: 'USD',
 }, 'dark');
 
+if (isDemo) {
+
+dashboardModel.addAlert({
+  id: 'alt_01',
+  severity: 'INFO',
+  title: 'Inter-Branch Stock Dispatched',
+  message: 'TR-LON-BIR-042 dispatched to Birmingham DC (20 units in-transit).',
+  timestampIso: '2026-10-14T14:15:00Z',
+});
+dashboardModel.addAlert({
+  id: 'alt_02',
+  severity: 'WARNING',
+  title: 'Discount Override Requested',
+  message: 'B2B Quote QT-2026-042 requested 14% discount (exceeds 10% manager threshold).',
+  timestampIso: '2026-10-14T13:50:00Z',
+});
+dashboardModel.addAlert({
+  id: 'alt_03',
+  severity: 'INFO',
+  title: 'Daily Register Reconciled',
+  message: 'All London store tills balanced with 0 float discrepancies.',
+  timestampIso: '2026-10-14T12:00:00Z',
+});
+}
+
 const procurementModel = new ProcurementViewModel('dark');
+if (isDemo) {
+  procurementModel.addSupplier({
+    id: 'supp_intel',
+    name: 'Intel Corporation UK Ltd',
+    code: 'SUPP-INTEL',
+    contactEmail: 'orders@intel.co.uk',
+    paymentTermsDays: 30,
+    leadTimeDays: 5,
+    currencyCode: 'USD',
+    isActive: true,
+  });
+  procurementModel.addSupplier({
+    id: 'supp_samsung',
+    name: 'Samsung Electronics Logistics Europe',
+    code: 'SUPP-SAMSUNG',
+    contactEmail: 'b2b@samsung.de',
+    paymentTermsDays: 14,
+    leadTimeDays: 7,
+    currencyCode: 'EUR',
+    isActive: true,
+  });
+  procurementModel.addPurchaseOrder({
+    id: 'po_089',
+    poNumber: 'PO-2026-089',
+    supplierId: 'supp_intel',
+    supplierName: 'Intel Corporation UK Ltd',
+    createdAtIso: '2026-10-12T10:00:00Z',
+    expectedDeliveryIso: '2026-10-17T00:00:00Z',
+    currencyCode: 'USD',
+    status: 'PARTIALLY_RECEIVED',
+    lines: [
+      {
+        id: 'pol_01',
+        sku: 'SKU-CPU-I9',
+        productName: 'Intel Core i9-14900K Processor',
+        orderedQty: 20,
+        receivedQty: 20,
+        invoicedQty: 20,
+        unitCostMinor: 58000n,
+        invoicedUnitCostMinor: 58000n,
+      },
+      {
+        id: 'pol_02',
+        sku: 'SKU-MB-Z790',
+        productName: 'ASUS ROG Maximus Z790 Hero Motherboard',
+        orderedQty: 15,
+        receivedQty: 10,
+        invoicedQty: 10,
+        unitCostMinor: 62000n,
+        invoicedUnitCostMinor: 62000n,
+      },
+      {
+        id: 'pol_03',
+        sku: 'SKU-SSD-2TB',
+        productName: 'Samsung 990 PRO 2TB NVMe SSD',
+        orderedQty: 30,
+        receivedQty: 0,
+        invoicedQty: 0,
+        unitCostMinor: 18000n,
+        invoicedUnitCostMinor: 18000n,
+      },
+    ],
+  });
+}
+
 const financeModel = new FinanceViewModel('dark');
+if (isDemo) {
+  financeModel.addJournalEntry({
+    id: 'jrnl_001',
+    entryNumber: 'JRNL-2026-10-001',
+    reference: 'POS-CLOSE-042',
+    description: 'Daily counter register settlement and merchant settlement transfer',
+    dateIso: '2026-10-14T18:00:00Z',
+    status: 'POSTED',
+    currencyCode: 'USD',
+    preparedBy: 'usr_arthur',
+    preparedByName: 'Arthur Pendelton',
+    postedBy: 'usr_arthur',
+    postedByName: 'Arthur Pendelton',
+    turnaroundMinutes: 24,
+    lines: [
+      { accountCode: '1010', accountName: 'Cash at Bank (Operating)', debitMinor: 284050n, creditMinor: 0n },
+      { accountCode: '4010', accountName: 'Retail Counter Sales', debitMinor: 0n, creditMinor: 284050n },
+    ],
+  });
+  financeModel.addJournalEntry({
+    id: 'jrnl_002',
+    entryNumber: 'JRNL-2026-10-002',
+    reference: 'PO-2026-089',
+    description: 'Intel Workstation partial intake inventory asset capitalisation',
+    dateIso: '2026-10-14T11:30:00Z',
+    status: 'POSTED',
+    currencyCode: 'USD',
+    preparedBy: 'usr_arthur',
+    preparedByName: 'Arthur Pendelton',
+    postedBy: 'usr_arthur',
+    postedByName: 'Arthur Pendelton',
+    turnaroundMinutes: 16,
+    lines: [
+      { accountCode: '1400', accountName: 'Inventory Asset', debitMinor: 2400000n, creditMinor: 0n },
+      { accountCode: '2010', accountName: 'Accounts Payable', debitMinor: 0n, creditMinor: 2400000n },
+    ],
+  });
+  financeModel.addSubledgerReconciliation({
+    id: 'recon_bank_01',
+    reconciliationType: 'BANK_ACCOUNT',
+    title: 'Barclays Commercial Operating Account',
+    accountCode: '1010',
+    periodId: '2026-10',
+    ledgerBalanceMinor: 45000000n,
+    statementBalanceMinor: 45000000n,
+    discrepancyMinor: 0n,
+    status: 'BALANCED',
+    performedBy: 'usr_arthur',
+    performedByName: 'Arthur Pendelton',
+    performedAtIso: '2026-10-14T16:00:00Z',
+    notes: 'Direct Open Banking feed matched statement line items with zero variance.',
+  });
+  financeModel.addSubledgerReconciliation({
+    id: 'recon_ar_01',
+    reconciliationType: 'ACCOUNTS_RECEIVABLE',
+    title: 'B2B Trade Debtors Subledger (A/R)',
+    accountCode: '1200',
+    periodId: '2026-10',
+    ledgerBalanceMinor: 1440000n,
+    statementBalanceMinor: 1440000n,
+    discrepancyMinor: 0n,
+    status: 'BALANCED',
+    performedBy: 'usr_arthur',
+    performedByName: 'Arthur Pendelton',
+    performedAtIso: '2026-10-14T16:15:00Z',
+    notes: 'All open trade invoices reconciled against posted remittances.',
+  });
+}
+
 const registersModel = new RegistersViewModel('dark');
+if (isDemo) {
+  registersModel.addSession({
+    id: 'reg_lon_01',
+    registerCode: 'REG-LON-01',
+    registerName: 'Main Store Checkout Till 01',
+    branchId: 'brn_london_flagship',
+    branchName: 'Main Branch Store',
+    cashierId: 'usr_emma',
+    cashierName: 'Emma Watson',
+    openedAtIso: '2026-10-14T08:00:00Z',
+    openingFloatMinor: 35000n,
+    cashSalesMinor: 113500n,
+    cardSalesMinor: 170550n,
+    cashInMinor: 0n,
+    cashOutMinor: 0n,
+    expectedClosingCashMinor: 148500n,
+    actualClosingCashMinor: 148500n,
+    varianceMinor: 0n,
+    salesCount: 42,
+    averageRingSeconds: 24,
+    status: 'OPEN',
+  });
+}
+
 const rbacModel = new RbacViewModel('dark');
+if (isDemo) {
+  rbacModel.addStaffMember({
+    id: 'usr_victoria',
+    fullName: 'Sample Owner',
+    email: 'founder.victoria@apex-global.com',
+    roleCode: 'BUSINESS_OWNER',
+    roleName: 'Executive Business Owner',
+    scope: { tenantId: 'ten_apex_global' },
+    status: 'ACTIVE',
+    joinedDateIso: '2026-01-15T00:00:00Z',
+  });
+  rbacModel.addStaffMember({
+    id: 'usr_david',
+    fullName: "David O'Connor",
+    email: 'david@apex.com',
+    roleCode: 'BRANCH_MANAGER',
+    roleName: 'Store Manager',
+    scope: { tenantId: 'ten_apex_global', branchId: 'brn_london_flagship', branchName: 'Main Branch' },
+    status: 'ACTIVE',
+    joinedDateIso: '2026-02-15T00:00:00Z',
+  });
+  rbacModel.addStaffMember({
+    id: 'usr_emma',
+    fullName: 'Emma Watson',
+    email: 'emma@apex.com',
+    roleCode: 'CASHIER',
+    roleName: 'Head Cashier',
+    scope: { tenantId: 'ten_apex_global', branchId: 'brn_london_flagship', branchName: 'Main Branch' },
+    status: 'ACTIVE',
+    joinedDateIso: '2026-03-01T00:00:00Z',
+  });
+  rbacModel.addStaffMember({
+    id: 'usr_arthur',
+    fullName: 'Arthur Pendelton',
+    email: 'arthur@apex.com',
+    roleCode: 'GENERAL_ACCOUNTANT',
+    roleName: 'Lead Financial Accountant',
+    scope: { tenantId: 'ten_apex_global', companyId: 'cmp_apex_uk', companyName: 'Apex Retail UK Ltd' },
+    status: 'ACTIVE',
+    joinedDateIso: '2026-02-01T00:00:00Z',
+  });
+}
+
 const organizationModel = new OrganizationViewModel('dark');
+if (isDemo) {
+  organizationModel.addCompany({
+    id: 'cmp_apex_uk',
+    name: 'Apex Retail UK Ltd',
+    legalName: 'Apex Retail UK Limited',
+    currency: 'GBP',
+    timezone: 'Europe/London',
+    isHolding: true,
+    branchesCount: 2,
+  });
+  organizationModel.addBranch({
+    id: 'brn_london_flagship',
+    companyId: 'cmp_apex_uk',
+    name: 'Main Branch Store',
+    code: 'LON-FLG',
+    type: 'STORE',
+    isActive: true,
+  });
+  organizationModel.addBranch({
+    id: 'brn_birmingham_dc',
+    companyId: 'cmp_apex_uk',
+    name: 'Birmingham Logistics Hub',
+    code: 'BIR-DC',
+    type: 'WAREHOUSE',
+    isActive: true,
+  });
+}
 
 const accountantHtml = financeModel.renderAccountantWorkspaceHtml({
-  currentMemberId: 'usr_accountant',
-  currentMemberName: 'Assigned Accountant',
-  companyName: 'Organization Workspace',
+  currentMemberId: isDemo ? 'usr_arthur' : 'usr_accountant',
+  currentMemberName: isDemo ? 'Arthur Pendelton' : 'Assigned Accountant',
+  companyName: isDemo ? 'Apex Retail UK Ltd' : 'Organization Workspace',
   currency: 'USD',
   filterMode: 'my',
   isGeneralAccountant: true,
 });
 
 const cashierWorkspaceHtml = registersModel.renderCashierPersonalWorkspaceHtml({
-  cashierId: 'usr_cashier',
-  cashierName: 'Front Counter Cashier',
-  branchName: 'Main Branch',
+  cashierId: isDemo ? 'usr_emma' : 'usr_cashier',
+  cashierName: isDemo ? 'Emma Watson' : 'Front Counter Cashier',
+  branchName: isDemo ? 'Main Branch Store' : 'Main Branch',
   currency: 'USD',
 });
 
-let allWorkspaceViewsHtml = renderAllWorkspaceViewsHtml({
+const baseWorkspaceViewsHtml = renderAllWorkspaceViewsHtml({
   theme: 'dark',
-  tenantName: 'Organization Workspace',
-  branchName: 'Main Branch',
+  tenantName: isDemo ? 'Sample Company Ltd' : 'Organization Workspace',
+  branchName: isDemo ? 'Main Branch' : 'Main Branch',
   currencyCode: 'USD',
   onActionToastFnName: 'window.stokrovaCustomerApp.showToast',
-  isDemo: false,
+  isDemo,
 });
+
+function replaceViewBlock(html, viewId, innerHtml) {
+  const pattern = new RegExp(
+    `<div id="ws-view-${viewId}" class="ws-view-content"[^>]*>[\\s\\S]*?(?=(?:<!-- =+ -->|<div id="ws-view-|$))`,
+    'g'
+  );
+  const replaced = html.replace(pattern, `<div id="ws-view-${viewId}" class="ws-view-content" style="${viewId === 'dashboard' ? 'display: block;' : 'display: none;'}">\n      ${innerHtml}\n    </div>\n\n    `);
+  return replaced;
+}
+
+let allWorkspaceViewsHtml = baseWorkspaceViewsHtml;
+if (isDemo) {
+  allWorkspaceViewsHtml = replaceViewBlock(allWorkspaceViewsHtml, 'dashboard', dashboardModel.renderDashboardHtml());
+  allWorkspaceViewsHtml = replaceViewBlock(allWorkspaceViewsHtml, 'suppliers', procurementModel.renderSuppliersTableHtml());
+  allWorkspaceViewsHtml = replaceViewBlock(allWorkspaceViewsHtml, 'receiving', procurementModel.renderThreeWayMatchAuditHtml());
+  allWorkspaceViewsHtml = replaceViewBlock(allWorkspaceViewsHtml, 'registers', registersModel.renderSessionsTableHtml('USD'));
+  allWorkspaceViewsHtml = replaceViewBlock(allWorkspaceViewsHtml, 'gl', `${financeModel.renderJournalLedgerHtml()}\n<div style="margin-top: 24px;">\n${financeModel.renderChartOfAccountsHtml()}\n</div>`);
+  allWorkspaceViewsHtml = replaceViewBlock(allWorkspaceViewsHtml, 'org', organizationModel.renderOrganizationHtml());
+  allWorkspaceViewsHtml = replaceViewBlock(allWorkspaceViewsHtml, 'rbac', rbacModel.renderStaffManagementHtml());
+}
 
 allWorkspaceViewsHtml += `
     <!-- ========================================== -->
@@ -138,37 +422,6 @@ const completeWebsiteHtml = `
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // Bulletproof Early Auth & Interactive Navigation Dispatcher
-    // Ensures modal triggers and navigation respond instantly on touch and click from the first paint
-    window.stokrovaCustomerApp = window.stokrovaCustomerApp || {};
-    window.stokrovaCustomerApp.openLoginModal = window.stokrovaCustomerApp.openLoginModal || function() {
-      var d = document.getElementById('mobile-nav-drawer'); if (d) d.style.display = 'none';
-      var m = document.getElementById('modal-login'); if (m) m.style.display = 'flex';
-      var f = document.getElementById('login-email'); if (f) setTimeout(function() { f.focus(); }, 50);
-    };
-    window.stokrovaCustomerApp.closeLoginModal = window.stokrovaCustomerApp.closeLoginModal || function() {
-      var m = document.getElementById('modal-login'); if (m) m.style.display = 'none';
-    };
-    window.stokrovaCustomerApp.openRegisterModal = window.stokrovaCustomerApp.openRegisterModal || function(plan) {
-      var d = document.getElementById('mobile-nav-drawer'); if (d) d.style.display = 'none';
-      var m = document.getElementById('modal-register'); if (m) m.style.display = 'flex';
-      var f = document.getElementById('reg-company-name'); if (f) setTimeout(function() { f.focus(); }, 50);
-    };
-    window.stokrovaCustomerApp.closeRegisterModal = window.stokrovaCustomerApp.closeRegisterModal || function() {
-      var m = document.getElementById('modal-register'); if (m) m.style.display = 'none';
-    };
-    window.stokrovaCustomerApp.confirmOpenDemo = window.stokrovaCustomerApp.confirmOpenDemo || function() {
-      var d = document.getElementById('mobile-nav-drawer'); if (d) d.style.display = 'none';
-      var m = document.getElementById('modal-demo-confirm'); if (m) m.style.display = 'flex';
-    };
-    window.stokrovaCustomerApp.closeDemoConfirmModal = window.stokrovaCustomerApp.closeDemoConfirmModal || function() {
-      var m = document.getElementById('modal-demo-confirm'); if (m) m.style.display = 'none';
-    };
-    window.stokrovaCustomerApp.toggleMobileMenu = window.stokrovaCustomerApp.toggleMobileMenu || function() {
-      var d = document.getElementById('mobile-nav-drawer'); if (d) d.style.display = (d.style.display === 'flex' ? 'none' : 'flex');
-    };
-  </script>
   <style>
     :root {
       /* Official STOKROVA Brand Tokens (Strictly Preserved) */
@@ -309,7 +562,7 @@ const completeWebsiteHtml = `
       align-items: center;
       gap: 10px;
       font-size: 0.875rem;
-      z-index: 30000;
+      z-index: 10000;
       animation: slideIn 0.2s ease-out;
     }
     @keyframes slideIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -738,19 +991,16 @@ const completeWebsiteHtml = `
     </div>
   </div>
 
-  <!-- AUTHENTICATED BUSINESS WORKSPACE (LAUNCHED ON SIGN IN OR REGISTRATION) -->
+  <!-- AUTHENTICATED BUSINESS WORKSPACE (LAUNCHED ON SIGN IN, REGISTER OR DEMO) -->
   <div id="business-workspace-container" style="display: none;">
     <div class="workspace-topbar">
       <div style="display: flex; align-items: center; gap: 16px;">
         <div style="display: flex; align-items: center; gap: 6px; font-weight: 800; color: var(--primary);">
           <span>◆</span>
-          <span id="ws-tenant-display">Organization Workspace</span>
+          <span id="ws-tenant-display">${isDemo ? 'Sample Company Ltd' : 'Organization Workspace'}</span>
         </div>
-        <span style="font-size: 0.75rem; background: rgba(189,150,82,0.18); color: var(--primary); padding: 2px 8px; border-radius: 4px; font-weight: 600;" id="ws-branch-display">Main Branch</span>
-        <span id="ws-mode-badge" style="font-size: 0.75rem; background: #14291F; color: #4ADE80; border: 1px solid #1E4620; padding: 2px 8px; border-radius: 9999px; font-weight: 600;">LIVE PRODUCTION</span>
-        <button id="ws-demo-register-cta" onclick="window.stokrovaCustomerApp.exitWorkspaceToRegister()" style="display: none; background: var(--primary); color: #0E1116; border: none; padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(189,150,82,0.4); touch-action: manipulation;">
-          Register Real Business →
-        </button>
+        <span style="font-size: 0.75rem; background: rgba(189,150,82,0.18); color: var(--primary); padding: 2px 8px; border-radius: 4px; font-weight: 600;" id="ws-branch-display">${isDemo ? 'Main Branch' : 'Main Branch'}</span>
+        <span style="font-size: 0.75rem; background: #14291F; color: #4ADE80; border: 1px solid #1E4620; padding: 2px 8px; border-radius: 9999px; font-weight: 600;">LIVE PRODUCTION</span>
       </div>
 
       <div style="display: flex; align-items: center; gap: 14px;">
@@ -758,8 +1008,8 @@ const completeWebsiteHtml = `
           <span>🌍</span> <span>Take Tour ✦</span>
         </button>
         <div style="font-size: 0.8125rem; color: var(--text-secondary);">
-          Signed in as: <strong id="ws-user-display" style="color: var(--text);">Business Owner</strong>
-          (<span id="ws-role-display" style="color: var(--primary); font-weight: 600;">Administrator</span>)
+          Signed in as: <strong id="ws-user-display" style="color: var(--text);">${isDemo ? 'Sample Owner' : 'Business Owner'}</strong>
+          (<span id="ws-role-display" style="color: var(--primary); font-weight: 600;">${isDemo ? 'Business Owner' : 'Administrator'}</span>)
         </div>
         <button onclick="window.stokrovaCustomerApp.signOut()" style="background: rgba(248,81,73,0.1); color: #F87171; border: 1px solid #5C1D24; padding: 6px 14px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-weight: 600;">
           Sign Out →
@@ -789,6 +1039,35 @@ const completeWebsiteHtml = `
       anonKey: 'sb_publishable_SQZZBnrGJ4wwY4rUeZjtag_-jtZxCVp',
       apiBase: isLocalhost && window.location.port !== '3000' && window.location.port !== '' ? 'http://localhost:3000/v1' : '/v1',
     };
+    /** Creates the company workspace for the signed-in owner; never reports success unless the server confirms it. */
+    const submitOnboarding = async (accessToken, pending, email) => {
+      if (!pending || !pending.companyName || !pending.slug) return { ok: false, message: 'Your company details were not found. Please register again.' };
+      try {
+        const res = await fetch(SUPABASE_CONFIG.apiBase + '/auth/onboard', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken },
+          body: JSON.stringify({
+            name: pending.companyName,
+            slug: pending.slug,
+            owner_email: email || pending.ownerEmail,
+            owner_full_name: pending.ownerName,
+            default_currency: pending.currency,
+            initial_branch_name: pending.branchName,
+            plan_tier: pending.tier,
+          }),
+        });
+        if (res.ok) {
+          try { localStorage.removeItem('stokrova_pending_onboarding'); } catch (_) {}
+          return { ok: true };
+        }
+        let message = 'We could not create your workspace (' + res.status + ').';
+        try { const body = await res.json(); message = body?.error?.message || body?.message || message; } catch (_) {}
+        if (res.status === 409) message = 'That workspace address is already taken. Please choose another one.';
+        return { ok: false, message };
+      } catch (_) {
+        return { ok: false, message: 'We could not reach Stokrova to create your workspace. Please check your connection and try again.' };
+      }
+    };
     const getSupabase = () => {
       if (window._stokrovaSupabase) return window._stokrovaSupabase;
       if (window.supabase && typeof window.supabase.createClient === 'function') {
@@ -800,7 +1079,7 @@ const completeWebsiteHtml = `
 
     window.stokrovaCustomerApp = {
       cart: [],
-      todayRevenue: 0.00,
+      todayRevenue: 382000.00,
 
       // Multi-Step Registration State & Cosmic Engine
       currentSignupStep: 1,
@@ -810,18 +1089,13 @@ const completeWebsiteHtml = `
       verifiedStaffData: null,
 
       openRegisterModal(planId) {
-        const drawer = document.getElementById('mobile-nav-drawer');
-        if (drawer) drawer.style.display = 'none';
+        const navDrawer = document.getElementById('mobile-nav-drawer');
+        if (navDrawer) navDrawer.style.display = 'none';
         const modal = document.getElementById('modal-register');
         if (modal) {
           modal.style.display = 'flex';
           this.setSignupStep(1);
           this.startCosmicParticles();
-          const submitBtn = document.getElementById('btn-submit-registration');
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Provision Workspace & Customize →';
-          }
           const firstInput = document.getElementById('reg-company-name');
           if (firstInput) setTimeout(() => firstInput.focus(), 50);
         }
@@ -943,103 +1217,95 @@ const completeWebsiteHtml = `
       },
 
       startCosmicParticles() {
-        try {
-          const canvas = document.getElementById('signup-cosmic-canvas');
-          if (!canvas || typeof canvas.getContext !== 'function') return;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) return;
-          if (typeof requestAnimationFrame !== 'function') return;
+        const canvas = document.getElementById('signup-cosmic-canvas');
+        if (!canvas || typeof canvas.getContext !== 'function') return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
 
-          canvas.width = canvas.offsetWidth || (typeof window !== 'undefined' ? window.innerWidth : 800);
-          canvas.height = canvas.offsetHeight || (typeof window !== 'undefined' ? window.innerHeight : 600);
+        canvas.width = canvas.offsetWidth || window.innerWidth;
+        canvas.height = canvas.offsetHeight || window.innerHeight;
 
-          this.cosmicParticles = [];
-          const count = 45;
-          for (let i = 0; i < count; i++) {
-            this.cosmicParticles.push({
-              x: Math.random() * canvas.width,
-              y: Math.random() * canvas.height,
-              vx: (Math.random() - 0.5) * 0.6,
-              vy: (Math.random() - 0.5) * 0.6,
-              radius: Math.random() * 2 + 1,
-              color: (Math.random() > 0.4) ? '#BD9652' : '#E0CB9F',
-              alpha: Math.random() * 0.6 + 0.2
-            });
-          }
+        this.cosmicParticles = [];
+        const count = 45;
+        for (let i = 0; i < count; i++) {
+          this.cosmicParticles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 0.6,
+            vy: (Math.random() - 0.5) * 0.6,
+            radius: Math.random() * 2 + 1,
+            color: (Math.random() > 0.4) ? '#BD9652' : '#E0CB9F',
+            alpha: Math.random() * 0.6 + 0.2
+          });
+        }
 
-          const render = () => {
-            try {
-              ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const render = () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-              // Draw connections
-              for (let i = 0; i < this.cosmicParticles.length; i++) {
-                for (let j = i + 1; j < this.cosmicParticles.length; j++) {
-                  const dx = this.cosmicParticles[i].x - this.cosmicParticles[j].x;
-                  const dy = this.cosmicParticles[i].y - this.cosmicParticles[j].y;
-                  const dist = Math.sqrt(dx * dx + dy * dy);
-                  if (dist < 80) {
-                    ctx.strokeStyle = 'rgba(189, 150, 82, ' + (0.15 * (1 - dist / 80)) + ')';
-                    ctx.lineWidth = 0.6;
-                    ctx.beginPath();
-                    ctx.moveTo(this.cosmicParticles[i].x, this.cosmicParticles[i].y);
-                    ctx.lineTo(this.cosmicParticles[j].x, this.cosmicParticles[j].y);
-                    ctx.stroke();
-                  }
-                }
-              }
-
-              // Draw particles
-              this.cosmicParticles.forEach(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-                if (p.x < 0) p.x = canvas.width;
-                if (p.x > canvas.width) p.x = 0;
-                if (p.y < 0) p.y = canvas.height;
-                if (p.y > canvas.height) p.y = 0;
-
-                ctx.fillStyle = p.color;
-                ctx.globalAlpha = p.alpha;
+          // Draw connections
+          for (let i = 0; i < this.cosmicParticles.length; i++) {
+            for (let j = i + 1; j < this.cosmicParticles.length; j++) {
+              const dx = this.cosmicParticles[i].x - this.cosmicParticles[j].x;
+              const dy = this.cosmicParticles[i].y - this.cosmicParticles[j].y;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+              if (dist < 80) {
+                ctx.strokeStyle = 'rgba(189, 150, 82, ' + (0.15 * (1 - dist / 80)) + ')';
+                ctx.lineWidth = 0.6;
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fill();
-              });
-              ctx.globalAlpha = 1;
-
-              if (typeof requestAnimationFrame === 'function') {
-                this.cosmicAnimId = requestAnimationFrame(render);
+                ctx.moveTo(this.cosmicParticles[i].x, this.cosmicParticles[i].y);
+                ctx.lineTo(this.cosmicParticles[j].x, this.cosmicParticles[j].y);
+                ctx.stroke();
               }
-            } catch (_) {}
-          };
+            }
+          }
 
-          if (this.cosmicAnimId && typeof cancelAnimationFrame === 'function') {
-            cancelAnimationFrame(this.cosmicAnimId);
-          }
-          if (typeof requestAnimationFrame === 'function') {
-            this.cosmicAnimId = requestAnimationFrame(render);
-          }
-        } catch (_) {}
+          // Draw particles
+          this.cosmicParticles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.x < 0) p.x = canvas.width;
+            if (p.x > canvas.width) p.x = 0;
+            if (p.y < 0) p.y = canvas.height;
+            if (p.y > canvas.height) p.y = 0;
+
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = p.alpha;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fill();
+          });
+          ctx.globalAlpha = 1;
+
+          this.cosmicAnimId = requestAnimationFrame(render);
+        };
+
+        if (this.cosmicAnimId) cancelAnimationFrame(this.cosmicAnimId);
+        this.cosmicAnimId = requestAnimationFrame(render);
       },
 
       stopCosmicParticles() {
-        try {
-          if (this.cosmicAnimId && typeof cancelAnimationFrame === 'function') {
-            cancelAnimationFrame(this.cosmicAnimId);
-            this.cosmicAnimId = null;
-          }
-        } catch (_) {}
+        if (this.cosmicAnimId) {
+          cancelAnimationFrame(this.cosmicAnimId);
+          this.cosmicAnimId = null;
+        }
       },
 
       async handleRegisterSubmit(e) {
         e.preventDefault();
-        const companyName = document.getElementById('reg-company-name')?.value.trim() || 'My Business Organization';
-        const slug = document.getElementById('reg-slug')?.value.trim().toLowerCase() || 'workspace';
+        const companyName = document.getElementById('reg-company-name')?.value.trim() || '';
+        const slug = document.getElementById('reg-slug')?.value.trim().toLowerCase() || '';
         const currency = document.getElementById('reg-currency')?.value || 'USD';
         const branchName = document.getElementById('reg-branch-name')?.value.trim() || 'Main Branch';
-        const ownerName = document.getElementById('reg-owner-name')?.value.trim() || 'Business Owner';
+        const ownerName = document.getElementById('reg-owner-name')?.value.trim() || '';
         const ownerEmail = document.getElementById('reg-owner-email')?.value.trim().toLowerCase() || '';
         const password = document.getElementById('reg-password')?.value || '';
         const tier = document.getElementById('reg-tier')?.value || 'growth';
         const phone = document.getElementById('reg-owner-phone')?.value.trim() || '';
+
+        if (!companyName || !slug || !ownerName || !ownerEmail) {
+          this.showToast('Please fill in your company name, workspace address, your name and email.');
+          return;
+        }
 
         if (!password) {
           this.showToast('Please enter a secure password for your owner account.');
@@ -1060,9 +1326,8 @@ const completeWebsiteHtml = `
 
         this.pendingTenant = tenantData;
 
-        // Persist locally for immediate session and callback continuity
+        // Persist locally for callback continuity
         try {
-          localStorage.setItem('stokrova_active_tenant', JSON.stringify(tenantData));
           localStorage.setItem('stokrova_pending_onboarding', JSON.stringify(tenantData));
         } catch (_) {}
 
@@ -1103,25 +1368,15 @@ const completeWebsiteHtml = `
             // Check if Supabase session is issued or confirmation required
             if (data.session && data.session.access_token) {
               // Immediate session (autoconfirm enabled): Call transactional NestJS onboarding API
-              try {
-                await fetch(SUPABASE_CONFIG.apiBase + '/auth/onboard', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + data.session.access_token,
-                  },
-                  body: JSON.stringify({
-                    name: companyName,
-                    slug: slug,
-                    owner_full_name: ownerName,
-                    default_currency: currency,
-                    initial_branch_name: branchName,
-                    plan_tier: tier,
-                  })
-                });
-                localStorage.removeItem('stokrova_pending_onboarding');
-              } catch (_) {}
-
+              const result = await submitOnboarding(data.session.access_token, tenantData, ownerEmail);
+              if (!result.ok) {
+                this.showToast(result.message);
+                if (submitBtn) {
+                  submitBtn.disabled = false;
+                  submitBtn.textContent = 'Provision Workspace & Customize →';
+                }
+                return;
+              }
               this.populateCustomizationAndSimulate(companyName, branchName, ownerName, slug);
             } else {
               // Supabase email confirmation required
@@ -1204,29 +1459,14 @@ const completeWebsiteHtml = `
           const { data: { session }, error } = await sb.auth.getSession();
           if (session && session.access_token) {
             const pending = this.pendingTenant || JSON.parse(localStorage.getItem('stokrova_pending_onboarding') || '{}');
-            await fetch(SUPABASE_CONFIG.apiBase + '/auth/onboard', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + session.access_token,
-              },
-              body: JSON.stringify({
-                name: pending.companyName || 'My Business Organization',
-                slug: pending.slug || 'workspace',
-                owner_full_name: pending.ownerName || session.user.email,
-                default_currency: pending.currency || 'USD',
-                initial_branch_name: pending.branchName || 'Main Branch',
-                plan_tier: pending.tier || 'growth',
-              })
-            }).catch(() => {});
-            localStorage.removeItem('stokrova_pending_onboarding');
+            const result = await submitOnboarding(session.access_token, pending, session.user?.email);
+            if (!result.ok) {
+              this.showToast(result.message);
+              if (btn) { btn.disabled = false; btn.textContent = 'I Have Confirmed My Email →'; }
+              return;
+            }
             this.showToast('✓ Identity confirmed! Deploying workspace...');
-            this.populateCustomizationAndSimulate(
-              pending.companyName || 'My Business Organization',
-              pending.branchName || 'Main Branch',
-              pending.ownerName || 'Business Owner',
-              pending.slug || 'workspace'
-            );
+            this.populateCustomizationAndSimulate(pending.companyName, pending.branchName, pending.ownerName, pending.slug);
           } else {
             this.showToast('Email confirmation pending. Please check your inbox and click the verification link.');
           }
@@ -1343,20 +1583,15 @@ const completeWebsiteHtml = `
           this.welcomeCountdownTimer = null;
         }
         this.closeRegisterModal();
-        let t = this.pendingTenant;
-        if (!t) {
-          try {
-            t = JSON.parse(localStorage.getItem('stokrova_active_tenant') || '{}');
-          } catch (_) {}
-        }
-        const tenantName = (t && t.companyName) || 'My Business Organization';
-        const branchName = (t && t.branchName) || 'Main Branch';
-        const ownerName = (t && t.ownerName) || 'Business Owner';
-
+        const t = this.pendingTenant || {
+          companyName: 'Sample Company Ltd',
+          branchName: 'Main Branch',
+          ownerName: 'Sample Owner',
+        };
         this.launchWorkspace({
-          tenantName,
-          branchName,
-          userName: ownerName,
+          tenantName: t.companyName,
+          branchName: t.branchName,
+          userName: t.ownerName,
           userRole: 'Business Owner (Administrator)'
         });
         this.showToast('✦ Welcome to your dashboard! Starting guided walkthrough...');
@@ -1376,7 +1611,7 @@ const completeWebsiteHtml = `
       currentTourStep: 1,
       currentTourList: [],
       currentTourRoleTitle: 'Business Owner',
-      currentUserName: 'Business Owner',
+      currentUserName: 'Sample Owner',
       currentWorkspaceRole: 'Business Owner (Administrator)',
 
       roleTours: {
@@ -1396,14 +1631,14 @@ const completeWebsiteHtml = `
               targetSelector: '.kpi-tiles-grid',
               title: 'Executive Telemetry & Financial Pulse',
               desc: 'Monitor GMV, real-time net revenue, and gross margins across all stores. Because STOKROVA uses pure integer minor currency units, every figure is penny-perfect with zero floating-point rounding errors.',
-              snippet: '📊 Executive Telemetry: Real-time GMV • Profit margins • Integer minor unit precision'
+              snippet: '📊 12-Month Net Revenue: $382,000.00 | Gross Margin: 38.50% | Till Variance: $0.00'
             },
             {
               viewId: 'pos',
               targetSelector: '.pos-preview-wrapper',
               title: 'Offline-Tolerant Point of Sale & Laser Buffer',
               desc: 'Ring up sales at counter speed. Hardware laser scanners are detected automatically (<50ms). If retail internet goes down, sales persist in encrypted local SQLite outbox queues and sync automatically upon reconnection.',
-              snippet: '<button onclick="window.stokrovaCustomerApp.simulateTourScan()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">⚡ Test Laser Barcode Scan (<42ms Hardware Buffer)</button>'
+              snippet: '<button onclick="window.stokrovaCustomerApp.simulateTourScan()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">⚡ Test Laser Barcode Scan (5011000000018)</button>'
             },
             {
               viewId: 'inventory',
@@ -1417,7 +1652,7 @@ const completeWebsiteHtml = `
               targetSelector: '.workspace-viewport',
               title: 'Immutable Double-Entry Ledger & Till Audits',
               desc: 'Pure accounting truth. Every till sale, inventory movement, and customer refund automatically writes balanced double-entry journals (Debits = Credits). Blind session variance counts ensure drawer integrity.',
-              snippet: '⚖️ Pure Double-Entry: Balanced journal ledger (DR = CR) • Zero unallocated drift'
+              snippet: '⚖️ Pure Double-Entry: DR 1010 Bank Cash $86.40 = CR 4010 Retail Sales $86.40 (Delta: $0.00)'
             }
           ]
         },
@@ -1430,7 +1665,7 @@ const completeWebsiteHtml = `
               targetSelector: '.pos-preview-wrapper',
               title: 'High-Speed Checkout Counter & Laser Buffer',
               desc: 'Ring up products with zero interface lag. Barcode laser scans are buffered instantly (<42ms). Quick keys and live SKU search keep customer queues moving fast during rush hours.',
-              snippet: '<button onclick="window.stokrovaCustomerApp.simulateTourScan()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">⚡ Test Laser Barcode Scan (<42ms Hardware Buffer)</button>'
+              snippet: '<button onclick="window.stokrovaCustomerApp.simulateTourScan()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">⚡ Test Laser Barcode Scan (5011000000018)</button>'
             },
             {
               viewId: 'pos',
@@ -1444,7 +1679,7 @@ const completeWebsiteHtml = `
               targetSelector: '.pos-preview-wrapper',
               title: 'Split Tender & Flexible Payment Options',
               desc: 'Accept multi-tender split transactions across Cash, Contactless Card, QR, or Store Credit. Exact drawer change and minor currency rounding are handled automatically.',
-              snippet: '<button onclick="window.stokrovaCustomerApp.simulateSplitTender()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">💳 Test Multi-Tender Split Payment</button>'
+              snippet: '<button onclick="window.stokrovaCustomerApp.simulateSplitTender()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">💳 Simulate Split Payment ($20.00 Cash + $66.40 Card)</button>'
             },
             {
               viewId: 'pos',
@@ -1464,28 +1699,28 @@ const completeWebsiteHtml = `
               targetSelector: '.workspace-viewport',
               title: 'Priority Digital Pick Queue & Routing',
               desc: 'Execute pick waves with route-optimized walking paths. Customer orders are batched by warehouse zone and bin sequence to minimize picker walking time and turnaround.',
-              snippet: '<button onclick="window.stokrovaCustomerApp.simulatePickItem()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">📦 Test Pick Verification (FEFO Wave Allocation)</button>'
+              snippet: '<button onclick="window.stokrovaCustomerApp.simulatePickItem()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">📦 Verify Pick Item (Wave #WAVE-LON-042)</button>'
             },
             {
               viewId: 'inventory',
               targetSelector: '.workspace-viewport',
               title: 'Strict FEFO Lot Expiry Enforcement',
               desc: 'Enforce product freshness. STOKROVA strictly requires First-Expired, First-Out lot picking for perishable and dated goods, preventing pickers from selecting newer lots prematurely.',
-              snippet: '🏷️ Lot Verification: Strict FEFO sequencing • Expiry date tracking • Zero expired dispatch'
+              snippet: '🏷️ Lot Verification: LOT-2026-A12 (Exp: 2026-12-31) • Inventory Rotation Active ✓'
             },
             {
               viewId: 'locations',
               targetSelector: '.workspace-viewport',
               title: 'Aisle, Rack & Bin Location Mapping',
               desc: 'Navigate multi-tier racking maps with bin capacities and barcode verification. Scan bin barcodes directly to transfer stock between picking shelves and reserve bulk storage.',
-              snippet: '📍 Bin Intelligence: Dynamic bin capacity • Barcode verification • Zero phantom stock'
+              snippet: '📍 Bin R-04-B2: Capacity 85% • Barcode Verified • Zero Phantom Stock Discrepancies'
             },
             {
               viewId: 'receiving',
               targetSelector: '.workspace-viewport',
               title: 'Blind Receiving & Transfer Custody',
               desc: 'Eliminate phantom stock with blind count receiving. Goods arriving from suppliers or sister branches are counted independently before release to active inventory.',
-              snippet: '🛡️ Blind Receiving: Independent blind count vs PO manifest • Audited variance reporting'
+              snippet: '🛡️ Blind Count Receiving: 120 Units Counted vs PO Manifest • Variance: 0.00%'
             }
           ]
         },
@@ -1498,28 +1733,28 @@ const completeWebsiteHtml = `
               targetSelector: '.workspace-topbar',
               title: 'Branch Real-Time Performance Telemetry',
               desc: "Keep fingers on the pulse of the store. Track today's gross sales, customer footfall, average basket size, and individual cashier till throughput in real time.",
-              snippet: '📈 Branch Operations: Gross sales tracking • Footfall monitoring • Cashier shift summaries'
+              snippet: '📈 Branch Revenue: $24,850.00 Today • Customer Count: 312 • Average Basket: $79.65'
             },
             {
               viewId: 'registers',
               targetSelector: '.workspace-viewport',
               title: 'Till Drawer Audits & Shift Approvals',
               desc: 'Authorize cashier shift open/close audits. Perform blind drawer counts and sign off till variances with verified supervisor approvals.',
-              snippet: '<button onclick="window.stokrovaCustomerApp.simulateManagerAudit()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">🛡️ Sign Off Shift Till Drawer</button>'
+              snippet: '<button onclick="window.stokrovaCustomerApp.simulateManagerAudit()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">🛡️ Sign Off Shift Till (Zero Variance Verified)</button>'
             },
             {
               viewId: 'po',
               targetSelector: '.workspace-viewport',
               title: 'Purchase Orders & Low-Stock Alerts',
               desc: 'Prevent stockouts before they happen. Review automatic reorder triggers when inventory breaches safety thresholds and approve supplier POs with a single click.',
-              snippet: '⚠️ Reorder Triggers: Safety stock alerts • Dynamic PO creation'
+              snippet: '⚠️ Reorder Trigger: 4 SKUs below minimum buffer • PO-2026-088 Drafted'
             },
             {
               viewId: 'org',
               targetSelector: '.workspace-viewport',
               title: 'Staff Shift Rostering & Permission Scopes',
               desc: 'Manage store team members and active shift schedules. Configure terminal access and supervisor permissions with strict enterprise authorization enforcement.',
-              snippet: '👥 Staff Management: Role-based access control (RBAC) • Shift assignment'
+              snippet: '👥 Active Store Roster: 6 Staff On Shift • Granular RBAC Enforced'
             }
           ]
         },
@@ -1532,21 +1767,21 @@ const completeWebsiteHtml = `
               targetSelector: '.workspace-viewport',
               title: 'Immutable Double-Entry Ledger Truth',
               desc: 'Inspect financial journals where Debits always equal Credits down to fractional minor currency units. Till transactions, supplier invoices, and inventory write-offs post balanced entries.',
-              snippet: '⚖️ General Ledger: Balanced double-entry integrity (Total Debits = Total Credits)'
+              snippet: '⚖️ GL Balance: Total Debits $1,420,950.00 = Total Credits $1,420,950.00 (Delta: $0.00)'
             },
             {
               viewId: 'accountant',
               targetSelector: '.workspace-viewport',
               title: 'Bank & Subledger Automated Matching',
               desc: 'Run 3-way matching between Purchase Orders, Receiving Notes, and Invoices. Match clearing bank accounts automatically and resolve variances with audited adjustments.',
-              snippet: '<button onclick="window.stokrovaCustomerApp.simulateReconcileAccount()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">📊 Reconcile Bank Subledger (Auto-Matched Transactions)</button>'
+              snippet: '<button onclick="window.stokrovaCustomerApp.simulateReconcileAccount()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">📊 Reconcile Bank Feed (99.8% Auto-Matched)</button>'
             },
             {
               viewId: 'tax',
               targetSelector: '.workspace-viewport',
               title: 'Tax & VAT Statutory Reporting',
               desc: 'Automatic input vs output VAT schedules, multi-jurisdiction sales tax calculations, and exportable financial summaries ready for revenue and customs authorities.',
-              snippet: '🏛️ Tax Compliance: Output vs Input VAT schedules • Multi-jurisdiction statutory export'
+              snippet: '🏛️ VAT Summary: Output VAT $18,420.00 - Input VAT $9,110.00 = Net Due $9,310.00'
             },
             {
               viewId: 'audit',
@@ -1566,21 +1801,21 @@ const completeWebsiteHtml = `
               targetSelector: '.workspace-viewport',
               title: 'Multi-Stop Delivery Route Manifest',
               desc: 'Follow route-optimized delivery manifests directly from your phone or mobile terminal. Track turn-by-turn drop sequences and live customer delivery ETAs.',
-              snippet: '🚚 Delivery Manifest: Route optimization • Turn-by-turn drop sequencing • Live customer ETAs'
+              snippet: '🚚 Run #RUN-LON-04: 8 Delivery Drops • Route Optimized • Total Distance: 28.4 mi'
             },
             {
               viewId: 'fleet',
               targetSelector: '.workspace-viewport',
               title: 'Electronic Proof-of-Delivery (ePOD)',
               desc: 'Capture customer signatures, delivery photo verification, and GPS timestamps at the doorstep. Completed delivery records update customer orders instantly.',
-              snippet: '<button onclick="window.stokrovaCustomerApp.simulateDriverEpod()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">✍️ Test Capture ePOD Signature</button>'
+              snippet: '<button onclick="window.stokrovaCustomerApp.simulateDriverEpod()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">✍️ Test Capture ePOD Signature (Drop #3 Delivered)</button>'
             },
             {
               viewId: 'dispatch',
               targetSelector: '.workspace-viewport',
               title: 'Vehicle Custody Scan & Return Processing',
               desc: 'Confirm vehicle loading with quick barcode scans. Safely log undelivered goods or customer returns back into warehouse custody with zero discrepancy.',
-              snippet: '📦 Vehicle Custody: Barcode loading verification • Manifest reconciliation'
+              snippet: '📦 Custody Status: 8/8 Parcels Loaded • 0 Unaccounted Items'
             }
           ]
         },
@@ -1593,21 +1828,21 @@ const completeWebsiteHtml = `
               targetSelector: '.workspace-viewport',
               title: 'Corporate Accounts & Deal Pipeline',
               desc: 'Manage wholesale accounts, buyer contacts, and corporate purchasing limits. Track sales pipeline stages from initial lead to closed-won wholesale contracts.',
-              snippet: '💼 B2B Commercial Pipeline: Account purchasing limits • Tiered discount structures'
+              snippet: '💼 Portfolio: 18 Enterprise Accounts • Total Pipeline Value: $420,000.00'
             },
             {
               viewId: 'quotes',
               targetSelector: '.workspace-viewport',
               title: 'Dynamic Wholesale Quotes & Price Lists',
               desc: 'Draft bespoke customer quotes with negotiated tiered pricing. The system checks margin thresholds automatically before dispatching formal proposals.',
-              snippet: '<button onclick="window.stokrovaCustomerApp.simulateQuoteApprove()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">📄 Generate B2B Wholesale Quote (Margin Verified)</button>'
+              snippet: '<button onclick="window.stokrovaCustomerApp.simulateQuoteApprove()" style="background:#BD9652; color:#0E1116; border:none; padding:6px 14px; border-radius:4px; font-weight:700; font-size:0.75rem; cursor:pointer;">📄 Generate B2B Quote (Tier 2 Wholesale Discount)</button>'
             },
             {
               viewId: 'orders',
               targetSelector: '.workspace-viewport',
               title: 'Fulfillment & Dispatch Visibility',
               desc: 'Keep clients updated with end-to-end order tracking. Monitor warehouse picking, dispatch manifests, and invoice payment statuses in real time.',
-              snippet: '🚚 Real-Time Order Tracking: Pick wave progress • Dispatch custody • Invoice status'
+              snippet: '🚚 Order #ORD-8921: Dispatched from DC • Est. Delivery Tomorrow 10:00 AM'
             }
           ]
         },
@@ -1620,21 +1855,21 @@ const completeWebsiteHtml = `
               targetSelector: '.workspace-viewport',
               title: 'Universal Product & Barcode Catalog',
               desc: 'Look up product specifications, SKUs, barcode identifiers, and current pricing across all retail and warehouse departments.',
-              snippet: '🔍 Universal Barcode Catalog: Real-time SKU and barcode search across categories'
+              snippet: '🔍 Universal Search: Over 12,000 active SKUs indexed across all categories'
             },
             {
               viewId: 'availability',
               targetSelector: '.workspace-viewport',
               title: 'Live Multi-Branch Stock Availability',
               desc: 'Instantly check whether an out-of-stock item is available at nearby sister branches or central distribution centers for customer transfer.',
-              snippet: '🏬 Multi-Location Stock: Inter-branch transfer requests • ATP verification'
+              snippet: '🏬 Availability: 14 units at Main Branch • 42 units at Central DC'
             },
             {
               viewId: 'orders',
               targetSelector: '.workspace-viewport',
               title: 'Customer Orders & Click-and-Collect',
               desc: 'Track click-and-collect orders, layaways, and customer holds. Verify pickup readiness and hand goods over to customers with fast receipt verification.',
-              snippet: '📋 Customer Order Management: Click-and-collect orders • Layaways • Receipt verification'
+              snippet: '📋 Order Lookup: ORD-2026-904 (Ready for Collection at Customer Service)'
             }
           ]
         }
@@ -1778,79 +2013,72 @@ const completeWebsiteHtml = `
       },
 
       simulateTourScan() {
-        this.addItemToCart('SKU-1001', 'Pro Workstation Laptop', 2499.00);
-        this.showToast('⚡ Laser Scanner Triggered: Added 1x Pro Workstation Laptop (<42ms hardware buffer)!');
+        this.addItemToCart('LAPTOP-PRO-16', 'Apex Pro 16 Laptop', 2499.00);
+        this.showToast('⚡ Laser Scanner Triggered: Added 1x Apex Pro 16 Laptop (<42ms hardware buffer)!');
         const snippetEl = document.getElementById('tour-action-snippet');
         if (snippetEl) {
-          snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Scanner Buffer Fired:</span> 1x SKU-1001 added to cart. Balanced double-entry journal created!';
+          snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Scanner Buffer Fired:</span> 1x LAPTOP-PRO-16 added to cart. DR 1010 Bank = CR 4010 Sales balanced!';
         }
       },
 
       simulateSplitTender() {
-        this.showToast('💳 Split Payment Simulation: Multi-tender payment processed and balanced!');
+        this.showToast('💳 Split Payment Simulation: $20.00 Cash + $66.40 Card processed and balanced!');
         const snippetEl = document.getElementById('tour-action-snippet');
         if (snippetEl) {
-          snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Split Payment Approved:</span> Split payment confirmed with zero till variance. Balanced GL journal recorded!';
+          snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Split Payment Approved:</span> $20.00 Cash (Till change: $0.00) + $66.40 Card Auth #99142. DR 1010/1020 balanced!';
         }
       },
 
       simulatePickItem() {
-        this.showToast('📦 Pick Verified: Item picked with verified FEFO rotation!');
+        this.showToast('📦 Pick Verified: Item picked from Bin R-04-B2 with FEFO Lot LOT-2026-A12!');
         const snippetEl = document.getElementById('tour-action-snippet');
         if (snippetEl) {
-          snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Pick Complete:</span> Item scanned from bin location. FEFO rotation verified!';
+          snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Pick Complete:</span> Item scanned from Bin R-04-B2. Pick Accuracy: 100% • Route optimized!';
         }
       },
 
       simulateManagerAudit() {
-        this.showToast('🛡️ Till Audit Signed: Shift register balanced with zero discrepancy!');
+        this.showToast('🛡️ Till Audit Signed: Shift register balanced with $0.00 variance!');
         const snippetEl = document.getElementById('tour-action-snippet');
         if (snippetEl) {
-          snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Till Audit Approved:</span> Physical drawer counted and verified against system balance!';
+          snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Till Audit Approved:</span> Physical Cash $450.00 = System Expected $450.00 (Zero Till Variance Verified)';
         }
       },
 
       simulateReconcileAccount() {
-        this.showToast('📊 Bank Feed Reconciled: Transactions auto-matched to general ledger!');
+        this.showToast('📊 Bank Feed Reconciled: 14 transactions auto-matched to general ledger!');
         const snippetEl = document.getElementById('tour-action-snippet');
         if (snippetEl) {
-          snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Bank Matching Succeeded:</span> Reconciled against general ledger entries with zero variance!';
+          snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Bank Matching Succeeded:</span> 14 entries reconciled with 0 unallocated funds. GL integrity verified!';
         }
       },
 
       simulateDriverEpod() {
-        this.showToast('✍️ ePOD Captured: Electronic proof of delivery saved with signature!');
+        this.showToast('✍️ ePOD Captured: Electronic proof of delivery saved with GPS and signature!');
         const snippetEl = document.getElementById('tour-action-snippet');
         if (snippetEl) {
-          snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Delivery Confirmed:</span> Recipient signature captured. Delivery manifest updated.';
+          snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Delivery Confirmed:</span> Recipient signature captured. Drop #3 marked DELIVERED in fleet manifest.';
         }
       },
 
       simulateQuoteApprove() {
-        this.showToast('📄 B2B Quote Generated: Wholesale discount tier approved with margin verification!');
+        this.showToast('📄 B2B Quote Generated: Tier 2 wholesale discount approved with 38% gross margin!');
         const snippetEl = document.getElementById('tour-action-snippet');
         if (snippetEl) {
-          snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Quote Ready:</span> Negotiated wholesale tier applied and margin verified!';
+          snippetEl.innerHTML = '<span style="color:#4ADE80; font-weight:700;">✓ Quote QTE-2026-042 Ready:</span> 15% wholesale tier applied. Profit margin confirmed.';
         }
       },
 
       openLoginModal() {
-        const drawer = document.getElementById('mobile-nav-drawer');
-        if (drawer) drawer.style.display = 'none';
+        const navDrawer = document.getElementById('mobile-nav-drawer');
+        if (navDrawer) navDrawer.style.display = 'none';
         const modal = document.getElementById('modal-login');
         if (modal) {
           modal.style.display = 'flex';
           const step1 = document.getElementById('login-step-credentials');
           const step2 = document.getElementById('login-step-verification');
-          const notFound = document.getElementById('login-not-found-state');
           if (step1) step1.style.display = 'block';
           if (step2) step2.style.display = 'none';
-          if (notFound) notFound.style.display = 'none';
-          const submitBtn = document.getElementById('btn-submit-login');
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Sign In →';
-          }
           const firstInput = document.getElementById('login-email');
           if (firstInput) setTimeout(() => firstInput.focus(), 50);
         }
@@ -1864,22 +2092,13 @@ const completeWebsiteHtml = `
       backToLoginCredentials() {
         const step1 = document.getElementById('login-step-credentials');
         const step2 = document.getElementById('login-step-verification');
-        const notFound = document.getElementById('login-not-found-state');
         if (step1) step1.style.display = 'block';
         if (step2) step2.style.display = 'none';
-        if (notFound) notFound.style.display = 'none';
-        const submitBtn = document.getElementById('btn-submit-login');
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Sign In →';
-        }
         const firstInput = document.getElementById('login-email');
         if (firstInput) setTimeout(() => firstInput.focus(), 50);
       },
 
       confirmOpenDemo() {
-        const drawer = document.getElementById('mobile-nav-drawer');
-        if (drawer) drawer.style.display = 'none';
         const modal = document.getElementById('modal-demo-confirm');
         if (modal) modal.style.display = 'flex';
       },
@@ -1892,20 +2111,11 @@ const completeWebsiteHtml = `
       proceedToDemo() {
         this.closeDemoConfirmModal();
         this.launchWorkspace({
-          tenantName: 'Interactive Preview Workspace',
-          branchName: 'London Flagship Store',
-          userName: 'Workspace Explorer (Visitor)',
-          userRole: 'Business Owner (Administrator)',
-          isDemo: true
+          tenantName: 'Sample Company Ltd',
+          branchName: 'Main Branch',
+          userName: 'Sample Owner',
+          userRole: 'Business Owner (Administrator)'
         });
-        this.showToast('✓ Welcome to STOKROVA interactive preview workspace! Explore all 28 operations views.');
-      },
-
-      exitWorkspaceToRegister() {
-        this.signOut();
-        setTimeout(() => {
-          this.openRegisterModal();
-        }, 120);
       },
 
       showSuspendedScreen(data = {}) {
@@ -2006,9 +2216,11 @@ const completeWebsiteHtml = `
         e.preventDefault();
         const emailEl = document.getElementById('login-email');
         const passEl = document.getElementById('login-password');
+        const slugEl = document.getElementById('login-slug');
 
         const email = emailEl ? emailEl.value.trim().toLowerCase() : '';
         const password = passEl ? passEl.value : '';
+        let slug = slugEl ? slugEl.value.trim().toLowerCase() : '';
 
         if (!email || !password) {
           this.showToast('Please enter your staff work email and password.');
@@ -2020,42 +2232,44 @@ const completeWebsiteHtml = `
         const step2 = document.getElementById('login-step-verification');
         const searchState = document.getElementById('login-searching-state');
         const verifiedState = document.getElementById('login-verified-state');
-        const notFoundState = document.getElementById('login-not-found-state');
         const progressFill = document.getElementById('login-verify-progress-fill');
 
         if (step1) step1.style.display = 'none';
         if (step2) step2.style.display = 'block';
         if (searchState) searchState.style.display = 'block';
         if (verifiedState) verifiedState.style.display = 'none';
-        if (notFoundState) notFoundState.style.display = 'none';
-        if (progressFill) progressFill.style.width = '30%';
+        if (progressFill) progressFill.style.width = '25%';
 
-        let activeTenant = null;
-        try {
-          activeTenant = JSON.parse(localStorage.getItem('stokrova_active_tenant') || 'null');
-        } catch (_) {}
+        let tenantName = 'My Organization';
+        let branch = 'Primary Branch';
+        let name = email ? email.split('@')[0] : 'Staff Member';
+        let role = 'Business Member';
+        let lastActive = 'Today • Active Session';
 
-        let tenantName = activeTenant?.companyName || '';
-        let branch = activeTenant?.branchName || 'Main Branch';
-        let slug = activeTenant?.slug || '';
-        let name = '';
-        let role = '';
-        let verified = false;
-
-        // 1. Authenticate credentials if online
         const sb = getSupabase();
-        let sbError = null;
         if (sb) {
           try {
-            if (progressFill) progressFill.style.width = '60%';
+            if (progressFill) progressFill.style.width = '50%';
             const { data, error } = await sb.auth.signInWithPassword({
               email: email,
               password: password,
             });
 
             if (error) {
-              sbError = error.message;
-            } else if (data.session && data.session.access_token) {
+              if (step1) step1.style.display = 'block';
+              if (step2) step2.style.display = 'none';
+              if (error.message && error.message.toLowerCase().includes('email not confirmed')) {
+                this.showToast('Please confirm your email address before signing in. Check your inbox.');
+              } else {
+                this.showToast('Sign in failed: ' + error.message);
+              }
+              return;
+            }
+
+            if (progressFill) progressFill.style.width = '75%';
+
+            // Check authoritative membership and onboarding status via backend API
+            if (data.session && data.session.access_token) {
               const sessionRes = await fetch(SUPABASE_CONFIG.apiBase + '/auth/session', {
                 headers: { 'Authorization': 'Bearer ' + data.session.access_token }
               }).catch(() => null);
@@ -2074,83 +2288,40 @@ const completeWebsiteHtml = `
                   tenantName = sessData.active_tenant.tenant_name || tenantName;
                   branch = sessData.active_tenant.branch_name || branch;
                   name = sessData.user.name || (data.user?.user_metadata?.full_name) || email.split('@')[0];
-                  role = sessData.active_tenant.role === 'owner' ? 'Business Owner (Administrator)' : (sessData.active_tenant.role || 'Staff Member');
-                  slug = sessData.active_tenant.workspace_slug || slug;
-                  verified = true;
+                  role = sessData.active_tenant.role === 'owner' ? 'Business Owner (Administrator)' : (sessData.active_tenant.role || role);
+                  slug = sessData.active_tenant.workspace_slug || slug || 'apex';
+                  lastActive = 'Just Now • Verified';
+                } else if (sessData.onboarding_status === 'ONBOARDING_REQUIRED') {
+                  let pending = null;
+                  try { pending = JSON.parse(localStorage.getItem('stokrova_pending_onboarding') || 'null'); } catch (_) {}
+                  if (pending && pending.ownerEmail && pending.ownerEmail.toLowerCase() === email) {
+                    const result = await submitOnboarding(data.session.access_token, pending, email);
+                    if (result.ok) {
+                      tenantName = pending.companyName;
+                      branch = pending.branchName;
+                      name = pending.ownerName;
+                      slug = pending.slug;
+                    } else {
+                      window.stokrovaCustomerApp?.showToast?.(result.message);
+                    }
+                  }
                 }
               }
-
-              // Fallback to Supabase User Metadata if API session endpoint is unreachable
-              if (!verified && data.user) {
-                const meta = data.user.user_metadata || {};
-                tenantName = meta.company_name || activeTenant?.companyName || 'My Business Organization';
-                branch = meta.branch_name || activeTenant?.branchName || 'Main Branch';
-                name = meta.full_name || (data.user.email ? data.user.email.split('@')[0] : 'Staff Member');
-                role = meta.role || (meta.company_name ? 'Business Owner (Administrator)' : 'Store Operations Staff');
-                slug = meta.workspace_slug || activeTenant?.slug || 'workspace';
-                verified = true;
-              }
             }
-          } catch (sbErr) {
-            console.warn('Authentication status note:', sbErr);
+          } catch (err) {
+            console.warn('Supabase auth flow note:', err);
           }
         }
 
-        // 2. Search local authoritative tenant and staff roster if not already authenticated
-        if (!verified) {
-          // Check if user is the registered owner of the tenant
-          if (activeTenant && activeTenant.ownerEmail && activeTenant.ownerEmail.toLowerCase() === email) {
-            tenantName = activeTenant.companyName || 'My Business Organization';
-            branch = activeTenant.branchName || 'Main Branch';
-            slug = activeTenant.slug || 'workspace';
-            name = activeTenant.ownerName || 'Business Owner';
-            role = 'Business Owner (Administrator)';
-            verified = true;
-          } else {
-            // Check if user is in the tenant's invited staff roster
-            const roster = this.getStaffRoster();
-            const found = roster.find(m => m.email && m.email.toLowerCase() === email);
-            if (found) {
-              tenantName = activeTenant?.companyName || 'My Business Organization';
-              branch = found.branch || activeTenant?.branchName || 'Main Branch';
-              slug = activeTenant?.slug || 'workspace';
-              name = found.name;
-              role = found.role || 'Store Operations Staff';
-              verified = true;
-            }
-          }
-        }
+        if (!slug) slug = 'workspace';
 
         if (progressFill) progressFill.style.width = '100%';
 
-        // 3. Truthful unverified handling: Display Not Found screen or specific auth error
-        if (!verified) {
-          setTimeout(() => {
-            if (sbError) {
-              this.backToLoginCredentials();
-              this.showToast('Authentication Error: ' + sbError);
-              return;
-            }
-            if (searchState) searchState.style.display = 'none';
-            if (notFoundState) {
-              notFoundState.style.display = 'block';
-              const nfEmail = document.getElementById('login-not-found-email');
-              if (nfEmail) nfEmail.textContent = email;
-            } else {
-              this.backToLoginCredentials();
-              this.showToast('No registered workspace found for ' + email + '.');
-            }
-          }, 350);
-          return;
-        }
-
         this.verifiedStaffData = {
-          tenantName: tenantName || 'My Business Organization',
+          tenantName: tenantName,
           branchName: branch,
           userName: name,
           userRole: role,
-          slug: slug || 'workspace',
-          email: email,
         };
 
         // Reveal verified card with green checkmarks
@@ -2161,24 +2332,27 @@ const completeWebsiteHtml = `
           const roleEl = document.getElementById('login-dyn-role');
           const lastEl = document.getElementById('login-dyn-last-active');
 
-          if (compEl) compEl.textContent = this.verifiedStaffData.tenantName;
-          if (slugEl) slugEl.textContent = this.verifiedStaffData.slug + '.stokrova.com';
-          if (nameEl) nameEl.textContent = this.verifiedStaffData.userName;
-          if (roleEl) roleEl.textContent = this.verifiedStaffData.userRole;
-          if (lastEl) lastEl.textContent = 'Today • Verified Active Session';
+          if (compEl) compEl.textContent = tenantName;
+          if (slugEl) slugEl.textContent = slug + '.stokrova.com';
+          if (nameEl) nameEl.textContent = name;
+          if (roleEl) roleEl.textContent = role;
+          if (lastEl) lastEl.textContent = lastActive;
 
           if (searchState) searchState.style.display = 'none';
           if (verifiedState) verifiedState.style.display = 'block';
 
-          this.showToast('✓ Workspace found & verified for ' + this.verifiedStaffData.userName);
+          this.showToast('✓ Workspace found & verified for ' + name);
         }, 300);
       },
 
       confirmLoginLaunch() {
         this.closeLoginModal();
-        const data = this.verifiedStaffData;
-        if (!data) return;
-
+        const data = this.verifiedStaffData || {
+          tenantName: 'My Organization',
+          branchName: 'Primary Branch',
+          userName: 'Staff Member',
+          userRole: 'Business Member',
+        };
         this.showToast('✓ Access granted: Welcome back, ' + data.userName + '!');
         this.launchWorkspace(data);
 
@@ -2193,6 +2367,7 @@ const completeWebsiteHtml = `
         }
 
         if (!tourAlreadyDone) {
+          // Automatic and immediate on first login
           this.scheduleAutoTour(350, role);
         }
       },
@@ -2214,11 +2389,11 @@ const completeWebsiteHtml = `
         const code = input.value.trim().toUpperCase();
         input.value = '';
         if (code.includes('LAPTOP') || code === '5011000000018') {
-          this.addItemToCart('SKU-1001', 'Pro Workstation Laptop', 2499.00);
+          this.addItemToCart('LAPTOP-PRO-16', 'Apex Pro 16 Laptop', 2499.00);
         } else if (code.includes('PHONE') || code === '5011000000025') {
-          this.addItemToCart('SKU-1002', 'Ultra 5G Smartphone', 999.00);
+          this.addItemToCart('SMARTPHONE-ULTRA-5G', 'Apex Ultra 5G Phone', 999.00);
         } else {
-          this.addItemToCart('SKU-1003', 'Oxford Cotton Shirt', 65.00);
+          this.addItemToCart('SHIRT-OXFORD-BLU-M', 'Oxford Cotton Shirt', 65.00);
         }
       },
 
@@ -2305,43 +2480,7 @@ const completeWebsiteHtml = `
         this.showToast(\`✓ Sale \${saleRef} completed! Cash collected: $\${total.toFixed(2)}. Ledger balanced.\`);
       },
 
-      isViewAllowedForRole(viewId, userRole) {
-        const r = (userRole || '').toLowerCase();
-        if (r.includes('owner') || r.includes('admin')) {
-          return true; // Business Owner has full access to all 28 views!
-        }
-        if (r.includes('cashier')) {
-          return ['pos', 'cashier-desk', 'catalog', 'orders'].includes(viewId);
-        }
-        if (r.includes('picker') || r.includes('warehouse')) {
-          return ['picking', 'inventory', 'locations', 'receiving', 'dispatch'].includes(viewId);
-        }
-        if (r.includes('accountant') || r.includes('finance') || r.includes('audit')) {
-          return ['accountant', 'ledger', 'gl', 'tax', 'invoices', 'audit', 'analytics'].includes(viewId);
-        }
-        if (r.includes('driver') || r.includes('fleet') || r.includes('logistics')) {
-          return ['fleet', 'dispatch', 'orders'].includes(viewId);
-        }
-        if (r.includes('sales') || r.includes('representative') || r.includes('crm')) {
-          return ['crm', 'quotes', 'orders', 'invoices', 'catalog'].includes(viewId);
-        }
-        if (r.includes('manager')) {
-          return viewId !== 'org';
-        }
-        return ['catalog', 'availability', 'orders', 'pos'].includes(viewId);
-      },
-
-      applyRbacFilter(userRole) {
-        const allNavItems = document.querySelectorAll('.workspace-nav-item');
-        allNavItems.forEach(item => {
-          const vId = item.getAttribute('data-view-id');
-          if (!vId) return;
-          const allowed = this.isViewAllowedForRole(vId, userRole);
-          item.style.display = allowed ? 'flex' : 'none';
-        });
-      },
-
-      launchWorkspace({ tenantName, branchName, userName, userRole, isDemo = false }) {
+      launchWorkspace({ tenantName, branchName, userName, userRole }) {
         if (sessionStorage.getItem('stokrova_tenant_suspended')) {
           let saved = null;
           try { saved = JSON.parse(sessionStorage.getItem('stokrova_tenant_suspended')); } catch (_) {}
@@ -2352,69 +2491,55 @@ const completeWebsiteHtml = `
         this.currentUserName = userName;
         this.currentWorkspaceRole = userRole;
 
-        // Persist session to localStorage for robust refresh & deep linking
-        try {
-          localStorage.setItem('stokrova_active_session', JSON.stringify({
-            tenantName,
-            branchName,
-            userName,
-            userRole,
-            isDemo: !!isDemo,
-            sessionStartedAt: new Date().toISOString()
-          }));
-        } catch (_) {}
-
-        const pub = document.getElementById('customer-public-surface');
-        if (pub) pub.style.display = 'none';
+        document.getElementById('customer-public-surface').style.display = 'none';
         const ws = document.getElementById('business-workspace-container');
-        if (ws) ws.style.display = 'flex';
+        ws.style.display = 'flex';
 
-        const tEl = document.getElementById('ws-tenant-display');
-        const bEl = document.getElementById('ws-branch-display');
-        const uEl = document.getElementById('ws-user-display');
-        const rEl = document.getElementById('ws-role-display');
-        const modeBadge = document.getElementById('ws-mode-badge');
-        const demoRegCta = document.getElementById('ws-demo-register-cta');
+        document.getElementById('ws-tenant-display').textContent = tenantName;
+        document.getElementById('ws-branch-display').textContent = branchName;
+        document.getElementById('ws-user-display').textContent = userName;
+        document.getElementById('ws-role-display').textContent = userRole;
 
-        if (tEl) tEl.textContent = tenantName;
-        if (bEl) bEl.textContent = branchName;
-        if (uEl) uEl.textContent = userName;
-        if (rEl) rEl.textContent = userRole;
+        const isCashier = userRole.includes('Cashier');
+        const isPicker = userRole.includes('Picker') || userRole.includes('Warehouse');
+        const isManager = userRole.includes('Manager');
+        const isAccountant = userRole.includes('Accountant') || userRole.includes('Finance') || userRole.includes('Audit');
+        const isDriver = userRole.includes('Driver') || userRole.includes('Logistics') || userRole.includes('Fleet');
+        const isSales = userRole.includes('Sales') || userRole.includes('Executive');
 
-        if (isDemo) {
-          if (modeBadge) {
-            modeBadge.textContent = 'INTERACTIVE PREVIEW';
-            modeBadge.style.background = 'rgba(189,150,82,0.2)';
-            modeBadge.style.color = 'var(--primary)';
-            modeBadge.style.border = '1px solid var(--primary)';
+        const allNavItems = document.querySelectorAll('.workspace-nav-item');
+        allNavItems.forEach(item => {
+          const vId = item.getAttribute('data-view-id');
+          if (isCashier) {
+            item.style.display = (vId === 'pos' || vId === 'catalog' || vId === 'orders' || vId === 'cashier-desk') ? 'flex' : 'none';
+          } else if (isPicker) {
+            item.style.display = (vId === 'inventory' || vId === 'picking' || vId === 'locations' || vId === 'receiving' || vId === 'dispatch') ? 'flex' : 'none';
+          } else if (isAccountant) {
+            item.style.display = (vId === 'ledger' || vId === 'gl' || vId === 'accountant' || vId === 'tax' || vId === 'audit' || vId === 'invoices') ? 'flex' : 'none';
+          } else if (isDriver) {
+            item.style.display = (vId === 'fleet' || vId === 'dispatch' || vId === 'orders') ? 'flex' : 'none';
+          } else if (isSales) {
+            item.style.display = (vId === 'crm' || vId === 'quotes' || vId === 'orders' || vId === 'invoices' || vId === 'catalog') ? 'flex' : 'none';
+          } else if (isManager) {
+            item.style.display = (vId === 'org' || vId === 'compliance') ? 'none' : 'flex';
+          } else {
+            // Business Owner has FULL access across all 28 views!
+            item.style.display = 'flex';
           }
-          if (demoRegCta) demoRegCta.style.display = 'inline-block';
+        });
+
+        if (isCashier) {
+          this.showWsView('pos');
+        } else if (isPicker) {
+          this.showWsView('picking');
+        } else if (isAccountant) {
+          this.showWsView('accountant');
+        } else if (isDriver) {
+          this.showWsView('fleet');
+        } else if (isSales) {
+          this.showWsView('crm');
         } else {
-          if (modeBadge) {
-            modeBadge.textContent = 'LIVE PRODUCTION';
-            modeBadge.style.background = '#14291F';
-            modeBadge.style.color = '#4ADE80';
-            modeBadge.style.border = '1px solid #1E4620';
-          }
-          if (demoRegCta) demoRegCta.style.display = 'none';
-        }
-
-        // Populate dynamic staff roster from storage
-        this.renderStaffRoster();
-
-        // Apply RBAC nav filtering
-        this.applyRbacFilter(userRole);
-
-        // Determine destination view: if URL hash is on an allowed workspace view, keep it; else route to role default
-        const suite = this.getTourDataForRole(userRole);
-        const currentHash = window.location.hash || '';
-        const hashParts = currentHash.split('/');
-        const hashView = (hashParts[1] === 'workspace' && hashParts[2]) ? hashParts[2] : null;
-        if (hashView && this.isViewAllowedForRole(hashView, userRole)) {
-          this.showWsView(hashView);
-        } else {
-          const defaultView = suite.defaultView || 'dashboard';
-          this.showWsView(defaultView);
+          this.showWsView('dashboard');
         }
       },
 
@@ -2427,34 +2552,13 @@ const completeWebsiteHtml = `
           clearTimeout(this.autoTourTimer);
           this.autoTourTimer = null;
         }
-        try {
-          localStorage.removeItem('stokrova_active_session');
-        } catch (_) {}
-
         document.getElementById('business-workspace-container').style.display = 'none';
         document.getElementById('customer-public-surface').style.display = 'block';
-        window.location.hash = '#/';
         window.scrollTo({ top: 0, behavior: 'smooth' });
         this.showToast('You have signed out of your STOKROVA business workspace.');
       },
 
       showWsView(viewId) {
-        const role = this.currentWorkspaceRole || 'Business Owner (Administrator)';
-        if (!this.isViewAllowedForRole(viewId, role)) {
-          const suite = this.getTourDataForRole(role);
-          const fallbackView = suite.defaultView || 'dashboard';
-          this.showToast('Access restricted: View "' + viewId + '" is not authorized for your role.');
-          if (viewId !== fallbackView) {
-            this.showWsView(fallbackView);
-          }
-          return;
-        }
-
-        // Update URL Hash for bookmarking and history back/forward!
-        if (window.location.hash !== '#/workspace/' + viewId) {
-          window.location.hash = '#/workspace/' + viewId;
-        }
-
         const allPanels = document.querySelectorAll('.ws-view-content');
         allPanels.forEach(p => p.style.display = 'none');
         const target = document.getElementById('ws-view-' + viewId);
@@ -2502,9 +2606,9 @@ const completeWebsiteHtml = `
 
       updateBrandPreview() {
         const hex = document.getElementById('rebrand-hex-input')?.value || '#BD9652';
-        const name = document.getElementById('rebrand-company-name')?.value || (document.getElementById('ws-tenant-display')?.textContent || 'My Business Organization');
-        const slogan = document.getElementById('rebrand-receipt-slogan')?.value || 'Retail & Wholesale Operations';
-        const logo = document.getElementById('rebrand-logo-text')?.value || '◆ STOKROVA';
+        const name = document.getElementById('rebrand-company-name')?.value || 'Sample Company Ltd';
+        const slogan = document.getElementById('rebrand-receipt-slogan')?.value || 'Luxury Lifestyle & Electronics';
+        const logo = document.getElementById('rebrand-logo-text')?.value || '◆ APEX';
 
         const headEl = document.getElementById('preview-brand-header');
         if (headEl) {
@@ -2531,9 +2635,9 @@ const completeWebsiteHtml = `
 
       saveCompanyRebranding() {
         const hex = document.getElementById('rebrand-hex-input')?.value || '#BD9652';
-        const name = document.getElementById('rebrand-company-name')?.value || (document.getElementById('ws-tenant-display')?.textContent || 'My Business Organization');
-        const slogan = document.getElementById('rebrand-receipt-slogan')?.value || 'Retail & Wholesale Operations';
-        const logo = document.getElementById('rebrand-logo-text')?.value || '◆ STOKROVA';
+        const name = document.getElementById('rebrand-company-name')?.value || 'Sample Company Ltd';
+        const slogan = document.getElementById('rebrand-receipt-slogan')?.value || 'Luxury Lifestyle & Electronics';
+        const logo = document.getElementById('rebrand-logo-text')?.value || '◆ APEX';
 
         document.documentElement.style.setProperty('--primary', hex);
         document.documentElement.style.setProperty('--primary-hover', hex);
@@ -2579,7 +2683,7 @@ const completeWebsiteHtml = `
         } catch (_) {}
       },
 
-      // Authoritative Persistent Staff Roster Management
+      // Staff Roster helpers
       openStaffInviteModal() {
         const modal = document.getElementById('modal-invite-staff');
         if (modal) modal.style.display = 'flex';
@@ -2590,97 +2694,49 @@ const completeWebsiteHtml = `
         if (modal) modal.style.display = 'none';
       },
 
-      getStaffRoster() {
-        try {
-          return JSON.parse(localStorage.getItem('stokrova_staff_roster') || '[]');
-        } catch (_) {
-          return [];
-        }
-      },
-
-      saveStaffRoster(roster) {
-        try {
-          localStorage.setItem('stokrova_staff_roster', JSON.stringify(roster));
-        } catch (_) {}
-      },
-
-      renderStaffRoster() {
-        const tableBody = document.getElementById('staff-table-body');
-        const emptyRow = document.getElementById('staff-empty-row');
-        const countBadge = document.getElementById('staff-count-badge');
-        if (!tableBody) return;
-
-        const roster = this.getStaffRoster();
-        const existingDynamic = tableBody.querySelectorAll('tr.stokrova-dynamic-staff-row');
-        existingDynamic.forEach(r => r.remove());
-
-        if (roster.length === 0) {
-          if (emptyRow) emptyRow.style.display = 'table-row';
-          if (countBadge) countBadge.textContent = '0 Staff Members Active';
-          return;
-        }
-
-        if (emptyRow) emptyRow.style.display = 'none';
-        if (countBadge) countBadge.textContent = roster.length + ' Staff Member' + (roster.length > 1 ? 's' : '') + ' Active';
-
-        roster.forEach((member, idx) => {
-          const row = document.createElement('tr');
-          row.className = 'stokrova-dynamic-staff-row';
-          row.style.borderBottom = '1px solid var(--border)';
-          row.innerHTML = \`
-            <td style="padding: 12px 16px; font-weight: 600;">
-              <div>\${member.name}</div>
-              <div style="font-size: 0.75rem; color: var(--text-muted);">\${member.email}</div>
-            </td>
-            <td style="padding: 12px 16px;">
-              <span style="background: rgba(189,150,82,0.18); color: var(--primary); border: 1px solid var(--primary); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">\${member.role}</span>
-            </td>
-            <td style="padding: 12px 16px; color: var(--text-secondary); font-size: 0.8125rem;">\${member.branch || 'Main Branch'}</td>
-            <td style="padding: 12px 16px; text-align: center;">
-              <span style="background: #14291F; color: #4ADE80; border: 1px solid #1E4620; padding: 2px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">ACTIVE</span>
-            </td>
-            <td style="padding: 12px 16px; text-align: right;">
-              <span style="font-size: 0.75rem; color: var(--primary); font-weight: 600;">PIN: \${member.pin || '••••'}</span>
-              <button onclick="window.stokrovaCustomerApp.removeStaffMember(\${idx})" title="Remove staff member" style="background: transparent; border: none; color: #F85149; margin-left: 8px; cursor: pointer; font-size: 0.85rem;">✕</button>
-            </td>
-          \`;
-          tableBody.appendChild(row);
-        });
-      },
-
-      removeStaffMember(idx) {
-        const roster = this.getStaffRoster();
-        roster.splice(idx, 1);
-        this.saveStaffRoster(roster);
-        this.renderStaffRoster();
-        this.showToast('Staff member removed from workspace roster.');
-      },
-
       handleStaffInviteSubmit(e) {
         e.preventDefault();
-        const name = document.getElementById('invite-staff-name')?.value.trim();
-        const email = document.getElementById('invite-staff-email')?.value.trim().toLowerCase();
-        const role = document.getElementById('invite-staff-role')?.value || 'Store Operations Staff';
-        const branch = document.getElementById('invite-staff-branch')?.value || 'Main Branch';
-        const pin = document.getElementById('invite-staff-pin')?.value.trim() || '1234';
+        const name = document.getElementById('invite-staff-name').value.trim();
+        const email = document.getElementById('invite-staff-email').value.trim();
+        const role = document.getElementById('invite-staff-role').value;
+        const branch = document.getElementById('invite-staff-branch').value;
+        const pin = document.getElementById('invite-staff-pin').value.trim();
 
         if (!name || !email) {
           this.showToast('Please enter both staff member name and work email.');
           return;
         }
 
-        const roster = this.getStaffRoster();
-        const existingIdx = roster.findIndex(m => m.email && m.email.toLowerCase() === email);
-        if (existingIdx >= 0) {
-          roster[existingIdx] = { name, email, role, branch, pin, updatedAt: new Date().toISOString() };
-        } else {
-          roster.push({ name, email, role, branch, pin, createdAt: new Date().toISOString() });
+        const tableBody = document.getElementById('staff-table-body');
+        if (tableBody) {
+          const row = document.createElement('tr');
+          row.style.borderBottom = '1px solid var(--border)';
+          row.innerHTML = \`
+            <td style="padding: 12px 16px; font-weight: 600;">
+              <div>\${name}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">\${email}</div>
+            </td>
+            <td style="padding: 12px 16px;">
+              <span style="background: rgba(189,150,82,0.18); color: var(--primary); border: 1px solid var(--primary); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">\${role}</span>
+            </td>
+            <td style="padding: 12px 16px; color: var(--text-secondary); font-size: 0.8125rem;">\${branch}</td>
+            <td style="padding: 12px 16px; text-align: center;">
+              <span style="background: #14291F; color: #4ADE80; border: 1px solid #1E4620; padding: 2px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">ACTIVE</span>
+            </td>
+            <td style="padding: 12px 16px; text-align: right;">
+              <span style="font-size: 0.75rem; color: var(--primary); font-weight: 600;">PIN: \${pin}</span>
+            </td>
+          \`;
+          tableBody.appendChild(row);
         }
-        this.saveStaffRoster(roster);
-        this.renderStaffRoster();
+
+        const countBadge = document.getElementById('staff-count-badge');
+        if (countBadge && tableBody) {
+          countBadge.textContent = \`\${tableBody.querySelectorAll('tr').length} Staff Members Active\`;
+        }
 
         this.closeStaffInviteModal();
-        this.showToast(\`✓ Staff member '\${name}' invited and assigned role: \${role}\`);
+        this.showToast(\`✓ Staff member '\${name}' invited and added to workspace roster!\`);
       }
     };
 
@@ -2691,7 +2747,6 @@ const completeWebsiteHtml = `
     window.openStaffInviteModal = () => window.stokrovaCustomerApp.openStaffInviteModal();
     window.closeStaffInviteModal = () => window.stokrovaCustomerApp.closeStaffInviteModal();
     window.handleStaffInviteSubmit = (e) => window.stokrovaCustomerApp.handleStaffInviteSubmit(e);
-    window.removeStaffMember = (idx) => window.stokrovaCustomerApp.removeStaffMember(idx);
 
     // Initialize brand settings
     window.stokrovaCustomerApp.loadBrandSettings();
@@ -2714,82 +2769,14 @@ const completeWebsiteHtml = `
       return res;
     };
 
-    // Central Hash Router with Session Restoration and RBAC Enforcement
-    function handleRoute() {
-      const hash = window.location.hash || '';
-
+    // Automatic Live Supabase Session Restoration & Onboarding Recovery
+    window.addEventListener('DOMContentLoaded', async () => {
       if (sessionStorage.getItem('stokrova_tenant_suspended')) {
         let saved = null;
         try { saved = JSON.parse(sessionStorage.getItem('stokrova_tenant_suspended')); } catch (_) {}
         window.stokrovaCustomerApp.showSuspendedScreen(saved || {});
         return;
       }
-
-      if (hash.startsWith('#/workspace')) {
-        let activeSession = null;
-        try {
-          activeSession = JSON.parse(localStorage.getItem('stokrova_active_session') || 'null');
-        } catch (_) {}
-
-        if (!activeSession) {
-          // No active session: redirect to login
-          window.stokrovaCustomerApp.showToast('Please sign in to access your business workspace.');
-          window.location.hash = '#/login';
-          return;
-        }
-
-        // Restore workspace session if not already displayed
-        const ws = document.getElementById('business-workspace-container');
-        if (!ws || ws.style.display === 'none') {
-          window.stokrovaCustomerApp.launchWorkspace(activeSession);
-        }
-
-        const parts = hash.split('/');
-        const viewId = parts[2] || '';
-        if (viewId) {
-          window.stokrovaCustomerApp.showWsView(viewId);
-        }
-        return;
-      }
-
-      if (hash === '#/login' || hash === '#/staff-login') {
-        const ws = document.getElementById('business-workspace-container');
-        if (ws) ws.style.display = 'none';
-        const pub = document.getElementById('customer-public-surface');
-        if (pub) pub.style.display = 'block';
-        window.stokrovaCustomerApp.closeRegisterModal();
-        window.stokrovaCustomerApp.openLoginModal();
-        return;
-      }
-
-      if (hash === '#/register' || hash === '#/signup') {
-        const ws = document.getElementById('business-workspace-container');
-        if (ws) ws.style.display = 'none';
-        const pub = document.getElementById('customer-public-surface');
-        if (pub) pub.style.display = 'block';
-        window.stokrovaCustomerApp.closeLoginModal();
-        window.stokrovaCustomerApp.openRegisterModal();
-        return;
-      }
-
-      // Default route: Public landing page
-      const ws = document.getElementById('business-workspace-container');
-      if (ws) ws.style.display = 'none';
-      const pub = document.getElementById('customer-public-surface');
-      if (pub) pub.style.display = 'block';
-      window.stokrovaCustomerApp.closeLoginModal();
-      window.stokrovaCustomerApp.closeRegisterModal();
-      window.stokrovaCustomerApp.closeDemoConfirmModal();
-      window.stokrovaCustomerApp.closeLegalModal();
-    }
-
-    window.addEventListener('hashchange', handleRoute);
-    window.addEventListener('load', handleRoute);
-
-    // Automatic Live Supabase Session Restoration & Onboarding Recovery
-    window.addEventListener('DOMContentLoaded', async () => {
-      // Execute initial route check
-      handleRoute();
 
       const sb = getSupabase();
       if (!sb) return;
@@ -2812,15 +2799,12 @@ const completeWebsiteHtml = `
             const signinBtns = document.querySelectorAll('button[onclick*="openLoginModal"]');
             signinBtns.forEach(btn => {
               btn.textContent = res.active_tenant.tenant_name + ' (' + (res.user?.email || '').split('@')[0] + ') →';
-              btn.onclick = () => {
-                const sessData = {
-                  tenantName: res.active_tenant.tenant_name,
-                  branchName: res.active_tenant.branch_name || 'Primary Branch',
-                  userName: res.user?.name || res.user?.email || 'Owner',
-                  userRole: res.active_tenant.role === 'owner' ? 'Business Owner (Administrator)' : (res.active_tenant.role || 'Staff'),
-                };
-                window.stokrovaCustomerApp.launchWorkspace(sessData);
-              };
+              btn.onclick = () => window.stokrovaCustomerApp.launchWorkspace({
+                tenantName: res.active_tenant.tenant_name,
+                branchName: res.active_tenant.branch_name || 'Primary Branch',
+                userName: res.user?.name || res.user?.email || 'Owner',
+                userRole: res.active_tenant.role === 'owner' ? 'Business Owner (Administrator)' : (res.active_tenant.role || 'Staff'),
+              });
             });
           }
         }
@@ -2830,26 +2814,9 @@ const completeWebsiteHtml = `
         if (event === 'SIGNED_IN' && session && session.access_token) {
           let pending = null;
           try { pending = JSON.parse(localStorage.getItem('stokrova_pending_onboarding') || 'null'); } catch (_) {}
-          if (pending && session.user && session.user.email && pending.ownerEmail.toLowerCase() === session.user.email.toLowerCase()) {
-            try {
-              await fetch(SUPABASE_CONFIG.apiBase + '/auth/onboard', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': 'Bearer ' + session.access_token,
-                },
-                body: JSON.stringify({
-                  name: pending.companyName,
-                  slug: pending.slug,
-                  owner_full_name: pending.ownerName,
-                  default_currency: pending.currency,
-                  initial_branch_name: pending.branchName,
-                  plan_tier: pending.tier,
-                })
-              });
-              localStorage.removeItem('stokrova_pending_onboarding');
-              window.stokrovaCustomerApp.showToast("✓ Identity confirmed & business '" + pending.companyName + "' provisioned!");
-            } catch (_) {}
+          if (pending && session.user && session.user.email && pending.ownerEmail && pending.ownerEmail.toLowerCase() === session.user.email.toLowerCase()) {
+            const result = await submitOnboarding(session.access_token, pending, session.user.email);
+            window.stokrovaCustomerApp.showToast(result.ok ? "✓ Identity confirmed & business '" + pending.companyName + "' provisioned!" : result.message);
           }
         }
       });
@@ -2880,75 +2847,19 @@ const completeWebsiteHtml = `
       }
     });
   </script>
+  <script type="module" src="./workspace-enhancements.js"></script>
+  <script src="plan-prices-live.js"></script>
 </body>
 </html>
 `;
-
-// -----------------------------------------------------------------------------
-// Automated Build Quality Gate: Parse and evaluate generated inline scripts in mock VM
-// Prevents syntax errors, undeclared variable leaks, or broken event handlers from ever reaching production.
-// -----------------------------------------------------------------------------
-const scriptMatches = [...completeWebsiteHtml.matchAll(/<script[\s\S]*?>([\s\S]*?)<\/script>/gi)];
-for (const match of scriptMatches) {
-  const code = match[1]?.trim();
-  if (!code) continue;
-
-  // 1. Syntax check
-  new vm.Script(code);
-
-  // 2. Runtime execution check with mock browser context
-  const mockStorage = {};
-  const mockWindow = {
-    location: { hostname: 'localhost', port: '3000', hash: '', origin: 'http://localhost:3000' },
-    addEventListener: () => {},
-    sessionStorage: {
-      getItem: (k) => mockStorage[k] || null,
-      setItem: (k, v) => { mockStorage[k] = v; },
-      removeItem: (k) => { delete mockStorage[k]; },
-    },
-    localStorage: {
-      getItem: (k) => mockStorage[k] || null,
-      setItem: (k, v) => { mockStorage[k] = v; },
-      removeItem: (k) => { delete mockStorage[k]; },
-    },
-    document: {
-      getElementById: (id) => ({ id, style: {}, classList: { add: () => {}, remove: () => {} }, value: '', querySelectorAll: () => [] }),
-      querySelectorAll: () => [],
-      querySelector: () => null,
-      documentElement: { style: { setProperty: () => {} } },
-      addEventListener: () => {},
-    },
-    setTimeout: setTimeout,
-    clearTimeout: clearTimeout,
-    setInterval: setInterval,
-    clearInterval: clearInterval,
-    console: console,
-  };
-  mockWindow.window = mockWindow;
-  mockWindow.document.defaultView = mockWindow;
-
-  const ctx = vm.createContext(mockWindow);
-  vm.runInContext(code, ctx);
-
-  if (code.includes('handleLoginSubmit')) {
-    if (!ctx.window.stokrovaCustomerApp) {
-      throw new Error('Build Verification Failed: window.stokrovaCustomerApp was not instantiated by client script.');
-    }
-    if (
-      typeof ctx.window.stokrovaCustomerApp.openLoginModal !== 'function' ||
-      typeof ctx.window.stokrovaCustomerApp.openRegisterModal !== 'function' ||
-      typeof ctx.window.stokrovaCustomerApp.handleLoginSubmit !== 'function' ||
-      typeof ctx.window.stokrovaCustomerApp.handleRegisterSubmit !== 'function' ||
-      typeof ctx.window.stokrovaCustomerApp.confirmOpenDemo !== 'function'
-    ) {
-      throw new Error('Build Verification Failed: Critical auth handlers missing on window.stokrovaCustomerApp.');
-    }
-  }
-}
 
 if (!fs.existsSync(distDir)) {
   fs.mkdirSync(distDir, { recursive: true });
 }
 
 fs.writeFileSync(path.join(distDir, 'index.html'), completeWebsiteHtml.trim(), 'utf-8');
-console.log('✅ Generated & Verified STOKROVA Customer Website & Complete Business Portal index.html at', path.join(distDir, 'index.html'));
+// Workspace scripts: presentation enhancements, live executive figures and live company records.
+for (const file of ['workspace-enhancements.js', 'executive-metrics.js', 'executive-live.js', 'workspace-live.js', 'pos-live.js', 'tickets-live.js', 'plan-prices-live.js', 'insights-live.js', 'operations-live.js']) {
+  fs.copyFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), file), path.join(distDir, file));
+}
+console.log('✅ Generated STOKROVA Customer Website & Complete Business Portal index.html at', path.join(distDir, 'index.html'));

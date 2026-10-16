@@ -14,6 +14,10 @@ import { CustomersModule } from '../customers/customers.module.js';
 import { AuditModule } from '../audit/audit.module.js';
 import { OutboxModule } from '../infrastructure/outbox/outbox.module.js';
 import { TenancyModule } from '../tenancy/tenancy.module.js';
+import { CatalogModule } from '../catalog/catalog.module.js';
+import { PosCatalogService } from './pos-catalog.service.js';
+import { SalesTicketsService } from './sales-tickets.service.js';
+import { SalesTicketsController, StaffDayController } from './sales-tickets.controller.js';
 import { RbacModule } from '../rbac/rbac.module.js';
 
 @Module({
@@ -30,9 +34,10 @@ import { RbacModule } from '../rbac/rbac.module.js';
     OutboxModule,
     TenancyModule,
     RbacModule,
+    CatalogModule,
   ],
-  controllers: [PosController],
-  providers: [PosService, PosCheckoutService, PosSyncService],
-  exports: [PosService, PosCheckoutService, PosSyncService],
+  controllers: [PosController, SalesTicketsController, StaffDayController],
+  providers: [PosService, PosCheckoutService, PosSyncService, PosCatalogService, SalesTicketsService],
+  exports: [PosService, SalesTicketsService, PosCheckoutService, PosSyncService],
 })
 export class PosModule {}

@@ -124,6 +124,27 @@ export class PaymentsController {
     );
   }
 
+  @Post('payments/:id/refund')
+  @RequirePermission(StandardPermissions.PAYMENTS_REFUND)
+  async refundPayment(
+    @CurrentTenant() tenantId: string,
+    @Param('id') paymentId: string,
+    @CurrentUser() user: UserIdentity,
+    @Body() body: { amount_minor?: string | number; reason?: string } | undefined,
+  ): Promise<PaymentResponse> {
+    const amount = body?.amount_minor;
+    if (amount !== undefined && !/^\d{1,13}$/.test(String(amount))) {
+      throw new BadRequestException('amount_minor must be a positive whole number of minor units.');
+    }
+    return this.paymentsService.refundPayment(tenantId, paymentId, user.id, { amount_minor: amount, reason: body?.reason });
+  }
+
+  @Get('payments')
+  @RequirePermission(StandardPermissions.PAYMENTS_COLLECT)
+  async listPayments(@CurrentTenant() tenantId: string): Promise<PaymentResponse[]> {
+    return this.paymentsService.listPayments(tenantId);
+  }
+
   @Get('payments/:id')
   async getPayment(
     @CurrentTenant() tenantId: string,
@@ -162,6 +183,14 @@ export class PaymentsController {
     @Param('orderId') orderId: string,
   ): Promise<ReceiptPrintResponse[]> {
     return this.paymentsService.getReceiptHistory(tenantId, orderId);
+  }
+
+  @Get('payments/takings/:sessionId')
+  async getSessionTakings(
+    @CurrentTenant() tenantId: string,
+    @Param('sessionId') sessionId: string,
+  ) {
+    return this.paymentsService.getSessionTakings(tenantId, sessionId);
   }
 
   @Get('payments/settlement/:sessionId')

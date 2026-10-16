@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -57,7 +58,7 @@ export interface StoredQuotation {
 
 @Injectable()
 export class QuotationsService {
-  private quotationsStore = new Map<string, StoredQuotation>();
+  private quotationsStore = new DurableMap<StoredQuotation>('quotations');
   private quotationSequence = 1001;
 
   constructor(

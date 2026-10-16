@@ -61,6 +61,8 @@ export interface TenantSubscription {
   canceled_at: string | null;
   trial_ends_at: string | null;
   feature_flag_overrides?: Partial<TierFeatureFlags>;
+  /** Founder grants on top of the plan: extra features (page ids) and raised limits (null = unlimited). */
+  plan_grants?: { features?: string[]; limits?: Partial<Record<'max_branches' | 'max_active_registers' | 'max_users' | 'max_warehouses', number | null>> } | null;
   limit_overrides?: {
     max_branches?: number;
     max_active_registers?: number;

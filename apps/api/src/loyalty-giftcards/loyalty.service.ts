@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -28,10 +29,10 @@ import {
 
 @Injectable()
 export class LoyaltyService {
-  private readonly programs = new Map<string, LoyaltyProgram>();
+  private readonly programs = new DurableMap<LoyaltyProgram>('loyalty_programs');
   private readonly tiersByProgram = new Map<string, LoyaltyTier[]>();
-  private readonly accounts = new Map<string, LoyaltyAccount>(); // tenant:customer -> account
-  private readonly transactions = new Map<string, LoyaltyTransaction>();
+  private readonly accounts = new DurableMap<LoyaltyAccount>('loyalty_accounts'); // tenant:customer -> account
+  private readonly transactions = new DurableMap<LoyaltyTransaction>('loyalty_transactions');
   private readonly processedOperations = new Set<string>(); // tenant:operationId
 
   // ==========================================================================

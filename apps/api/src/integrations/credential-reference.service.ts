@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type {
@@ -9,7 +10,7 @@ import { computeSha256Hash, maskSecret } from '@stokrova/domain';
 
 @Injectable()
 export class CredentialReferenceService {
-  private readonly credentials = new Map<string, IntegrationCredential>();
+  private readonly credentials = new DurableMap<IntegrationCredential>('integration_credentials');
 
   async storeCredential(
     tenantId: string,

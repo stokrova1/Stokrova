@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -17,7 +18,7 @@ import { RmaService } from './rma.service.js';
 
 @Injectable()
 export class DispositionService {
-  private readonly dispositions = new Map<string, DispositionRecord>();
+  private readonly dispositions = new DurableMap<DispositionRecord>('disposition_actions');
 
   constructor(
     private readonly rmaService: RmaService,

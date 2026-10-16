@@ -24,6 +24,8 @@ import { QuotationsService } from './quotations/quotations.service.js';
 import { PaymentsService } from './payments/payments.service.js';
 import { PosCheckoutService } from './pos/pos-checkout.service.js';
 import { PosSyncService } from './pos/pos-sync.service.js';
+import { PosCatalogService } from './pos/pos-catalog.service.js';
+import { SalesTicketsService } from './pos/sales-tickets.service.js';
 import { AuditService } from './audit/audit.service.js';
 import { OutboxService } from './infrastructure/outbox/outbox.service.js';
 
@@ -891,5 +893,52 @@ describe('Phase 3 — Master Commerce, Sales & High-Speed POS Integration Suite'
         ],
       }),
     ).rejects.toThrow(ConflictException);
+  });
+
+  it('Order ticket: taker lists, items are held, picker ticks, cashier scans and records cash + transfer, stock drops, each worker sees their day', async () => {
+    const catalog = new PosCatalogService(variantsService, pricingService, stockLedgerService);
+    const tickets = new SalesTicketsService(stockReservationsService, catalog, posCheckoutService);
+
+    const t = await tickets.create(tenant1Id, 'usr_taker', { warehouse_id: warehouseId, items: [{ variant_id: variantId, quantity: 3 }] });
+    expect(t.code).toMatch(/^TK-/);
+    let bal = await stockLedgerService.getBalance(tenant1Id, warehouseId, variantId);
+    expect(bal.on_hand_quantity).toBe(50); // held, not deducted
+    expect(bal.available_to_promise).toBe(47);
+
+    await expect(tickets.pay(tenant1Id, 'usr_cashier1', t.code, { pos_session_id: sessionId, pos_register_id: registerId, idempotency_key: 'tk1', tenders: [{ tender_type: 'CASH', tendered_minor: '60000', idempotency_key: 'tk1c' }] })).rejects.toThrow(ConflictException);
+
+    const picked = await tickets.pick(tenant1Id, 'usr_picker', t.code.toLowerCase(), variantId, 2); // one missing
+    expect(picked.status).toBe('READY');
+
+    const { ticket, checkout } = await tickets.pay(tenant1Id, 'usr_cashier1', t.code, {
+      pos_session_id: sessionId, pos_register_id: registerId, idempotency_key: 'tk1',
+      tenders: [{ tender_type: 'CASH', tendered_minor: '20000', idempotency_key: 'tk1c' }, { tender_type: 'BANK_TRANSFER', tendered_minor: '40000', idempotency_key: 'tk1t' }],
+    });
+    expect(ticket.status).toBe('PAID');
+    expect(checkout.total_payable_minor).toBe('60000'); // charged for the 2 picked only
+    bal = await stockLedgerService.getBalance(tenant1Id, warehouseId, variantId);
+    expect(bal.on_hand_quantity).toBe(48);
+    expect(bal.available_to_promise).toBe(48);
+
+    const taker = tickets.myDay(tenant1Id, 'usr_taker');
+    expect(taker.tickets_written).toBe(1);
+    const picker = tickets.myDay(tenant1Id, 'usr_picker');
+    expect(picker.items_picked).toBe(2);
+    expect(picker.items_missing).toBe(1);
+    const cashier = tickets.myDay(tenant1Id, 'usr_cashier1');
+    expect(cashier.sales).toBe(1);
+    expect(cashier.cash_minor).toBe(20000);
+    expect(cashier.transfer_minor).toBe(40000);
+    expect(tickets.myDay(tenant2Id, 'usr_cashier1').sales).toBe(0);
+  });
+
+  it('Order ticket: cancelling releases the held items', async () => {
+    const catalog = new PosCatalogService(variantsService, pricingService, stockLedgerService);
+    const tickets = new SalesTicketsService(stockReservationsService, catalog, posCheckoutService);
+    const t = await tickets.create(tenant1Id, 'usr_taker', { warehouse_id: warehouseId, items: [{ variant_id: variantId, quantity: 5 }] });
+    await tickets.cancel(tenant1Id, 'usr_taker', t.code);
+    const bal = await stockLedgerService.getBalance(tenant1Id, warehouseId, variantId);
+    expect(bal.available_to_promise).toBe(50);
+    await expect(tickets.getByCode(tenant2Id, t.code)).rejects.toThrow(NotFoundException);
   });
 });

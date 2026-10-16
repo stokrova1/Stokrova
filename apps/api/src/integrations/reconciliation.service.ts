@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type {
@@ -16,7 +17,7 @@ export interface RecordComparisonInput {
 
 @Injectable()
 export class ReconciliationService {
-  private readonly reconciliations = new Map<string, IntegrationReconciliation>();
+  private readonly reconciliations = new DurableMap<IntegrationReconciliation>('integration_reconciliations');
 
   async compareAndRecord(
     tenantId: string,

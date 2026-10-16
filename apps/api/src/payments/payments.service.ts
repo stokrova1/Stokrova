@@ -1,3 +1,5 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
+import { recordedMethod, splitTakings } from './payment-recording.js';
 import {
   Injectable,
   NotFoundException,
@@ -112,19 +114,22 @@ export interface StoredCheckoutTender {
   captured_at: string;
 }
 
+import { SalesLedgerWriter } from '../infrastructure/database/sales-ledger.writer.js';
+
 @Injectable()
 export class PaymentsService {
   private invoicesStore = new Map<string, StoredInvoice>();
   private paymentsStore = new Map<string, StoredPayment>();
-  private receiptsStore = new Map<string, StoredReceiptPrint>();
+  private receiptsStore = new DurableMap<StoredReceiptPrint>('receipt_prints');
   private operationIdsStore = new Map<string, string>(); // `${tenantId}:${operationId}` -> paymentId
-  private checkoutsStore = new Map<string, StoredCheckout>();
-  private checkoutTendersStore = new Map<string, StoredCheckoutTender>();
+  private checkoutsStore = new DurableMap<StoredCheckout>('multi_tender_checkouts');
+  private checkoutTendersStore = new DurableMap<StoredCheckoutTender>('checkout_tenders');
   private tenderIdempotencyStore = new Map<string, ProcessMultiTenderCheckoutResponse>();
 
   constructor(
     private readonly registersService: RegistersService,
     @Optional() private readonly posService?: PosService,
+    @Optional() private readonly ledger?: SalesLedgerWriter,
   ) {}
 
   async createInvoice(
@@ -186,6 +191,7 @@ export class PaymentsService {
       }
     }
 
+    req = { ...req, payment_method: recordedMethod(req.payment_method) as typeof req.payment_method };
     const amountMinor = BigInt(req.amount_minor);
     try {
       assertValidPaymentAmount(amountMinor);
@@ -225,9 +231,10 @@ export class PaymentsService {
         );
       }
     } else if (req.payment_method === 'BANK_TRANSFER') {
-      // Bank transfers start as PENDING until confirmed
-      initialStatus = 'PENDING';
-    } else if (req.payment_method === 'CARD' || req.payment_method === 'STORE_CREDIT') {
+      // Staff record a transfer once the customer has sent it to the business account;
+      // Stokrova never holds the money, so it counts straight away.
+      initialStatus = 'CONFIRMED';
+    } else if (req.payment_method === 'STORE_CREDIT') {
       initialStatus = 'CAPTURED';
     }
 
@@ -249,13 +256,14 @@ export class PaymentsService {
     };
 
     this.paymentsStore.set(paymentId, payment);
+    await this.ledger?.savePayment(payment);
 
     if (req.operation_id) {
       this.operationIdsStore.set(`${tenantId}:${req.operation_id}`, paymentId);
     }
 
     // 4. Update invoice balance immediately if captured
-    if (invoice && initialStatus === 'CAPTURED') {
+    if (invoice && (initialStatus === 'CAPTURED' || initialStatus === 'CONFIRMED')) {
       const newPaid = invoice.amount_paid_minor + amountMinor;
       const balance = calculateInvoiceBalance(invoice.total_minor, newPaid);
       invoice.amount_paid_minor = newPaid;
@@ -265,6 +273,14 @@ export class PaymentsService {
     }
 
     return this.toPaymentResponse(payment);
+  }
+
+  /** Newest first: every payment and refund recorded for the company. */
+  async listPayments(tenantId: string): Promise<PaymentResponse[]> {
+    return [...this.paymentsStore.values()]
+      .filter((p) => p.tenant_id === tenantId)
+      .sort((a, b) => String(b.occurred_at).localeCompare(String(a.occurred_at)))
+      .map((p) => this.toPaymentResponse(p));
   }
 
   async confirmPayment(
@@ -289,6 +305,7 @@ export class PaymentsService {
       payment.provider_reference = req.verification_reference;
     }
     this.paymentsStore.set(paymentId, payment);
+    await this.ledger?.savePayment(payment);
 
     // Apply to invoice
     if (payment.invoice_id) {
@@ -302,6 +319,50 @@ export class PaymentsService {
     }
 
     return this.toPaymentResponse(payment);
+  }
+
+  /**
+   * Refunds part or all of a captured/confirmed payment. The refund is its own payment record with
+   * status REFUNDED, so it subtracts from sales totals while the original stays auditable.
+   */
+  async refundPayment(
+    tenantId: string,
+    paymentId: string,
+    userId: string,
+    req: { amount_minor?: string | number; reason?: string },
+  ): Promise<PaymentResponse> {
+    const original = this.paymentsStore.get(paymentId);
+    if (!original || original.tenant_id !== tenantId) {
+      throw new NotFoundException(`Payment with ID '${paymentId}' not found.`);
+    }
+    if (original.status !== 'CAPTURED' && original.status !== 'CONFIRMED') {
+      throw new ConflictException(`Only captured or confirmed payments can be refunded (current: '${original.status}').`);
+    }
+    const alreadyRefunded = [...this.paymentsStore.values()]
+      .filter((p) => p.tenant_id === tenantId && p.status === 'REFUNDED' && p.provider_reference === `refund-of:${paymentId}`)
+      .reduce((sum, p) => sum + p.amount_minor, 0n);
+    const amount = req.amount_minor === undefined ? original.amount_minor - alreadyRefunded : BigInt(req.amount_minor);
+    if (amount <= 0n || amount + alreadyRefunded > original.amount_minor) {
+      throw new BadRequestException('Refund amount must be positive and cannot exceed the remaining paid amount.');
+    }
+    const refund: StoredPayment = {
+      id: `pay_${randomUUID().replace(/-/g, '')}`,
+      tenant_id: tenantId,
+      order_id: original.order_id,
+      invoice_id: original.invoice_id,
+      register_session_id: original.register_session_id,
+      amount_minor: amount,
+      currency_code: original.currency_code,
+      payment_method: original.payment_method,
+      status: 'REFUNDED' as PaymentStatus,
+      provider_reference: `refund-of:${paymentId}`,
+      captured_by_user_id: userId,
+      operation_id: null,
+      occurred_at: new Date().toISOString(),
+    };
+    this.paymentsStore.set(refund.id, refund);
+    await this.ledger?.savePayment(refund);
+    return this.toPaymentResponse(refund);
   }
 
   async getPaymentById(tenantId: string, id: string): Promise<PaymentResponse> {
@@ -353,6 +414,34 @@ export class PaymentsService {
     );
   }
 
+  /**
+   * What a till shift took, split by how the customer paid: cash expected in the drawer and
+   * transfers expected in the bank. Counts till sales and payments recorded against the shift.
+   */
+  async getSessionTakings(tenantId: string, sessionId: string) {
+    const checkoutIds = new Set(
+      [...this.checkoutsStore.values()]
+        .filter((c) => c.tenant_id === tenantId && c.pos_session_id === sessionId)
+        .map((c) => c.id),
+    );
+    const rows = [
+      ...[...this.checkoutTendersStore.values()]
+        .filter((t) => t.tenant_id === tenantId && checkoutIds.has(t.checkout_id))
+        .map((t) => ({ method: String(t.tender_type), amount_minor: BigInt(t.allocated_minor) })),
+      ...[...this.paymentsStore.values()]
+        .filter((p) => p.tenant_id === tenantId && p.register_session_id === sessionId && (p.status === 'CAPTURED' || p.status === 'CONFIRMED'))
+        .map((p) => ({ method: String(p.payment_method), amount_minor: p.amount_minor })),
+    ];
+    const t = splitTakings(rows);
+    return {
+      session_id: sessionId,
+      cash_received_minor: t.cash_minor.toString(),
+      transfer_received_minor: t.transfer_minor.toString(),
+      other_received_minor: t.other_minor.toString(),
+      total_received_minor: (t.cash_minor + t.transfer_minor + t.other_minor).toString(),
+    };
+  }
+
   async getRegisterSettlement(
     tenantId: string,
     sessionId: string,
@@ -368,13 +457,12 @@ export class PaymentsService {
         (p.status === 'CAPTURED' || p.status === 'CONFIRMED'),
     );
 
-    let totalCard = 0n;
+    const totalCard = 0n; // card is recorded as transfer
     let totalTransfer = 0n;
 
+    // Card is paid by transfer to the business account, so it is counted with transfers.
     for (const p of sessionPayments) {
-      if (p.payment_method === 'CARD') {
-        totalCard += p.amount_minor;
-      } else if (p.payment_method === 'BANK_TRANSFER') {
+      if (recordedMethod(p.payment_method) === 'BANK_TRANSFER') {
         totalTransfer += p.amount_minor;
       }
     }
@@ -412,6 +500,7 @@ export class PaymentsService {
     userId: string,
     req: ProcessMultiTenderCheckoutRequest,
   ): Promise<ProcessMultiTenderCheckoutResponse> {
+    req = { ...req, tenders: req.tenders.map((t) => ({ ...t, tender_type: recordedMethod(t.tender_type) as typeof t.tender_type })) };
     const firstTender = req.tenders[0];
     if (!firstTender) {
       throw new BadRequestException('At least one payment tender must be provided.');

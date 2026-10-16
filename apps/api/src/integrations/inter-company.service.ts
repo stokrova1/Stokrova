@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -21,7 +22,7 @@ import { GeneralLedgerService } from '../finance/general-ledger.service.js';
 
 @Injectable()
 export class InterCompanyService {
-  private readonly transfers = new Map<string, InterCompanyTransfer>();
+  private readonly transfers = new DurableMap<InterCompanyTransfer>('inter_company_transfers');
 
   constructor(
     private readonly warehousesService: WarehousesService,

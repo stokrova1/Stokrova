@@ -22,7 +22,7 @@ import type {
 } from '@stokrova/contracts';
 import { StandardPermissions } from '@stokrova/domain';
 
-@Controller('v1/pos/sync')
+@Controller('pos/sync')
 @UseGuards(AuthGuard, TenantGuard, RbacGuard)
 export class PosSyncController {
   constructor(private readonly posSyncService: PosSyncService) {}

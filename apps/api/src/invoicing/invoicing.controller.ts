@@ -26,7 +26,7 @@ import type {
 } from '@stokrova/contracts';
 import { StandardPermissions } from '@stokrova/domain';
 
-@Controller('v1/invoices')
+@Controller('invoices')
 @UseGuards(AuthGuard, TenantGuard, RbacGuard)
 export class InvoicingController {
   constructor(private readonly invoicingService: InvoicingService) {}

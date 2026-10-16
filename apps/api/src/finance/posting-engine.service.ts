@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   BadRequestException,
@@ -29,7 +30,7 @@ import { OutboxService } from '../infrastructure/outbox/outbox.service.js';
 
 @Injectable()
 export class PostingEngineService {
-  private readonly sourceEvents = new Map<string, AccountingSourceEventRecord>();
+  private readonly sourceEvents = new DurableMap<AccountingSourceEventRecord>('accounting_source_event_records');
 
   constructor(
     private readonly accountsService: AccountsService,

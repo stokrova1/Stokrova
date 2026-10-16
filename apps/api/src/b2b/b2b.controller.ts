@@ -9,6 +9,9 @@ import {
 } from '@nestjs/common';
 import { B2bCommerceService } from './b2b-commerce.service.js';
 import { B2bPunchoutService } from './b2b-punchout.service.js';
+import { RbacGuard } from '../rbac/rbac.guard.js';
+import { RequirePermission } from '../rbac/decorators/require-permission.decorator.js';
+import { StandardPermissions } from '@stokrova/domain';
 import { AuthGuard } from '../auth/auth.guard.js';
 import { TenantGuard } from '../auth/tenant.guard.js';
 import { CurrentTenant } from '../auth/decorators/current-tenant.decorator.js';
@@ -31,6 +34,7 @@ import type {
 } from '@stokrova/contracts';
 
 @Controller('b2b')
+@RequirePermission(StandardPermissions.CUSTOMERS_MANAGE)
 export class B2bController {
   constructor(
     private readonly b2bService: B2bCommerceService,
@@ -42,7 +46,7 @@ export class B2bController {
   // ==========================================================================
 
   @Post('organizations')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async createOrganization(
     @CurrentTenant() tenant: { id: string },
     @Body() body: CreateB2bOrganizationRequest,
@@ -51,7 +55,7 @@ export class B2bController {
   }
 
   @Get('organizations')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async listOrganizations(
     @CurrentTenant() tenant: { id: string },
   ): Promise<B2bOrganization[]> {
@@ -59,7 +63,7 @@ export class B2bController {
   }
 
   @Get('organizations/:id')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async getOrganization(
     @CurrentTenant() tenant: { id: string },
     @Param('id') id: string,
@@ -72,7 +76,7 @@ export class B2bController {
   // ==========================================================================
 
   @Post('organizations/:id/credit')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async updateCreditLimit(
     @CurrentTenant() tenant: { id: string },
     @Param('id') id: string,
@@ -82,7 +86,7 @@ export class B2bController {
   }
 
   @Get('organizations/:id/credit')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async getCreditAccount(
     @CurrentTenant() tenant: { id: string },
     @Param('id') id: string,
@@ -91,7 +95,7 @@ export class B2bController {
   }
 
   @Post('credit/check')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async checkCreditExposure(
     @CurrentTenant() tenant: { id: string },
     @Body() body: CheckCreditExposureRequest,
@@ -104,7 +108,7 @@ export class B2bController {
   // ==========================================================================
 
   @Post('organizations/:id/contract-prices')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async setContractPrice(
     @CurrentTenant() tenant: { id: string },
     @Param('id') id: string,
@@ -114,7 +118,7 @@ export class B2bController {
   }
 
   @Get('organizations/:id/contract-prices')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async listContractPrices(
     @CurrentTenant() tenant: { id: string },
     @Param('id') id: string,
@@ -123,7 +127,7 @@ export class B2bController {
   }
 
   @Post('pricing/evaluate')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async evaluatePrice(
     @CurrentTenant() tenant: { id: string },
     @Body() body: EvaluateB2bPriceRequest,
@@ -136,7 +140,7 @@ export class B2bController {
   // ==========================================================================
 
   @Post('requisitions')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async createRequisition(
     @CurrentTenant() tenant: { id: string },
     @Body() body: CreateRequisitionRequest,
@@ -145,7 +149,7 @@ export class B2bController {
   }
 
   @Get('requisitions')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async listRequisitions(
     @CurrentTenant() tenant: { id: string },
     @Query('organization_id') organizationId?: string,
@@ -154,7 +158,7 @@ export class B2bController {
   }
 
   @Get('requisitions/:id')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async getRequisition(
     @CurrentTenant() tenant: { id: string },
     @Param('id') id: string,
@@ -163,7 +167,7 @@ export class B2bController {
   }
 
   @Post('requisitions/:id/approve')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async approveRequisition(
     @CurrentTenant() tenant: { id: string },
     @Param('id') id: string,
@@ -173,7 +177,7 @@ export class B2bController {
   }
 
   @Post('requisitions/:id/reject')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async rejectRequisition(
     @CurrentTenant() tenant: { id: string },
     @Param('id') id: string,
@@ -187,7 +191,7 @@ export class B2bController {
   // ==========================================================================
 
   @Post('punchout/setup')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async handlePunchoutSetup(
     @CurrentTenant() tenant: { id: string },
     @Body() body: { organization_id: string; cxml_content: string; shared_secret?: string },
@@ -201,7 +205,7 @@ export class B2bController {
   }
 
   @Post('punchout/checkout')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async checkoutPunchoutCart(
     @CurrentTenant() tenant: { id: string },
     @Body() body: { sessionId: string; orderMessage: PunchoutOrderMessage },

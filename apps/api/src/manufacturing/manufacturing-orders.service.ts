@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -58,7 +59,7 @@ interface ConsumptionTrace {
 
 @Injectable()
 export class ManufacturingOrdersService {
-  private ordersStore = new Map<string, ManufacturingOrder>();
+  private ordersStore = new DurableMap<ManufacturingOrder>('manufacturing_orders');
   private orderReservationsStore = new Map<string, string[]>();
   private runsStore = new Map<string, MoExecutionRun[]>();
   private inspectionsStore = new Map<string, MoOutputInspection[]>();

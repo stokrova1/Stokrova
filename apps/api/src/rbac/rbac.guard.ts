@@ -43,9 +43,9 @@ export class RbacGuard implements CanActivate {
       return true;
     }
 
-    const metadata = this.reflector.get<RequiredPermissionMetadata | undefined>(
+    const metadata = this.reflector.getAllAndOverride<RequiredPermissionMetadata | undefined>(
       REQUIRE_PERMISSION_KEY,
-      context.getHandler(),
+      targets,
     );
 
     // If no permission is required on the route, allow

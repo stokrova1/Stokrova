@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -22,7 +23,7 @@ import { BatchesService } from '../tracking/batches.service.js';
 
 @Injectable()
 export class GoodsReceiptService {
-  private goodsReceiptsStore = new Map<string, GoodsReceiptNote>();
+  private goodsReceiptsStore = new DurableMap<GoodsReceiptNote>('goods_receipts');
   private idempotencyStore = new Map<string, string>();
   private grnCounter = 5000;
 

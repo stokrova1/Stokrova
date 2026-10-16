@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -27,8 +28,8 @@ import { FleetService } from './fleet.service.js';
 
 @Injectable()
 export class DeliveryRoutingService {
-  private readonly runs = new Map<string, DeliveryRun>();
-  private readonly stops = new Map<string, DeliveryStop>();
+  private readonly runs = new DurableMap<DeliveryRun>('delivery_runs');
+  private readonly stops = new DurableMap<DeliveryStop>('delivery_stops');
   private runSeq = 1001;
 
   constructor(
@@ -259,6 +260,11 @@ export class DeliveryRoutingService {
   ): Promise<DeliveryRunResponse> {
     const run = await this.getRunEntity(tenantId, id);
     return { run };
+  }
+
+  /** Every delivery run of one business, across all stores (dashboard summary). */
+  listAllRuns(tenantId: string): DeliveryRun[] {
+    return Array.from(this.runs.values()).filter((r) => r.tenant_id === tenantId);
   }
 
   async listRuns(

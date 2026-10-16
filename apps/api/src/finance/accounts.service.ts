@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -22,7 +23,7 @@ import {
 
 @Injectable()
 export class AccountsService {
-  private readonly accounts = new Map<string, Account>();
+  private readonly accounts = new DurableMap<Account>('chart_of_accounts');
 
   // ==========================================================================
   // Accounts CRUD & Queries

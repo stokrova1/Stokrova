@@ -35,7 +35,11 @@ export class AuthController {
     @CurrentUser() user: UserIdentity,
     @Body() body: unknown,
   ): Promise<ProvisionedTenantResult> {
-    const parseResult = CreateTenantRequestSchema.safeParse(body);
+    // The owner is always the signed-in account; the browser cannot choose who owns the company.
+    const input = { ...(body && typeof body === 'object' ? body : {}) } as Record<string, unknown>;
+    input['owner_email'] = user.email;
+    if (!input['owner_full_name'] && user.full_name) input['owner_full_name'] = user.full_name;
+    const parseResult = CreateTenantRequestSchema.safeParse(input);
     if (!parseResult.success) {
       throw new BadRequestException({
         error: {

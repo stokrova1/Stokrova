@@ -8,6 +8,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { EdiService } from './edi.service.js';
+import { RbacGuard } from '../rbac/rbac.guard.js';
+import { RequirePermission } from '../rbac/decorators/require-permission.decorator.js';
+import { StandardPermissions } from '@stokrova/domain';
 import { AuthGuard } from '../auth/auth.guard.js';
 import { TenantGuard } from '../auth/tenant.guard.js';
 import { CurrentTenant } from '../auth/decorators/current-tenant.decorator.js';
@@ -26,6 +29,7 @@ import type {
 } from '@stokrova/contracts';
 
 @Controller('edi')
+@RequirePermission(StandardPermissions.EDI_MANAGE)
 export class EdiController {
   constructor(private readonly ediService: EdiService) {}
 
@@ -34,7 +38,7 @@ export class EdiController {
   // ==========================================================================
 
   @Post('partners')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async createPartner(
     @CurrentTenant() tenant: { id: string },
     @Body() body: CreateEdiPartnerRequest,
@@ -43,7 +47,7 @@ export class EdiController {
   }
 
   @Get('partners')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async listPartners(
     @CurrentTenant() tenant: { id: string },
   ): Promise<EdiPartnerProfile[]> {
@@ -51,7 +55,7 @@ export class EdiController {
   }
 
   @Get('partners/:id')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async getPartner(
     @CurrentTenant() tenant: { id: string },
     @Param('id') id: string,
@@ -64,7 +68,7 @@ export class EdiController {
   // ==========================================================================
 
   @Post('inbound/parse')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async parseInbound(
     @CurrentTenant() tenant: { id: string },
     @Body() body: ParseEdiDocumentRequest,
@@ -85,7 +89,7 @@ export class EdiController {
   // ==========================================================================
 
   @Post('outbound/855')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async generate855(
     @CurrentTenant() tenant: { id: string },
     @Body() body: GenerateEdi855Request,
@@ -94,7 +98,7 @@ export class EdiController {
   }
 
   @Post('outbound/856')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async generate856(
     @CurrentTenant() tenant: { id: string },
     @Body() body: GenerateEdi856Request,
@@ -103,7 +107,7 @@ export class EdiController {
   }
 
   @Post('outbound/810')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async generate810(
     @CurrentTenant() tenant: { id: string },
     @Body() body: GenerateEdi810Request,
@@ -112,7 +116,7 @@ export class EdiController {
   }
 
   @Post('outbound/997')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async generate997(
     @CurrentTenant() tenant: { id: string },
     @Body() body: GenerateEdi997Request,
@@ -121,7 +125,7 @@ export class EdiController {
   }
 
   @Post('outbound/desadv')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async generateDesadv(
     @CurrentTenant() tenant: { id: string },
     @Body() body: { partner_id: string; asn: EdiAdvanceShipNotice; control_number?: string },
@@ -139,7 +143,7 @@ export class EdiController {
   // ==========================================================================
 
   @Get('messages')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async listMessages(
     @CurrentTenant() tenant: { id: string },
     @Query('partnerId') partnerId?: string,

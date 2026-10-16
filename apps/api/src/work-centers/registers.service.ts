@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   ConflictException,
@@ -74,9 +75,9 @@ export interface StoredCashMovement {
 
 @Injectable()
 export class RegistersService {
-  private registersStore = new Map<string, StoredRegister>();
-  private sessionsStore = new Map<string, StoredRegisterSession>();
-  private movementsStore = new Map<string, StoredCashMovement>();
+  private registersStore = new DurableMap<StoredRegister>('registers');
+  private sessionsStore = new DurableMap<StoredRegisterSession>('register_sessions');
+  private movementsStore = new DurableMap<StoredCashMovement>('cash_movements');
 
   constructor(
     private readonly branchesService: BranchesService,

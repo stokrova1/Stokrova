@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -13,8 +14,8 @@ import type {
 
 @Injectable()
 export class AttributesService {
-  private dimensionsStore = new Map<string, AttributeDimension>();
-  private valuesStore = new Map<string, AttributeValue>();
+  private dimensionsStore = new DurableMap<AttributeDimension>('attribute_dimensions');
+  private valuesStore = new DurableMap<AttributeValue>('attribute_values');
 
   async createDimension(
     tenantId: string,

@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -30,8 +31,8 @@ import {
 
 @Injectable()
 export class GiftCardService {
-  private readonly cards = new Map<string, GiftCardAccount>(); // tenant:code -> card
-  private readonly transactions = new Map<string, GiftCardTransaction>();
+  private readonly cards = new DurableMap<GiftCardAccount>('gift_card_accounts'); // tenant:code -> card
+  private readonly transactions = new DurableMap<GiftCardTransaction>('gift_card_transactions');
   private readonly processedOperations = new Set<string>(); // tenant:operationId
 
   // ==========================================================================

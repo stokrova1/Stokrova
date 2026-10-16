@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -20,8 +21,8 @@ import { ReportingEngineService } from './reporting-engine.service.js';
 
 @Injectable()
 export class SavedReportsService {
-  private readonly savedReports = new Map<string, SavedReport>();
-  private readonly reportDefinitions = new Map<string, ReportDefinition>();
+  private readonly savedReports = new DurableMap<SavedReport>('saved_reports');
+  private readonly reportDefinitions = new DurableMap<ReportDefinition>('report_definitions');
 
   constructor(private readonly reportingEngine: ReportingEngineService) {
     this.seedSystemReportDefinitions();

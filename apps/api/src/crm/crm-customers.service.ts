@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -41,9 +42,9 @@ export interface StoredCustomerMerge {
 
 @Injectable()
 export class CrmCustomersService {
-  private readonly relationships = new Map<string, CrmAccountRelationship>();
-  private readonly contacts = new Map<string, CrmContact>();
-  private readonly customerMerges = new Map<string, StoredCustomerMerge>();
+  private readonly relationships = new DurableMap<CrmAccountRelationship>('crm_account_relationships');
+  private readonly contacts = new DurableMap<CrmContact>('crm_contacts');
+  private readonly customerMerges = new DurableMap<StoredCustomerMerge>('crm_customer_merges');
 
   constructor(
     private readonly customersService: CustomersService,

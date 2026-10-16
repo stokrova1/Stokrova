@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -34,8 +35,8 @@ import { LocationsService } from '../warehouse/locations.service.js';
 
 @Injectable()
 export class RmaService {
-  private readonly rmas = new Map<string, ReturnAuthorization>();
-  private readonly rmaLines = new Map<string, ReturnLine>();
+  private readonly rmas = new DurableMap<ReturnAuthorization>('return_authorizations');
+  private readonly rmaLines = new DurableMap<ReturnLine>('return_lines');
   private rmaSeq = 1001;
 
   constructor(

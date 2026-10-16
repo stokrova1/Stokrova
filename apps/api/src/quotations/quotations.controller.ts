@@ -27,7 +27,7 @@ import type {
 } from '@stokrova/contracts';
 import { StandardPermissions } from '@stokrova/domain';
 
-@Controller('v1/quotations')
+@Controller('quotations')
 @UseGuards(AuthGuard, TenantGuard, RbacGuard)
 export class QuotationsController {
   constructor(private readonly quotationsService: QuotationsService) {}

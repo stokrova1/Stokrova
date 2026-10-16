@@ -21,6 +21,7 @@ import type {
   SuspendBusinessDto,
   ReactivateBusinessDto,
   UpdateBusinessTierDto,
+  UpdatePlanPriceDto,
   SuspendUserDto,
   ReactivateUserDto,
 } from './platform-admin.dto.js';
@@ -78,6 +79,55 @@ export class PlatformAdminController {
     @CurrentUser() user?: UserIdentity,
   ) {
     return this.service.updateBusinessTier(id, dto, user?.id || 'usr_platform_admin');
+  }
+
+  @Get('plans')
+  @RequirePlatformCapability('platform.plans.view')
+  async listPlans() {
+    return this.service.listPlans();
+  }
+
+  @Patch('plans/:tier')
+  @RequirePlatformCapability('platform.plans.manage')
+  async updatePlanPrice(
+    @Param('tier') tier: string,
+    @Body() dto: UpdatePlanPriceDto,
+    @CurrentUser() user?: UserIdentity,
+  ) {
+    return this.service.updatePlanPrice(tier, dto, user?.id || 'usr_platform_admin');
+  }
+
+  @Get('businesses/:id/billing')
+  @RequirePlatformCapability('platform.businesses.view')
+  async getBusinessBilling(@Param('id') id: string) {
+    return this.service.getBusinessBilling(id);
+  }
+
+  @Patch('businesses/:id/billing')
+  @RequirePlatformCapability('platform.businesses.tier')
+  async setBusinessBilling(@Param('id') id: string, @Body() dto: { mode?: string; value?: string; note?: string }, @CurrentUser() user?: UserIdentity) {
+    return this.service.setBusinessBilling(id, dto, user?.id || 'usr_platform_admin');
+  }
+
+  /** Founder: extra features or raised limits for one business, on top of its plan. */
+  @Patch('businesses/:id/entitlements')
+  @RequirePlatformCapability('platform.businesses.tier')
+  async setBusinessEntitlements(@Param('id') id: string, @Body() dto: { features?: string[]; limits?: Record<string, number | null>; note?: string }, @CurrentUser() user?: UserIdentity) {
+    return this.service.setBusinessEntitlements(id, dto ?? {}, user?.id || 'usr_platform_admin');
+  }
+
+  @Post('businesses/:id/extend-trial')
+  @HttpCode(HttpStatus.OK)
+  @RequirePlatformCapability('platform.businesses.tier')
+  async extendTrial(@Param('id') id: string, @Body() dto: { days?: number }, @CurrentUser() user?: UserIdentity) {
+    return this.service.extendBusinessTrial(id, Number(dto?.days), user?.id || 'usr_platform_admin');
+  }
+
+  @Post('businesses/:id/invoices/:invoiceId/mark-paid')
+  @HttpCode(HttpStatus.OK)
+  @RequirePlatformCapability('platform.businesses.tier')
+  async markInvoicePaid(@Param('id') id: string, @Param('invoiceId') invoiceId: string, @Body() dto: { reference?: string }, @CurrentUser() user?: UserIdentity) {
+    return this.service.markBusinessInvoicePaid(id, invoiceId, dto?.reference ?? '', user?.id || 'usr_platform_admin');
   }
 
   @Get('users')

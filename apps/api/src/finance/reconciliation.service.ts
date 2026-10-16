@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -13,7 +14,7 @@ import { GeneralLedgerService } from './general-ledger.service.js';
 
 @Injectable()
 export class ReconciliationService {
-  private readonly reconciliations = new Map<string, ReconciliationRecord>();
+  private readonly reconciliations = new DurableMap<ReconciliationRecord>('reconciliation_records');
 
   constructor(
     private readonly accountsService: AccountsService,

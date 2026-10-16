@@ -1,125 +1,31 @@
-# Agent Collaboration Rules
+<!-- LOVABLE:BEGIN -->
+> [!IMPORTANT]
+> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
+> published git history — force pushing, or rebasing/amending/squashing commits
+> that are already pushed — as it rewrites history on Lovable's side and the
+> user will likely lose their project history.
+>
+> Commits you push to the connected branch sync back to Lovable and show up in
+> the editor, so keep the branch in a working state.
+<!-- LOVABLE:END -->
 
-## Roles
+## Preview and source delivery
+- Keep presentation-only workspace enhancements in the shared preview script and mirror it under repository-changes/apps/customer-web for the approved original-repository delivery; this avoids altering business logic or requiring a backend.
+- Company sales live in the user's repository database (executive_sales_entries + sales_orders/lines/payments via the NestJS /v1/analytics/executive API), not Lovable Cloud; the Cloud executive tables are deprecated. The user owns and connects that database live.
+- Executive math lives in packages/domain/src/executive-sales.ts and is shared by snapshot, dashboard and AI; never accept browser-calculated figures.
+- Store sales and historical COGS as signed minor units, leave unknown costs nullable, and upsert by tenant/reference; this preserves refunds, prevents duplicated imports, and avoids inventing margin.
+- Spreadsheet uploads are archived through the existing R2StorageProvider (SigV4, live only when real STORAGE_* keys are set); this keeps Cloudflare optional until the user connects it.
+- The workspace dashboard uses executive-live.js: live from the signed-in auth session + /v1/auth/session active tenant (or window.STOKROVA_API), otherwise labeled sample data.
+- Every workspace area keeps its in-memory Map working set but declares it as DurableMap(<table>), which writes through to that defined table (DurableStore, no-op without DATABASE_URL; startup reload opt-in via DURABLE_HYDRATE); sales orders/invoices/payments use SalesLedgerWriter; refunds are separate REFUNDED payment rows. Why: every area persists with one pattern and tests run without a database.
 
-### Claude Code
-
-Primary authority for:
-
-- architecture
-- backend
-- database
-- domain logic
-- synchronization
-- migrations
-- security
-- automated tests
-- CI
-
-### Antigravity
-
-Primary authority for:
-
-- admin UI
-- POS UI
-- mobile UI
-- UX refinement
-- frontend integration
-- visual QA
-- browser/device behavior
-
-Neither agent changes the other's architectural boundaries without documenting the change.
-
-## Branching
-
-Do not let multiple agents modify the same working branch concurrently.
-
-Use focused branches:
-
-```text
-feature/inventory-ledger
-feature/sync-engine
-feature/admin-catalog
-feature/pos
-```
-
-Merge in small units.
-
-## Feature Evolution & Preservation
-
-- **Never delete or discard existing features**: If a feature already exists in the codebase and a new prompt or specification asks for a similar feature, do not wipe out, delete, or replace existing code. Merge, combine, and enhance both to create a unified, workable, and superior solution.
-- **Connect and repair before rebuilding**: If a feature is partially built, disconnected, or missing parts, wire it up and complete the missing gaps rather than building from scratch. Build from scratch only when nothing exists.
-- **Keep documentation and checklists synchronized**: Whenever a feature is identified as already built, completed, or enhanced, update the relevant checklist, rules, or documentation immediately so all agents (Claude Code, Antigravity) and contributors stay in sync.
-- **Additive progress**: Treat all new prompts and requirements as cumulative enhancements. Never cause regressions or remove working functionality.
-
-## Shared contract
-
-The source of truth is:
-
-```text
-docs/
-packages/contracts/
-packages/domain/
-```
-
-If a UI needs a missing capability, request it through the contract/application layer rather than reaching into database internals.
-
-## Before merge
-
-Every branch must pass:
-
-```text
-typecheck
-lint
-unit tests
-relevant integration tests
-build
-```
-
-## Architecture changes
-
-Any architecture change requires an ADR:
-
-```text
-docs/ADR/ADR-XXX-name.md
-```
-
-The ADR records:
-
-- context
-- decision
-- alternatives
-- consequences
-- migration/rollback considerations
-
-## Architectural Golden Rules
-
-1. Never hard-code one business workflow.
-2. Never assume one role per user.
-3. Never assume one branch per user.
-4. Never make workflow configuration change database schema.
-5. Never allow workflow configuration to bypass domain invariants.
-6. Never execute arbitrary tenant-supplied code.
-7. Never treat receipts as financial truth.
-8. Never allow payment retries to duplicate payments.
-9. Never rely on client-side authorization.
-10. Never use global last-write-wins for business-critical conflicts.
-11. Never silently delete financial history.
-12. Never mutate published workflow versions.
-13. Never use Redis as authoritative business storage.
-14. Never assume every business needs warehouse operations.
-15. Never force enterprise complexity onto a solo trader.
-16. Never build separate domain architectures for small and enterprise businesses.
-17. Never let one large workflow lock the entire business.
-18. Always design for concurrency.
-19. Always make critical commands idempotent.
-20. Always audit sensitive business operations.
-21. Always preserve tenant isolation.
-22. Always keep domain logic separate from UI.
-23. Always keep workflow orchestration separate from domain invariants.
-24. Always make offline behavior explicit.
-25. Always prefer configurable capabilities over rigid business-size modes.
-26. Always benchmark against reference systems and design every feature, capability, and UX to surpass them in elegance, speed, type safety, and correctness.
-27. Never delete or discard existing features when receiving overlapping requirements—merge, combine, connect, and enhance to build a superior, unified system.
-28. Always keep project checklists, documentation, and feature statuses synchronized across all agents and sessions.
-29. Always use the dedicated STOKROVA GitHub repository and credentials (`stokrova1` / `stokrova1@gmail.com`) with the project's authorized access token for all git operations and pushes. Never use external or IDE-global GitHub accounts/emails for STOKROVA.
+- Owner workspace pages load the signed-in company's records via public/preview/workspace-live.js (PAGE_SOURCES maps page id -> API GET path; a test asserts each path exists in a controller); signed out they keep labeled sample content. Why: one loader for every page and no page can point at a missing address.
+- API controllers never include 'v1/' in @Controller(); main.ts adds the global v1 prefix. Why: doubled prefixes made areas unreachable.
+- The till (public/preview/pos-live.js) sells through /pos/checkout and, when offline, queues the same sale with the same idempotency key for /pos/sync; pos_sync_transactions always reloads at startup (ALWAYS_HYDRATE). Why: a sale is never lost or counted twice.
+- Stokrova never processes customer money: staff record CASH or BANK_TRANSFER (CARD is normalized to BANK_TRANSFER via payments/payment-recording.ts), transfers count as CONFIRMED on entry, and /payments/takings/:sessionId gives cash-for-drawer vs transfer-for-bank per shift. Why: the business is paid directly; the app only counts.
+- Plan prices live only in platform_plan_prices via PlanPricingService (billing, /billing/plans, founder console and website all read it); a business's plan is tenants.subscription_tier and the founder's tier change goes through BillingService.changePlan. Why: one price source so a founder change reaches the next invoice and the website.
+- Plan subscriptions and their invoices persist as DurableMap('tenant_subscriptions'/'saas_invoices'), always reloaded at startup; BillingRenewalScheduler renews ended periods hourly at the current PlanPricingService price. Why: renewals and payment confirmations must survive restarts and bill the latest price.
+- Stokrova's own plan rules (30-day trial, founder overrides FREE/DISCOUNT_PERCENT/FIXED_PRICE, access state) live in apps/api/src/billing/billing-rules.ts; BillingAccessGuard (APP_GUARD) returns 402 for a closed workspace except billing/auth/platform-admin. Why: one pure rule set decides price and access.
+- What each plan includes (pages, server areas, staff/branch/till/warehouse limits) lives only in packages/domain/src/plan-catalog.ts; PlanFeatureGuard (APP_GUARD) locks server areas, create endpoints call PlanEntitlementsService.assertCanAdd, and the workspace menu intersects role pages with /billing/entitlements pages. Why: the plan a business pays for is enforced in one place for menu, server and limits.
+- Owners pay plan invoices via apps/api/src/billing/invoice-checkout.ts (Paystack/Flutterwave, buttons shown only when that provider's key is set); an invoice is marked paid only after the server re-verifies the charge with the provider for the full amount and currency. Why: redirects and webhooks alone can be forged.
+- Prices & margin, product profit (business-wide and per seller via staff_work_events.order_id), the manager's live board, stock in/out and delivery summaries come only from /insights/* (InsightsService + packages/domain/src/product-insights.ts) and are drawn by insights-live.js; price edits are logged in product_price_changes. Why: every figure is server-calculated and a missing cost price shows as unknown instead of an invented profit.
+- Money owed, stock counts, product import/photos, reorder/ABC views and the daily email/WhatsApp summary live in apps/api/src/operations (pure rules in packages/domain/src/business-operations.ts) and are drawn by operations-live.js; a channel without its keys reports 'not set up' instead of pretending to send. Why: one place for day-to-day owner operations, never faked delivery.

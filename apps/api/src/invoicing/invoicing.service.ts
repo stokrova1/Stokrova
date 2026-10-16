@@ -1,4 +1,5 @@
 import {
+  Optional,
   Injectable,
   NotFoundException,
   BadRequestException,
@@ -43,6 +44,8 @@ export interface StoredSalesInvoice {
   updated_at: string;
 }
 
+import { SalesLedgerWriter } from '../infrastructure/database/sales-ledger.writer.js';
+
 @Injectable()
 export class InvoicingService {
   private invoicesStore = new Map<string, StoredSalesInvoice>();
@@ -53,6 +56,7 @@ export class InvoicingService {
     private readonly customersService: CustomersService,
     private readonly auditService?: AuditService,
     private readonly outboxService?: OutboxService,
+    @Optional() private readonly ledger?: SalesLedgerWriter,
   ) {}
 
   async createInvoice(
@@ -154,6 +158,7 @@ export class InvoicingService {
       );
     }
 
+    await this.ledger?.saveInvoice(invoice);
     return this.mapToResponse(invoice);
   }
 
@@ -216,6 +221,7 @@ export class InvoicingService {
       }
     }
 
+    await this.ledger?.saveInvoice(inv);
     return this.mapToResponse(inv);
   }
 
@@ -263,6 +269,7 @@ export class InvoicingService {
       });
     }
 
+    await this.ledger?.saveInvoice(inv);
     return this.mapToResponse(inv);
   }
 

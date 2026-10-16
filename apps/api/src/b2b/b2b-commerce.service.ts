@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -39,10 +40,10 @@ import {
 
 @Injectable()
 export class B2bCommerceService {
-  private readonly organizations = new Map<string, B2bOrganization>();
-  private readonly creditAccounts = new Map<string, B2bCreditAccount>();
+  private readonly organizations = new DurableMap<B2bOrganization>('b2b_organizations');
+  private readonly creditAccounts = new DurableMap<B2bCreditAccount>('b2b_credit_accounts');
   private readonly contractPrices = new Map<string, B2bContractPriceItem>();
-  private readonly requisitions = new Map<string, B2bRequisition>();
+  private readonly requisitions = new DurableMap<B2bRequisition>('b2b_requisitions');
   private requisitionCounter = 1000;
 
   // ==========================================================================

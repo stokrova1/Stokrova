@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   BadRequestException,
@@ -26,7 +27,7 @@ export interface IngestWebhookResult {
 @Injectable()
 export class InboundWebhookGatewayService {
   private readonly logger = new Logger(InboundWebhookGatewayService.name);
-  private readonly receipts = new Map<string, InboundWebhookReceipt>();
+  private readonly receipts = new DurableMap<InboundWebhookReceipt>('inbound_webhook_receipts');
   private readonly dedupIndex = new Set<string>(); // tenantId:provider:eventId
 
   async ingestWebhook(

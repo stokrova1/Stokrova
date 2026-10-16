@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -20,8 +21,8 @@ import {
 
 @Injectable()
 export class HardwareDevicesService {
-  private readonly devices = new Map<string, HardwareDevice>();
-  private readonly profiles = new Map<string, HardwareProfile>();
+  private readonly devices = new DurableMap<HardwareDevice>('hardware_devices');
+  private readonly profiles = new DurableMap<HardwareProfile>('hardware_profiles');
 
   // ==========================================================================
   // Hardware Devices Management

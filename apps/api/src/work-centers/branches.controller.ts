@@ -1,4 +1,5 @@
 import {
+  Optional,
   Controller,
   Get,
   Post,
@@ -10,6 +11,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { BranchesService } from './branches.service.js';
+import { PlanEntitlementsService } from '../billing/plan-entitlements.service.js';
 import { AuthGuard } from '../auth/auth.guard.js';
 import { TenantGuard } from '../auth/tenant.guard.js';
 import { RbacGuard } from '../rbac/rbac.guard.js';
@@ -29,7 +31,12 @@ import { StandardPermissions } from '@stokrova/domain';
 @Controller('branches')
 @UseGuards(AuthGuard, TenantGuard, RbacGuard)
 export class BranchesController {
-  constructor(private readonly branchesService: BranchesService) {}
+  constructor(
+    private readonly branchesService: BranchesService,
+    @Optional() private readonly plans?: PlanEntitlementsService,
+  ) {
+    this.plans?.registerCounter('max_branches', async (t) => (await this.branchesService.getBranches(t)).length);
+  }
 
   @Post()
   @RequirePermission(StandardPermissions.BRANCHES_MANAGE)
@@ -48,6 +55,7 @@ export class BranchesController {
       });
     }
 
+    await this.plans?.assertCanAdd(tenantId, 'max_branches');
     return this.branchesService.createBranch(
       tenantId,
       parseResult.data as CreateBranchRequest,

@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -16,7 +17,7 @@ import { RmaService } from './rma.service.js';
 
 @Injectable()
 export class QualityInspectionService {
-  private readonly inspections = new Map<string, QualityInspectionItem>();
+  private readonly inspections = new DurableMap<QualityInspectionItem>('quality_inspections');
 
   constructor(
     private readonly rmaService: RmaService,

@@ -7,14 +7,18 @@ import {
   Optional,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
+import type { SubscriptionTier } from '@stokrova/contracts';
 import { canTransitionTenantStatus } from '@stokrova/domain';
 import type { TenantStatus } from '@stokrova/domain';
 import { DATABASE_POOL } from '../infrastructure/database/database.tokens.js';
+import { PlanPricingService } from '../billing/plan-pricing.service.js';
+import { BillingService } from '../billing/billing.service.js';
 import type {
   PlatformAdminQueryDto,
   SuspendBusinessDto,
   ReactivateBusinessDto,
   UpdateBusinessTierDto,
+  UpdatePlanPriceDto,
   SuspendUserDto,
   ReactivateUserDto,
   PlatformOverviewResponse,
@@ -34,7 +38,7 @@ interface InMemTenant {
   owner_name: string;
   owner_email: string;
   currency_code: string;
-  subscription_tier: 'STARTER' | 'COMMERCE_PRO' | 'ENTERPRISE_LOGISTICS';
+  subscription_tier: SubscriptionTier;
   companies_count: number;
   branches_count: number;
   monthly_gmv_minor: bigint;
@@ -70,7 +74,9 @@ export class PlatformAdminService {
 
   constructor(
     @Optional() @Inject(DATABASE_POOL) private readonly pool?: any,
-    seedDemoData?: boolean,
+    @Optional() seedDemoData?: boolean,
+    @Optional() private readonly pricing: PlanPricingService = new PlanPricingService(pool),
+    @Optional() private readonly billing?: BillingService,
   ) {
     const isTest = typeof process !== 'undefined' && process.env?.['NODE_ENV'] === 'test';
     const shouldSeed = seedDemoData !== undefined ? seedDemoData : (isTest && !this.pool);
@@ -104,7 +110,7 @@ export class PlatformAdminService {
         owner_name: 'Charles Montgomery',
         owner_email: 'charles@metro-stores.co.uk',
         currency_code: 'GBP',
-        subscription_tier: 'COMMERCE_PRO',
+        subscription_tier: 'WHOLESALE_GROWTH',
         companies_count: 2,
         branches_count: 8,
         monthly_gmv_minor: 215000000n,
@@ -119,7 +125,7 @@ export class PlatformAdminService {
         owner_name: 'Isabella Moreau',
         owner_email: 'isabella@auroraboutiques.com',
         currency_code: 'EUR',
-        subscription_tier: 'COMMERCE_PRO',
+        subscription_tier: 'WHOLESALE_GROWTH',
         companies_count: 1,
         branches_count: 3,
         monthly_gmv_minor: 92000000n,
@@ -134,7 +140,7 @@ export class PlatformAdminService {
         owner_name: 'Babatunde Adeleke',
         owner_email: 'baba@fastmart.ng',
         currency_code: 'NGN',
-        subscription_tier: 'STARTER',
+        subscription_tier: 'RETAIL_STARTER',
         companies_count: 1,
         branches_count: 2,
         monthly_gmv_minor: 4500000000n,
@@ -213,6 +219,10 @@ export class PlatformAdminService {
         if (client) {
           try {
             await client.query("SELECT set_config('app.is_platform_admin', 'true', true)");
+            const mrrRes = await client.query(`
+              SELECT subscription_tier, count(*)::int AS n FROM public.tenants
+              WHERE status = 'ACTIVE' AND id != 'ten_platform_root' GROUP BY subscription_tier
+            `);
             const tenantsRes = await client.query(`
               SELECT 
                 count(*) FILTER (WHERE id != 'ten_platform_root')::int as total,
@@ -232,7 +242,7 @@ export class PlatformAdminService {
             const branchesCount = branchesRes.rows?.[0]?.total || 0;
 
             const activeCount = Number(row.active || 0);
-            const mrrMinor = activeCount > 0 ? BigInt(activeCount) * 49900n : 0n;
+            const mrrMinor = await this.monthlyRevenue((mrrRes.rows || []).map((r: any) => [r.subscription_tier, Number(r.n)]));
             const totalGmvMinor = activeCount > 0 ? (BigInt(activeCount) * 100000000n).toString() : '0';
 
             return {
@@ -258,12 +268,7 @@ export class PlatformAdminService {
     const active = all.filter((t) => t.status === 'ACTIVE');
     const suspended = all.filter((t) => t.status === 'SUSPENDED');
 
-    let mrr = 0n;
-    for (const t of active) {
-      if (t.subscription_tier === 'STARTER') mrr += 9900n;
-      else if (t.subscription_tier === 'COMMERCE_PRO') mrr += 49900n;
-      else if (t.subscription_tier === 'ENTERPRISE_LOGISTICS') mrr += 199900n;
-    }
+    const mrr = await this.monthlyRevenue(active.map((t) => [t.subscription_tier, 1]));
 
     const totalGmv = all.reduce((acc, t) => acc + t.monthly_gmv_minor, 0n);
     const totalBranches = all.reduce((acc, t) => acc + t.branches_count, 0);
@@ -297,7 +302,7 @@ export class PlatformAdminService {
             await client.query("SELECT set_config('app.is_platform_admin', 'true', true)");
             let sql = `
               SELECT 
-                t.id, t.name, t.slug, t.status, t.created_at, t.updated_at,
+                t.id, t.name, t.slug, t.status, t.created_at, t.updated_at, t.subscription_tier,
                 count(DISTINCT c.id)::int as companies_count,
                 count(DISTINCT b.id)::int as branches_count,
                 coalesce(max(u.full_name), 'Business Owner') as owner_name,
@@ -323,7 +328,7 @@ export class PlatformAdminService {
               pIdx++;
             }
 
-            sql += ` GROUP BY t.id, t.name, t.slug, t.status, t.created_at, t.updated_at ORDER BY t.created_at DESC`;
+            sql += ` GROUP BY t.id, t.name, t.slug, t.status, t.created_at, t.updated_at, t.subscription_tier ORDER BY t.created_at DESC`;
 
             const res = await client.query(sql, params);
             const total = res.rows.length;
@@ -338,7 +343,7 @@ export class PlatformAdminService {
               ownerName: r.owner_name,
               ownerEmail: r.owner_email,
               currencyCode: r.currency_code,
-              subscriptionTier: 'COMMERCE_PRO',
+              subscriptionTier: r.subscription_tier || 'RETAIL_STARTER',
               companiesCount: Number(r.companies_count || 1),
               branchesCount: Number(r.branches_count || 1),
               monthlyGmvMinor: '0',
@@ -441,7 +446,7 @@ export class PlatformAdminService {
                 ownerName: r.owner_name,
                 ownerEmail: r.owner_email,
                 currencyCode: r.currency_code,
-                subscriptionTier: 'COMMERCE_PRO',
+                subscriptionTier: r.subscription_tier || 'RETAIL_STARTER',
                 companiesCount: compRes.rows?.length || 1,
                 branchesCount: branchRes.rows?.length || 1,
                 monthlyGmvMinor: '0',
@@ -740,6 +745,98 @@ export class PlatformAdminService {
     dto: UpdateBusinessTierDto,
     actorId = 'usr_platform_admin',
   ): Promise<{ success: boolean; tier: string }> {
+    if (!PlanPricingService.isTier(dto?.tier)) {
+      throw new BadRequestException(`Unknown plan '${dto?.tier}'.`);
+    }
+    const result = await this.saveBusinessTier(id, dto, actorId);
+    // Billing switches the business's subscription so its next invoice uses the new plan's price.
+    await this.billing?.changePlan(id, dto.tier, true, { actor_id: actorId, source: 'FOUNDER' }).catch(() => null);
+    return result;
+  }
+
+  /** Monthly plan revenue from each active business's plan at the current founder-set price. */
+  private async monthlyRevenue(counts: Array<[string, number]>): Promise<bigint> {
+    const prices = new Map((await this.pricing.list()).map((p) => [p.tier as string, BigInt(p.monthly_price_minor)]));
+    return counts.reduce((sum, [tier, n]) => sum + (prices.get(tier) ?? 0n) * BigInt(n), 0n);
+  }
+
+  private requireBilling(): BillingService {
+    if (!this.billing) throw new BadRequestException('Billing is not available on this server.');
+    return this.billing;
+  }
+
+  private async audit(tenantId: string, actorId: string, eventType: string, payload: Record<string, unknown>) {
+    const event = { id: `aud_${randomUUID().replace(/-/g, '')}`, tenant_id: tenantId, actor_id: actorId, event_type: eventType, payload, created_at: new Date().toISOString() };
+    this.auditStore.push(event as any);
+    if (this.pool && typeof this.pool.query === 'function') {
+      await this.pool
+        .query('INSERT INTO public.audit_events (id, tenant_id, actor_id, event_type, payload, created_at) VALUES ($1, $2, $3, $4, $5, NOW())', [event.id, tenantId, actorId, eventType, JSON.stringify(payload)])
+        .catch(() => null);
+    }
+  }
+
+  async getBusinessBilling(id: string) {
+    const billing = this.requireBilling();
+    const [subscription, access, invoices] = await Promise.all([billing.getSubscription(id), billing.access(id), billing.listInvoices(id)]);
+    return { subscription, access, invoices };
+  }
+
+  async setBusinessBilling(id: string, dto: { mode?: string; value?: string; note?: string }, actorId: string) {
+    const sub = await this.requireBilling().setBillingOverride(id, dto ?? {}, actorId);
+    await this.audit(id, actorId, 'PLATFORM_BILLING_OVERRIDE_SET', { mode: dto?.mode ?? 'NONE', value: dto?.value ?? null, reason: dto?.note ?? null });
+    return sub;
+  }
+
+  async setBusinessEntitlements(id: string, dto: { features?: unknown; limits?: unknown; note?: string }, actorId: string) {
+    const sub = await this.requireBilling().setPlanGrants(id, dto);
+    await this.audit(id, actorId, 'PLATFORM_PLAN_GRANTS_SET', { grants: sub.plan_grants, reason: dto?.note ?? null });
+    return sub;
+  }
+
+  async extendBusinessTrial(id: string, days: number, actorId: string) {
+    const sub = await this.requireBilling().extendTrial(id, days);
+    await this.audit(id, actorId, 'PLATFORM_TRIAL_EXTENDED', { days, trial_ends_at: sub.trial_ends_at });
+    return sub;
+  }
+
+  async markBusinessInvoicePaid(id: string, invoiceId: string, reference: string, actorId: string) {
+    const inv = await this.requireBilling().markInvoicePaid(id, invoiceId, reference);
+    await this.audit(id, actorId, 'PLATFORM_INVOICE_MARKED_PAID', { invoice_id: invoiceId, reason: reference || null });
+    return inv;
+  }
+
+  async listPlans() {
+    return this.pricing.list();
+  }
+
+  async updatePlanPrice(tier: string, dto: UpdatePlanPriceDto, actorId = 'usr_platform_admin') {
+    const before = PlanPricingService.isTier(tier) ? await this.pricing.get(tier) : null;
+    const saved = await this.pricing.setPrice(tier, dto ?? {}, actorId);
+    const event = {
+      id: `aud_${randomUUID().replace(/-/g, '')}`,
+      tenant_id: 'ten_platform_root',
+      actor_id: actorId,
+      event_type: 'PLATFORM_PLAN_PRICE_UPDATED',
+      payload: { tier, previous: before && { monthly: before.monthly_price_minor, annual: before.annual_price_minor }, monthly: saved.monthly_price_minor, annual: saved.annual_price_minor },
+      created_at: saved.updated_at!,
+    };
+    this.auditStore.push(event as any);
+    if (this.pool && typeof this.pool.query === 'function') {
+      await this.pool
+        .query(
+          `INSERT INTO public.audit_events (id, tenant_id, actor_id, event_type, payload, created_at) VALUES ($1, $2, $3, $4, $5, NOW())`,
+          [event.id, event.tenant_id, actorId, event.event_type, JSON.stringify(event.payload)],
+        )
+        .catch(() => null);
+    }
+    return saved;
+  }
+
+  private async saveBusinessTier(
+    id: string,
+    dto: UpdateBusinessTierDto,
+    actorId: string,
+  ): Promise<{ success: boolean; tier: string }> {
     const now = new Date().toISOString();
 
     if (this.pool && typeof this.pool.query === 'function') {
@@ -749,6 +846,10 @@ export class PlatformAdminService {
           await client.query("SELECT set_config('app.is_platform_admin', 'true', true)");
           const existing = await client.query('SELECT id, name FROM public.tenants WHERE id = $1', [id]);
           if (existing.rows && existing.rows[0]) {
+            await client.query(
+              'UPDATE public.tenants SET subscription_tier = $2, updated_at = NOW() WHERE id = $1',
+              [id, dto.tier],
+            );
             await client.query(
               `INSERT INTO public.audit_events (id, tenant_id, actor_id, event_type, payload, created_at)
                VALUES ($1, $2, $3, 'PLATFORM_TENANT_TIER_UPDATED', $4, NOW())`,

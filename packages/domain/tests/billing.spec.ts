@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
+  UNLIMITED,
   TIER_ENTITLEMENT_DEFINITIONS,
   canTransitionSubscriptionStatus,
   isFeatureEnabled,
@@ -38,8 +39,8 @@ describe('Phase 24 @stokrova/domain — SaaS Billing & Platform Orchestration Do
       expect(solo.feature_flags.manufacturing_enabled).toBe(false);
 
       const enterprise = TIER_ENTITLEMENT_DEFINITIONS.ENTERPRISE_LOGISTICS;
-      expect(enterprise.max_warehouses).toBe(50);
-      expect(enterprise.max_monthly_orders).toBe(1000000);
+      expect(enterprise.max_warehouses).toBe(UNLIMITED);
+      expect(enterprise.max_monthly_orders).toBe(UNLIMITED);
       expect(enterprise.feature_flags.edi_enabled).toBe(true);
       expect(enterprise.feature_flags.manufacturing_enabled).toBe(true);
     });
@@ -64,7 +65,7 @@ describe('Phase 24 @stokrova/domain — SaaS Billing & Platform Orchestration Do
 
   describe('Dynamic Feature Flags & Limit Gating (Rule 4, 5)', () => {
     it('evaluates base tier feature flags accurately', () => {
-      expect(isFeatureEnabled(baseSubscription, 'multi_currency_enabled')).toBe(true);
+      expect(isFeatureEnabled(baseSubscription, 'offline_sync_enabled')).toBe(true);
       expect(isFeatureEnabled(baseSubscription, 'manufacturing_enabled')).toBe(false);
     });
 
@@ -88,7 +89,7 @@ describe('Phase 24 @stokrova/domain — SaaS Billing & Platform Orchestration Do
     });
 
     it('resolves effective operational limits with overrides', () => {
-      expect(getEffectiveLimit(baseSubscription, 'max_branches')).toBe(3);
+      expect(getEffectiveLimit(baseSubscription, 'max_branches')).toBe(1);
 
       const customLimitSub: TenantSubscription = {
         ...baseSubscription,
@@ -138,8 +139,8 @@ describe('Phase 24 @stokrova/domain — SaaS Billing & Platform Orchestration Do
       expect(quote.remaining_days).toBe(15);
       expect(quote.proration_factor_bp).toBe(5000); // 50%
       expect(quote.unused_credit_minor).toBe('2450'); // 50% of 4900
-      expect(quote.new_tier_charge_minor).toBe('9950'); // 50% of 19900
-      expect(quote.net_prorated_amount_minor).toBe('7500'); // 9950 - 2450 = 7500 ($75.00)
+      expect(quote.new_tier_charge_minor).toBe('7450'); // 50% of 14900 (Growth)
+      expect(quote.net_prorated_amount_minor).toBe('5000'); // 7450 - 2450
     });
   });
 

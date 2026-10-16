@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -32,7 +33,7 @@ import { HardwareDevicesService } from './hardware-devices.service.js';
 
 @Injectable()
 export class HardwarePrinterService {
-  private readonly printJobs = new Map<string, HardwarePrintJob>();
+  private readonly printJobs = new DurableMap<HardwarePrintJob>('hardware_print_jobs');
   private readonly jobsByOpId = new Map<string, string>(); // tenant:operation_id -> job_id
 
   constructor(private readonly devicesService: HardwareDevicesService) {}

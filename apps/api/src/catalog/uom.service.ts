@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -22,8 +23,8 @@ import {
 
 @Injectable()
 export class UomService {
-  private uomsStore = new Map<string, UnitOfMeasure>();
-  private conversionsStore = new Map<string, UnitConversion>();
+  private uomsStore = new DurableMap<UnitOfMeasure>('units_of_measure');
+  private conversionsStore = new DurableMap<UnitConversion>('unit_conversions');
 
   async createUom(tenantId: string, req: CreateUomRequest): Promise<UnitOfMeasure> {
     const code = req.code.trim().toUpperCase();

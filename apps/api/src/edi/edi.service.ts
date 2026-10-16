@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -40,8 +41,8 @@ import {
 
 @Injectable()
 export class EdiService {
-  private readonly partners = new Map<string, EdiPartnerProfile>();
-  private readonly messageLogs = new Map<string, EdiMessageLog>();
+  private readonly partners = new DurableMap<EdiPartnerProfile>('edi_partners');
+  private readonly messageLogs = new DurableMap<EdiMessageLog>('edi_message_logs');
   private readonly processedControls = new Set<string>(); // tenant:partner:control:direction
 
   // ==========================================================================

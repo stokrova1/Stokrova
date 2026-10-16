@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -101,9 +102,9 @@ export interface StoredPosCashMovement {
 
 @Injectable()
 export class PosService {
-  private registersStore = new Map<string, StoredPosRegisterConfig>();
-  private sessionsStore = new Map<string, StoredPosSession>();
-  private movementsStore = new Map<string, StoredPosCashMovement>();
+  private registersStore = new DurableMap<StoredPosRegisterConfig>('registers');
+  private sessionsStore = new DurableMap<StoredPosSession>('pos_sessions');
+  private movementsStore = new DurableMap<StoredPosCashMovement>('pos_cash_movements');
 
   constructor(
     private readonly branchesService: BranchesService,

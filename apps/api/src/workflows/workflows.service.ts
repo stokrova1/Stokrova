@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -82,10 +83,10 @@ export interface StoredWorkflowTaskClaim {
 
 @Injectable()
 export class WorkflowsService {
-  private workflowsStore = new Map<string, StoredWorkflow>();
-  private versionsStore = new Map<string, StoredWorkflowVersion>();
-  private tasksStore = new Map<string, StoredWorkflowTask>();
-  private claimsStore = new Map<string, StoredWorkflowTaskClaim>();
+  private workflowsStore = new DurableMap<StoredWorkflow>('workflows');
+  private versionsStore = new DurableMap<StoredWorkflowVersion>('workflow_versions');
+  private tasksStore = new DurableMap<StoredWorkflowTask>('workflow_tasks');
+  private claimsStore = new DurableMap<StoredWorkflowTaskClaim>('workflow_task_claims');
 
   async createWorkflow(
     tenantId: string,

@@ -47,3 +47,8 @@ export * from './billing.js';
 export * from './reporting.js';
 export * from './integration_hub.js';
 export { generateUuidV7, isValidUuidV7, extractTimestampFromUuidV7 } from './uuid.js';
+export * from './executive-sales.js';
+export * from './plan-catalog.js';
+export * from './sales-tickets.js';
+export * from './product-insights.js';
+export * from './business-operations.js';

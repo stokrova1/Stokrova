@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -28,7 +29,7 @@ export interface StoredDevice {
 
 @Injectable()
 export class DevicesService {
-  private readonly devices = new Map<string, StoredDevice>();
+  private readonly devices = new DurableMap<StoredDevice>('devices');
 
   async registerDevice(
     tenantId: string,

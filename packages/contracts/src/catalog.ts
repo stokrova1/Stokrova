@@ -117,6 +117,8 @@ export interface ProductVariant {
   attributes: Record<string, string>;
   weight_grams: number | null;
   volume_cm3: number | null;
+  /** https link to the product photo, or null. */
+  image_url?: string | null;
   status: ProductStatus;
   created_at: string;
   updated_at: string;

@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -47,15 +48,15 @@ import { VariantsService } from '../catalog/variants.service.js';
 
 @Injectable()
 export class PricingService {
-  private priceListsStore = new Map<string, PriceList>();
-  private priceListRulesStore = new Map<string, PriceListRule>();
-  private taxRatesStore = new Map<string, TaxRate>();
-  private promotionsStore = new Map<string, DiscountPromotion>();
-  private contractsStore = new Map<string, CustomerContract>();
+  private priceListsStore = new DurableMap<PriceList>('price_lists');
+  private priceListRulesStore = new DurableMap<PriceListRule>('price_list_rules');
+  private taxRatesStore = new DurableMap<TaxRate>('tax_rates');
+  private promotionsStore = new DurableMap<DiscountPromotion>('discount_promotions');
+  private contractsStore = new DurableMap<CustomerContract>('customer_contracts');
   private contractItemsStore = new Map<string, CustomerContractItem[]>();
-  private marginPoliciesStore = new Map<string, PricingMarginPolicy>();
-  private overrideRequestsStore = new Map<string, PricingOverrideRequest>();
-  private snapshotsStore = new Map<string, CommercialPriceSnapshot>();
+  private marginPoliciesStore = new DurableMap<PricingMarginPolicy>('pricing_margin_policies');
+  private overrideRequestsStore = new DurableMap<PricingOverrideRequest>('pricing_override_requests');
+  private snapshotsStore = new DurableMap<CommercialPriceSnapshot>('commercial_price_snapshots');
 
   constructor(private readonly variantsService: VariantsService) {}
 

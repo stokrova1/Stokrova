@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -22,7 +23,7 @@ import { FinancialReportsService } from '../finance/financial-reports.service.js
 
 @Injectable()
 export class ConsolidationService {
-  private readonly holdingGroups = new Map<string, HoldingGroup>();
+  private readonly holdingGroups = new DurableMap<HoldingGroup>('holding_groups');
 
   constructor(private readonly reportsService: FinancialReportsService) {}
 

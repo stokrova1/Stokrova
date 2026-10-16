@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -15,7 +16,7 @@ import { WarehousesService } from './warehouses.service.js';
 
 @Injectable()
 export class PutawayRulesService {
-  private rulesStore = new Map<string, PutAwayRule>();
+  private rulesStore = new DurableMap<PutAwayRule>('put_away_rules');
 
   constructor(private readonly warehousesService: WarehousesService) {}
 

@@ -47,6 +47,8 @@ import { CrmModule } from './crm/crm.module.js';
 import { LogisticsModule } from './logistics/logistics.module.js';
 import { BillingModule } from './billing/billing.module.js';
 import { PlatformAdminModule } from './platform-admin/platform-admin.module.js';
+import { InsightsModule } from './insights/insights.module.js';
+import { OperationsModule } from './operations/operations.module.js';
 
 @Module({
   imports: [
@@ -96,6 +98,8 @@ import { PlatformAdminModule } from './platform-admin/platform-admin.module.js';
     LogisticsModule,
     BillingModule,
     PlatformAdminModule,
+    InsightsModule,
+    OperationsModule,
   ],
 
 })

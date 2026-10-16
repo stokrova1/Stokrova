@@ -35,7 +35,7 @@ import type {
 } from '@stokrova/contracts';
 import { StandardPermissions } from '@stokrova/domain';
 
-@Controller('v1/procurement/suppliers')
+@Controller('procurement/suppliers')
 @UseGuards(AuthGuard, TenantGuard, RbacGuard)
 export class SuppliersController {
   constructor(private readonly suppliersService: SuppliersService) {}

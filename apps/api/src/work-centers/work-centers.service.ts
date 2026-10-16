@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type {
@@ -18,7 +19,7 @@ export interface StoredWorkCenter {
 
 @Injectable()
 export class WorkCentersService {
-  private workCentersStore = new Map<string, StoredWorkCenter>();
+  private workCentersStore = new DurableMap<StoredWorkCenter>('work_centers');
 
   constructor(private readonly branchesService: BranchesService) {}
 

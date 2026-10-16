@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -22,7 +23,7 @@ import { VariantsService } from '../catalog/variants.service.js';
 
 @Injectable()
 export class BatchesService {
-  private batchesStore = new Map<string, StockBatch>();
+  private batchesStore = new DurableMap<StockBatch>('stock_batches');
 
   constructor(private readonly variantsService: VariantsService) {}
 

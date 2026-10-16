@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type {
@@ -9,7 +10,7 @@ import { formatNotificationTemplate } from '@stokrova/domain';
 
 @Injectable()
 export class NotificationsService {
-  private readonly notifications = new Map<string, NotificationMessage>();
+  private readonly notifications = new DurableMap<NotificationMessage>('notifications');
 
   async sendNotification(
     tenantId: string,

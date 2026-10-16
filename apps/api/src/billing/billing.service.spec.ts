@@ -49,7 +49,7 @@ describe('Phase 24 apps/api — BillingService & Subscription Orchestration Suit
     it('allows access to features included in the subscription plan', async () => {
       await service.createSubscription({
         tenant_id: 'tenant_retail_02',
-        tier: 'RETAIL_STARTER',
+        tier: 'WHOLESALE_GROWTH',
       });
 
       const { enabled } = await service.checkFeatureEntitlement(
@@ -86,14 +86,14 @@ describe('Phase 24 apps/api — BillingService & Subscription Orchestration Suit
     it('verifies operational resource limits against tier definition', async () => {
       await service.createSubscription({
         tenant_id: 'tenant_retail_04',
-        tier: 'RETAIL_STARTER', // max_branches = 3
+        tier: 'WHOLESALE_GROWTH', // max_branches = 5 (website Growth plan)
       });
 
-      const quotaWithin = await service.checkQuota('tenant_retail_04', 'max_branches', 2);
+      const quotaWithin = await service.checkQuota('tenant_retail_04', 'max_branches', 4);
       expect(quotaWithin.is_exceeded).toBe(false);
-      expect(quotaWithin.limit).toBe(3);
+      expect(quotaWithin.limit).toBe(5);
 
-      const quotaExceeded = await service.checkQuota('tenant_retail_04', 'max_branches', 4);
+      const quotaExceeded = await service.checkQuota('tenant_retail_04', 'max_branches', 6);
       expect(quotaExceeded.is_exceeded).toBe(true);
       expect(quotaExceeded.percentage_used_bp).toBeGreaterThan(10000);
     });

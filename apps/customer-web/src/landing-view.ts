@@ -1263,6 +1263,7 @@ export class LandingViewModel {
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: stretch;">
           ${plansHtml}
         </div>
+        <p style="text-align: center; margin: 22px auto 0; max-width: 640px; font-size: 0.8125rem; color: #ACB8C3; line-height: 1.6;">✓ Every plan starts with a <strong style="color: ${tokens.textPrimary};">30-day free trial</strong> — no credit card required. After your first month, the plan you chose is billed from the Plan &amp; Billing page in your workspace.</p>
       </section>
     `;
   }
@@ -1632,7 +1633,7 @@ export class LandingViewModel {
               </div>
 
               <div style="background: #14291F; border: 1px solid #1E4620; border-radius: 8px; padding: 12px 14px; margin-bottom: 20px; font-size: 0.75rem; color: #4ADE80; line-height: 1.5;">
-                ✓ 14-Day Zero-Risk Trial included • Automatic Double-Entry Ledger • Cancel or scale branches anytime.
+                ✓ 30-Day Free Trial — no credit card required • Automatic Double-Entry Ledger • Cancel or scale branches anytime.
               </div>
 
               <div style="display: flex; justify-content: space-between; gap: 10px;">

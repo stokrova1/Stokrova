@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type {
@@ -49,9 +50,8 @@ interface StoredSyncTransaction {
 export class PosSyncService {
   private deviceLastSequence = new Map<string, number>(); // `${tenantId}:${deviceId}` -> lastSeq
   private deviceVectorClocks = new Map<string, Record<string, number>>();
-  private syncBatchesStore = new Map<string, StoredSyncBatch>();
-  private syncTransactionsStore = new Map<string, StoredSyncTransaction>();
-  private processedTxIdempotency = new Map<string, PosSyncTransactionResolution>();
+  private syncBatchesStore = new DurableMap<StoredSyncBatch>('pos_sync_batches');
+  private syncTransactionsStore = new DurableMap<StoredSyncTransaction>('pos_sync_transactions');
 
   constructor(
     private readonly posService: PosService,
@@ -93,7 +93,7 @@ export class PosSyncService {
       const idempotencyKey = `${tenantId}:${env.idempotency_key}`;
 
       // 1. Check Idempotency (Rule 19)
-      const cachedResolution = this.processedTxIdempotency.get(idempotencyKey);
+      const cachedResolution = this.recall(idempotencyKey);
       if (cachedResolution) {
         duplicateCount++;
         resolutions.push({
@@ -247,7 +247,7 @@ export class PosSyncService {
         };
 
         resolutions.push(resolution);
-        this.processedTxIdempotency.set(idempotencyKey, resolution);
+        this.remember(idempotencyKey, tenantId, env, resolution);
       } else if (env.tx_type === 'CASH_MOVEMENT' && env.cash_movement_payload) {
         if (env.cash_movement_payload.movement_type === 'CASH_IN') {
           await this.posService.recordCashIn(tenantId, session.id, userId, {
@@ -274,7 +274,7 @@ export class PosSyncService {
           server_sequence: env.client_sequence,
         };
         resolutions.push(resolution);
-        this.processedTxIdempotency.set(idempotencyKey, resolution);
+        this.remember(idempotencyKey, tenantId, env, resolution);
       }
 
       // Advance sequence & vector clock
@@ -348,6 +348,21 @@ export class PosSyncService {
     this.deviceVectorClocks.clear();
     this.syncBatchesStore.clear();
     this.syncTransactionsStore.clear();
-    this.processedTxIdempotency.clear();
+  }
+
+  /** Each synced till transaction is saved (pos_sync_transactions, reloaded at startup) so a sale sent twice is never counted twice, even after a restart. */
+  private remember(key: string, tenantId: string, env: { client_tx_id: string; device_id: string; pos_session_id: string; client_sequence: number; idempotency_key: string }, r: PosSyncTransactionResolution): void {
+    this.syncTransactionsStore.set(key, {
+      id: key, tenant_id: tenantId, client_tx_id: env.client_tx_id, device_id: env.device_id,
+      pos_session_id: env.pos_session_id, client_sequence: env.client_sequence, idempotency_key: env.idempotency_key,
+      status: r.status, server_order_id: r.server_order_id ?? null, reconciliation_note: r.reconciliation_note ?? null,
+      created_at: new Date().toISOString(),
+    });
+  }
+
+  private recall(key: string): PosSyncTransactionResolution | null {
+    const t = this.syncTransactionsStore.get(key);
+    if (!t || t.status === 'REJECTED') return null;
+    return { client_tx_id: t.client_tx_id, status: t.status as PosSyncTransactionResolution['status'], server_order_id: t.server_order_id, server_sequence: t.client_sequence, conflict_reason: null, reconciliation_note: t.reconciliation_note };
   }
 }

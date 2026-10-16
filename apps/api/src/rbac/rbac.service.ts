@@ -1,7 +1,9 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   ConflictException,
   NotFoundException,
+  ForbiddenException,
   Inject,
   Optional,
 } from '@nestjs/common';
@@ -59,8 +61,8 @@ interface StoredInvitation {
 
 @Injectable()
 export class RbacService {
-  private rolesStore = new Map<string, StoredRole>();
-  private assignmentsStore = new Map<string, StoredRoleAssignment>();
+  private rolesStore = new DurableMap<StoredRole>('roles');
+  private assignmentsStore = new DurableMap<StoredRoleAssignment>('role_assignments');
   private invitationsStore = new Map<string, StoredInvitation>();
 
   constructor(@Optional() @Inject(DATABASE_POOL) private readonly pool?: any) {
@@ -265,6 +267,36 @@ export class RbacService {
     });
   }
 
+  /**
+   * Staff seats used by a business: everyone holding a role there plus invitations not yet accepted
+   * or expired, so the plan's staff limit cannot be dodged by sending many invitations.
+   */
+  async countStaffSeats(tenantId: string): Promise<number> {
+    const users = new Set<string>();
+    if (this.pool && typeof this.pool.query === 'function') {
+      try {
+        const res = await this.pool.query('SELECT DISTINCT user_id FROM public.role_assignments WHERE tenant_id = $1', [tenantId]);
+        for (const r of res.rows ?? []) users.add(String(r.user_id));
+      } catch { /* fall back to memory */ }
+    }
+    for (const a of this.assignmentsStore.values()) if (a.tenant_id === tenantId) users.add(a.user_id);
+    const now = Date.now();
+    const pending = (await this.listInvitations(tenantId)).filter((i) => i.status === 'PENDING' && new Date(i.expires_at).getTime() > now).length;
+    return users.size + pending;
+  }
+
+  /** Whether a person already holds any role in the business (adding another role uses no new seat). */
+  async isStaffMember(tenantId: string, userId: string): Promise<boolean> {
+    for (const a of this.assignmentsStore.values()) if (a.tenant_id === tenantId && a.user_id === userId) return true;
+    if (this.pool && typeof this.pool.query === 'function') {
+      try {
+        const res = await this.pool.query('SELECT 1 FROM public.role_assignments WHERE tenant_id = $1 AND user_id = $2 LIMIT 1', [tenantId, userId]);
+        return (res.rows ?? []).length > 0;
+      } catch { /* ignore */ }
+    }
+    return false;
+  }
+
   async inviteStaff(
     tenantId: string,
     invitedByOrReq: string | InviteStaffRequest,
@@ -274,6 +306,13 @@ export class RbacService {
     const role = this.rolesStore.get(req.role_id);
     if (!role || (role.tenant_id !== null && role.tenant_id !== tenantId)) {
       throw new NotFoundException(`Role '${req.role_id}' not found.`);
+    }
+    // A staff member can only invite someone into a role whose permissions they already hold.
+    if (typeof invitedByOrReq === 'string') {
+      const held = (await this.getUserActiveAssignments(tenantId, invitedByOrReq)).flatMap((a) => a.permissions);
+      if (!held.includes('*') && role.permissions.some((p) => !held.includes(p))) {
+        throw new ForbiddenException('You cannot invite someone into a role with more access than your own.');
+      }
     }
 
     const invitationId = `inv_${randomUUID().replace(/-/g, '')}`;

@@ -543,6 +543,16 @@ ${generateCssVariableString('dark')}
         anonKey: 'sb_publishable_SQZZBnrGJ4wwY4rUeZjtag_-jtZxCVp',
         apiBase: isLocalhost && window.location.port !== '3000' && window.location.port !== '' ? 'http://localhost:3000/v1' : '/v1',
       };
+      // Founder access comes only from server-controlled account settings (app_metadata), never from
+      // the email address or user-editable profile fields. The server re-checks every request.
+      const isFounderAccount = (user) => !!user && user.app_metadata?.is_platform_admin === true;
+      const authedFetch = async (url, init = {}) => {
+        const sb = window._stokrovaSupabase || null;
+        const token = sb ? (await sb.auth.getSession().catch(() => ({ data: {} })))?.data?.session?.access_token : null;
+        const headers = Object.assign({}, init.headers || {}, token ? { Authorization: 'Bearer ' + token } : {});
+        const base = window.STOKROVA_API || SUPABASE_CONFIG.apiBase;
+        return fetch(base + url.replace(/^\/api\/v1/, ''), Object.assign({}, init, { headers }));
+      };
       const getSupabase = () => {
         if (window._stokrovaSupabase) return window._stokrovaSupabase;
         if (window.supabase && typeof window.supabase.createClient === 'function') {
@@ -728,7 +738,7 @@ ${generateCssVariableString('dark')}
           if (btn) btn.disabled = true;
 
           try {
-            const res = await fetch(endpoint, {
+            const res = await authedFetch(endpoint, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ reason: 'Platform administration governance killswitch' })
@@ -815,7 +825,7 @@ ${generateCssVariableString('dark')}
 
         async hydrateLivePlatformData() {
           try {
-            const overviewRes = await fetch('/api/v1/platform-admin/overview').then(r => r.ok ? r.json() : null).catch(() => null);
+            const overviewRes = await authedFetch('/api/v1/platform-admin/overview').then(r => r.ok ? r.json() : null).catch(() => null);
             if (overviewRes && overviewRes.data) {
               const o = overviewRes.data;
               const totalEl = document.getElementById('stat-total-tenants');
@@ -887,10 +897,7 @@ ${generateCssVariableString('dark')}
               userEmail = user?.email || email;
 
               // Check if user is authorized platform super-admin
-              const isSuperAdmin = userEmail === 'stokrova1@gmail.com' ||
-                user?.app_metadata?.is_platform_admin === true ||
-                user?.app_metadata?.role === 'PLATFORM_SUPER_ADMIN' ||
-                user?.user_metadata?.role === 'PLATFORM_SUPER_ADMIN';
+              const isSuperAdmin = isFounderAccount(user);
 
               if (!isSuperAdmin) {
                 // Terminate session immediately
@@ -908,10 +915,7 @@ ${generateCssVariableString('dark')}
 
               isAuthenticated = true;
             } catch (authErr) {
-              // Local fallback if running in offline test environment
-              if (email === 'stokrova1@gmail.com' && password.length >= 6) {
-                isAuthenticated = true;
-              } else {
+              {
                 if (errorEl) {
                   errorEl.innerText = 'Authentication Error: ' + (authErr.message || 'Network error.');
                   errorEl.style.display = 'block';
@@ -924,12 +928,10 @@ ${generateCssVariableString('dark')}
               }
             }
           } else {
-            // Offline fallback for unit tests or when CDN script is absent
-            if (email === 'stokrova1@gmail.com' || email.includes('admin') || password.length >= 6) {
-              isAuthenticated = true;
-            } else {
+            // No sign-in service available: never unlock the console.
+            {
               if (errorEl) {
-                errorEl.innerText = 'Authentication failed. Please check your credentials.';
+                errorEl.innerText = 'Sign-in is unavailable right now. Please try again in a moment.';
                 errorEl.style.display = 'block';
               }
               if (submitBtn) {
@@ -1017,19 +1019,17 @@ ${generateCssVariableString('dark')}
         async checkExistingSession() {
           let hasSession = false;
           try {
-            hasSession = sessionStorage.getItem('stokrova_admin_authenticated') === 'true';
+            // The stokrova_admin_authenticated flag alone never unlocks the console; a real founder session must exist.
+            sessionStorage.removeItem('stokrova_admin_authenticated');
           } catch (_) {}
 
           const sb = getSupabase();
-          if (!hasSession && sb) {
+          if (sb) {
             try {
               const { data: { session } } = await sb.auth.getSession();
               if (session && session.user) {
                 const userEmail = session.user.email || '';
-                const isSuperAdmin = userEmail === 'stokrova1@gmail.com' ||
-                  session.user.app_metadata?.is_platform_admin === true ||
-                  session.user.app_metadata?.role === 'PLATFORM_SUPER_ADMIN' ||
-                  session.user.user_metadata?.role === 'PLATFORM_SUPER_ADMIN';
+                const isSuperAdmin = isFounderAccount(session.user);
 
                 if (isSuperAdmin) {
                   hasSession = true;
@@ -1075,6 +1075,7 @@ ${generateCssVariableString('dark')}
       });
     })();
   </script>
+  <script src="founder-live.js"></script>
 </body>
 </html>
 `.trim();
@@ -1086,4 +1087,5 @@ if (!fs.existsSync(distDir)) {
 }
 
 fs.writeFileSync(path.join(distDir, 'index.html'), founderAppHtml, 'utf-8');
+fs.copyFileSync(path.join(__dirname, 'founder-live.js'), path.join(distDir, 'founder-live.js'));
 console.log('✅ Generated pure STOKROVA Platform Founder Console at apps/admin-web/dist/index.html');

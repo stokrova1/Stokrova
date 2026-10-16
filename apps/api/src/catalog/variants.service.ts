@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -24,7 +25,7 @@ import { TemplatesService } from './templates.service.js';
 
 @Injectable()
 export class VariantsService {
-  private variantsStore = new Map<string, ProductVariant>();
+  private variantsStore = new DurableMap<ProductVariant>('product_variants');
 
   constructor(private readonly templatesService: TemplatesService) {}
 
@@ -182,6 +183,8 @@ export class VariantsService {
       variant.status = req.status;
     }
 
+    const img = (req as { image_url?: string | null }).image_url;
+    if (img !== undefined) variant.image_url = img;
     variant.updated_at = new Date().toISOString();
     this.variantsStore.set(variant.id, variant);
     return variant;

@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type {
@@ -49,7 +50,7 @@ export class PosSyncService {
   private txResolutionsByIdempotencyKey = new Map<string, PosSyncTransactionResolution>();
 
   // Key: batch_id -> StoredPosSyncBatch
-  private batchesStore = new Map<string, StoredPosSyncBatch>();
+  private batchesStore = new DurableMap<StoredPosSyncBatch>('pos_sync_batches');
 
   constructor(
     private readonly posService: PosService,

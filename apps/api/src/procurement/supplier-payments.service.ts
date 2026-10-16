@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -17,7 +18,7 @@ import { PurchaseInvoicesService } from './purchase-invoices.service.js';
 
 @Injectable()
 export class SupplierPaymentsService {
-  private paymentsStore = new Map<string, SupplierPayment>();
+  private paymentsStore = new DurableMap<SupplierPayment>('supplier_payments');
   private idempotencyStore = new Map<string, string>();
   private paymentCounter = 8000;
 

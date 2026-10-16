@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -25,8 +26,8 @@ import { LocationsService } from './locations.service.js';
 
 @Injectable()
 export class BinTransfersService {
-  private readonly transfers = new Map<string, InternalBinTransfer>();
-  private readonly transferLines = new Map<string, InternalTransferLine>();
+  private readonly transfers = new DurableMap<InternalBinTransfer>('internal_bin_transfers');
+  private readonly transferLines = new DurableMap<InternalTransferLine>('internal_bin_transfer_lines');
   private transferSeq = 1001;
 
   constructor(

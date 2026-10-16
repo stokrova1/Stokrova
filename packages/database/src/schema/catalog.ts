@@ -158,6 +158,7 @@ export const product_variants = pgTable(
     attributes: jsonb('attributes').notNull().default('{}'),
     weight_grams: doublePrecision('weight_grams'),
     volume_cm3: doublePrecision('volume_cm3'),
+    image_url: text('image_url'),
     status: text('status').notNull().default('ACTIVE'), // ACTIVE, DISCONTINUED, DRAFT
     created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updated_at: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),

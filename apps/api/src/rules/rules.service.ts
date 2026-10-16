@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -58,8 +59,8 @@ export interface StoredApprovalRequest {
 
 @Injectable()
 export class RulesService {
-  private rulesStore = new Map<string, StoredBusinessRule>();
-  private approvalsStore = new Map<string, StoredApprovalRequest>();
+  private rulesStore = new DurableMap<StoredBusinessRule>('business_rules');
+  private approvalsStore = new DurableMap<StoredApprovalRequest>('approval_requests');
 
   async createRule(
     tenantId: string,

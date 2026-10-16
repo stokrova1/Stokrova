@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -30,8 +31,8 @@ import { AccountingBooksService } from './accounting-books.service.js';
 
 @Injectable()
 export class GeneralLedgerService {
-  private readonly journalEntries = new Map<string, JournalEntry>();
-  private readonly operationEntries = new Map<string, JournalEntry>();
+  private readonly journalEntries = new DurableMap<JournalEntry>('journal_entries');
+  private readonly operationEntries = new DurableMap<JournalEntry>('journal_entries');
 
   constructor(
     private readonly accountsService: AccountsService,

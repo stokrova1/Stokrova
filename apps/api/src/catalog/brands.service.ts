@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -13,7 +14,7 @@ import { generateSlug } from '@stokrova/domain';
 
 @Injectable()
 export class BrandsService {
-  private brandsStore = new Map<string, Brand>();
+  private brandsStore = new DurableMap<Brand>('brands');
 
   async createBrand(tenantId: string, req: CreateBrandRequest): Promise<Brand> {
     const code = req.code.trim().toUpperCase();

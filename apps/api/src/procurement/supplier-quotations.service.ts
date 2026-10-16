@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -23,7 +24,7 @@ import { RfqsService } from './rfqs.service.js';
 
 @Injectable()
 export class SupplierQuotationsService {
-  private quotationsStore = new Map<string, SupplierQuotation>();
+  private quotationsStore = new DurableMap<SupplierQuotation>('supplier_quotations');
   private quotationCounter = 6000;
 
   constructor(

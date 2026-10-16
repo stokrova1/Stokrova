@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { RbacService } from './rbac.service.js';
 import { StandardPermissions } from '@stokrova/domain';
 
@@ -90,6 +90,7 @@ describe('RbacService', () => {
     const cashierRole = roles.find((r) => r.code === 'CASHIER')!;
 
     // 1. Create invitation for cashier with shareable link (e.g. for WhatsApp)
+    vi.spyOn(service, 'getUserActiveAssignments').mockResolvedValueOnce([{ role_code: 'BUSINESS_OWNER', permissions: ['*'], scope: {} } as any]);
     const invitation = await service.inviteStaff(tenantId, 'usr_owner_01', {
       email: 'cashier.amina@stokrova.test',
       full_name: 'Amina Bello',
@@ -138,6 +139,7 @@ describe('RbacService', () => {
     const roles = await service.getRoleTemplates();
     const accountantRole = roles.find((r) => r.code === 'ACCOUNTANT')!;
 
+    vi.spyOn(service, 'getUserActiveAssignments').mockResolvedValueOnce([{ role_code: 'BUSINESS_OWNER', permissions: ['*'], scope: {} } as any]);
     const invitation = await service.inviteStaff(tenantId, 'usr_owner_01', {
       email: 'cfo@stokrova.test',
       full_name: 'David Okafor',

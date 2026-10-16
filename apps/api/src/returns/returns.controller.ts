@@ -99,7 +99,7 @@ export class ReturnsController {
   // --------------------------------------------------------------------------
 
   @Post()
-  @RequirePermission(StandardPermissions.RETURNS_MANAGE)
+  @RequirePermission(StandardPermissions.RETURNS_CREATE)
   async createRma(
     @CurrentTenant() tenantId: string,
     @Body() body: CreateRmaRequest,
@@ -145,7 +145,7 @@ export class ReturnsController {
   }
 
   @Post(':id/request')
-  @RequirePermission(StandardPermissions.RETURNS_MANAGE)
+  @RequirePermission(StandardPermissions.RETURNS_CREATE)
   async requestRma(
     @CurrentTenant() tenantId: string,
     @Param('id') id: string,

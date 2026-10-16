@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -17,8 +18,8 @@ import {
 
 @Injectable()
 export class PromotionsService {
-  private campaignsStore = new Map<string, PromotionCampaign>();
-  private redemptionsStore = new Map<string, PromotionRedemptionRecord>();
+  private campaignsStore = new DurableMap<PromotionCampaign>('promotion_campaigns');
+  private redemptionsStore = new DurableMap<PromotionRedemptionRecord>('promotion_redemptions');
 
   // --------------------------------------------------------------------------
   // Campaign Administration

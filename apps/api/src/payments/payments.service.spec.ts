@@ -115,7 +115,7 @@ describe('PaymentsService (Separation of Concerns & Financial Truth)', () => {
       expect(sessionSummary.total_cash_sales_minor).toBe('200000');
       expect(sessionSummary.expected_closing_minor).toBe('210000'); // 10k float + 200k cash
 
-      // 3. Pay remaining ₦300,000 via Bank Transfer (starts as PENDING)
+      // 3. Pay remaining ₦300,000 via Bank Transfer (recorded once received, counts at once)
       const transferPayment = await paymentsService.recordPayment(tenantId, cashierUserId, {
         invoice_id: invoice.id,
         order_id: 'ord_5001',
@@ -124,23 +124,7 @@ describe('PaymentsService (Separation of Concerns & Financial Truth)', () => {
         provider_reference: 'NIP-123456789',
       });
 
-      expect(transferPayment.status).toBe('PENDING');
-
-      // Invoice balance remains 300,000 until bank transfer is confirmed
-      const midInv = await paymentsService.getInvoiceById(tenantId, invoice.id);
-      expect(midInv.status).toBe('PARTIALLY_PAID');
-
-      // 4. Confirm Bank Transfer
-      const confirmedTransfer = await paymentsService.confirmPayment(
-        tenantId,
-        transferPayment.id,
-        cashierUserId,
-        {
-          verification_reference: 'NIP-CONFIRMED-123',
-        },
-      );
-
-      expect(confirmedTransfer.status).toBe('CONFIRMED');
+      expect(transferPayment.status).toBe('CONFIRMED');
 
       // Invoice is now fully PAID
       const finalInv = await paymentsService.getInvoiceById(tenantId, invoice.id);
@@ -227,7 +211,7 @@ describe('PaymentsService (Separation of Concerns & Financial Truth)', () => {
   });
 
   describe('Register Settlement Report', () => {
-    it('aggregates cash, card, and transfer payments captured in a till session', async () => {
+    it('counts card as transfer in the till settlement', async () => {
       // Record Cash payment in session
       await paymentsService.recordPayment(tenantId, cashierUserId, {
         register_session_id: sessionId,
@@ -252,7 +236,8 @@ describe('PaymentsService (Separation of Concerns & Financial Truth)', () => {
 
       expect(report.opening_float_minor).toBe('10000');
       expect(report.total_cash_payments_minor).toBe('75000');
-      expect(report.total_card_payments_minor).toBe('45000');
+      expect(report.total_card_payments_minor).toBe('0');
+      expect(report.total_transfer_payments_minor).toBe('45000');
       expect(report.expected_cash_in_drawer_minor).toBe('85000'); // 10k float + 75k cash
       expect(report.payments_count).toBe(2);
       expect(report.receipts_printed_count).toBe(1);
@@ -311,6 +296,23 @@ describe('PaymentsService (Separation of Concerns & Financial Truth)', () => {
       // Opening float: 20000 ($200) + Cash sale: 4000 ($40) = 24000 ($240)
       expect(sessionSummary.current_drawer_balance_minor).toBe('24000');
       expect(sessionSummary.total_cash_sales_minor).toBe('4000');
+    });
+
+    it('splits a shift takings into cash for the drawer and transfer (card included) for the bank', async () => {
+      await paymentsService.processMultiTenderCheckout(tenantId, cashierUserId, {
+        order_id: 'ord_takings_1',
+        pos_session_id: posSessionId,
+        total_payable_minor: '10000',
+        tenders: [
+          { idempotency_key: 'tk_cash', tender_type: 'CASH', amount_minor: '5000' },
+          { idempotency_key: 'tk_card', tender_type: 'CARD', amount_minor: '3000' },
+          { idempotency_key: 'tk_trf', tender_type: 'BANK_TRANSFER', amount_minor: '2000' },
+        ],
+      });
+      const t = await paymentsService.getSessionTakings(tenantId, posSessionId);
+      expect(t.cash_received_minor).toBe('5000');
+      expect(t.transfer_received_minor).toBe('5000');
+      expect(t.total_received_minor).toBe('10000');
     });
 
     it('rejects non-cash over-tendering (cards cannot generate cash change)', async () => {
@@ -383,5 +385,28 @@ describe('PaymentsService (Separation of Concerns & Financial Truth)', () => {
       expect(retrieved.allocated_tenders).toHaveLength(1);
     });
   });
-});
 
+  describe('Refunds', () => {
+    it('refunds part of a captured payment and blocks refunding more than was paid', async () => {
+      const invoice = await paymentsService.createInvoice(tenantId, { order_id: 'ord_7001', total_minor: 100000 });
+      const pay = await paymentsService.recordPayment(tenantId, cashierUserId, {
+        invoice_id: invoice.id,
+        order_id: 'ord_7001',
+        register_session_id: sessionId,
+        amount_minor: 100000,
+        payment_method: 'CASH',
+      });
+
+      const refund = await paymentsService.refundPayment(tenantId, pay.id, cashierUserId, { amount_minor: 30000 });
+      expect(refund.status).toBe('REFUNDED');
+      expect(refund.amount_minor).toBe('30000');
+
+      await expect(
+        paymentsService.refundPayment(tenantId, pay.id, cashierUserId, { amount_minor: 70001 }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+
+      const rest = await paymentsService.refundPayment(tenantId, pay.id, cashierUserId, {});
+      expect(rest.amount_minor).toBe('70000');
+    });
+  });
+});

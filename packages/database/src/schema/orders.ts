@@ -72,6 +72,8 @@ export const sales_order_lines = pgTable(
     discount_minor: bigint('discount_minor', { mode: 'bigint' }).notNull().default(sql`0`),
     tax_minor: bigint('tax_minor', { mode: 'bigint' }).notNull().default(sql`0`),
     line_total_minor: bigint('line_total_minor', { mode: 'bigint' }).notNull(),
+    // Historical cost of goods for this line in minor units; null when unknown so margin is never invented.
+    cogs_minor: bigint('cogs_minor', { mode: 'bigint' }),
   },
   (table) => [
     index('idx_sales_order_lines_order').on(table.order_id),

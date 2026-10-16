@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   BadRequestException,
@@ -41,8 +42,8 @@ import { OutboxService } from '../infrastructure/outbox/outbox.service.js';
 
 @Injectable()
 export class StockLedgerService {
-  private ledgerStore = new Map<string, StockLedgerEntry>();
-  private balancesStore = new Map<string, StockBalanceSnapshot>();
+  private ledgerStore = new DurableMap<StockLedgerEntry>('stock_ledger_entries');
+  private balancesStore = new DurableMap<StockBalanceSnapshot>('stock_balance_snapshots');
 
   constructor(
     private readonly variantsService: VariantsService,

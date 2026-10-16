@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -28,7 +29,7 @@ export interface PunchoutSessionRecord {
 
 @Injectable()
 export class B2bPunchoutService {
-  private readonly sessions = new Map<string, PunchoutSessionRecord>();
+  private readonly sessions = new DurableMap<PunchoutSessionRecord>('b2b_punchout_sessions');
 
   async handlePunchoutSetupXml(
     tenantId: string,

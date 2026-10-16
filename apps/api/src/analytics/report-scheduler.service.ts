@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -20,7 +21,7 @@ import { ReportExportService } from './report-export.service.js';
 @Injectable()
 export class ReportSchedulerService {
   private readonly logger = new Logger(ReportSchedulerService.name);
-  private readonly schedules = new Map<string, ReportSchedule>();
+  private readonly schedules = new DurableMap<ReportSchedule>('report_schedules');
   private readonly executionLogs: ReportExecutionLog[] = [];
 
   constructor(

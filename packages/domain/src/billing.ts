@@ -61,6 +61,7 @@ export interface TenantSubscription {
   canceled_at: string | null;
   trial_ends_at: string | null;
   feature_flag_overrides?: Partial<TierFeatureFlags>;
+  plan_grants?: { features?: string[]; limits?: Partial<Record<'max_branches' | 'max_active_registers' | 'max_users' | 'max_warehouses', number | null>> } | null;
   limit_overrides?: {
     max_branches?: number;
     max_active_registers?: number;
@@ -100,19 +101,26 @@ export interface QuotaEvaluationResult {
  * Standard Tier Entitlement Definitions
  * Progresses smoothly from single-trader simplicity to multi-warehouse enterprise operations.
  */
+/** Used for limits a plan does not cap. */
+export const UNLIMITED = Number.MAX_SAFE_INTEGER;
+
+/**
+ * Plan limits and features as sold on the website (see plan-catalog.ts).
+ * SOLO_TRADER and CUSTOM are retired: they behave as Starter and Enterprise and are not offered.
+ */
 export const TIER_ENTITLEMENT_DEFINITIONS: Record<SubscriptionTier, TierEntitlements> = {
   SOLO_TRADER: {
     tier: 'SOLO_TRADER',
-    name: 'Solo Trader',
+    name: 'Starter (retired free plan)',
     monthly_price_minor: '0',
     annual_price_minor: '0',
     currency: 'USD',
     max_branches: 1,
     max_active_registers: 1,
     max_warehouses: 1,
-    max_skus: 500,
-    max_monthly_orders: 1000,
-    max_users: 1,
+    max_skus: UNLIMITED,
+    max_monthly_orders: UNLIMITED,
+    max_users: 3,
     feature_flags: {
       manufacturing_enabled: false,
       edi_enabled: false,
@@ -126,62 +134,62 @@ export const TIER_ENTITLEMENT_DEFINITIONS: Record<SubscriptionTier, TierEntitlem
   },
   RETAIL_STARTER: {
     tier: 'RETAIL_STARTER',
-    name: 'Retail Starter',
-    monthly_price_minor: '4900', // $49.00
-    annual_price_minor: '47000', // $470.00
+    name: 'Starter',
+    monthly_price_minor: '4900',
+    annual_price_minor: '47000',
     currency: 'USD',
-    max_branches: 3,
-    max_active_registers: 5,
-    max_warehouses: 2,
-    max_skus: 5000,
-    max_monthly_orders: 10000,
-    max_users: 5,
+    max_branches: 1,
+    max_active_registers: 1,
+    max_warehouses: 1,
+    max_skus: UNLIMITED,
+    max_monthly_orders: UNLIMITED,
+    max_users: 3,
+    feature_flags: {
+      manufacturing_enabled: false,
+      edi_enabled: false,
+      b2b_portal_enabled: false,
+      multi_currency_enabled: false,
+      offline_sync_enabled: true,
+      advanced_crm_enabled: false,
+      custom_webhooks_enabled: false,
+      automated_replenishment_enabled: false,
+    },
+  },
+  WHOLESALE_GROWTH: {
+    tier: 'WHOLESALE_GROWTH',
+    name: 'Growth',
+    monthly_price_minor: '14900',
+    annual_price_minor: '143000',
+    currency: 'USD',
+    max_branches: 5,
+    max_active_registers: UNLIMITED,
+    max_warehouses: 5,
+    max_skus: UNLIMITED,
+    max_monthly_orders: UNLIMITED,
+    max_users: UNLIMITED,
     feature_flags: {
       manufacturing_enabled: false,
       edi_enabled: false,
       b2b_portal_enabled: false,
       multi_currency_enabled: true,
       offline_sync_enabled: true,
-      advanced_crm_enabled: false,
-      custom_webhooks_enabled: true,
-      automated_replenishment_enabled: true,
-    },
-  },
-  WHOLESALE_GROWTH: {
-    tier: 'WHOLESALE_GROWTH',
-    name: 'Wholesale Growth',
-    monthly_price_minor: '19900', // $199.00
-    annual_price_minor: '199000', // $1,990.00
-    currency: 'USD',
-    max_branches: 10,
-    max_active_registers: 20,
-    max_warehouses: 5,
-    max_skus: 50000,
-    max_monthly_orders: 50000,
-    max_users: 25,
-    feature_flags: {
-      manufacturing_enabled: true,
-      edi_enabled: false,
-      b2b_portal_enabled: true,
-      multi_currency_enabled: true,
-      offline_sync_enabled: true,
       advanced_crm_enabled: true,
-      custom_webhooks_enabled: true,
+      custom_webhooks_enabled: false,
       automated_replenishment_enabled: true,
     },
   },
   ENTERPRISE_LOGISTICS: {
     tier: 'ENTERPRISE_LOGISTICS',
-    name: 'Enterprise Logistics',
-    monthly_price_minor: '59900', // $599.00
-    annual_price_minor: '599000', // $5,990.00
+    name: 'Enterprise',
+    monthly_price_minor: '39900',
+    annual_price_minor: '383000',
     currency: 'USD',
-    max_branches: 100,
-    max_active_registers: 250,
-    max_warehouses: 50,
-    max_skus: 500000,
-    max_monthly_orders: 1000000,
-    max_users: 250,
+    max_branches: UNLIMITED,
+    max_active_registers: UNLIMITED,
+    max_warehouses: UNLIMITED,
+    max_skus: UNLIMITED,
+    max_monthly_orders: UNLIMITED,
+    max_users: UNLIMITED,
     feature_flags: {
       manufacturing_enabled: true,
       edi_enabled: true,
@@ -195,16 +203,16 @@ export const TIER_ENTITLEMENT_DEFINITIONS: Record<SubscriptionTier, TierEntitlem
   },
   CUSTOM: {
     tier: 'CUSTOM',
-    name: 'Custom Enterprise',
-    monthly_price_minor: '120000', // $1,200.00 base
-    annual_price_minor: '1200000',
+    name: 'Enterprise (custom)',
+    monthly_price_minor: '39900',
+    annual_price_minor: '383000',
     currency: 'USD',
-    max_branches: 1000,
-    max_active_registers: 1000,
-    max_warehouses: 250,
-    max_skus: 2000000,
-    max_monthly_orders: 5000000,
-    max_users: 1000,
+    max_branches: UNLIMITED,
+    max_active_registers: UNLIMITED,
+    max_warehouses: UNLIMITED,
+    max_skus: UNLIMITED,
+    max_monthly_orders: UNLIMITED,
+    max_users: UNLIMITED,
     feature_flags: {
       manufacturing_enabled: true,
       edi_enabled: true,
@@ -338,6 +346,8 @@ export function calculateProratedBilling(params: {
   periodStart: Date | string;
   periodEnd: Date | string;
   effectiveDate: Date | string;
+  /** Current plan prices (founder-set); falls back to the built-in defaults. */
+  prices?: Partial<Record<SubscriptionTier, { monthly_price_minor: string; annual_price_minor: string }>>;
 }): ProrationQuote {
   const start = new Date(params.periodStart).getTime();
   const end = new Date(params.periodEnd).getTime();
@@ -351,8 +361,8 @@ export function calculateProratedBilling(params: {
 
   const factorBp = Math.floor((remainingMs * 10000) / totalCycleMs);
 
-  const curDef = TIER_ENTITLEMENT_DEFINITIONS[params.currentTier];
-  const targetDef = TIER_ENTITLEMENT_DEFINITIONS[params.targetTier];
+  const curDef = params.prices?.[params.currentTier] ?? TIER_ENTITLEMENT_DEFINITIONS[params.currentTier];
+  const targetDef = params.prices?.[params.targetTier] ?? TIER_ENTITLEMENT_DEFINITIONS[params.targetTier];
 
   const curRateMinor =
     params.cycle === 'ANNUAL'

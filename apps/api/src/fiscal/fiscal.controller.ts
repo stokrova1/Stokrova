@@ -7,6 +7,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { FiscalComplianceService } from './fiscal-compliance.service.js';
+import { RbacGuard } from '../rbac/rbac.guard.js';
+import { RequirePermission } from '../rbac/decorators/require-permission.decorator.js';
+import { StandardPermissions } from '@stokrova/domain';
 import { AuthGuard } from '../auth/auth.guard.js';
 import { TenantGuard } from '../auth/tenant.guard.js';
 import { CurrentTenant } from '../auth/decorators/current-tenant.decorator.js';
@@ -23,6 +26,7 @@ import type {
 } from '@stokrova/contracts';
 
 @Controller('fiscal')
+@RequirePermission(StandardPermissions.TAX_MANAGE)
 export class FiscalController {
   constructor(private readonly fiscalService: FiscalComplianceService) {}
 
@@ -31,7 +35,7 @@ export class FiscalController {
   // ==========================================================================
 
   @Post('entities')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async createFiscalEntity(
     @CurrentTenant() tenant: { id: string },
     @Body() body: CreateFiscalEntityRequest,
@@ -40,7 +44,7 @@ export class FiscalController {
   }
 
   @Get('entities')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async listFiscalEntities(
     @CurrentTenant() tenant: { id: string },
   ): Promise<FiscalEntityProfile[]> {
@@ -48,7 +52,7 @@ export class FiscalController {
   }
 
   @Get('entities/:id')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async getFiscalEntity(
     @CurrentTenant() tenant: { id: string },
     @Param('id') id: string,
@@ -61,7 +65,7 @@ export class FiscalController {
   // ==========================================================================
 
   @Post('e-invoices/generate-xml')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async generateEInvoiceXml(
     @CurrentTenant() tenant: { id: string },
     @Body() body: GenerateEInvoiceXmlRequest,
@@ -81,7 +85,7 @@ export class FiscalController {
   // ==========================================================================
 
   @Post('receipts/sign')
-  @UseGuards(AuthGuard, TenantGuard)
+  @UseGuards(AuthGuard, TenantGuard, RbacGuard)
   async signFiscalReceipt(
     @CurrentTenant() tenant: { id: string },
     @Body() body: SignFiscalReceiptRequest,

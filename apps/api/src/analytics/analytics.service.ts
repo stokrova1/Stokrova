@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type {
@@ -51,7 +52,7 @@ export interface StoredForecast {
 
 @Injectable()
 export class AnalyticsService {
-  private readonly abcSnapshots = new Map<string, StoredAbcSnapshot>();
+  private readonly abcSnapshots = new DurableMap<StoredAbcSnapshot>('analytics_abc_snapshots');
   private readonly forecastHistory = new Map<string, StoredForecast>();
   private readonly sampleDeadStockItems: DeadStockItemInput[] = [];
   private readonly sampleCashierSessions: CashierSessionDiscrepancyInput[] = [];

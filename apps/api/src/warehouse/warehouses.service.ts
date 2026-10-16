@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -14,7 +15,7 @@ import { TenancyService } from '../tenancy/tenancy.service.js';
 
 @Injectable()
 export class WarehousesService {
-  private warehousesStore = new Map<string, Warehouse>();
+  private warehousesStore = new DurableMap<Warehouse>('warehouses');
 
   constructor(private readonly tenancyService: TenancyService) {}
 

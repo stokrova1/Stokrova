@@ -3,6 +3,8 @@ import { createDatabaseClient } from '@stokrova/database';
 import { ApiConfigService } from '../../config/api-config.service.js';
 import { DATABASE_CLIENT, DATABASE_POOL } from './database.tokens.js';
 import { TransactionManager } from './transaction.manager.js';
+import { SalesLedgerWriter } from './sales-ledger.writer.js';
+import { DurableStore } from './durable-map.js';
 
 const DB_CONNECTION_HOLDER = Symbol('DB_CONNECTION_HOLDER');
 
@@ -31,7 +33,9 @@ const DB_CONNECTION_HOLDER = Symbol('DB_CONNECTION_HOLDER');
       useFactory: (holder: { db: any; pool: any }) => holder.pool,
     },
     TransactionManager,
+    SalesLedgerWriter,
+    DurableStore,
   ],
-  exports: [DATABASE_CLIENT, DATABASE_POOL, TransactionManager],
+  exports: [DATABASE_CLIENT, DATABASE_POOL, TransactionManager, SalesLedgerWriter, DurableStore],
 })
 export class DatabaseModule {}

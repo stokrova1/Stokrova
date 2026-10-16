@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -15,7 +16,7 @@ import { computeSha256Hash, maskSecret } from '@stokrova/domain';
 
 @Injectable()
 export class DeveloperPlatformService {
-  private readonly keys = new Map<string, DeveloperApiKey>();
+  private readonly keys = new DurableMap<DeveloperApiKey>('developer_api_keys');
   private readonly keyHashIndex = new Map<string, string>(); // key_hash -> key_id
   private readonly requestCounts = new Map<string, { count: number; windowStart: number }>();
 

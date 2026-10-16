@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -31,9 +32,9 @@ import {
 
 @Injectable()
 export class AccountingBooksService {
-  private readonly books = new Map<string, AccountingBook>();
-  private readonly fiscalYears = new Map<string, FiscalYear>();
-  private readonly periods = new Map<string, AccountingPeriod>();
+  private readonly books = new DurableMap<AccountingBook>('accounting_books');
+  private readonly fiscalYears = new DurableMap<FiscalYear>('fiscal_years');
+  private readonly periods = new DurableMap<AccountingPeriod>('accounting_periods');
 
   // ==========================================================================
   // Accounting Books

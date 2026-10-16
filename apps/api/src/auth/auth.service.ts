@@ -1,3 +1,4 @@
+import { ConflictException } from '@nestjs/common';
 import { Injectable, Inject, Optional } from '@nestjs/common';
 import type { UserIdentity } from '@stokrova/contracts';
 import { TenancyService } from '../tenancy/tenancy.service.js';
@@ -143,37 +144,23 @@ export class AuthService {
     // Check if user already has an active tenant
     const existingSession = await this.getSession(user);
     if (existingSession.onboarding_status === 'COMPLETED' && existingSession.active_tenant) {
-      // Idempotency: return existing tenant if slug matches
+      // Idempotency: a retried sign-up for the same workspace returns the existing company.
       if (dto.slug && existingSession.active_tenant.slug === dto.slug) {
         const tenant = await this.tenancyService.getTenantById(existingSession.active_tenant.id);
         const branches = await this.tenancyService.getBranchesByTenant(tenant.id);
-        const company = await this.tenancyService.getCompanyById(tenant.id, tenant.id.replace('ten_', 'cmp_'));
-        return {
-          tenant,
-          company: company || {
-            id: `cmp_${tenant.id}`,
-            tenant_id: tenant.id,
-            name: tenant.name,
-            currency_code: 'USD',
-            created_at: new Date().toISOString(),
-          },
-          default_branch: branches[0] || {
-            id: `brn_${tenant.id}`,
-            tenant_id: tenant.id,
-            company_id: `cmp_${tenant.id}`,
-            name: 'Main Branch',
-            code: 'MAIN',
-            created_at: new Date().toISOString(),
-          },
-        };
+        const branch = branches[0];
+        const company = branch ? await this.tenancyService.getCompanyById(tenant.id, branch.company_id) : null;
+        if (company && branch) return { tenant, company, default_branch: branch };
       }
+      // One owner account registers one company; extra companies are added from inside the workspace.
+      throw new ConflictException('This account already owns a Stokrova workspace. Sign in to continue.');
     }
 
     return this.tenancyService.provisionTenant(
       {
         ...dto,
         owner_email: user.email,
-        owner_full_name: user.full_name,
+        owner_full_name: dto.owner_full_name || user.full_name,
       },
       user.id,
     );

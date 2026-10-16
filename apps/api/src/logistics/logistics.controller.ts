@@ -22,7 +22,7 @@ import { LogisticsDeliveryService } from './logistics-delivery.service.js';
 import { LogisticsReverseService } from './logistics-reverse.service.js';
 import { LogisticsChargesService } from './logistics-charges.service.js';
 
-@Controller('v1/logistics')
+@Controller('logistics')
 @UseGuards(AuthGuard, TenantGuard, RbacGuard)
 export class LogisticsController {
   constructor(

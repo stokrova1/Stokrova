@@ -1,4 +1,5 @@
 import {
+  Optional,
   Controller,
   Get,
   Post,
@@ -33,10 +34,17 @@ import type {
 } from '@stokrova/contracts';
 import { StandardPermissions } from '@stokrova/domain';
 
+import { PlanEntitlementsService } from '../billing/plan-entitlements.service.js';
+
 @Controller('rbac')
 @UseGuards(AuthGuard, TenantGuard, RbacGuard)
 export class RbacController {
-  constructor(private readonly rbacService: RbacService) {}
+  constructor(
+    private readonly rbacService: RbacService,
+    @Optional() private readonly plans?: PlanEntitlementsService,
+  ) {
+    this.plans?.registerCounter('max_users', (t) => this.rbacService.countStaffSeats(t));
+  }
 
   @Get('templates')
   async getTemplates(): Promise<RoleResponse[]> {
@@ -88,9 +96,13 @@ export class RbacController {
       });
     }
 
+    const assign = parseResult.data as AssignRoleRequest;
+    if (!(await this.rbacService.isStaffMember(tenantId, assign.user_id))) {
+      await this.plans?.assertCanAdd(tenantId, 'max_users');
+    }
     return this.rbacService.assignRole(
       tenantId,
-      parseResult.data as AssignRoleRequest,
+      assign,
     );
   }
 
@@ -120,6 +132,7 @@ export class RbacController {
       });
     }
 
+    await this.plans?.assertCanAdd(tenantId, 'max_users');
     return this.rbacService.inviteStaff(
       tenantId,
       user.id,

@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   BadRequestException,
@@ -27,9 +28,9 @@ import { IntegrationInstancesService } from './integration-instances.service.js'
 
 @Injectable()
 export class IntegrationSyncService {
-  private readonly mappings = new Map<string, ExternalIdentityMapping>();
-  private readonly fieldMappings = new Map<string, IntegrationFieldMapping>();
-  private readonly syncRuns = new Map<string, IntegrationSyncRun>();
+  private readonly mappings = new DurableMap<ExternalIdentityMapping>('integration_entity_mappings');
+  private readonly fieldMappings = new DurableMap<IntegrationFieldMapping>('integration_field_mappings');
+  private readonly syncRuns = new DurableMap<IntegrationSyncRun>('integration_sync_runs');
 
   constructor(private readonly instancesService: IntegrationInstancesService) {}
 

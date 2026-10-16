@@ -9,10 +9,17 @@ import {
   UseGuards,
   Headers,
   BadRequestException,
+  Optional,
 } from '@nestjs/common';
+import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
+import type { UserIdentity } from '@stokrova/contracts';
+import { SalesTicketsService } from './sales-tickets.service.js';
 import { PosService } from './pos.service.js';
 import { PosCheckoutService } from './pos-checkout.service.js';
+import { CurrentTenant } from '../auth/decorators/current-tenant.decorator.js';
+import { PosCatalogService } from './pos-catalog.service.js';
 import { PosSyncService } from './pos-sync.service.js';
+import { AuthGuard } from '../auth/auth.guard.js';
 import { TenantGuard } from '../auth/tenant.guard.js';
 import { RbacGuard } from '../rbac/rbac.guard.js';
 import { RequirePermission } from '../rbac/decorators/require-permission.decorator.js';
@@ -42,17 +49,31 @@ import type {
   PosSyncBatchRequest,
 } from '@stokrova/contracts';
 
-@Controller('v1/pos')
-@UseGuards(TenantGuard, RbacGuard)
+@Controller('pos')
+@UseGuards(AuthGuard, TenantGuard, RbacGuard)
 export class PosController {
   constructor(
     private readonly posService: PosService,
     private readonly checkoutService: PosCheckoutService,
     private readonly syncService: PosSyncService,
+    private readonly catalogService: PosCatalogService,
+    @Optional() private readonly salesTickets?: SalesTicketsService,
   ) {}
 
+  /** Products with their current price and live stock, for the till and catalog. */
+  @Get('products')
+  @RequirePermission(StandardPermissions.CATALOG_VIEW)
+  async getSellableProducts(
+    @CurrentTenant() tenantId: string,
+    @Query('warehouse_id') warehouseId?: string,
+    @Query('pricelist_id') pricelistId?: string,
+    @Query('customer_id') customerId?: string,
+  ) {
+    return this.catalogService.listSellable(tenantId, { warehouse_id: warehouseId, pricelist_id: pricelistId, customer_id: customerId });
+  }
+
   @Post('registers')
-  @RequirePermission('registers:manage')
+  @RequirePermission(StandardPermissions.REGISTERS_MANAGE)
   async createRegister(
     @Headers('x-tenant-id') tenantId: string,
     @Body() body: unknown,
@@ -68,7 +89,7 @@ export class PosController {
   }
 
   @Get('registers')
-  @RequirePermission('registers:read')
+  @RequirePermission(StandardPermissions.REGISTER_OPEN)
   async getRegisters(
     @Headers('x-tenant-id') tenantId: string,
     @Query('branch_id') branchId?: string,
@@ -77,7 +98,7 @@ export class PosController {
   }
 
   @Get('registers/:id')
-  @RequirePermission('registers:read')
+  @RequirePermission(StandardPermissions.REGISTER_OPEN)
   async getRegisterById(
     @Headers('x-tenant-id') tenantId: string,
     @Param('id') id: string,
@@ -86,7 +107,7 @@ export class PosController {
   }
 
   @Patch('registers/:id')
-  @RequirePermission('registers:manage')
+  @RequirePermission(StandardPermissions.REGISTERS_MANAGE)
   async updateRegister(
     @Headers('x-tenant-id') tenantId: string,
     @Param('id') id: string,
@@ -104,7 +125,7 @@ export class PosController {
   }
 
   @Post('sessions/open')
-  @RequirePermission('registers:operate')
+  @RequirePermission(StandardPermissions.POS_CHECKOUT)
   async openSession(
     @Headers('x-tenant-id') tenantId: string,
     @Headers('x-user-id') userId: string,
@@ -122,7 +143,7 @@ export class PosController {
   }
 
   @Get('sessions/active')
-  @RequirePermission('registers:read')
+  @RequirePermission(StandardPermissions.REGISTER_OPEN)
   async getActiveSession(
     @Headers('x-tenant-id') tenantId: string,
     @Query('register_id') registerId: string,
@@ -134,7 +155,7 @@ export class PosController {
   }
 
   @Get('sessions/:id')
-  @RequirePermission('registers:read')
+  @RequirePermission(StandardPermissions.REGISTER_OPEN)
   async getSessionById(
     @Headers('x-tenant-id') tenantId: string,
     @Param('id') id: string,
@@ -143,7 +164,7 @@ export class PosController {
   }
 
   @Get('sessions/:id/summary')
-  @RequirePermission('registers:read')
+  @RequirePermission(StandardPermissions.REGISTER_OPEN)
   async getSessionSummary(
     @Headers('x-tenant-id') tenantId: string,
     @Param('id') id: string,
@@ -152,7 +173,7 @@ export class PosController {
   }
 
   @Post('sessions/:id/suspend')
-  @RequirePermission('registers:operate')
+  @RequirePermission(StandardPermissions.POS_CHECKOUT)
   async suspendSession(
     @Headers('x-tenant-id') tenantId: string,
     @Headers('x-user-id') userId: string,
@@ -162,7 +183,7 @@ export class PosController {
   }
 
   @Post('sessions/:id/resume')
-  @RequirePermission('registers:operate')
+  @RequirePermission(StandardPermissions.POS_CHECKOUT)
   async resumeSession(
     @Headers('x-tenant-id') tenantId: string,
     @Headers('x-user-id') userId: string,
@@ -172,7 +193,7 @@ export class PosController {
   }
 
   @Post('sessions/:id/cash-in')
-  @RequirePermission('registers:operate')
+  @RequirePermission(StandardPermissions.POS_CHECKOUT)
   async recordCashIn(
     @Headers('x-tenant-id') tenantId: string,
     @Headers('x-user-id') userId: string,
@@ -192,7 +213,7 @@ export class PosController {
   }
 
   @Post('sessions/:id/cash-out')
-  @RequirePermission('registers:operate')
+  @RequirePermission(StandardPermissions.POS_CHECKOUT)
   async recordCashOut(
     @Headers('x-tenant-id') tenantId: string,
     @Headers('x-user-id') userId: string,
@@ -212,7 +233,7 @@ export class PosController {
   }
 
   @Post('sessions/:id/cash-drop')
-  @RequirePermission('registers:operate')
+  @RequirePermission(StandardPermissions.POS_CHECKOUT)
   async recordCashDrop(
     @Headers('x-tenant-id') tenantId: string,
     @Headers('x-user-id') userId: string,
@@ -232,7 +253,7 @@ export class PosController {
   }
 
   @Post('sessions/:id/close')
-  @RequirePermission('registers:operate')
+  @RequirePermission(StandardPermissions.POS_CHECKOUT)
   async closeSession(
     @Headers('x-tenant-id') tenantId: string,
     @Headers('x-user-id') userId: string,
@@ -252,7 +273,7 @@ export class PosController {
   }
 
   @Post('sessions/:id/reconcile')
-  @RequirePermission('registers:manage')
+  @RequirePermission(StandardPermissions.REGISTERS_MANAGE)
   async reconcileSession(
     @Headers('x-tenant-id') tenantId: string,
     @Param('id') id: string,
@@ -274,17 +295,21 @@ export class PosController {
   async checkout(
     @Headers('x-tenant-id') tenantId: string,
     @Headers('x-user-id') userId: string,
+    @CurrentUser() me: UserIdentity | undefined,
     @Body() body: unknown,
   ) {
     const parsed = PosCheckoutSchema.safeParse(body);
     if (!parsed.success) {
       throw new BadRequestException(parsed.error.errors);
     }
-    return this.checkoutService.processCheckout(
+    const result = await this.checkoutService.processCheckout(
       tenantId,
       userId || 'usr_anonymous',
       parsed.data as PosCheckoutRequest,
     );
+    // Count it on the signed-in cashier's own "My day".
+    if (me?.id) this.salesTickets?.recordSale(tenantId, me.id, result.receipt_number, Number(result.total_payable_minor), parsed.data.tenders, result.order_id);
+    return result;
   }
 
   @Post('sync')

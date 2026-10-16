@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -34,11 +35,11 @@ import { QuotationsService } from '../quotations/quotations.service.js';
 
 @Injectable()
 export class CrmPipelineService {
-  private readonly leads = new Map<string, CrmLead>();
-  private readonly pipelines = new Map<string, CrmPipeline>();
-  private readonly stages = new Map<string, CrmPipelineStage>();
-  private readonly opportunities = new Map<string, CrmOpportunity>();
-  private readonly stageHistories = new Map<string, CrmOpportunityStageHistory>();
+  private readonly leads = new DurableMap<CrmLead>('crm_leads');
+  private readonly pipelines = new DurableMap<CrmPipeline>('crm_pipelines');
+  private readonly stages = new DurableMap<CrmPipelineStage>('crm_pipeline_stages');
+  private readonly opportunities = new DurableMap<CrmOpportunity>('crm_opportunities');
+  private readonly stageHistories = new DurableMap<CrmOpportunityStageHistory>('crm_opportunity_stage_history');
 
   constructor(
     private readonly customersService: CustomersService,

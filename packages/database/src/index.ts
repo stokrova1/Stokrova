@@ -3,7 +3,7 @@ import { sql } from 'drizzle-orm';
 import pg from 'pg';
 import * as schema from './schema/index.js';
 
-export { sql } from 'drizzle-orm';
+export { sql, getTableColumns } from 'drizzle-orm';
 export * from './schema/index.js';
 export * from './seed.js';
 

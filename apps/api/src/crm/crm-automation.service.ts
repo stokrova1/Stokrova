@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -31,8 +32,8 @@ export interface DomainEventInput {
 @Injectable()
 export class CrmAutomationService {
   private readonly logger = new Logger(CrmAutomationService.name);
-  private readonly automations = new Map<string, CrmAutomation>();
-  private readonly executions = new Map<string, CrmAutomationExecution>();
+  private readonly automations = new DurableMap<CrmAutomation>('crm_automations');
+  private readonly executions = new DurableMap<CrmAutomationExecution>('crm_automation_executions');
 
   constructor(
     private readonly activitiesService: CrmActivitiesService,

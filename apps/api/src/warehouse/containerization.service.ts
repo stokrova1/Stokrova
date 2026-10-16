@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -36,8 +37,8 @@ import { PackingStationService } from './packing-station.service.js';
 
 @Injectable()
 export class ContainerizationService {
-  private readonly containers = new Map<string, PackedContainer>();
-  private readonly containerLines = new Map<string, PackedContainerLine>();
+  private readonly containers = new DurableMap<PackedContainer>('packed_containers');
+  private readonly containerLines = new DurableMap<PackedContainerLine>('packed_container_lines');
   private containerSeq = 1001;
 
   constructor(

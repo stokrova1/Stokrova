@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import { Injectable } from '@nestjs/common';
 import type {
   GdprErasureRequest,
@@ -23,7 +24,7 @@ import { AuditForensicsService } from './audit-forensics.service.js';
 
 @Injectable()
 export class ComplianceService {
-  private readonly erasureRequests = new Map<string, GdprErasureRequest>();
+  private readonly erasureRequests = new DurableMap<GdprErasureRequest>('gdpr_erasure_requests');
   private readonly tenantSodRules = new Map<string, SegregationOfDutiesRule[]>();
 
   constructor(private readonly auditForensicsService: AuditForensicsService) {

@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -40,12 +41,12 @@ export interface StoredSegmentMember {
 
 @Injectable()
 export class CrmMarketingService {
-  private readonly segments = new Map<string, CrmSegment>();
-  private readonly segmentMembers = new Map<string, StoredSegmentMember>();
-  private readonly consentRecords = new Map<string, CrmConsentRecord>();
-  private readonly suppressionList = new Map<string, CrmSuppressionEntry>();
-  private readonly campaigns = new Map<string, CrmCampaign>();
-  private readonly messages = new Map<string, CrmMessage>();
+  private readonly segments = new DurableMap<CrmSegment>('crm_segments');
+  private readonly segmentMembers = new DurableMap<StoredSegmentMember>('crm_segment_members');
+  private readonly consentRecords = new DurableMap<CrmConsentRecord>('crm_consent_records');
+  private readonly suppressionList = new DurableMap<CrmSuppressionEntry>('crm_suppression_list');
+  private readonly campaigns = new DurableMap<CrmCampaign>('crm_campaigns');
+  private readonly messages = new DurableMap<CrmMessage>('crm_messages');
   private readonly processedOperations = new Set<string>(); // tenant:operation_id
 
   constructor(

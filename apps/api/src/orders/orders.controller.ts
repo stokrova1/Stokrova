@@ -30,7 +30,7 @@ import type {
 } from '@stokrova/contracts';
 import { StandardPermissions } from '@stokrova/domain';
 
-@Controller('v1/orders')
+@Controller('orders')
 @UseGuards(AuthGuard, TenantGuard, RbacGuard)
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}

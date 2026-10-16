@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -30,7 +31,7 @@ import { ContainerizationService } from './containerization.service.js';
 
 @Injectable()
 export class ShippingManifestService {
-  private readonly manifests = new Map<string, ShippingManifest>();
+  private readonly manifests = new DurableMap<ShippingManifest>('shipping_manifests');
   private readonly manifestContainers = new Map<string, string[]>(); // manifestId -> containerId[]
   private manifestSeq = 1001;
 

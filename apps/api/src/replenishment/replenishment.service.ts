@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -38,8 +39,8 @@ import { WarehousesService } from '../warehouse/warehouses.service.js';
 
 @Injectable()
 export class ReplenishmentService {
-  private readonly rules = new Map<string, ReplenishmentRule>();
-  private readonly recommendations = new Map<string, ReplenishmentRecommendation>();
+  private readonly rules = new DurableMap<ReplenishmentRule>('replenishment_rules');
+  private readonly recommendations = new DurableMap<ReplenishmentRecommendation>('replenishment_recommendations');
   // Authoritative inventory positions ledger state
   private readonly stockLevels = new Map<string, { on_hand: number; on_order: number; in_transit: number; allocated: number; backordered: number }>();
 

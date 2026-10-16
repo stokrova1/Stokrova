@@ -120,6 +120,76 @@
       "when": 1792326000000,
       "tag": "0016_platform_admin_stokrova1",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1792327000000,
+      "tag": "0017_executive_sales_pipeline",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1792328000000,
+      "tag": "0018_wire_all_defined_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1792332000000,
+      "tag": "0019_founder_account_link",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1792332001000,
+      "tag": "0020_platform_plan_prices",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1792332002000,
+      "tag": "0021_plan_billing_records",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1792332003000,
+      "tag": "0022_plan_entitlements",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1792418403000,
+      "tag": "0023_naira_billing",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1792504803000,
+      "tag": "0024_sales_tickets_staff_day",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1792591203000,
+      "tag": "0025_product_insights",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1792677603000,
+      "tag": "0026_operations_alerts_counts",
+      "breakpoints": true
     }
   ]
 }

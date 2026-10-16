@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -71,9 +72,9 @@ export interface StoredCustomer {
 
 @Injectable()
 export class CustomersService {
-  private groupsStore = new Map<string, StoredCustomerGroup>();
-  private customersStore = new Map<string, StoredCustomer>();
-  private addressesStore = new Map<string, StoredCustomerAddress>();
+  private groupsStore = new DurableMap<StoredCustomerGroup>('customer_groups');
+  private customersStore = new DurableMap<StoredCustomer>('customers');
+  private addressesStore = new DurableMap<StoredCustomerAddress>('customer_addresses');
 
   constructor(private readonly auditService?: AuditService) {}
 

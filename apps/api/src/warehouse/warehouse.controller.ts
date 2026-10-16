@@ -1,4 +1,5 @@
 import {
+  Optional,
   Controller,
   Get,
   Post,
@@ -118,6 +119,8 @@ import type {
 } from '@stokrova/contracts';
 import { StandardPermissions } from '@stokrova/domain';
 
+import { PlanEntitlementsService } from '../billing/plan-entitlements.service.js';
+
 @Controller('warehouses')
 @UseGuards(AuthGuard, TenantGuard, RbacGuard)
 export class WarehouseController {
@@ -135,7 +138,10 @@ export class WarehouseController {
     private readonly barcodeService: BarcodeLogisticsService,
     private readonly transfersService: BinTransfersService,
     private readonly crossDockService: CrossDockService,
-  ) {}
+    @Optional() private readonly plans?: PlanEntitlementsService,
+  ) {
+    this.plans?.registerCounter('max_warehouses', async (t) => (await this.warehousesService.getWarehouses(t)).length);
+  }
 
   // --------------------------------------------------------------------------
   // Storage Locations (Declared before :id to prevent route shadowing)
@@ -1164,6 +1170,7 @@ export class WarehouseController {
       });
     }
 
+    await this.plans?.assertCanAdd(tenantId, 'max_warehouses');
     const warehouse = await this.warehousesService.createWarehouse(
       tenantId,
       parseResult.data as CreateWarehouseRequest,

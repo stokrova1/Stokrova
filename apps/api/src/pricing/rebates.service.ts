@@ -1,3 +1,4 @@
+import { DurableMap } from '../infrastructure/database/durable-map.js';
 import {
   Injectable,
   NotFoundException,
@@ -22,9 +23,9 @@ import {
 
 @Injectable()
 export class RebatesService {
-  private agreementsStore = new Map<string, RebateAgreement>();
+  private agreementsStore = new DurableMap<RebateAgreement>('rebate_agreements');
   private tiersStore = new Map<string, RebateTier[]>(); // agreementId -> tiers
-  private accrualsStore = new Map<string, RebateAccrual>(); // accrualId -> accrual
+  private accrualsStore = new DurableMap<RebateAccrual>('rebate_accruals'); // accrualId -> accrual
 
   // --------------------------------------------------------------------------
   // Agreement & Tier Administration
