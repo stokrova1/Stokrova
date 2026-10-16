@@ -271,7 +271,7 @@ ${generateCssVariableString('dark')}
       </div>
 
       <!-- Login Form -->
-      <form id="admin-login-form" onsubmit="window.stokrovaFounder.handleAdminLogin(event)" style="display: flex; flex-direction: column; gap: 16px;">
+      <form id="admin-login-form" method="post" action="javascript:void(0)" onsubmit="window.stokrovaFounder.handleAdminLogin(event)" style="display: flex; flex-direction: column; gap: 16px;">
         <!-- Email Input -->
         <div>
           <label for="founder-login-email" style="display: block; font-size: 0.6875rem; font-weight: 700; color: #ACB8C3; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;">
@@ -551,7 +551,7 @@ ${generateCssVariableString('dark')}
         const token = sb ? (await sb.auth.getSession().catch(() => ({ data: {} })))?.data?.session?.access_token : null;
         const headers = Object.assign({}, init.headers || {}, token ? { Authorization: 'Bearer ' + token } : {});
         const base = window.STOKROVA_API || SUPABASE_CONFIG.apiBase;
-        return fetch(base + url.replace(/^\/api\/v1/, ''), Object.assign({}, init, { headers }));
+        return fetch(base + url.replace(/^\\/api\\/v1/, ''), Object.assign({}, init, { headers }));
       };
       const getSupabase = () => {
         if (window._stokrovaSupabase) return window._stokrovaSupabase;
