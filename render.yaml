@@ -7,7 +7,7 @@ services:
     runtime: node
     plan: free
     region: frankfurt # closest Render region to Nigeria
-    branch: main
+    branch: master
     buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter "@stokrova/api..." run build
     startCommand: node apps/api/dist/main.js
     healthCheckPath: /v1/health/live
@@ -20,6 +20,10 @@ services:
       # Supabase database (use the "Session pooler" connection string from Supabase)
       - key: DATABASE_URL
         sync: false
+      - key: JWT_SECRET
+        generateValue: true # Render creates a long random secret
+      - key: REDIS_ENABLED
+        value: "false" # no Redis on the free plan
       - key: DURABLE_HYDRATE
         value: "true"
       # Supabase sign-in checks
