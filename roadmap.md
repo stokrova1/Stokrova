@@ -3,7 +3,7 @@
 ## Open
 - [x] Order ticket flow: order taker builds list -> items reserved (not deducted) -> printed slip with barcode -> picker ticks/scans each item, flags missing -> cashier scans barcode, sees items+prices, records cash/transfer -> stock deducted, receipt printed. Unpaid tickets release reservation after a set time. One-person shops can do all steps on one screen.
 - [x] "My day" (taker, picker, cashier; warehouse/procurement counts not yet) dashboard per worker: order taker (tickets, value), picker (tickets/items picked, misses), cashier (sales, cash vs transfer, returns), warehouse/procurement staff (their records today), with end-of-day summary.
-- [ ] Push approved changes to stokrova1/Stokrova (after user approval and live DB migrations).
+- [x] Push approved changes to stokrova1/Stokrova — done Oct 16, commit 2e098a6 on master (239 files, nothing removed).
 
 ## Live tracking & product profit (requested Oct 16)
 - [x] Product price tab: cost, selling price, auto margin per product (edit + history)
@@ -18,4 +18,4 @@
 - [x] Daily summary + low-stock/expiry alerts by email (Resend) or WhatsApp (Meta) — needs keys on the user's server
 - [x] Customers who owe / what we owe suppliers (30/60/90 days), guided stock count with money value
 - [x] Product import from CSV, product photos, printable barcode labels
-- [ ] Live database check — waiting for the user to add DATABASE_URL securely
+- [ ] Live database check — database itself migrated and verified (0016–0026); still needs the engine running (Render) so founder + owner sign-in can be checked live
