@@ -113,12 +113,70 @@ export function renderCounts(root, counts, warehouses, call, reload) {
   const status = root.querySelector('[data-status]');
   root.querySelector('.stk-op-find').addEventListener('input', (e) => { const q = e.target.value.toLowerCase(); root.querySelectorAll('tbody tr[data-label]').forEach((tr) => { tr.style.display = tr.dataset.label.includes(q) ? '' : 'none'; }); });
   const save = () => call('POST', `/operations/stock-counts/${open.id}/lines`, { lines: [...root.querySelectorAll('input[data-v]')].map((i) => ({ variant_id: i.dataset.v, counted: i.value === '' ? null : Number(i.value) })) });
-  root.querySelector('[data-save]').addEventListener('click', async () => { try { await save(); reload(); } catch (e) { status.textContent = ` ${e.message}`; } });
-  root.querySelector('[data-post]').addEventListener('click', async () => {
-    if (!confirm('Post every counted difference to stock? This cannot be undone.')) return;
-    try { await save(); await call('POST', `/operations/stock-counts/${open.id}/post`); reload(); } catch (e) { status.textContent = ` ${e.message}`; }
+  const saveBtn = root.querySelector('[data-save]');
+  saveBtn.addEventListener('click', async () => {
+    if (window.stokrovaStartLoading) window.stokrovaStartLoading(saveBtn, 'Saving counts…');
+    try {
+      await save();
+      if (window.stokrovaToast) window.stokrovaToast('Stock counts saved.');
+      reload();
+    } catch (e) {
+      status.textContent = ` ${e.message}`;
+    } finally {
+      if (window.stokrovaStopLoading) window.stokrovaStopLoading(saveBtn);
+    }
   });
-  root.querySelector('[data-cancel]').addEventListener('click', async () => { try { await call('POST', `/operations/stock-counts/${open.id}/cancel`); reload(); } catch (e) { status.textContent = ` ${e.message}`; } });
+
+  const postBtn = root.querySelector('[data-post]');
+  postBtn.addEventListener('click', () => {
+    const doPost = async () => {
+      if (window.stokrovaStartLoading) window.stokrovaStartLoading(postBtn, 'Posting…');
+      try {
+        await save();
+        await call('POST', `/operations/stock-counts/${open.id}/post`);
+        if (window.stokrovaToast) window.stokrovaToast('Counted differences posted to stock.');
+        reload();
+      } catch (e) {
+        status.textContent = ` ${e.message}`;
+      } finally {
+        if (window.stokrovaStopLoading) window.stokrovaStopLoading(postBtn);
+      }
+    };
+    if (window.stokrovaConfirmInline) {
+      window.stokrovaConfirmInline({
+        target: postBtn,
+        message: 'Post every counted difference to stock? This cannot be undone.',
+        onConfirm: doPost,
+      });
+    } else if (confirm('Post every counted difference to stock? This cannot be undone.')) {
+      doPost();
+    }
+  });
+
+  const cancelBtn = root.querySelector('[data-cancel]');
+  cancelBtn.addEventListener('click', () => {
+    const doCancel = async () => {
+      if (window.stokrovaStartLoading) window.stokrovaStartLoading(cancelBtn, 'Cancelling…');
+      try {
+        await call('POST', `/operations/stock-counts/${open.id}/cancel`);
+        if (window.stokrovaToast) window.stokrovaToast('Stock count cancelled.');
+        reload();
+      } catch (e) {
+        status.textContent = ` ${e.message}`;
+      } finally {
+        if (window.stokrovaStopLoading) window.stokrovaStopLoading(cancelBtn);
+      }
+    };
+    if (window.stokrovaConfirmInline) {
+      window.stokrovaConfirmInline({
+        target: cancelBtn,
+        message: 'Cancel this stock count?',
+        onConfirm: doCancel,
+      });
+    } else {
+      doCancel();
+    }
+  });
 }
 
 export function renderReorder(root, recs, call, reload) {
@@ -126,9 +184,33 @@ export function renderReorder(root, recs, call, reload) {
   root.innerHTML = `${head(root)}<div class="stk-op-row"><button data-eval>Check stock now</button><span class="stk-op-muted" data-status></span></div>
   ${list.length ? `<table><thead><tr><th>Product</th><th>In stock</th><th>Reorder at</th><th>Suggested</th><th>Est. cost</th><th></th></tr></thead><tbody>${list.map((r) => `<tr><td>${esc(r.sku)}</td><td>${r.net_stock_position}</td><td>${r.reorder_point}</td><td><b>${r.recommended_quantity}</b></td><td>${money(r.estimated_cost_cents)}</td><td>${r.status === 'PENDING' ? `<button data-ok="${esc(r.id)}">Approve</button> <button data-no="${esc(r.id)}">Dismiss</button>` : 'Approved'}</td></tr>`).join('')}</tbody></table>` : '<p class="stk-op-muted">No reorders needed right now. Set reorder levels per product to get suggestions.</p>'}`;
   const status = root.querySelector('[data-status]');
-  root.querySelector('[data-eval]').addEventListener('click', async () => { try { await call('POST', '/replenishment/evaluate', {}); reload(); } catch (e) { status.textContent = ` ${e.message}`; } });
-  root.querySelectorAll('[data-ok]').forEach((b) => b.addEventListener('click', async () => { try { await call('POST', `/replenishment/recommendations/${b.dataset.ok}/approve`, {}); reload(); } catch (e) { status.textContent = ` ${e.message}`; } }));
-  root.querySelectorAll('[data-no]').forEach((b) => b.addEventListener('click', async () => { try { await call('POST', `/replenishment/recommendations/${b.dataset.no}/reject`, { reason: 'Dismissed by user' }); reload(); } catch (e) { status.textContent = ` ${e.message}`; } }));
+  root.querySelector('[data-eval]').addEventListener('click', async (e) => {
+    const btn = e.currentTarget;
+    if (window.stokrovaStartLoading) window.stokrovaStartLoading(btn, 'Checking stock…');
+    try { await call('POST', '/replenishment/evaluate', {}); reload(); } catch (err) { status.textContent = ` ${err.message}`; }
+    finally { if (window.stokrovaStopLoading) window.stokrovaStopLoading(btn); }
+  });
+  root.querySelectorAll('[data-ok]').forEach((b) => b.addEventListener('click', async () => {
+    if (window.stokrovaStartLoading) window.stokrovaStartLoading(b, 'Approving…');
+    try { await call('POST', `/replenishment/recommendations/${b.dataset.ok}/approve`, {}); reload(); } catch (err) { status.textContent = ` ${err.message}`; }
+    finally { if (window.stokrovaStopLoading) window.stokrovaStopLoading(b); }
+  }));
+  root.querySelectorAll('[data-no]').forEach((b) => b.addEventListener('click', () => {
+    const doReject = async () => {
+      if (window.stokrovaStartLoading) window.stokrovaStartLoading(b, 'Dismissing…');
+      try { await call('POST', `/replenishment/recommendations/${b.dataset.no}/reject`, { reason: 'Dismissed by user' }); reload(); } catch (err) { status.textContent = ` ${err.message}`; }
+      finally { if (window.stokrovaStopLoading) window.stokrovaStopLoading(b); }
+    };
+    if (window.stokrovaConfirmInline) {
+      window.stokrovaConfirmInline({
+        target: b,
+        message: 'Dismiss this reorder suggestion?',
+        onConfirm: doReject,
+      });
+    } else {
+      doReject();
+    }
+  }));
 }
 
 export function renderAbc(root, r) {
@@ -185,12 +267,51 @@ export function renderProductsTools(root, variants, warehouses, call, reload) {
     res.textContent = `${rows.length} rows read.`;
     root.querySelector('[data-check]').disabled = root.querySelector('[data-import]').disabled = !rows.length;
   });
-  root.querySelector('[data-check]').addEventListener('click', async () => { try { show(await call('POST', '/operations/products/import', { rows, warehouse_id: w.value, dry_run: true })); } catch (e) { res.textContent = e.message; } });
-  root.querySelector('[data-import]').addEventListener('click', async () => { try { show(await call('POST', '/operations/products/import', { rows, warehouse_id: w.value })); setTimeout(reload, 1500); } catch (e) { res.textContent = e.message; } });
+  root.querySelector('[data-check]').addEventListener('click', async (e) => {
+    const btn = e.currentTarget;
+    if (window.stokrovaStartLoading) window.stokrovaStartLoading(btn, 'Checking file…');
+    try { show(await call('POST', '/operations/products/import', { rows, warehouse_id: w.value, dry_run: true })); }
+    catch (err) { res.textContent = err.message; }
+    finally { if (window.stokrovaStopLoading) window.stokrovaStopLoading(btn); }
+  });
+  const importBtn = root.querySelector('[data-import]');
+  importBtn.addEventListener('click', () => {
+    const doImport = async () => {
+      if (window.stokrovaStartLoading) window.stokrovaStartLoading(importBtn, 'Importing…');
+      try {
+        show(await call('POST', '/operations/products/import', { rows, warehouse_id: w.value }));
+        if (window.stokrovaToast) window.stokrovaToast('Products imported successfully.');
+        setTimeout(reload, 1500);
+      } catch (err) {
+        res.textContent = err.message;
+      } finally {
+        if (window.stokrovaStopLoading) window.stokrovaStopLoading(importBtn);
+      }
+    };
+    if (window.stokrovaConfirmInline) {
+      window.stokrovaConfirmInline({
+        target: importBtn,
+        message: `Import ${rows.length} products to ${w.options[w.selectedIndex]?.text || 'warehouse'}?`,
+        onConfirm: doImport,
+      });
+    } else {
+      doImport();
+    }
+  });
   const status = root.querySelector('[data-status]');
   root.querySelectorAll('[data-saveimg]').forEach((b) => b.addEventListener('click', async () => {
     const id = b.dataset.saveimg;
-    try { await call('POST', `/operations/products/${id}/image`, { image_url: root.querySelector(`[data-img="${id}"]`).value }); status.textContent = ' Photo saved.'; reload(); } catch (e) { status.textContent = ` ${e.message}`; }
+    if (window.stokrovaStartLoading) window.stokrovaStartLoading(b, 'Saving…');
+    try {
+      await call('POST', `/operations/products/${id}/image`, { image_url: root.querySelector(`[data-img="${id}"]`).value });
+      status.textContent = ' Photo saved.';
+      if (window.stokrovaToast) window.stokrovaToast('Product photo saved.');
+      reload();
+    } catch (err) {
+      status.textContent = ` ${err.message}`;
+    } finally {
+      if (window.stokrovaStopLoading) window.stokrovaStopLoading(b);
+    }
   }));
   root.querySelector('[data-print]').addEventListener('click', () => {
     const sheet = root.querySelector('.stk-op-labels');

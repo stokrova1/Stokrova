@@ -75,8 +75,119 @@
       .workspace-sidebar > :last-child{display:none}
       .workspace-viewport{width:100%;padding:12px!important}
     }
+    @keyframes stkSpin { to { transform: rotate(360deg); } }
+    @keyframes stkToastDrop { from { transform: translate(-50%, -16px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+    @keyframes stkConfirmFadeIn { from { opacity: 0; transform: translateY(6px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .stk-btn-spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(255,255,255,0.25); border-top-color: currentColor; border-radius: 50%; animation: stkSpin 0.6s linear infinite; margin-right: 6px; vertical-align: middle; }
+    .stk-confirm-popover { position: fixed; z-index: 999999; background: rgba(24, 29, 34, 0.98); border: 1px solid #BD9652; border-radius: 8px; box-shadow: 0 16px 36px rgba(0,0,0,0.65), 0 0 20px rgba(189,150,82,0.18); padding: 14px 16px; min-width: 260px; max-width: 340px; color: #F8FAFC; font-size: 0.8125rem; animation: stkConfirmFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards; backdrop-filter: blur(10px); }
   `;
   document.head.append(style);
+
+  window.stokrovaStartLoading = (btn, text = 'Saving…') => {
+    if (!btn) return () => {};
+    if (!btn.dataset.stkOrigHtml) {
+      btn.dataset.stkOrigHtml = btn.innerHTML;
+      btn.dataset.stkOrigWidth = btn.style.width || '';
+      btn.dataset.stkOrigMinWidth = btn.style.minWidth || '';
+      btn.dataset.stkOrigPointerEvents = btn.style.pointerEvents || '';
+      btn.dataset.stkOrigOpacity = btn.style.opacity || '';
+    }
+    const rect = btn.getBoundingClientRect();
+    btn.style.width = Math.max(rect.width, 68) + 'px';
+    btn.style.minWidth = Math.max(rect.width, 68) + 'px';
+    btn.style.pointerEvents = 'none';
+    btn.style.opacity = '0.85';
+    btn.disabled = true;
+    btn.innerHTML = `<span class="stk-btn-spinner"></span><span>${text}</span>`;
+    return () => window.stokrovaStopLoading(btn);
+  };
+
+  window.stokrovaStopLoading = (btn) => {
+    if (!btn || !btn.dataset.stkOrigHtml) return;
+    btn.innerHTML = btn.dataset.stkOrigHtml;
+    btn.style.width = btn.dataset.stkOrigWidth;
+    btn.style.minWidth = btn.dataset.stkOrigMinWidth;
+    btn.style.pointerEvents = btn.dataset.stkOrigPointerEvents;
+    btn.style.opacity = btn.dataset.stkOrigOpacity;
+    delete btn.dataset.stkOrigHtml;
+    delete btn.dataset.stkOrigWidth;
+    delete btn.dataset.stkOrigMinWidth;
+    delete btn.dataset.stkOrigPointerEvents;
+    delete btn.dataset.stkOrigOpacity;
+    btn.disabled = false;
+  };
+
+  window.stokrovaToast = (msg) => {
+    let t = document.getElementById('stk-closer-toast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'stk-closer-toast';
+      t.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:rgba(22,27,30,0.96);backdrop-filter:blur(12px);border:1px solid #BD9652;border-radius:9999px;box-shadow:0 16px 40px rgba(0,0,0,0.65),0 0 20px rgba(189,150,82,0.18);padding:10px 22px;color:#F8FAFC;font-size:0.84rem;font-weight:600;display:flex;align-items:center;gap:10px;z-index:9999999;animation:stkToastDrop 0.25s cubic-bezier(0.16,1,0.3,1) forwards;cursor:pointer;';
+      document.body.appendChild(t);
+    }
+    t.innerHTML = `<span style="color:#BD9652;">◆</span><span>${msg}</span>`;
+    t.style.display = 'flex';
+    clearTimeout(window._stkToastTimer);
+    window._stkToastTimer = setTimeout(() => { t.style.display = 'none'; }, 3500);
+    t.onclick = () => { t.style.display = 'none'; };
+  };
+
+  window.stokrovaConfirmInline = ({ target, message, promptPlaceholder, promptDefault, onConfirm, onCancel }) => {
+    document.querySelectorAll('.stk-confirm-popover').forEach(el => el.remove());
+    if (!target) return;
+    const pop = document.createElement('div');
+    pop.className = 'stk-confirm-popover';
+    pop.innerHTML = `
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;">
+        <span style="color:#BD9652;font-size:1.1rem;line-height:1;">⚠️</span>
+        <div style="flex:1;line-height:1.45;font-weight:600;">${message}</div>
+      </div>
+      ${promptPlaceholder ? `<input type="text" class="stk-confirm-prompt-val" placeholder="${promptPlaceholder}" value="${promptDefault || ''}" style="width:100%;box-sizing:border-box;margin-bottom:10px;padding:6px 10px;background:rgba(0,0,0,0.3);border:1px solid #BD9652;border-radius:6px;color:#F8FAFC;font-size:0.8rem;outline:none;" />` : ''}
+      <div style="display:flex;justify-content:flex-end;gap:8px;">
+        <button type="button" class="stk-btn-cancel-inline" style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:#ACB8C3;padding:5px 10px;border-radius:6px;font-size:0.75rem;cursor:pointer;font-weight:600;">Cancel ✕</button>
+        <button type="button" class="stk-btn-confirm-inline" style="background:linear-gradient(135deg,#BD9652 0%,#A47E3D 100%);border:none;color:#0E1116;padding:5px 12px;border-radius:6px;font-size:0.75rem;cursor:pointer;font-weight:700;">Confirm ✓</button>
+      </div>
+    `;
+    document.body.appendChild(pop);
+    const rect = target.getBoundingClientRect();
+    const popRect = pop.getBoundingClientRect();
+    let top = rect.bottom + 6;
+    let left = rect.left;
+    if (left + popRect.width > window.innerWidth - 12) {
+      left = Math.max(12, window.innerWidth - popRect.width - 12);
+    }
+    if (top + popRect.height > window.innerHeight - 12) {
+      top = Math.max(12, rect.top - popRect.height - 6);
+    }
+    pop.style.top = top + 'px';
+    pop.style.left = left + 'px';
+
+    const input = pop.querySelector('.stk-confirm-prompt-val');
+    if (input) setTimeout(() => input.focus(), 50);
+
+    const close = () => pop.remove();
+    pop.querySelector('.stk-btn-cancel-inline')?.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      close();
+      if (onCancel) onCancel();
+    });
+    pop.querySelector('.stk-btn-confirm-inline')?.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      const val = input ? input.value : true;
+      close();
+      if (onConfirm) onConfirm(val);
+    });
+
+    setTimeout(() => {
+      const onDocClick = (e) => {
+        if (!pop.contains(e.target) && e.target !== target) {
+          close();
+          document.removeEventListener('click', onDocClick);
+        }
+      };
+      document.addEventListener('click', onDocClick);
+    }, 20);
+  };
   const icon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m9 12 2 2 4-4"/><path d="M12 3 3 7v5c0 5 9 9 9 9s9-4 9-9V7l-9-4Z"/></svg>';
   const table = (headers, rows) => `<div class="stk-demo-table-wrap"><table class="stk-demo-table"><thead><tr>${headers.map(h => `<th scope="col">${h}</th>`).join('')}</tr></thead><tbody>${rows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
   const status = text => `<span class="stk-demo-status">● ${text}</span>`;

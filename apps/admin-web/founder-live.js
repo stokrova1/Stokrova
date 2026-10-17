@@ -47,13 +47,157 @@
       return { error: 'The Stokrova server could not be reached.' };
     }
   }
+  function showToastCloser(msg) {
+    let t = document.getElementById('fl-closer-toast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'fl-closer-toast';
+      t.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:999999;background:rgba(22,27,30,0.96);backdrop-filter:blur(12px);border:1px solid var(--primary,#BD9652);color:#F8FAFC;padding:10px 22px;border-radius:9999px;box-shadow:0 16px 40px rgba(0,0,0,0.65),0 0 20px rgba(189,150,82,0.18);display:none;align-items:center;gap:10px;font-size:0.84rem;font-weight:600;cursor:pointer;animation:stkToastDrop 0.25s cubic-bezier(0.16,1,0.3,1) forwards;';
+      t.onclick = () => { t.style.display = 'none'; };
+      document.body.appendChild(t);
+    }
+    t.innerHTML = `<span style="color:var(--primary,#BD9652);font-weight:900;">◆</span><span>${esc(msg)}</span>`;
+    t.style.display = 'inline-flex';
+    if (t._timer) clearTimeout(t._timer);
+    t._timer = setTimeout(() => { t.style.display = 'none'; }, 3800);
+  }
+
   const toast = (m) => {
+    showToastCloser(m);
     if (window.stokrovaFounder?.showToast) {
       window.stokrovaFounder.showToast(m);
-    } else {
-      window.alert(m);
     }
   };
+
+  function stkStartLoading(btn, text = 'Saving…') {
+    if (!btn || btn.dataset.stkLoading === '1') return () => {};
+    btn.dataset.stkLoading = '1';
+    btn.dataset.stkOrigHtml = btn.innerHTML;
+    const rect = btn.getBoundingClientRect();
+    btn.style.width = Math.max(rect.width, 68) + 'px';
+    btn.style.minWidth = Math.max(rect.width, 68) + 'px';
+    btn.style.height = rect.height ? rect.height + 'px' : '';
+    btn.style.display = 'inline-flex';
+    btn.style.alignItems = 'center';
+    btn.style.justifyContent = 'center';
+    btn.style.pointerEvents = 'none';
+    btn.style.opacity = '0.85';
+    btn.disabled = true;
+    btn.innerHTML = `<span class="stk-btn-spinner" style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,0.25);border-top-color:currentColor;border-radius:50%;animation:stkSpin 0.6s linear infinite;margin-right:6px;flex-shrink:0;"></span><span style="font-size:inherit;white-space:nowrap;">${esc(text)}</span>`;
+    return function stop() {
+      stkStopLoading(btn);
+    };
+  }
+
+  function stkStopLoading(btn) {
+    if (!btn || btn.dataset.stkLoading !== '1') return;
+    btn.innerHTML = btn.dataset.stkOrigHtml || btn.innerHTML;
+    delete btn.dataset.stkLoading;
+    delete btn.dataset.stkOrigHtml;
+    btn.style.width = '';
+    btn.style.minWidth = '';
+    btn.style.height = '';
+    btn.style.display = '';
+    btn.style.alignItems = '';
+    btn.style.justifyContent = '';
+    btn.style.pointerEvents = '';
+    btn.style.opacity = '';
+    btn.disabled = false;
+  }
+
+  function stkConfirmInline({ target, message, promptPlaceholder, promptDefault, onConfirm, onCancel }) {
+    document.querySelectorAll('.stk-confirm-popover').forEach((p) => p.remove());
+    if (!target) return;
+    const pop = document.createElement('div');
+    pop.className = 'stk-confirm-popover';
+    pop.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:${promptPlaceholder ? '8px' : '0'};">
+        <span style="color:var(--primary,#BD9652);font-weight:900;">◆</span>
+        <span style="color:#F8FAFC;font-size:0.78rem;font-weight:600;line-height:1.4;">${esc(message)}</span>
+      </div>
+      ${promptPlaceholder ? `<div style="margin-bottom:8px;"><input type="text" class="stk-confirm-input" placeholder="${esc(promptPlaceholder)}" value="${esc(promptDefault || '')}" style="width:100%;box-sizing:border-box;background:#161B1E;border:1px solid var(--border,#333D46);border-radius:5px;padding:6px 8px;color:#F8FAFC;font-size:0.78rem;outline:none;" /></div>` : ''}
+      <div style="display:flex;gap:6px;justify-content:flex-end;">
+        <button type="button" class="stk-confirm-cancel" style="background:#293136;border:1px solid #414F5A;color:#CBD5E1;padding:4px 10px;border-radius:5px;font-size:0.75rem;font-weight:600;cursor:pointer;transition:background 0.15s;">Cancel</button>
+        <button type="button" class="stk-confirm-ok" style="background:linear-gradient(135deg,#BD9652 0%,#D4AF37 100%);border:none;color:#0E1116;padding:4px 12px;border-radius:5px;font-size:0.75rem;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(189,150,82,0.3);">Confirm ✓</button>
+      </div>
+    `;
+
+    const rect = target.getBoundingClientRect();
+    pop.style.position = 'fixed';
+    pop.style.zIndex = '999999';
+    pop.style.background = 'rgba(24, 29, 34, 0.98)';
+    pop.style.backdropFilter = 'blur(12px)';
+    pop.style.border = '1px solid var(--primary, #BD9652)';
+    pop.style.borderRadius = '8px';
+    pop.style.padding = '10px 14px';
+    pop.style.boxShadow = '0 16px 36px rgba(0,0,0,0.65), 0 0 20px rgba(189,150,82,0.18)';
+    pop.style.maxWidth = '360px';
+    pop.style.animation = 'stkConfirmFadeIn 0.15s ease-out';
+
+    document.body.appendChild(pop);
+
+    const popRect = pop.getBoundingClientRect();
+    let top = rect.top + (rect.height / 2) - (popRect.height / 2);
+    if (top < 10) top = 10;
+    if (top + popRect.height > window.innerHeight - 10) top = window.innerHeight - popRect.height - 10;
+    pop.style.top = top + 'px';
+
+    if (rect.right + popRect.width + 12 < window.innerWidth) {
+      pop.style.left = (rect.right + 10) + 'px';
+    } else if (rect.left - popRect.width - 12 > 0) {
+      pop.style.left = (rect.left - popRect.width - 10) + 'px';
+    } else {
+      pop.style.left = Math.max(10, (window.innerWidth - popRect.width) / 2) + 'px';
+      pop.style.top = Math.max(10, rect.bottom + 8) + 'px';
+    }
+
+    const input = pop.querySelector('.stk-confirm-input');
+    if (input) input.focus();
+
+    const cleanup = () => {
+      pop.remove();
+      document.removeEventListener('click', onDocClick);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+
+    const onDocClick = (ev) => {
+      if (!pop.contains(ev.target) && ev.target !== target && !target.contains(ev.target)) {
+        cleanup();
+        onCancel?.();
+      }
+    };
+    const onKeyDown = (ev) => {
+      if (ev.key === 'Escape') {
+        cleanup();
+        onCancel?.();
+      } else if (ev.key === 'Enter' && input && ev.target === input) {
+        pop.querySelector('.stk-confirm-ok')?.click();
+      }
+    };
+
+    setTimeout(() => {
+      document.addEventListener('click', onDocClick);
+      document.addEventListener('keydown', onKeyDown);
+    }, 20);
+
+    pop.querySelector('.stk-confirm-cancel').onclick = (ev) => {
+      ev.stopPropagation();
+      cleanup();
+      onCancel?.();
+    };
+
+    pop.querySelector('.stk-confirm-ok').onclick = (ev) => {
+      ev.stopPropagation();
+      const val = input ? input.value.trim() : true;
+      if (promptPlaceholder && !val) {
+        input.style.borderColor = '#F87171';
+        return;
+      }
+      cleanup();
+      onConfirm(val);
+    };
+  }
+
   const when = (iso) => { const d = new Date(iso); return isNaN(d) ? '—' : d.toLocaleString(); };
 
   // ---------- Sign-in screen polish ----------
@@ -279,7 +423,17 @@
         if ((mode === 'FREE' || mode === 'DISCOUNT_PERCENT' || mode === 'FIXED_PRICE') && !f('note')) {
           return toast('Please give a reason.');
         }
-        r = await api(`/businesses/${encodeURIComponent(id)}/billing`, { method: 'PATCH', body: JSON.stringify({ mode, value, note: f('note') }) });
+        const stop = stkStartLoading(btn, 'Saving billing…');
+        try {
+          r = await api(`/businesses/${encodeURIComponent(id)}/billing`, { method: 'PATCH', body: JSON.stringify({ mode, value, note: f('note') }) });
+          if (r?.error || r?.signedOut) return toast(r?.error || 'Sign in again to continue.');
+          toast('Billing override saved.');
+          await toggleBilling(id, true);
+          await loadAudit();
+        } finally {
+          stop();
+        }
+        return;
       } else if (btn.dataset.billAct === 'grants') {
         if (!f('gnote')) { return toast('Please give a reason.'); }
         const limits = {};
@@ -288,20 +442,62 @@
           if (v === 'unlimited') limits[k] = null; else if (v) limits[k] = Number(v);
         }
         const features = f('features').split(',').map((x) => x.trim().toLowerCase()).filter(Boolean);
-        r = await api(`/businesses/${encodeURIComponent(id)}/entitlements`, { method: 'PATCH', body: JSON.stringify({ features, limits, note: f('gnote') }) });
+        const stop = stkStartLoading(btn, 'Saving extras…');
+        try {
+          r = await api(`/businesses/${encodeURIComponent(id)}/entitlements`, { method: 'PATCH', body: JSON.stringify({ features, limits, note: f('gnote') }) });
+          if (r?.error || r?.signedOut) return toast(r?.error || 'Sign in again to continue.');
+          toast('Plan extras saved.');
+          await toggleBilling(id, true);
+          await loadAudit();
+        } finally {
+          stop();
+        }
+        return;
       } else if (btn.dataset.billAct === 'extend') {
         const days = Number(f('days'));
         if (!days || days < 1) return toast('Enter a valid number of days (e.g. 30).');
-        r = await api(`/businesses/${encodeURIComponent(id)}/extend-trial`, { method: 'POST', body: JSON.stringify({ days }) });
+        stkConfirmInline({
+          target: btn,
+          message: `Extend trial for this business by ${days} days?`,
+          onConfirm: async () => {
+            const stop = stkStartLoading(btn, 'Extending…');
+            try {
+              r = await api(`/businesses/${encodeURIComponent(id)}/extend-trial`, { method: 'POST', body: JSON.stringify({ days }) });
+              if (r?.error || r?.signedOut) return toast(r?.error || 'Sign in again to continue.');
+              toast('Trial extended.');
+              await toggleBilling(id, true);
+              await loadAudit();
+            } catch (err) {
+              toast('Action failed: ' + (err?.message || 'Error'));
+            } finally {
+              stop();
+            }
+          }
+        });
+        return;
       } else {
-        const reference = (window.prompt('Payment reference (e.g. bank transfer details):') || '').trim();
-        if (!reference) { return toast('A payment reference is required.'); }
-        r = await api(`/businesses/${encodeURIComponent(id)}/invoices/${encodeURIComponent(btn.dataset.inv)}/mark-paid`, { method: 'POST', body: JSON.stringify({ reference }) });
+        stkConfirmInline({
+          target: btn,
+          message: `Mark invoice ${btn.dataset.inv} as paid?`,
+          promptPlaceholder: 'Payment reference (e.g. bank transfer details)...',
+          onConfirm: async (reference) => {
+            if (!reference) return toast('A payment reference is required.');
+            const stop = stkStartLoading(btn, 'Recording…');
+            try {
+              r = await api(`/businesses/${encodeURIComponent(id)}/invoices/${encodeURIComponent(btn.dataset.inv)}/mark-paid`, { method: 'POST', body: JSON.stringify({ reference }) });
+              if (r?.error || r?.signedOut) return toast(r?.error || 'Sign in again to continue.');
+              toast('Invoice marked paid.');
+              await toggleBilling(id, true);
+              await loadAudit();
+            } catch (err) {
+              toast('Action failed: ' + (err?.message || 'Error'));
+            } finally {
+              stop();
+            }
+          }
+        });
+        return;
       }
-      if (r?.error || r?.signedOut) return toast(r?.error || 'Sign in again to continue.');
-      toast('Saved successfully.');
-      await toggleBilling(id, true);
-      await loadAudit();
     } catch (err) {
       toast('Action failed: ' + (err?.message || 'Error'));
     } finally {
@@ -315,12 +511,12 @@
     const refresh = e.target.closest('[data-refresh]')?.dataset.refresh;
     if (refresh && LOADERS[refresh]) {
       const btn = e.target.closest('[data-refresh]');
-      if (btn) btn.disabled = true;
+      const stop = stkStartLoading(btn, 'Refreshing…');
       try {
         await LOADERS[refresh]();
         toast('Refreshed.');
       } finally {
-        if (btn) btn.disabled = false;
+        stop();
       }
       return;
     }
@@ -339,43 +535,54 @@
       const a = toMinor(aInput.value);
       if (m === null || a === null) return toast('Enter valid prices like 49 or 49.99 (numbers only).');
       const label = TIER_LABEL[tier] || tier;
-      if (!window.confirm(`Set ${label} to ${money(m)} a month and ${money(a)} a year? Every business on this plan pays this from its next invoice.`)) return;
-      save.disabled = true;
-      try {
-        const r = await api(`/plans/${encodeURIComponent(tier)}`, { method: 'PATCH', body: JSON.stringify({ monthly_price_minor: m, annual_price_minor: a }) });
-        if (r.error || r.signedOut) {
-          toast(r.error || 'Sign in again to continue.');
-          return;
+      stkConfirmInline({
+        target: save,
+        message: `Set ${label} to ${money(m)} a month and ${money(a)} a year? Every business on this plan pays this from its next invoice.`,
+        onConfirm: async () => {
+          const stop = stkStartLoading(save, 'Saving price…');
+          try {
+            const r = await api(`/plans/${encodeURIComponent(tier)}`, { method: 'PATCH', body: JSON.stringify({ monthly_price_minor: m, annual_price_minor: a }) });
+            if (r.error || r.signedOut) {
+              toast(r.error || 'Sign in again to continue.');
+              return;
+            }
+            toast('Price saved.');
+            await loadPlans();
+            await loadAudit();
+          } catch (err) {
+            toast('Could not save price: ' + (err?.message || 'Network error'));
+          } finally {
+            stop();
+          }
         }
-        toast('Price saved.');
-        await loadPlans();
-        await loadAudit();
-      } catch (err) {
-        toast('Could not save price: ' + (err?.message || 'Network error'));
-      } finally {
-        save.disabled = false;
-      }
+      });
       return;
     }
     const btn = e.target.closest('[data-user]');
     if (!btn) return;
     const act = btn.dataset.act;
-    const reason = (window.prompt(act === 'suspend' ? 'Why are you suspending this account?' : 'Why are you reactivating this account?') || '').trim();
-    if (!reason) return toast('A reason is required.');
-    btn.disabled = true;
-    try {
-      const r = await api(`/users/${encodeURIComponent(btn.dataset.user)}/${act}`, { method: 'POST', body: JSON.stringify({ reason }) });
-      if (r.error || r.signedOut) {
-        return toast(r.error || 'Sign in again to continue.');
+    stkConfirmInline({
+      target: btn,
+      message: act === 'suspend' ? 'Why are you suspending this account?' : 'Why are you reactivating this account?',
+      promptPlaceholder: 'Enter mandatory reason (required)...',
+      onConfirm: async (reason) => {
+        if (!reason) return toast('A reason is required.');
+        const stop = stkStartLoading(btn, act === 'suspend' ? 'Suspending…' : 'Reactivating…');
+        try {
+          const r = await api(`/users/${encodeURIComponent(btn.dataset.user)}/${act}`, { method: 'POST', body: JSON.stringify({ reason }) });
+          if (r.error || r.signedOut) {
+            return toast(r.error || 'Sign in again to continue.');
+          }
+          toast(act === 'suspend' ? 'Account suspended.' : 'Account reactivated.');
+          await loadAccounts();
+          await loadAudit();
+        } catch (err) {
+          toast('Failed to update account: ' + (err?.message || 'Error'));
+        } finally {
+          stop();
+        }
       }
-      toast(act === 'suspend' ? 'Account suspended.' : 'Account reactivated.');
-      await loadAccounts();
-      await loadAudit();
-    } catch (err) {
-      toast('Failed to update account: ' + (err?.message || 'Error'));
-    } finally {
-      btn.disabled = false;
-    }
+    });
   }
 
   async function onChange(e) {
@@ -383,27 +590,30 @@
     if (!sel) return;
     const newTier = sel.value;
     const prevTier = sel.dataset.current;
-    if (!window.confirm(`Move this business to ${TIER_LABEL[newTier] || newTier}?`)) {
-      sel.value = prevTier;
-      return;
-    }
-    sel.disabled = true;
-    try {
-      const r = await api(`/businesses/${encodeURIComponent(sel.dataset.tier)}/tier`, { method: 'PATCH', body: JSON.stringify({ tier: newTier }) });
-      if (r.error || r.signedOut) {
-        sel.value = prevTier;
-        return toast(r.error || 'Sign in again to continue.');
+    stkConfirmInline({
+      target: sel,
+      message: `Move this business to ${TIER_LABEL[newTier] || newTier}?`,
+      onCancel: () => { sel.value = prevTier; },
+      onConfirm: async () => {
+        sel.disabled = true;
+        try {
+          const r = await api(`/businesses/${encodeURIComponent(sel.dataset.tier)}/tier`, { method: 'PATCH', body: JSON.stringify({ tier: newTier }) });
+          if (r.error || r.signedOut) {
+            sel.value = prevTier;
+            return toast(r.error || 'Sign in again to continue.');
+          }
+          sel.dataset.current = newTier;
+          toast('Plan updated.');
+          await loadPlans();
+          await loadAudit();
+        } catch (err) {
+          sel.value = prevTier;
+          toast('Failed to change plan: ' + (err?.message || 'Error'));
+        } finally {
+          sel.disabled = false;
+        }
       }
-      sel.dataset.current = newTier;
-      toast('Plan updated.');
-      await loadPlans();
-      await loadAudit();
-    } catch (err) {
-      sel.value = prevTier;
-      toast('Failed to change plan: ' + (err?.message || 'Error'));
-    } finally {
-      sel.disabled = false;
-    }
+    });
   }
 
   function css() {
@@ -461,7 +671,13 @@
       .fl-stat{background:#161B1E;border:1px solid var(--border,#333D46);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;color:var(--text-muted,#7E919F)}
       .fl-stat strong{color:#F8FAFC}.fl-stat strong.ok{color:#4ADE80}.fl-stat strong.bad{color:#F87171}
       .fl-bill-form{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin:4px 0 12px}.fl-bill-form label{display:flex;flex-direction:column;gap:4px;color:var(--text-muted,#7E919F)}.fl-billing{padding:6px 4px}
-      .fl-note{color:var(--text-muted,#7E919F);padding:6px 0}.fl-note.err{color:#F87171}.fl-muted{color:var(--text-muted,#7E919F)}`;
+      .fl-note{color:var(--text-muted,#7E919F);padding:6px 0}.fl-note.err{color:#F87171}.fl-muted{color:var(--text-muted,#7E919F)}
+      @keyframes stkSpin{to{transform:rotate(360deg)}}
+      @keyframes stkToastDrop{from{transform:translate(-50%,-16px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+      @keyframes stkConfirmFadeIn{from{opacity:0;transform:scale(0.96) translateY(-4px)}to{opacity:1;transform:scale(1) translateY(0)}}
+      .stk-btn-spinner{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,0.25);border-top-color:currentColor;border-radius:50%;animation:stkSpin .6s linear infinite;margin-right:6px;vertical-align:middle;flex-shrink:0}
+      .stk-confirm-popover button:hover{filter:brightness(1.1)}
+      .stk-confirm-input:focus{border-color:var(--primary,#BD9652)!important}`;
     document.head.appendChild(s);
   }
 

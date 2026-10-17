@@ -547,25 +547,30 @@ const completeWebsiteHtml = `
       border-color: var(--primary) !important;
     }
 
-    /* Toast Notification */
+    /* Toast Notification (Closer & Top-Centered Glassmorphic Pill) */
     #toast-notification {
       position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: var(--surface);
-      border: 1px solid var(--primary);
-      color: #F0F6FC;
-      padding: 14px 20px;
-      border-radius: 8px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(22, 27, 30, 0.96);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--primary, #BD9652);
+      color: #F8FAFC;
+      padding: 10px 22px;
+      border-radius: 9999px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.65), 0 0 20px rgba(189,150,82,0.18);
       display: none;
       align-items: center;
       gap: 10px;
-      font-size: 0.875rem;
-      z-index: 10000;
-      animation: slideIn 0.2s ease-out;
+      font-size: 0.84rem;
+      font-weight: 600;
+      z-index: 100000;
+      animation: stkToastDrop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      cursor: pointer;
     }
-    @keyframes slideIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes stkToastDrop { from { transform: translate(-50%, -16px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+    @keyframes stkSpin { to { transform: rotate(360deg); } }
 
     /* Cosmic Motions & Multi-Step Stepper Enhancements */
     .signup-stepper-card {
@@ -1334,9 +1339,24 @@ const completeWebsiteHtml = `
         const sb = getSupabase();
         if (sb) {
           const submitBtn = document.getElementById('btn-submit-registration');
+          let stopRegLoading = () => {};
           if (submitBtn) {
+            const rect = submitBtn.getBoundingClientRect();
+            submitBtn.style.width = Math.max(rect.width, 180) + 'px';
+            submitBtn.style.minWidth = Math.max(rect.width, 180) + 'px';
+            const orig = submitBtn.innerHTML;
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Creating account...';
+            submitBtn.style.pointerEvents = 'none';
+            submitBtn.style.opacity = '0.85';
+            submitBtn.innerHTML = '<span class="stk-btn-spinner" style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,0.25);border-top-color:currentColor;border-radius:50%;animation:stkSpin 0.6s linear infinite;margin-right:6px;vertical-align:middle;"></span><span>Creating account\u2026</span>';
+            stopRegLoading = () => {
+              submitBtn.innerHTML = orig;
+              submitBtn.style.width = '';
+              submitBtn.style.minWidth = '';
+              submitBtn.style.pointerEvents = '';
+              submitBtn.style.opacity = '';
+              submitBtn.disabled = false;
+            };
           }
           try {
             const { data, error } = await sb.auth.signUp({
@@ -1358,10 +1378,7 @@ const completeWebsiteHtml = `
 
             if (error) {
               this.showToast('Registration Failed: ' + error.message);
-              if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Provision Workspace & Customize →';
-              }
+              stopRegLoading();
               return;
             }
 
@@ -1371,10 +1388,7 @@ const completeWebsiteHtml = `
               const result = await submitOnboarding(data.session.access_token, tenantData, ownerEmail);
               if (!result.ok) {
                 this.showToast(result.message);
-                if (submitBtn) {
-                  submitBtn.disabled = false;
-                  submitBtn.textContent = 'Provision Workspace & Customize →';
-                }
+                stopRegLoading();
                 return;
               }
               this.populateCustomizationAndSimulate(companyName, branchName, ownerName, slug);
@@ -1388,10 +1402,7 @@ const completeWebsiteHtml = `
             }
           } catch (err) {
             this.showToast('Registration Error: ' + (err.message || 'Network error'));
-            if (submitBtn) {
-              submitBtn.disabled = false;
-              submitBtn.textContent = 'Provision Workspace & Customize →';
-            }
+            stopRegLoading();
           }
         } else {
           // Graceful fallback if offline
@@ -1451,9 +1462,24 @@ const completeWebsiteHtml = `
         const sb = getSupabase();
         if (!sb) return;
         const btn = document.getElementById('btn-check-confirmed');
+        let stopCheckLoading = () => {};
         if (btn) {
+          const rect = btn.getBoundingClientRect();
+          btn.style.width = Math.max(rect.width, 160) + 'px';
+          btn.style.minWidth = Math.max(rect.width, 160) + 'px';
+          const orig = btn.innerHTML;
           btn.disabled = true;
-          btn.textContent = 'Verifying identity...';
+          btn.style.pointerEvents = 'none';
+          btn.style.opacity = '0.85';
+          btn.innerHTML = '<span class="stk-btn-spinner" style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,0.25);border-top-color:currentColor;border-radius:50%;animation:stkSpin 0.6s linear infinite;margin-right:6px;vertical-align:middle;"></span><span>Verifying identity\u2026</span>';
+          stopCheckLoading = () => {
+            btn.innerHTML = orig;
+            btn.style.width = '';
+            btn.style.minWidth = '';
+            btn.style.pointerEvents = '';
+            btn.style.opacity = '';
+            btn.disabled = false;
+          };
         }
         try {
           const { data: { session }, error } = await sb.auth.getSession();
@@ -1462,7 +1488,6 @@ const completeWebsiteHtml = `
             const result = await submitOnboarding(session.access_token, pending, session.user?.email);
             if (!result.ok) {
               this.showToast(result.message);
-              if (btn) { btn.disabled = false; btn.textContent = 'I Have Confirmed My Email →'; }
               return;
             }
             this.showToast('✓ Identity confirmed! Deploying workspace...');
@@ -1473,10 +1498,7 @@ const completeWebsiteHtml = `
         } catch (err) {
           this.showToast('Verification check: ' + err.message);
         } finally {
-          if (btn) {
-            btn.disabled = false;
-            btn.textContent = 'I Have Confirmed My Email →';
-          }
+          stopCheckLoading();
         }
       },
 
@@ -2227,6 +2249,27 @@ const completeWebsiteHtml = `
           return;
         }
 
+        const loginSubmitBtn = document.getElementById('btn-submit-login');
+        let stopLoginLoading = () => {};
+        if (loginSubmitBtn) {
+          const rect = loginSubmitBtn.getBoundingClientRect();
+          loginSubmitBtn.style.width = Math.max(rect.width, 100) + 'px';
+          loginSubmitBtn.style.minWidth = Math.max(rect.width, 100) + 'px';
+          const orig = loginSubmitBtn.innerHTML;
+          loginSubmitBtn.disabled = true;
+          loginSubmitBtn.style.pointerEvents = 'none';
+          loginSubmitBtn.style.opacity = '0.85';
+          loginSubmitBtn.innerHTML = '<span class="stk-btn-spinner" style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,0.25);border-top-color:currentColor;border-radius:50%;animation:stkSpin 0.6s linear infinite;margin-right:6px;vertical-align:middle;"></span><span>Signing in\u2026</span>';
+          stopLoginLoading = () => {
+            loginSubmitBtn.innerHTML = orig;
+            loginSubmitBtn.style.width = '';
+            loginSubmitBtn.style.minWidth = '';
+            loginSubmitBtn.style.pointerEvents = '';
+            loginSubmitBtn.style.opacity = '';
+            loginSubmitBtn.disabled = false;
+          };
+        }
+
         // Switch to Step 2: Searching & Verifying
         const step1 = document.getElementById('login-step-credentials');
         const step2 = document.getElementById('login-step-verification');
@@ -2258,6 +2301,7 @@ const completeWebsiteHtml = `
             if (error) {
               if (step1) step1.style.display = 'block';
               if (step2) step2.style.display = 'none';
+              stopLoginLoading();
               if (error.message && error.message.toLowerCase().includes('email not confirmed')) {
                 this.showToast('Please confirm your email address before signing in. Check your inbox.');
               } else {
@@ -2591,7 +2635,9 @@ const completeWebsiteHtml = `
         if (toast && toastMsg) {
           toastMsg.textContent = msg;
           toast.style.display = 'flex';
-          setTimeout(() => { toast.style.display = 'none'; }, 4000);
+          clearTimeout(this._toastTimer);
+          this._toastTimer = setTimeout(() => { toast.style.display = 'none'; }, 3500);
+          toast.onclick = () => { toast.style.display = 'none'; };
         }
       },
 
@@ -2639,17 +2685,41 @@ const completeWebsiteHtml = `
         const slogan = document.getElementById('rebrand-receipt-slogan')?.value || 'Luxury Lifestyle & Electronics';
         const logo = document.getElementById('rebrand-logo-text')?.value || '◆ APEX';
 
-        document.documentElement.style.setProperty('--primary', hex);
-        document.documentElement.style.setProperty('--primary-hover', hex);
-        
-        const tenantDisplay = document.getElementById('ws-tenant-display');
-        if (tenantDisplay) tenantDisplay.textContent = name;
+        const saveBtn = document.getElementById('btn-save-rebranding');
+        let stopSaveLoading = () => {};
+        if (saveBtn) {
+          const rect = saveBtn.getBoundingClientRect();
+          saveBtn.style.width = Math.max(rect.width, 100) + 'px';
+          saveBtn.style.minWidth = Math.max(rect.width, 100) + 'px';
+          const orig = saveBtn.innerHTML;
+          saveBtn.disabled = true;
+          saveBtn.style.pointerEvents = 'none';
+          saveBtn.style.opacity = '0.85';
+          saveBtn.innerHTML = '<span class="stk-btn-spinner" style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,0.25);border-top-color:currentColor;border-radius:50%;animation:stkSpin 0.6s linear infinite;margin-right:6px;vertical-align:middle;"></span><span>Saving\u2026</span>';
+          stopSaveLoading = () => {
+            saveBtn.innerHTML = orig;
+            saveBtn.style.width = '';
+            saveBtn.style.minWidth = '';
+            saveBtn.style.pointerEvents = '';
+            saveBtn.style.opacity = '';
+            saveBtn.disabled = false;
+          };
+        }
 
-        try {
-          localStorage.setItem('stokrova_tenant_brand', JSON.stringify({ hex, name, slogan, logo }));
-        } catch (_) {}
+        setTimeout(() => {
+          document.documentElement.style.setProperty('--primary', hex);
+          document.documentElement.style.setProperty('--primary-hover', hex);
+          
+          const tenantDisplay = document.getElementById('ws-tenant-display');
+          if (tenantDisplay) tenantDisplay.textContent = name;
 
-        this.showToast(\`✓ Corporate rebrand saved! Brand accent (\${hex}) & company logo updated across all staff terminals, POS registers, and mobile devices.\`);
+          try {
+            localStorage.setItem('stokrova_tenant_brand', JSON.stringify({ hex, name, slogan, logo }));
+          } catch (_) {}
+
+          stopSaveLoading();
+          this.showToast('✓ Corporate rebrand saved! Brand accent (' + hex + ') & company logo updated across all staff terminals, POS registers, and mobile devices.');
+        }, 300);
       },
 
       loadBrandSettings() {

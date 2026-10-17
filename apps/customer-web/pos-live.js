@@ -147,45 +147,61 @@ export function mountTill(cfg, panel, api) {
   async function completeSale() {
     const err = validateTenders(st.cart, tenders);
     if (err) return say(err);
+    const payBtn = root.querySelector('[data-act="pay"]');
+    if (window.stokrovaStartLoading) window.stokrovaStartLoading(payBtn, 'Processing sale…');
     const key = uid('sale');
     const cartCopy = st.cart.map((l) => ({ ...l }));
     const totalMinor = cartTotalMinor(cartCopy);
     const paid = tenders.reduce((s, t) => s + t.amount_minor, 0);
     let receipt;
-    if (st.ticketCode) {
-      if (!navigator.onLine) return say('An order slip needs the connection to be paid. Try again when back online.');
-      try {
-        const { checkout: r } = await call('POST', `/pos/tickets/${encodeURIComponent(st.ticketCode)}/pay`, { pos_session_id: st.session.id, pos_register_id: st.register.id, idempotency_key: key, tenders: buildCheckout(st, tenders, key).tenders });
-        receipt = { number: r.receipt_number || r.order_number, total: r.total_payable_minor, paid: r.total_tendered_minor, change: r.change_due_minor, offline: false, slip: st.ticketCode };
-      } catch (e) { return say(e.message); }
-      st.ticketCode = null;
-    } else try {
-      if (!navigator.onLine) throw new TypeError('offline');
-      const r = await call('POST', '/pos/checkout', buildCheckout(st, tenders, key));
-      receipt = { number: r.receipt_number || r.order_number, total: r.total_payable_minor, paid: r.total_tendered_minor, change: r.change_due_minor, offline: false };
-    } catch (e) {
-      if (e.handled) return say(e.message);
-      st.queue.push(offlineSale(st, tenders, key, ++st.seq));
-      receipt = { number: `${key} (offline)`, total: totalMinor, paid, change: Math.max(0, paid - totalMinor), offline: true };
+    try {
+      if (st.ticketCode) {
+        if (!navigator.onLine) return say('An order slip needs the connection to be paid. Try again when back online.');
+        try {
+          const { checkout: r } = await call('POST', `/pos/tickets/${encodeURIComponent(st.ticketCode)}/pay`, { pos_session_id: st.session.id, pos_register_id: st.register.id, idempotency_key: key, tenders: buildCheckout(st, tenders, key).tenders });
+          receipt = { number: r.receipt_number || r.order_number, total: r.total_payable_minor, paid: r.total_tendered_minor, change: r.change_due_minor, offline: false, slip: st.ticketCode };
+        } catch (e) { return say(e.message); }
+        st.ticketCode = null;
+      } else try {
+        if (!navigator.onLine) throw new TypeError('offline');
+        const r = await call('POST', '/pos/checkout', buildCheckout(st, tenders, key));
+        receipt = { number: r.receipt_number || r.order_number, total: r.total_payable_minor, paid: r.total_tendered_minor, change: r.change_due_minor, offline: false };
+      } catch (e) {
+        if (e.handled) return say(e.message);
+        st.queue.push(offlineSale(st, tenders, key, ++st.seq));
+        receipt = { number: `${key} (offline)`, total: totalMinor, paid, change: Math.max(0, paid - totalMinor), offline: true };
+      }
+      st.lastReceipt = { ...receipt, lines: cartCopy, tenders: tenders.map((t) => ({ ...t })), at: new Date().toLocaleString() };
+      st.cart = []; st.customer_id = null; tenders = [{ tender_type: 'CASH', amount_minor: 0 }]; save();
+      const saleMsg = receipt.offline ? `Sale kept on this device; it will be sent when the connection is back. Change due: ${money(receipt.change)}.` : `Sale complete. Change due: ${money(receipt.change)}.`;
+      say(saleMsg);
+      if (window.stokrovaToast) window.stokrovaToast(saleMsg);
+      if (!receipt.offline) refreshProducts().then(render);
+    } finally {
+      if (window.stokrovaStopLoading) window.stokrovaStopLoading(payBtn);
     }
-    st.lastReceipt = { ...receipt, lines: cartCopy, tenders: tenders.map((t) => ({ ...t })), at: new Date().toLocaleString() };
-    st.cart = []; st.customer_id = null; tenders = [{ tender_type: 'CASH', amount_minor: 0 }]; save();
-    say(receipt.offline ? `Sale kept on this device; it will be sent when the connection is back. Change due: ${money(receipt.change)}.` : `Sale complete. Change due: ${money(receipt.change)}.`);
-    if (!receipt.offline) refreshProducts().then(render);
   }
 
   async function cashMove(type, form) {
     const amt = toMinor(form.amount.value);
     const reason = form.reason.value.trim();
     if (!amt || !reason) return say('Enter an amount and a reason.');
+    const btn = form.querySelector(`button[value="${type}"]`);
+    if (window.stokrovaStartLoading) window.stokrovaStartLoading(btn, 'Recording…');
     try {
       if (!navigator.onLine) throw new TypeError('offline');
       await call('POST', `/pos/sessions/${encodeURIComponent(st.session.id)}/${type === 'CASH_IN' ? 'cash-in' : 'cash-out'}`, { amount_minor: String(amt), reason });
-      say(`${type === 'CASH_IN' ? 'Cash in' : 'Cash out'} of ${money(amt)} recorded.`);
+      const msg = `${type === 'CASH_IN' ? 'Cash in' : 'Cash out'} of ${money(amt)} recorded.`;
+      say(msg);
+      if (window.stokrovaToast) window.stokrovaToast(msg);
     } catch (e) {
       if (e.handled) return say(e.message);
       st.queue.push(offlineCash(st, type, amt, reason, uid('cash'), ++st.seq)); save();
-      say('Cash movement kept on this device until the connection is back.');
+      const offlineMsg = 'Cash movement kept on this device until the connection is back.';
+      say(offlineMsg);
+      if (window.stokrovaToast) window.stokrovaToast(offlineMsg);
+    } finally {
+      if (window.stokrovaStopLoading) window.stokrovaStopLoading(btn);
     }
   }
 
@@ -193,13 +209,31 @@ export function mountTill(cfg, panel, api) {
     const counted = toMinor(form.counted.value);
     if (counted === null) return say('Count the drawer and enter the cash amount.');
     if (st.queue.length) { await flush(); if (st.queue.length) return say('Send the offline sales before closing the shift.'); }
-    try {
-      await call('POST', `/pos/sessions/${encodeURIComponent(st.session.id)}/close`, { closing_actual_minor: String(counted) });
-      const z = await call('GET', `/pos/sessions/${encodeURIComponent(st.session.id)}/summary`).catch(() => null);
-      const takings = await call('GET', `/payments/takings/${encodeURIComponent(st.session.id)}`).catch(() => null);
-      st.lastZ = { at: new Date().toLocaleString(), register: st.register.name, counted, summary: z, takings };
-      st.session = null; save(); say('Shift closed. The end-of-day report is below.');
-    } catch (e) { say(e.message); }
+    const closeBtn = form.querySelector('button');
+    const doClose = async () => {
+      if (window.stokrovaStartLoading) window.stokrovaStartLoading(closeBtn, 'Closing shift…');
+      try {
+        await call('POST', `/pos/sessions/${encodeURIComponent(st.session.id)}/close`, { closing_actual_minor: String(counted) });
+        const z = await call('GET', `/pos/sessions/${encodeURIComponent(st.session.id)}/summary`).catch(() => null);
+        const takings = await call('GET', `/payments/takings/${encodeURIComponent(st.session.id)}`).catch(() => null);
+        st.lastZ = { at: new Date().toLocaleString(), register: st.register.name, counted, summary: z, takings };
+        st.session = null; save(); say('Shift closed. The end-of-day report is below.');
+        if (window.stokrovaToast) window.stokrovaToast('Shift closed successfully.');
+      } catch (e) {
+        say(e.message);
+      } finally {
+        if (window.stokrovaStopLoading) window.stokrovaStopLoading(closeBtn);
+      }
+    };
+    if (window.stokrovaConfirmInline) {
+      window.stokrovaConfirmInline({
+        target: closeBtn,
+        message: 'Close this register shift and print end-of-day report?',
+        onConfirm: doClose,
+      });
+    } else {
+      doClose();
+    }
   }
 
   async function startReturn(form) {

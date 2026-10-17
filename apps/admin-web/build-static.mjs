@@ -209,26 +209,30 @@ ${generateCssVariableString('dark')}
       background: var(--bg);
     }
 
-    /* Toast Notification */
+    /* Toast Notification (Closer & Top-Centered) */
     #toast-notification {
       position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: var(--card);
-      border: 1px solid var(--primary);
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(22, 27, 30, 0.96);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--primary, #BD9652);
       color: var(--text-primary);
-      padding: 12px 18px;
-      border-radius: 8px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      padding: 10px 22px;
+      border-radius: 9999px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.65), 0 0 20px rgba(189,150,82,0.18);
       display: none;
       align-items: center;
       gap: 10px;
-      font-size: 0.875rem;
-      font-weight: 500;
-      z-index: 10000;
-      animation: slideIn 0.2s ease-out;
+      font-size: 0.84rem;
+      font-weight: 600;
+      z-index: 100000;
+      animation: stkToastDrop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      cursor: pointer;
     }
-    @keyframes slideIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes stkToastDrop { from { transform: translate(-50%, -16px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+    @keyframes stkSpin { to { transform: rotate(360deg); } }
 
     /* Custom Scrollbars */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -663,7 +667,25 @@ ${generateCssVariableString('dark')}
           const endpoint = '/api/v1/platform-admin/businesses/' + encodeURIComponent(id) + (isCurrentlyActive ? '/suspend' : '/reactivate');
 
           const btn = document.getElementById('btn-status-' + id);
-          if (btn) btn.disabled = true;
+          let stopLoading = () => {};
+          if (btn) {
+            const rect = btn.getBoundingClientRect();
+            btn.style.width = Math.max(rect.width, 76) + 'px';
+            btn.style.minWidth = Math.max(rect.width, 76) + 'px';
+            const orig = btn.innerHTML;
+            btn.disabled = true;
+            btn.style.pointerEvents = 'none';
+            btn.style.opacity = '0.85';
+            btn.innerHTML = '<span style="display:inline-block;width:11px;height:11px;border:2px solid rgba(255,255,255,0.25);border-top-color:currentColor;border-radius:50%;animation:stkSpin 0.6s linear infinite;margin-right:4px;vertical-align:middle;"></span><span>' + (isCurrentlyActive ? 'Suspending…' : 'Reactivating…') + '</span>';
+            stopLoading = () => {
+              btn.innerHTML = orig;
+              btn.style.width = '';
+              btn.style.minWidth = '';
+              btn.style.pointerEvents = '';
+              btn.style.opacity = '';
+              btn.disabled = false;
+            };
+          }
 
           try {
             const res = await authedFetch(endpoint, {
@@ -690,7 +712,7 @@ ${generateCssVariableString('dark')}
               this.showToast('Tenant ' + tenant.name + ' ' + actionWord + ' (offline preview).');
             }
           } finally {
-            if (btn) btn.disabled = false;
+            stopLoading();
           }
         },
 

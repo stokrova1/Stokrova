@@ -145,9 +145,20 @@ export function renderPrices(root, rows, call, reload) {
     const toMinor = (v) => (String(v).trim() === '' ? undefined : Math.round(Number(String(v).replace(/,/g, '')) * 100));
     const body = { cost_price_minor: toMinor(tr.querySelector('[name=cost]').value), selling_price_minor: toMinor(tr.querySelector('[name=sell]').value) };
     if ([body.cost_price_minor, body.selling_price_minor].some((v) => v !== undefined && !Number.isFinite(v))) { status.textContent = ' Enter numbers only.'; return; }
-    b.disabled = true; status.textContent = ' Saving…';
-    try { await call('POST', `/insights/prices/${encodeURIComponent(tr.dataset.id)}`, body); status.textContent = ' Saved'; reload(); }
-    catch (e) { status.textContent = ` ${e.status === 403 ? 'Your role cannot change prices.' : e.message}`; b.disabled = false; }
+    if (window.stokrovaStartLoading) window.stokrovaStartLoading(b, 'Saving…');
+    else b.disabled = true;
+    status.textContent = ' Saving…';
+    try {
+      await call('POST', `/insights/prices/${encodeURIComponent(tr.dataset.id)}`, body);
+      status.textContent = ' Saved';
+      if (window.stokrovaToast) window.stokrovaToast('Price updated.');
+      reload();
+    } catch (e) {
+      status.textContent = ` ${e.status === 403 ? 'Your role cannot change prices.' : e.message}`;
+    } finally {
+      if (window.stokrovaStopLoading) window.stokrovaStopLoading(b);
+      else b.disabled = false;
+    }
   }));
 }
 

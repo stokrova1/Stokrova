@@ -268,7 +268,8 @@ function buildForm(cfg, path, form, slot) {
     if (error) { status.textContent = error; return; }
     let target = path;
     if (form.post) { target = form.post.replace('{id}', encodeURIComponent(body.id)); delete body.id; }
-    btn.disabled = true; status.textContent = 'Saving…';
+    const stopLoading = window.stokrovaStartLoading ? window.stokrovaStartLoading(btn, 'Saving…') : (() => { btn.disabled = true; });
+    status.textContent = 'Saving…';
     try {
       const res = await fetch(apiUrl(cfg, target), { method: 'POST', headers: { Authorization: `Bearer ${cfg.token}`, 'x-tenant-id': cfg.tenantId, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       if (res.status === 403) status.textContent = 'Your role is not allowed to do this here.';
@@ -276,10 +277,14 @@ function buildForm(cfg, path, form, slot) {
       else {
         el.reset(); el.querySelectorAll('.stk-live-line:not(:first-child)').forEach((r) => r.remove()); showTotal();
         status.textContent = 'Saved. Dashboard totals include it on their next refresh.';
+        if (window.stokrovaToast) window.stokrovaToast('Saved successfully.');
         slot.innerHTML = await loadSection(cfg, path);
       }
     } catch { status.textContent = 'Not saved — the server could not be reached.'; }
-    btn.disabled = false;
+    finally {
+      if (window.stokrovaStopLoading) window.stokrovaStopLoading(btn);
+      else btn.disabled = false;
+    }
   });
   return el;
 }
@@ -370,13 +375,36 @@ function renderPlanPanel(cfg) {
     <div class="stk-usage-list">${bars}</div><div class="stk-plan-actions">${buttons}</div><p role="status" class="stk-demo-description"></p>`;
   box.querySelectorAll('[data-tier]').forEach((b) => {
     b.onclick = async () => {
-      const status = box.querySelector('[role=status]');
-      b.disabled = true;
-      const res = await fetch(apiUrl(cfg, '/billing/subscription/plan'), { method: 'POST', headers: { Authorization: `Bearer ${cfg.token}`, 'x-tenant-id': cfg.tenantId, 'Content-Type': 'application/json' }, body: JSON.stringify({ target_tier: b.dataset.tier, effective_immediately: true }) });
-      b.disabled = false;
-      if (res.ok) { status.textContent = 'Plan changed. Reloading your workspace…'; setTimeout(() => location.reload(), 800); return; }
-      const body = await res.json().catch(() => ({}));
-      status.textContent = body?.error?.message || body?.message?.error?.message || body?.message || `The plan could not be changed (error ${res.status}).`;
+      const doChange = async () => {
+        const status = box.querySelector('[role=status]');
+        if (window.stokrovaStartLoading) window.stokrovaStartLoading(b, 'Switching plan…');
+        else b.disabled = true;
+        try {
+          const res = await fetch(apiUrl(cfg, '/billing/subscription/plan'), { method: 'POST', headers: { Authorization: `Bearer ${cfg.token}`, 'x-tenant-id': cfg.tenantId, 'Content-Type': 'application/json' }, body: JSON.stringify({ target_tier: b.dataset.tier, effective_immediately: true }) });
+          if (res.ok) {
+            status.textContent = 'Plan changed. Reloading your workspace…';
+            if (window.stokrovaToast) window.stokrovaToast('Plan changed successfully.');
+            setTimeout(() => location.reload(), 800);
+            return;
+          }
+          const body = await res.json().catch(() => ({}));
+          const errMsg = body?.error?.message || body?.message?.error?.message || body?.message || `The plan could not be changed (error ${res.status}).`;
+          status.textContent = errMsg;
+          if (window.stokrovaToast) window.stokrovaToast(errMsg);
+        } finally {
+          if (window.stokrovaStopLoading) window.stokrovaStopLoading(b);
+          else b.disabled = false;
+        }
+      };
+      if (window.stokrovaConfirmInline) {
+        window.stokrovaConfirmInline({
+          target: b,
+          message: `Switch workspace plan to ${names[b.dataset.tier] || b.dataset.tier}?`,
+          onConfirm: doChange,
+        });
+      } else {
+        doChange();
+      }
     };
   });
   const live = view.querySelector('.stk-live-records');
@@ -442,16 +470,24 @@ async function renderInvoicePay(cfg) {
   box.querySelectorAll('[data-pay]').forEach((b) => {
     b.onclick = async () => {
       const status = box.querySelector('[role=status]');
-      b.disabled = true; status.textContent = 'Opening secure checkout…';
-      const res = await fetch(apiUrl(cfg, `/billing/invoices/${encodeURIComponent(b.dataset.pay)}/pay`), { method: 'POST', headers: h, body: JSON.stringify({ provider: b.dataset.provider, return_url: location.origin + location.pathname + '?paid=1' }) });
-      const body = await res.json().catch(() => ({}));
-      b.disabled = false;
-      if (res.ok && body.checkout_url) {
-        sessionStorage.setItem('stk-pay-pending', JSON.stringify({ invoice_id: b.dataset.pay, provider: b.dataset.provider, reference: body.reference }));
-        location.href = body.checkout_url;
-        return;
+      if (window.stokrovaStartLoading) window.stokrovaStartLoading(b, 'Opening…');
+      else b.disabled = true;
+      status.textContent = 'Opening secure checkout…';
+      try {
+        const res = await fetch(apiUrl(cfg, `/billing/invoices/${encodeURIComponent(b.dataset.pay)}/pay`), { method: 'POST', headers: h, body: JSON.stringify({ provider: b.dataset.provider, return_url: location.origin + location.pathname + '?paid=1' }) });
+        const body = await res.json().catch(() => ({}));
+        if (res.ok && body.checkout_url) {
+          sessionStorage.setItem('stk-pay-pending', JSON.stringify({ invoice_id: b.dataset.pay, provider: b.dataset.provider, reference: body.reference }));
+          location.href = body.checkout_url;
+          return;
+        }
+        const errMsg = body?.message || `The payment could not be started (error ${res.status}).`;
+        status.textContent = errMsg;
+        if (window.stokrovaToast) window.stokrovaToast(errMsg);
+      } finally {
+        if (window.stokrovaStopLoading) window.stokrovaStopLoading(b);
+        else b.disabled = false;
       }
-      status.textContent = body?.message || `The payment could not be started (error ${res.status}).`;
     };
   });
   if (note) window.stokrovaCustomerApp?.showWsView('billing');
