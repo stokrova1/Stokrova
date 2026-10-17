@@ -4,10 +4,11 @@
  */
 
 export interface CreateBranchRequest {
-  company_id: string;
+  company_id?: string;
   name: string;
   code: string;
 }
+
 
 export interface UpdateBranchRequest {
   name?: string;

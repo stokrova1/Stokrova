@@ -54,7 +54,7 @@ const toDb = (value: unknown, dataType: string): unknown => {
 const fromDb = (value: unknown): unknown => (value instanceof Date ? value.toISOString() : value);
 
 /** Tables reloaded at startup even when DURABLE_HYDRATE is off (flat rows, no nested parts). */
-export const ALWAYS_HYDRATE: ReadonlySet<string> = new Set(['pos_sync_transactions', 'tenant_subscriptions', 'saas_invoices', 'plan_change_history', 'fiscal_receipt_chains', 'stock_count_sessions', 'alert_settings']);
+export const ALWAYS_HYDRATE: ReadonlySet<string> = new Set(['pos_sync_transactions', 'tenant_subscriptions', 'saas_invoices', 'plan_change_history', 'fiscal_receipt_chains', 'stock_count_sessions', 'alert_settings', 'daily_work_sessions']);
 
 /** Binds every DurableMap to the database when DATABASE_URL is configured. */
 @Injectable()

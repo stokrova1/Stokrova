@@ -2860,6 +2860,6 @@ if (!fs.existsSync(distDir)) {
 fs.writeFileSync(path.join(distDir, 'index.html'), completeWebsiteHtml.trim(), 'utf-8');
 // Workspace scripts: presentation enhancements, live executive figures and live company records.
 for (const file of ['workspace-enhancements.js', 'executive-metrics.js', 'executive-live.js', 'workspace-live.js', 'pos-live.js', 'tickets-live.js', 'plan-prices-live.js', 'insights-live.js', 'operations-live.js']) {
-  fs.copyFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), file), path.join(distDir, file));
+  fs.copyFileSync(path.join(__dirname, file), path.join(distDir, file));
 }
 console.log('✅ Generated STOKROVA Customer Website & Complete Business Portal index.html at', path.join(distDir, 'index.html'));

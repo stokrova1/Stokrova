@@ -247,4 +247,10 @@ export * from './pick-route-view.js';
 export * from './receiving-view.js';
 export * from './cycle-count-view.js';
 export * from './sync-telemetry-view.js';
+export * from './work-session-dock.js';
+export * from './executive-overview-view.js';
+export * from './cashier-till-view.js';
+export * from './role-router.js';
+
+
 

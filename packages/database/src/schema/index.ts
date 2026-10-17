@@ -46,3 +46,4 @@ export * from './integration_hub.js';
 export * from './executive.js';
 export * from './billing.js';
 export * from './sales-tickets.js';
+export * from './work-sessions.js';

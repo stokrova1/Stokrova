@@ -29,8 +29,9 @@ export const OperativeCashMovementTypes = [
 ] as const;
 
 export const CreateBranchRequestSchema = z.object({
-  company_id: z.string().min(1, 'company_id is required'),
+  company_id: z.string().min(1, 'company_id is required').optional(),
   name: z.string().trim().min(2, 'Branch name must be at least 2 characters').max(100),
+
   code: z
     .string()
     .trim()

@@ -42,7 +42,7 @@ export const PAGE_PLAN: Record<string, PlanKey> = {
   dashboard: 'STARTER', pos: 'STARTER', 'cashier-desk': 'STARTER', registers: 'STARTER', orders: 'STARTER',
   invoices: 'STARTER', catalog: 'STARTER', availability: 'STARTER', ledger: 'STARTER', crm: 'STARTER',
   pricing: 'STARTER', suppliers: 'STARTER', po: 'STARTER', receiving: 'STARTER', org: 'STARTER',
-  rbac: 'STARTER', rebranding: 'STARTER', devices: 'STARTER', billing: 'STARTER',
+  rbac: 'STARTER', rebranding: 'STARTER', devices: 'STARTER', billing: 'STARTER', 'work-history': 'STARTER',
   // Growth: multi-store
   locations: 'GROWTH', dispatch: 'GROWTH', quotes: 'GROWTH', promotions: 'GROWTH', loyalty: 'GROWTH',
   gl: 'GROWTH', accountant: 'GROWTH', tax: 'GROWTH', treasury: 'GROWTH', abc: 'GROWTH', audit: 'GROWTH',

@@ -6,15 +6,30 @@
   let TIERS = ['RETAIL_STARTER', 'WHOLESALE_GROWTH', 'ENTERPRISE_LOGISTICS'];
   const TIER_LABEL = { SOLO_TRADER: 'Starter (retired free plan)', RETAIL_STARTER: 'Starter', WHOLESALE_GROWTH: 'Growth', ENTERPRISE_LOGISTICS: 'Enterprise', CUSTOM: 'Enterprise (custom)' };
   const money = (minor, cur) => (Number(minor) / 100).toLocaleString(undefined, { style: 'currency', currency: cur || 'USD' });
-  const toMinor = (v) => { const m = String(v).trim().match(/^(\d+)(?:\.(\d{1,2}))?$/); return m ? String(Number(m[1]) * 100 + Number((m[2] || '').padEnd(2, '0'))) : null; };
+  const toMinor = (v) => {
+    if (v === null || v === undefined) return null;
+    const s = String(v).trim().replace(/[$₦£€,\s]/g, '');
+    const m = s.match(/^(\d+)(?:\.(\d{1,2}))?$/);
+    if (!m) return null;
+    const whole = Number(m[1]);
+    const frac = Number((m[2] || '').padEnd(2, '0'));
+    if (isNaN(whole) || isNaN(frac)) return null;
+    return String(whole * 100 + frac);
+  };
   const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const apiBase = () => {
-    if (window.STOKROVA_API) return window.STOKROVA_API;
+    if (window.STOKROVA_API) return window.STOKROVA_API.replace(/\/+$/, '');
     const h = location.hostname, p = location.port;
     return (h === 'localhost' || h === '127.0.0.1') && p !== '3000' && p !== '' ? 'http://localhost:3000/v1' : '/v1';
   };
   async function token() {
-    const sb = window._stokrovaSupabase;
+    let sb = window._stokrovaSupabase;
+    if (!sb && window.supabase && typeof window.supabase.createClient === 'function') {
+      sb = window._stokrovaSupabase = window.supabase.createClient(
+        'https://vbtuccvxtgjhaywijmwa.supabase.co',
+        'sb_publishable_SQZZBnrGJ4wwY4rUeZjtag_-jtZxCVp'
+      );
+    }
     if (!sb) return null;
     const r = await sb.auth.getSession().catch(() => null);
     return r?.data?.session?.access_token || null;
@@ -26,13 +41,19 @@
     try {
       const res = await fetch(apiBase() + '/platform-admin' + path, Object.assign({}, init, { headers }));
       const body = await res.json().catch(() => null);
-      if (!res.ok) return { error: res.status === 403 ? 'This account is not allowed to do that.' : (body?.message || 'The server refused the request (' + res.status + ').') };
+      if (!res.ok) return { error: res.status === 403 ? 'This account is not allowed to do that.' : (body?.error?.message || body?.message || 'The server refused the request (' + res.status + ').'), status: res.status };
       return { data: body };
     } catch (_e) {
       return { error: 'The Stokrova server could not be reached.' };
     }
   }
-  const toast = (m) => (window.stokrovaFounder?.showToast ? window.stokrovaFounder.showToast(m) : null);
+  const toast = (m) => {
+    if (window.stokrovaFounder?.showToast) {
+      window.stokrovaFounder.showToast(m);
+    } else {
+      window.alert(m);
+    }
+  };
   const when = (iso) => { const d = new Date(iso); return isNaN(d) ? '—' : d.toLocaleString(); };
 
   // ---------- Sign-in screen polish ----------
@@ -99,6 +120,7 @@
     if (loaderId) LOADERS[loaderId]();
   }
 
+  let eventsAttached = false;
   function mountPanels() {
     const host = document.getElementById('founder-portal-container');
     if (!host || document.getElementById('fl-live-root')) return;
@@ -111,8 +133,12 @@
         <div class="fl-body" data-body="${s.id}"><div class="fl-note">Loading…</div></div>
       </section>`).join('');
     host.appendChild(root);
-    root.addEventListener('click', onClick);
-    root.addEventListener('change', onChange);
+
+    if (!eventsAttached) {
+      document.addEventListener('click', onClick);
+      document.addEventListener('change', onChange);
+      eventsAttached = true;
+    }
 
     mountPages(host);
   }
@@ -232,43 +258,72 @@
 
   async function billingAction(btn) {
     const box = btn.closest('.fl-billing');
+    if (!box) return;
     const id = box.dataset.for;
     const f = (k) => box.querySelector(`[data-f="${k}"]`)?.value?.trim() ?? '';
     let r;
     btn.disabled = true;
-    if (btn.dataset.billAct === 'override') {
-      const mode = f('mode');
-      let value = f('value');
-      if (mode === 'FIXED_PRICE') { value = toMinor(value); if (value === null) { btn.disabled = false; return toast('Enter a price like 25 or 25.50.'); } }
-      if ((mode === 'FREE' || mode === 'DISCOUNT_PERCENT' || mode === 'FIXED_PRICE') && !f('note')) { btn.disabled = false; return toast('Please give a reason.'); }
-      r = await api(`/businesses/${encodeURIComponent(id)}/billing`, { method: 'PATCH', body: JSON.stringify({ mode, value, note: f('note') }) });
-    } else if (btn.dataset.billAct === 'grants') {
-      if (!f('gnote')) { btn.disabled = false; return toast('Please give a reason.'); }
-      const limits = {};
-      for (const k of ['max_users', 'max_branches', 'max_active_registers', 'max_warehouses']) {
-        const v = f(k).toLowerCase();
-        if (v === 'unlimited') limits[k] = null; else if (v) limits[k] = Number(v);
+    try {
+      if (btn.dataset.billAct === 'override') {
+        const mode = f('mode');
+        let value = f('value');
+        if (mode === 'FIXED_PRICE') {
+          value = toMinor(value);
+          if (value === null) { return toast('Enter a price like 25 or 25.50.'); }
+        }
+        if (mode === 'DISCOUNT_PERCENT') {
+          const num = Number(String(value).replace(/[^0-9]/g, ''));
+          if (!num || num < 1 || num > 100) return toast('Enter a discount percentage from 1 to 100.');
+          value = String(num);
+        }
+        if ((mode === 'FREE' || mode === 'DISCOUNT_PERCENT' || mode === 'FIXED_PRICE') && !f('note')) {
+          return toast('Please give a reason.');
+        }
+        r = await api(`/businesses/${encodeURIComponent(id)}/billing`, { method: 'PATCH', body: JSON.stringify({ mode, value, note: f('note') }) });
+      } else if (btn.dataset.billAct === 'grants') {
+        if (!f('gnote')) { return toast('Please give a reason.'); }
+        const limits = {};
+        for (const k of ['max_users', 'max_branches', 'max_active_registers', 'max_warehouses']) {
+          const v = f(k).toLowerCase();
+          if (v === 'unlimited') limits[k] = null; else if (v) limits[k] = Number(v);
+        }
+        const features = f('features').split(',').map((x) => x.trim().toLowerCase()).filter(Boolean);
+        r = await api(`/businesses/${encodeURIComponent(id)}/entitlements`, { method: 'PATCH', body: JSON.stringify({ features, limits, note: f('gnote') }) });
+      } else if (btn.dataset.billAct === 'extend') {
+        const days = Number(f('days'));
+        if (!days || days < 1) return toast('Enter a valid number of days (e.g. 30).');
+        r = await api(`/businesses/${encodeURIComponent(id)}/extend-trial`, { method: 'POST', body: JSON.stringify({ days }) });
+      } else {
+        const reference = (window.prompt('Payment reference (e.g. bank transfer details):') || '').trim();
+        if (!reference) { return toast('A payment reference is required.'); }
+        r = await api(`/businesses/${encodeURIComponent(id)}/invoices/${encodeURIComponent(btn.dataset.inv)}/mark-paid`, { method: 'POST', body: JSON.stringify({ reference }) });
       }
-      const features = f('features').split(',').map((x) => x.trim().toLowerCase()).filter(Boolean);
-      r = await api(`/businesses/${encodeURIComponent(id)}/entitlements`, { method: 'PATCH', body: JSON.stringify({ features, limits, note: f('gnote') }) });
-    } else if (btn.dataset.billAct === 'extend') {
-      r = await api(`/businesses/${encodeURIComponent(id)}/extend-trial`, { method: 'POST', body: JSON.stringify({ days: Number(f('days')) }) });
-    } else {
-      const reference = (window.prompt('Payment reference (e.g. bank transfer details):') || '').trim();
-      if (!reference) { btn.disabled = false; return toast('A payment reference is required.'); }
-      r = await api(`/businesses/${encodeURIComponent(id)}/invoices/${encodeURIComponent(btn.dataset.inv)}/mark-paid`, { method: 'POST', body: JSON.stringify({ reference }) });
+      if (r?.error || r?.signedOut) return toast(r?.error || 'Sign in again to continue.');
+      toast('Saved successfully.');
+      await toggleBilling(id, true);
+      await loadAudit();
+    } catch (err) {
+      toast('Action failed: ' + (err?.message || 'Error'));
+    } finally {
+      btn.disabled = false;
     }
-    btn.disabled = false;
-    if (r.error || r.signedOut) return toast(r.error || 'Sign in again to continue.');
-    toast('Saved.');
-    toggleBilling(id, true); loadAudit();
   }
 
   const LOADERS = { 'live-accounts': loadAccounts, 'live-plans': loadPlans, 'live-health': loadHealth, 'live-audit': loadAudit };
 
   async function onClick(e) {
     const refresh = e.target.closest('[data-refresh]')?.dataset.refresh;
-    if (refresh) return LOADERS[refresh]();
+    if (refresh && LOADERS[refresh]) {
+      const btn = e.target.closest('[data-refresh]');
+      if (btn) btn.disabled = true;
+      try {
+        await LOADERS[refresh]();
+        toast('Refreshed.');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+      return;
+    }
     const manage = e.target.closest('[data-billing]');
     if (manage) return toggleBilling(manage.dataset.billing);
     const billAct = e.target.closest('[data-bill-act]');
@@ -276,16 +331,31 @@
     const save = e.target.closest('[data-save-price]');
     if (save) {
       const tier = save.dataset.savePrice;
-      const m = toMinor(document.querySelector(`[data-price-m="${tier}"]`).value);
-      const a = toMinor(document.querySelector(`[data-price-a="${tier}"]`).value);
-      if (m === null || a === null) return toast('Enter prices like 49 or 49.99.');
-      if (!window.confirm(`Set ${TIER_LABEL[tier]} to ${money(m)} a month and ${money(a)} a year? Every business on this plan pays this from its next invoice.`)) return;
+      const row = save.closest('tr');
+      const mInput = row ? row.querySelector('[data-price-m]') : document.querySelector(`[data-price-m="${tier}"]`);
+      const aInput = row ? row.querySelector('[data-price-a]') : document.querySelector(`[data-price-a="${tier}"]`);
+      if (!mInput || !aInput) return toast('Price fields not found.');
+      const m = toMinor(mInput.value);
+      const a = toMinor(aInput.value);
+      if (m === null || a === null) return toast('Enter valid prices like 49 or 49.99 (numbers only).');
+      const label = TIER_LABEL[tier] || tier;
+      if (!window.confirm(`Set ${label} to ${money(m)} a month and ${money(a)} a year? Every business on this plan pays this from its next invoice.`)) return;
       save.disabled = true;
-      const r = await api(`/plans/${encodeURIComponent(tier)}`, { method: 'PATCH', body: JSON.stringify({ monthly_price_minor: m, annual_price_minor: a }) });
-      save.disabled = false;
-      if (r.error || r.signedOut) return toast(r.error || 'Sign in again to continue.');
-      toast('Price saved.');
-      return loadPlans();
+      try {
+        const r = await api(`/plans/${encodeURIComponent(tier)}`, { method: 'PATCH', body: JSON.stringify({ monthly_price_minor: m, annual_price_minor: a }) });
+        if (r.error || r.signedOut) {
+          toast(r.error || 'Sign in again to continue.');
+          return;
+        }
+        toast('Price saved.');
+        await loadPlans();
+        await loadAudit();
+      } catch (err) {
+        toast('Could not save price: ' + (err?.message || 'Network error'));
+      } finally {
+        save.disabled = false;
+      }
+      return;
     }
     const btn = e.target.closest('[data-user]');
     if (!btn) return;
@@ -293,23 +363,47 @@
     const reason = (window.prompt(act === 'suspend' ? 'Why are you suspending this account?' : 'Why are you reactivating this account?') || '').trim();
     if (!reason) return toast('A reason is required.');
     btn.disabled = true;
-    const r = await api(`/users/${encodeURIComponent(btn.dataset.user)}/${act}`, { method: 'POST', body: JSON.stringify({ reason }) });
-    if (r.error || r.signedOut) { btn.disabled = false; return toast(r.error || 'Sign in again to continue.'); }
-    toast(act === 'suspend' ? 'Account suspended.' : 'Account reactivated.');
-    loadAccounts(); loadAudit();
+    try {
+      const r = await api(`/users/${encodeURIComponent(btn.dataset.user)}/${act}`, { method: 'POST', body: JSON.stringify({ reason }) });
+      if (r.error || r.signedOut) {
+        return toast(r.error || 'Sign in again to continue.');
+      }
+      toast(act === 'suspend' ? 'Account suspended.' : 'Account reactivated.');
+      await loadAccounts();
+      await loadAudit();
+    } catch (err) {
+      toast('Failed to update account: ' + (err?.message || 'Error'));
+    } finally {
+      btn.disabled = false;
+    }
   }
 
   async function onChange(e) {
     const sel = e.target.closest('[data-tier]');
     if (!sel) return;
-    if (!window.confirm(`Move this business to ${TIER_LABEL[sel.value]}?`)) { sel.value = sel.dataset.current; return; }
+    const newTier = sel.value;
+    const prevTier = sel.dataset.current;
+    if (!window.confirm(`Move this business to ${TIER_LABEL[newTier] || newTier}?`)) {
+      sel.value = prevTier;
+      return;
+    }
     sel.disabled = true;
-    const r = await api(`/businesses/${encodeURIComponent(sel.dataset.tier)}/tier`, { method: 'PATCH', body: JSON.stringify({ tier: sel.value }) });
-    sel.disabled = false;
-    if (r.error || r.signedOut) { sel.value = sel.dataset.current; return toast(r.error || 'Sign in again to continue.'); }
-    sel.dataset.current = sel.value;
-    toast('Plan updated.');
-    loadPlans(); loadAudit();
+    try {
+      const r = await api(`/businesses/${encodeURIComponent(sel.dataset.tier)}/tier`, { method: 'PATCH', body: JSON.stringify({ tier: newTier }) });
+      if (r.error || r.signedOut) {
+        sel.value = prevTier;
+        return toast(r.error || 'Sign in again to continue.');
+      }
+      sel.dataset.current = newTier;
+      toast('Plan updated.');
+      await loadPlans();
+      await loadAudit();
+    } catch (err) {
+      sel.value = prevTier;
+      toast('Failed to change plan: ' + (err?.message || 'Error'));
+    } finally {
+      sel.disabled = false;
+    }
   }
 
   function css() {

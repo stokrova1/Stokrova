@@ -49,6 +49,7 @@ import { BillingModule } from './billing/billing.module.js';
 import { PlatformAdminModule } from './platform-admin/platform-admin.module.js';
 import { InsightsModule } from './insights/insights.module.js';
 import { OperationsModule } from './operations/operations.module.js';
+import { WorkSessionsModule } from './work-sessions/work-sessions.module.js';
 
 @Module({
   imports: [
@@ -100,6 +101,7 @@ import { OperationsModule } from './operations/operations.module.js';
     PlatformAdminModule,
     InsightsModule,
     OperationsModule,
+    WorkSessionsModule,
   ],
 
 })

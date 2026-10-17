@@ -44,6 +44,7 @@ export const PAGE_SOURCES = {
   devices: [['Devices', '/devices'], ['Hardware', '/hardware/devices']],
   billing: [['Free trial & workspace access', '/billing/access'], ['Your Stokrova plan', '/billing/subscription'], ['Plan invoices — what you owe Stokrova', '/billing/invoices'], ['Plans & current prices', '/billing/plans']],
   integrations: [['Webhooks', '/integrations/webhooks/subscriptions'], ['EDI partners', '/edi/partners'], ['Connections', '/integrations/instances']],
+  'work-history': [['Daily work sessions', '/work-sessions/history'], ['Active shift status', '/work-sessions/current']],
 };
 
 /**
@@ -56,7 +57,9 @@ export const CREATE_FORMS = {
   '/procurement/suppliers': { label: 'Add supplier', fields: [['name', 'Supplier name', true], ['code', 'Code (letters, numbers, -)', true], ['email', 'Email'], ['phone', 'Phone']] },
   '/catalog/brands': { label: 'Add brand', fields: [['name', 'Brand name', true], ['code', 'Code', true], ['description', 'Description']] },
   '/catalog/categories': { label: 'Add category', fields: [['name', 'Category name', true], ['code', 'Code', true]] },
+  '/branches': { label: 'Add branch', fields: [['name', 'Branch name', true], ['code', 'Branch code (letters, numbers, -)', true]] },
 };
+
 
 /**
  * Menu page -> permission codes (any one is enough). Signed in, the menu shows only the pages the
@@ -101,6 +104,7 @@ export const PAGE_PERMISSIONS = {
   devices: ['devices.manage'],
   integrations: ['integration.view', 'edi.manage'],
   rebranding: ['roles.manage'],
+  'work-history': ['register.open', 'pos.checkout', 'catalog.view', 'inventory.view', 'analytics.view', 'audit.view', 'billing.manage'],
 };
 
 /** Pages a set of granted permission codes may open. Owners hold '*' or every code. */

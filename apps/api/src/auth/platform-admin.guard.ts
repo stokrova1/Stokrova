@@ -34,12 +34,13 @@ export class PlatformAdminGuard implements CanActivate {
       });
     }
 
-    // Check platform admin status from JWT claim, app_metadata, or system role
+    // Check platform admin status from JWT claim, app_metadata, system role, or master founder identity
     const isPlatformAdmin =
       user.is_platform_admin === true ||
       user.app_metadata?.['is_platform_admin'] === true ||
       user.role === 'PLATFORM_SUPER_ADMIN' ||
-      user.role === 'platform_super_admin';
+      user.role === 'platform_super_admin' ||
+      user.email?.toLowerCase() === 'stokrova1@gmail.com';
 
     if (!isPlatformAdmin) {
       throw new ForbiddenException({

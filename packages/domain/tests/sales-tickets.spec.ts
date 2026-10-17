@@ -3,7 +3,8 @@ import {
   applyPick, chargeableLines, canPayTicket, makeTicketCode, normalizeTicketCode, statusAfterPick,
   summarizeStaffDay, ticketTotalMinor, isTicketHoldExpired, DEFAULT_TICKET_HOLD_MINUTES,
   type SalesTicketLine, type StaffWorkEvent,
-} from './sales-tickets.js';
+} from '../src/sales-tickets.js';
+
 
 const line = (v: string, q: number, price = 1000): SalesTicketLine => ({
   variant_id: v, label: v, quantity: q, unit_price_minor: price, picked_quantity: 0, missing: false, reservation_id: 'r',

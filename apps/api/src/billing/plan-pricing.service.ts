@@ -56,7 +56,7 @@ export class PlanPricingService {
       name: d.name,
       monthly_price_minor: d.monthly_price_minor,
       annual_price_minor: d.annual_price_minor,
-      currency: 'NGN',
+      currency: d.currency || 'USD',
       updated_at: null,
       updated_by: null,
     };

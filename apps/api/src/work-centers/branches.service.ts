@@ -15,9 +15,18 @@ export class BranchesService {
     tenantId: string,
     req: CreateBranchRequest,
   ): Promise<BranchResponse> {
-    const company = await this.tenancyService.getCompanyById(tenantId, req.company_id);
-    if (!company) {
-      throw new NotFoundException(`Company with ID '${req.company_id}' not found for this tenant.`);
+    let companyId = req.company_id;
+    if (!companyId) {
+      const companies = await this.tenancyService.getCompaniesByTenant(tenantId);
+      if (!companies.length || !companies[0]) {
+        throw new NotFoundException(`No company found for this tenant to attach the branch to.`);
+      }
+      companyId = companies[0].id;
+    } else {
+      const company = await this.tenancyService.getCompanyById(tenantId, companyId);
+      if (!company) {
+        throw new NotFoundException(`Company with ID '${companyId}' not found for this tenant.`);
+      }
     }
 
     const existingBranches = await this.tenancyService.getBranchesByTenant(tenantId);
@@ -30,7 +39,7 @@ export class BranchesService {
     const branch: StoredBranch = {
       id: branchId,
       tenant_id: tenantId,
-      company_id: req.company_id,
+      company_id: companyId,
       name: req.name.trim(),
       code,
       created_at: new Date().toISOString(),
@@ -39,6 +48,7 @@ export class BranchesService {
     await this.tenancyService.addBranch(branch);
     return branch;
   }
+
 
   async getBranches(tenantId: string, companyId?: string): Promise<BranchResponse[]> {
     const branches = await this.tenancyService.getBranchesByTenant(tenantId);

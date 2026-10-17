@@ -360,6 +360,31 @@ export class TenancyService {
     return company;
   }
 
+  async getCompaniesByTenant(tenantId: string): Promise<StoredCompany[]> {
+    if (this.pool && typeof this.pool.query === 'function') {
+      try {
+        const res = await this.pool.query(
+          'SELECT id, tenant_id, name, currency_code, created_at FROM public.companies WHERE tenant_id = $1',
+          [tenantId],
+        );
+        if (res.rows && res.rows.length > 0) {
+          return res.rows.map((r: any) => ({
+            id: r.id,
+            tenant_id: r.tenant_id,
+            name: r.name,
+            currency_code: r.currency_code,
+            created_at: new Date(r.created_at).toISOString(),
+          }));
+        }
+      } catch {
+        // Fallback
+      }
+    }
+
+    return Array.from(this.companiesStore.values()).filter((c) => c.tenant_id === tenantId);
+  }
+
+
   /** Staff names for one business (manager's live board). */
   listStaff(tenantId: string): StoredStaffMember[] {
     return [...this.staffStore.values()].filter((s) => s.tenant_id === tenantId && s.role !== 'PLATFORM_SUPER_ADMIN' && s.role !== 'PLATFORM_FOUNDER');

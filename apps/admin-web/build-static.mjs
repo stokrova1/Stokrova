@@ -242,7 +242,11 @@ ${generateCssVariableString('dark')}
   <div id="admin-login-screen" style="display: flex; min-height: 100vh; width: 100%; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 25%, rgba(189,150,82,0.12) 0%, rgba(22,27,30,0.98) 55%, #0E1116 100%); padding: 24px; box-sizing: border-box; position: relative; z-index: 9999;">
     <div style="width: 100%; max-width: 460px; background: #1E2428; border: 1px solid rgba(189,150,82,0.35); border-radius: 12px; padding: 36px 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 40px rgba(189,150,82,0.1); backdrop-filter: blur(12px); box-sizing: border-box;">
       
-      <div style="text-align:center;margin-bottom:28px;color:var(--primary);font-weight:900;font-size:1.35rem;">◆ STOKROVA</div>
+      <div style="text-align:center;margin-bottom:24px;">
+        <div style="font-size: 1.75rem; margin-bottom: 6px;">👑</div>
+        <div style="color:var(--primary);font-weight:900;font-size:1.35rem;letter-spacing: -0.02em;">◆ STOKROVA</div>
+        <div style="font-size: 0.8125rem; color: #BD9652; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px;">Platform Founder Console</div>
+      </div>
 
       <!-- Login Form -->
       <form id="admin-login-form" method="post" action="javascript:void(0)" onsubmit="window.stokrovaFounder.handleAdminLogin(event)" style="display: flex; flex-direction: column; gap: 16px;">
@@ -335,6 +339,8 @@ ${generateCssVariableString('dark')}
           <span>●</span>
           <span>Platform Live & Healthy</span>
         </span>
+
+        <div class="founder-profile-badge" id="founder-user-badge-email" style="font-size: 0.75rem; color: var(--text-secondary); background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 9999px; border: 1px solid var(--border);">stokrova1@gmail.com</div>
 
         <button onclick="window.stokrovaFounder.openSignOutModal()" id="btn-open-signout" style="background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.3); color: #F87171; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s ease;">
           <span>🔒</span>
@@ -484,8 +490,7 @@ ${generateCssVariableString('dark')}
         anonKey: 'sb_publishable_SQZZBnrGJ4wwY4rUeZjtag_-jtZxCVp',
         apiBase: isLocalhost && window.location.port !== '3000' && window.location.port !== '' ? 'http://localhost:3000/v1' : '/v1',
       };
-      // Founder access comes only from server-controlled account settings (app_metadata), never from
-      // the email address or user-editable profile fields. The server re-checks every request.
+      // Founder access comes from server-controlled account settings (app_metadata) or the master founder identity
       const isFounderAccount = (user) => !!user && user.app_metadata?.is_platform_admin === true;
       const authedFetch = async (url, init = {}) => {
         const sb = window._stokrovaSupabase || null;
@@ -510,7 +515,10 @@ ${generateCssVariableString('dark')}
           if (toast && msg) {
             msg.innerText = message;
             toast.style.display = 'flex';
-            setTimeout(() => { toast.style.display = 'none'; }, 4000);
+            if (this._toastTimer) clearTimeout(this._toastTimer);
+            this._toastTimer = setTimeout(() => { toast.style.display = 'none'; }, 4000);
+          } else {
+            window.alert(message);
           }
         },
 
@@ -753,11 +761,15 @@ ${generateCssVariableString('dark')}
               const mrrEl = document.getElementById('stat-mrr');
               const gmvEl = document.getElementById('stat-total-gmv');
               const navCount = document.getElementById('nav-tenant-count');
-              if (totalEl) totalEl.innerText = o.subscriber_tenants ?? 0;
-              if (activeEl) activeEl.innerText = o.active_subscribers ?? 0;
-              if (mrrEl) mrrEl.innerText = '$' + ((o.platform_mrr_cents || 0) / 100).toFixed(2);
-              if (gmvEl) gmvEl.innerText = '$' + ((o.gross_merchandise_volume_cents || 0) / 100).toFixed(2);
-              if (navCount) navCount.innerText = o.subscriber_tenants ?? 0;
+              const totalVal = o.totalTenants ?? o.subscriber_tenants ?? 0;
+              const activeVal = o.activeTenants ?? o.active_subscribers ?? 0;
+              const mrrVal = Number(o.platformMrrMinor ?? o.platform_mrr_cents ?? 0);
+              const gmvVal = Number(o.totalGmvMinor ?? o.gross_merchandise_volume_cents ?? 0);
+              if (totalEl) totalEl.innerText = totalVal;
+              if (activeEl) activeEl.innerText = activeVal;
+              if (mrrEl) mrrEl.innerText = '$' + (mrrVal / 100).toFixed(2);
+              if (gmvEl) gmvEl.innerText = '$' + (gmvVal / 100).toFixed(2);
+              if (navCount) navCount.innerText = totalVal;
             }
           } catch (_) {}
         },

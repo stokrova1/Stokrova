@@ -60,14 +60,20 @@
     .stk-page-intro h1,.stk-page-intro h3 { color:inherit!important; margin:0 0 6px!important; letter-spacing:0; }
     .stk-page-intro p { color:inherit!important; margin:0!important; line-height:1.6; max-width:760px; }
     .stk-page-intro > div { min-width:0; }
-    .stk-page-intro button { border:1px solid currentColor!important; }
+    .stk-subtab-container { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; overflow-x: auto; }
+    .stk-subtab-pill { padding: 6px 14px; font-size: 0.78rem; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text-secondary); font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.15s ease; }
+    .stk-subtab-pill.active { background: var(--primary); color: var(--bg); border-color: var(--primary); font-weight: 700; }
     @media(max-width:640px){
-      .stk-page-intro{padding:20px 18px;flex-wrap:wrap}
+      .stk-page-intro{padding:14px 14px;flex-wrap:wrap}
+      .stk-page-intro h1,.stk-page-intro h3{font-size:1.15rem!important;overflow-wrap:anywhere}
+      .stk-page-intro p{font-size:0.75rem!important;line-height:1.4!important}
+      .stk-subtab-pill{padding:4px 10px;font-size:0.72rem}
+      .stk-demo-stat{padding:12px}
+      .stk-demo-stat strong{font-size:1.2rem}
       .workspace-body{flex-direction:column}
       .workspace-sidebar{width:100%!important;min-width:0!important;max-height:160px;overflow:auto;border-right:0;flex-shrink:0}
       .workspace-sidebar > :last-child{display:none}
-      .workspace-viewport{width:100%;padding:18px!important}
-      .stk-page-intro h1,.stk-page-intro h3{overflow-wrap:anywhere}
+      .workspace-viewport{width:100%;padding:12px!important}
     }
   `;
   document.head.append(style);
@@ -201,5 +207,178 @@
   }
   document.querySelectorAll('.ws-view-content').forEach(polishPageIntro);
   new MutationObserver(() => document.querySelectorAll('.ws-view-content').forEach(polishPageIntro)).observe(viewport, { childList:true, subtree:true });
+
+  function openAppDownloadModal() {
+    let modal = document.getElementById('stk-app-download-modal');
+    if (modal) {
+      modal.remove();
+    }
+    modal = document.createElement('div');
+    modal.id = 'stk-app-download-modal';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(10,13,15,0.85);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;';
+    modal.innerHTML = `
+      <div style="background:var(--surface,#1E2428);border:1px solid var(--border,#333D46);border-radius:12px;width:100%;max-width:560px;overflow:hidden;box-shadow:0 24px 48px rgba(0,0,0,0.6);color:var(--text,#F8FAFC);font-family:inherit;">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border,#333D46);display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,0.25);">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:1.25rem;">📱💻</span>
+            <div>
+              <h3 style="font-size:1rem;font-weight:700;margin:0;color:#FFFFFF;">STOKROVA Across All Devices</h3>
+              <p style="font-size:0.75rem;color:var(--text-secondary,#ACB8C3);margin:2px 0 0 0;">One universal app. Sign in with your existing account to load your role's workspace.</p>
+            </div>
+          </div>
+          <button id="stk-close-apps-modal" style="background:none;border:none;color:var(--text-muted,#7E919F);font-size:1.4rem;cursor:pointer;padding:4px;line-height:1;">&times;</button>
+        </div>
+
+        <div style="padding:18px 20px;">
+          <div style="background:rgba(189,150,82,0.1);border:1px solid rgba(189,150,82,0.25);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:0.78rem;line-height:1.5;color:var(--text-secondary,#ACB8C3);">
+            <strong style="color:var(--primary,#BD9652);">✦ Unified Architecture:</strong> All roles (Owner, Manager, Cashier, Picker, Accountant) use the same app. Your credentials automatically open your role's live workspace, keeping all data 1:1 synchronized.
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+            <div style="border:1px solid var(--border,#333D46);border-radius:8px;padding:12px;background:rgba(0,0,0,0.2);">
+              <div style="font-weight:700;font-size:0.85rem;color:#FFFFFF;margin-bottom:4px;display:flex;align-items:center;gap:6px;">
+                <span>📱</span> <span>Mobile Application</span>
+              </div>
+              <p style="font-size:0.72rem;color:var(--text-secondary,#ACB8C3);margin-bottom:10px;">Fast barcode scanning, offline shift records, wave picking & instant takings.</p>
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <a href="#ios" style="display:flex;align-items:center;justify-content:center;gap:6px;background:var(--bg,#161B1E);border:1px solid var(--border,#333D46);color:#FFFFFF;font-size:0.75rem;font-weight:600;padding:7px;border-radius:6px;text-decoration:none;">
+                  🍎 Download for iOS
+                </a>
+                <a href="#android" style="display:flex;align-items:center;justify-content:center;gap:6px;background:var(--bg,#161B1E);border:1px solid var(--border,#333D46);color:#FFFFFF;font-size:0.75rem;font-weight:600;padding:7px;border-radius:6px;text-decoration:none;">
+                  🤖 Download Android APK
+                </a>
+              </div>
+            </div>
+
+            <div style="border:1px solid var(--border,#333D46);border-radius:8px;padding:12px;background:rgba(0,0,0,0.2);">
+              <div style="font-weight:700;font-size:0.85rem;color:#FFFFFF;margin-bottom:4px;display:flex;align-items:center;gap:6px;">
+                <span>💻</span> <span>Desktop Application</span>
+              </div>
+              <p style="font-size:0.72rem;color:var(--text-secondary,#ACB8C3);margin-bottom:10px;">Dedicated hardware tills, receipt printer drivers & offline database store.</p>
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <a href="#windows" style="display:flex;align-items:center;justify-content:center;gap:6px;background:var(--bg,#161B1E);border:1px solid var(--border,#333D46);color:#FFFFFF;font-size:0.75rem;font-weight:600;padding:7px;border-radius:6px;text-decoration:none;">
+                  🪟 Windows (.exe)
+                </a>
+                <a href="#macos" style="display:flex;align-items:center;justify-content:center;gap:6px;background:var(--bg,#161B1E);border:1px solid var(--border,#333D46);color:#FFFFFF;font-size:0.75rem;font-weight:600;padding:7px;border-radius:6px;text-decoration:none;">
+                  🍏 macOS (.dmg)
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:10px 20px;background:rgba(0,0,0,0.3);border-top:1px solid var(--border,#333D46);display:flex;justify-content:space-between;align-items:center;font-size:0.72rem;color:var(--text-muted,#7E919F);">
+          <span>Live real-time ledger synchronization</span>
+          <button id="stk-close-apps-modal-btn" style="background:var(--surface,#1E2428);border:1px solid var(--border,#333D46);color:var(--text,#F8FAFC);padding:4px 10px;border-radius:4px;cursor:pointer;font-size:0.72rem;">Close</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    const closeModal = () => modal.remove();
+    modal.querySelector('#stk-close-apps-modal')?.addEventListener('click', closeModal);
+    modal.querySelector('#stk-close-apps-modal-btn')?.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  }
+
+  function mountAppDownloadAction() {
+    if (document.getElementById('stk-app-download-btn')) return;
+    const topbarRight = document.querySelector('.workspace-topbar > div:last-child');
+    if (!topbarRight) return;
+
+    const btn = document.createElement('button');
+    btn.id = 'stk-app-download-btn';
+    btn.innerHTML = '<span>📱💻</span> <span>Get Apps</span>';
+    btn.title = 'Download STOKROVA for Mobile & Desktop';
+    btn.style.cssText = 'background:rgba(189,150,82,0.15);color:var(--primary,#BD9652);border:1px solid var(--primary,#BD9652);padding:5px 10px;border-radius:6px;font-size:0.75rem;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:5px;transition:all 0.15s ease;';
+    btn.addEventListener('click', openAppDownloadModal);
+    topbarRight.prepend(btn);
+  }
+
+  mountAppDownloadAction();
+  setInterval(mountAppDownloadAction, 2000);
+
+  function mountBranchSwitcher() {
+    const branchEl = document.getElementById('ws-branch-display');
+    if (!branchEl || branchEl.dataset.switcherActive) return;
+    branchEl.dataset.switcherActive = 'true';
+    branchEl.style.cursor = 'pointer';
+    branchEl.title = 'Click to switch active branch or add a new branch';
+    if (!branchEl.textContent.includes('▾')) {
+      branchEl.innerHTML = `${branchEl.textContent.trim()} <span style="font-size:0.65rem;">▾</span>`;
+    }
+
+    branchEl.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      let dropdown = document.getElementById('stk-branch-switcher-dropdown');
+      if (dropdown) { dropdown.remove(); return; }
+
+      dropdown = document.createElement('div');
+      dropdown.id = 'stk-branch-switcher-dropdown';
+      dropdown.style.cssText = 'position:absolute;top:calc(100% + 6px);left:0;z-index:9999;background:var(--surface,#1E2428);border:1px solid var(--border,#333D46);border-radius:8px;width:240px;box-shadow:0 16px 32px rgba(0,0,0,0.5);padding:8px;font-size:0.8rem;color:var(--text,#F8FAFC);';
+      
+      const cfg = await import('./executive-live.js').then((m) => m.resolveLiveConfig()).catch(() => null);
+      let branches = [];
+      if (cfg && cfg.baseUrl && cfg.token) {
+        try {
+          const res = await fetch(`${cfg.baseUrl.replace(/\/$/, '')}/v1/branches`, {
+            headers: { Authorization: `Bearer ${cfg.token}`, 'x-tenant-id': cfg.tenantId },
+          });
+          if (res.ok) branches = await res.json();
+        } catch {}
+      }
+      if (!branches.length) {
+        branches = [
+          { id: 'b_main', name: 'Main Branch', code: 'MAIN' },
+        ];
+      }
+
+      dropdown.innerHTML = `
+        <div style="font-size:0.7rem;text-transform:uppercase;color:var(--text-muted,#7E919F);padding:4px 8px;font-weight:700;border-bottom:1px solid var(--border,#333D46);margin-bottom:4px;">
+          Active Facility / Branch
+        </div>
+        ${branches.map((b) => `
+          <div class="stk-branch-item" data-id="${b.id}" data-name="${b.name}" style="padding:6px 8px;border-radius:4px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-weight:600;">${b.name}</span>
+            <span style="font-size:0.68rem;font-family:monospace;color:var(--primary,#BD9652);">${b.code}</span>
+          </div>
+        `).join('')}
+        <div style="border-top:1px solid var(--border,#333D46);margin-top:4px;padding-top:4px;">
+          <button id="stk-add-branch-trigger" style="width:100%;text-align:left;background:none;border:none;color:var(--primary,#BD9652);font-weight:700;font-size:0.75rem;padding:6px 8px;border-radius:4px;cursor:pointer;">
+            + Add New Branch
+          </button>
+        </div>
+      `;
+
+      branchEl.parentElement.style.position = 'relative';
+      branchEl.parentElement.appendChild(dropdown);
+
+      dropdown.querySelectorAll('.stk-branch-item').forEach((item) => {
+        item.addEventListener('mouseenter', () => (item.style.background = 'rgba(189,150,82,0.12)'));
+        item.addEventListener('mouseleave', () => (item.style.background = 'transparent'));
+        item.addEventListener('click', () => {
+          const name = item.dataset.name;
+          branchEl.innerHTML = `${name} <span style="font-size:0.65rem;">▾</span>`;
+          dropdown.remove();
+          window.dispatchEvent(new CustomEvent('stokrova:branchchange', { detail: { branchId: item.dataset.id, branchName: name } }));
+        });
+      });
+
+      dropdown.querySelector('#stk-add-branch-trigger')?.addEventListener('click', () => {
+        dropdown.remove();
+        const navItem = document.querySelector('.workspace-nav-item[data-view-id="org"]');
+        if (navItem) navItem.click();
+      });
+
+      setTimeout(() => {
+        document.addEventListener('click', () => dropdown?.remove(), { once: true });
+      }, 50);
+    });
+  }
+
+  mountBranchSwitcher();
+  setInterval(mountBranchSwitcher, 2000);
+
   import('./workspace-live.js').then(({ mountWorkspaceLive }) => mountWorkspaceLive()).catch(() => {});
+  import('./session-dock-live.js').then(({ mountSessionDock }) => mountSessionDock()).catch(() => {});
 })();
+

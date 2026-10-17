@@ -52,3 +52,4 @@ export * from './plan-catalog.js';
 export * from './sales-tickets.js';
 export * from './product-insights.js';
 export * from './business-operations.js';
+export * from './work-sessions.js';

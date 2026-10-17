@@ -42,7 +42,8 @@
     {
       "source": "/v1/(.*)",
       "destination": {
-        "service": "api"
+        "service": "api",
+        "path": "/v1/$1"
       }
     },
     {

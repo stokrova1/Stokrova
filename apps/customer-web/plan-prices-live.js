@@ -25,7 +25,15 @@
       if (cards[i]) cards[i].textContent = fmt(p.monthly_price_minor, p.currency, 2);
       const sign = document.querySelector(`#plan-card-${id} div:nth-of-type(2)`);
       if (sign) sign.textContent = fmt(p.monthly_price_minor, p.currency, 0);
+      const opt = document.querySelector(`#business-plan-select option[value="${id}"]`);
+      if (opt) opt.textContent = `${p.name} - ${fmt(p.monthly_price_minor, p.currency, 0)}/mo${id === 'growth' ? ' (Recommended)' : ''}`;
     });
   }
+  window.stokrovaRefreshPrices = apply;
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply); else apply();
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('[onclick*="openRegisterModal"]')) {
+      setTimeout(apply, 50);
+    }
+  });
 })();
