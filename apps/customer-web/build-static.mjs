@@ -420,7 +420,7 @@ const completeWebsiteHtml = `
   <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&family=Syne:wght@700;800;900&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -438,6 +438,8 @@ const completeWebsiteHtml = `
       --teal: #2D8A9E;           /* Restrained Reconciliation Series */
       --green: #4ADE80;          /* Semantic Balanced / Success */
       --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-heading-industrial: 'Syne', -apple-system, sans-serif;
+      --font-tech: 'Space Grotesk', -apple-system, sans-serif;
       --stokrova-font-mono: 'JetBrains Mono', monospace;
     }
 
@@ -572,9 +574,77 @@ const completeWebsiteHtml = `
     @keyframes stkToastDrop { from { transform: translate(-50%, -16px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
     @keyframes stkSpin { to { transform: rotate(360deg); } }
 
-    /* Cosmic Motions & Multi-Step Stepper Enhancements */
+    /* Cosmic Motions & High-Industrial Multi-Step Stepper */
     .signup-stepper-card {
+      background: radial-gradient(circle at 50% 0%, #1c2328 0%, #13171a 100%) !important;
+      border: 1px solid #414F5A !important;
+      box-shadow: 0 35px 85px rgba(0,0,0,0.85), 0 0 30px rgba(189,150,82,0.18), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+      border-radius: 16px !important;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .stk-industrial-title {
+      font-family: var(--font-heading-industrial, 'Syne', sans-serif) !important;
+      font-weight: 800 !important;
+      letter-spacing: -0.02em !important;
+      text-transform: uppercase !important;
+    }
+    .stk-step-nav-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      background: rgba(20,24,27,0.7);
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+    }
+    .stk-step-nav-item.active {
+      border-color: var(--primary) !important;
+      background: rgba(189,150,82,0.12) !important;
+      box-shadow: 0 0 14px rgba(189,150,82,0.18) !important;
+    }
+    .stk-step-nav-num {
+      font-family: var(--stokrova-font-mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 0.05em;
+    }
+    .stk-step-nav-label {
+      font-family: var(--font-heading-industrial, 'Syne', sans-serif);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+    .stk-industrial-label {
+      font-family: var(--font-tech, 'Space Grotesk', sans-serif);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      display: block;
+    }
+    .stk-currency-select {
+      font-size: 0.8125rem !important;
+      font-weight: 600 !important;
+      font-family: var(--stokrova-font-mono) !important;
+      height: 38px !important;
+      min-height: 38px !important;
+      padding: 6px 12px !important;
+      background: #14181B !important;
+      border: 1px solid var(--border) !important;
+      color: var(--text) !important;
+      border-radius: 6px !important;
+    }
+    .stk-industrial-btn-primary {
+      font-family: var(--font-heading-industrial, 'Syne', sans-serif) !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.03em !important;
+      text-transform: uppercase !important;
     }
     .industry-choice-label:hover {
       border-color: var(--primary) !important;
@@ -1126,6 +1196,15 @@ const completeWebsiteHtml = `
         for (let i = 1; i <= 5; i++) {
           const pane = document.getElementById('reg-step-' + i);
           if (pane) pane.style.display = (i === step) ? 'block' : 'none';
+
+          const badge = document.getElementById('step-badge-' + i);
+          if (badge) {
+            if (i === step) {
+              badge.classList.add('active');
+            } else {
+              badge.classList.remove('active');
+            }
+          }
         }
 
         const loader = document.getElementById('signup-step-loader');
@@ -1146,6 +1225,7 @@ const completeWebsiteHtml = `
       },
 
       nextSignupStep(current) {
+        let btn = null;
         if (current === 1) {
           const comp = document.getElementById('reg-company-name');
           const slug = document.getElementById('reg-slug');
@@ -1155,6 +1235,7 @@ const completeWebsiteHtml = `
             this.showToast('Please enter your business legal name and workspace slug.');
             return;
           }
+          btn = document.getElementById('btn-signup-step1');
         } else if (current === 2) {
           const branch = document.getElementById('reg-branch-name');
           const branchVal = branch ? branch.value.trim() : '';
@@ -1162,6 +1243,7 @@ const completeWebsiteHtml = `
             this.showToast('Please enter your flagship store or warehouse branch name.');
             return;
           }
+          btn = document.getElementById('btn-signup-step2');
         } else if (current === 3) {
           const ownerName = document.getElementById('reg-owner-name');
           const ownerEmail = document.getElementById('reg-owner-email');
@@ -1173,6 +1255,30 @@ const completeWebsiteHtml = `
             this.showToast('Please enter owner full name, work email, and master password.');
             return;
           }
+          btn = document.getElementById('btn-signup-step3');
+        }
+
+        // Geometry-locked responsive loading on step button
+        let stopStepLoading = () => {};
+        if (btn) {
+          if (window.stokrovaStartLoading) {
+            stopStepLoading = window.stokrovaStartLoading(btn, current === 3 ? 'Verifying…' : 'Calibrating…') || (() => {});
+          } else {
+            const rect = btn.getBoundingClientRect();
+            btn.style.width = Math.max(rect.width, 180) + 'px';
+            btn.style.minWidth = Math.max(rect.width, 180) + 'px';
+            const orig = btn.innerHTML;
+            btn.disabled = true;
+            btn.style.pointerEvents = 'none';
+            btn.innerHTML = '<span class="stk-btn-spinner" style="display:inline-block;width:12px;height:12px;border:2px solid rgba(0,0,0,0.25);border-top-color:currentColor;border-radius:50%;animation:stkSpin 0.6s linear infinite;margin-right:6px;vertical-align:middle;"></span><span>Calibrating…</span>';
+            stopStepLoading = () => {
+              btn.innerHTML = orig;
+              btn.style.width = '';
+              btn.style.minWidth = '';
+              btn.style.pointerEvents = '';
+              btn.disabled = false;
+            };
+          }
         }
 
         // Dedicated Page Loading State: hide current step & show loader
@@ -1181,20 +1287,59 @@ const completeWebsiteHtml = `
         const header = document.getElementById('signup-stepper-header');
         const loaderTitle = document.getElementById('signup-loader-title');
 
-        if (currentPane) currentPane.style.display = 'none';
-        if (header) header.style.display = 'none';
-        if (loader) loader.style.display = 'block';
-        if (loaderTitle) loaderTitle.textContent = 'Calibrating Step ' + (current + 1) + '...';
-
         setTimeout(() => {
-          this.setSignupStep(current + 1);
-        }, 320);
+          if (currentPane) currentPane.style.display = 'none';
+          if (header) header.style.display = 'none';
+          if (loader) loader.style.display = 'block';
+          if (loaderTitle) loaderTitle.textContent = 'Calibrating Step ' + (current + 1) + '...';
+
+          setTimeout(() => {
+            stopStepLoading();
+            this.setSignupStep(current + 1);
+          }, 320);
+        }, 180);
       },
 
       prevSignupStep(current) {
         if (current > 1) {
           this.setSignupStep(current - 1);
         }
+      },
+
+      onPlanCurrencyChange(currency) {
+        const baseCur = document.getElementById('reg-currency');
+        if (baseCur) baseCur.value = currency;
+        const planCur = document.getElementById('reg-plan-currency');
+        if (planCur) planCur.value = currency;
+
+        const symbols = {
+          USD: { sym: '$', starter: '49', growth: '149', ent: '399' },
+          GBP: { sym: '£', starter: '39', growth: '119', ent: '319' },
+          EUR: { sym: '€', starter: '45', growth: '139', ent: '369' },
+          NGN: { sym: '₦', starter: '65,000', growth: '195,000', ent: '520,000' },
+          KES: { sym: 'KSh ', starter: '6,500', growth: '19,500', ent: '52,000' },
+          ZAR: { sym: 'R ', starter: '890', growth: '2,690', ent: '7,200' },
+        };
+        const c = symbols[currency] || symbols.USD;
+        const pStart = document.getElementById('plan-price-starter');
+        const pGrowth = document.getElementById('plan-price-growth');
+        const pEnt = document.getElementById('plan-price-enterprise');
+        if (pStart) pStart.textContent = c.sym + c.starter;
+        if (pGrowth) pGrowth.textContent = c.sym + c.growth;
+        if (pEnt) pEnt.textContent = c.sym + c.ent;
+
+        const tierSelect = document.getElementById('reg-tier');
+        if (tierSelect) {
+          const selVal = tierSelect.value;
+          tierSelect.innerHTML = '<option value="starter">Starter — ' + c.sym + c.starter + '/mo</option>' +
+            '<option value="growth">Growth — ' + c.sym + c.growth + '/mo (Recommended)</option>' +
+            '<option value="enterprise">Enterprise — ' + c.sym + c.ent + '/mo</option>';
+          tierSelect.value = selVal;
+        }
+      },
+
+      onBaseCurrencyChange(currency) {
+        this.onPlanCurrencyChange(currency);
       },
 
       autoSuggestSlug(val) {
@@ -1213,9 +1358,11 @@ const completeWebsiteHtml = `
             if (t === tier) {
               card.style.borderColor = 'var(--primary)';
               card.style.borderWidth = '2px';
+              card.style.boxShadow = '0 0 20px rgba(189,150,82,0.25)';
             } else {
               card.style.borderColor = 'var(--border)';
               card.style.borderWidth = '1px';
+              card.style.boxShadow = 'none';
             }
           }
         });

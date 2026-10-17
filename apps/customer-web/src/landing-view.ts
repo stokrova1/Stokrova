@@ -1379,54 +1379,75 @@ export class LandingViewModel {
   public renderRegisterModalHtml(): string {
     const tokens = themeTokens[this.theme];
     return `
-      <div id="modal-register" role="dialog" aria-modal="true" aria-labelledby="reg-modal-title" style="display: none; position: fixed; inset: 0; background: rgba(14, 17, 22, 0.88); backdrop-filter: blur(8px); z-index: 20000; align-items: center; justify-content: center; padding: 16px;">
+      <div id="modal-register" role="dialog" aria-modal="true" aria-labelledby="reg-modal-title" style="display: none; position: fixed; inset: 0; background: rgba(14, 17, 22, 0.9); backdrop-filter: blur(10px); z-index: 20000; align-items: center; justify-content: center; padding: 16px;">
         
         <!-- Ambient High-Class Cosmic Particle Canvas -->
         <canvas id="signup-cosmic-canvas" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;"></canvas>
 
-        <div class="modal-dialog-inner signup-stepper-card" style="position: relative; z-index: 1; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; border-radius: 14px; width: 100%; max-width: 620px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 60px rgba(0,0,0,0.75), 0 0 25px rgba(189,150,82,0.15); padding: 24px;">
+        <div class="modal-dialog-inner signup-stepper-card" style="position: relative; z-index: 1; background: radial-gradient(circle at 50% 0%, #1c2328 0%, #13171a 100%); border: 1px solid ${tokens.borderStrong}; border-radius: 16px; width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto; box-shadow: 0 35px 85px rgba(0,0,0,0.85), 0 0 30px rgba(189,150,82,0.18), inset 0 1px 0 rgba(255,255,255,0.06); padding: 26px;">
           
-          <!-- Stepper Header -->
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span style="color: ${tokens.primary}; font-size: 1.25rem; font-weight: 800;">◆</span>
+          <!-- Industrial Stepper Header -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; border-bottom: 1px solid rgba(65, 79, 90, 0.45); padding-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(189,150,82,0.12); border: 1px solid ${tokens.primary}; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 16px rgba(189,150,82,0.25);">
+                <span style="color: ${tokens.primary}; font-size: 1.15rem; font-weight: 900;">◆</span>
+              </div>
               <div>
-                <h2 id="reg-modal-title" style="margin: 0; font-size: 1.25rem; font-weight: 800; color: ${tokens.textPrimary};">Register Your Business</h2>
-                <div style="margin: 2px 0 0 0; font-size: 0.75rem; color: ${tokens.textSecondary};">
-                  Enterprise Business Security • Multi-Branch Operations
+                <h2 id="reg-modal-title" class="stk-industrial-title" style="margin: 0; font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-size: 1.375rem; font-weight: 900; color: ${tokens.textPrimary}; letter-spacing: -0.01em; text-transform: uppercase;">Register Your Business</h2>
+                <div style="margin: 3px 0 0 0; font-size: 0.72rem; color: ${tokens.textSecondary}; font-family: var(--stokrova-font-mono); letter-spacing: 0.06em; text-transform: uppercase;">
+                  SOVEREIGN INDUSTRIAL ONBOARDING // ENTERPRISE MULTI-BRANCH
                 </div>
               </div>
             </div>
-            <button onclick="window.stokrovaCustomerApp.closeRegisterModal()" aria-label="Close dialog" style="background: none; border: none; width: 44px; height: 44px; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; color: ${tokens.textMuted}; cursor: pointer;">&times;</button>
+            <button onclick="window.stokrovaCustomerApp.closeRegisterModal()" aria-label="Close dialog" style="background: rgba(255,255,255,0.04); border: 1px solid ${tokens.border}; width: 38px; height: 38px; min-width: 38px; min-height: 38px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; color: ${tokens.textMuted}; cursor: pointer; transition: all 0.15s ease;">&times;</button>
           </div>
 
           <!-- Progress Stepper Bar & Badges (Visible on Steps 1 to 4) -->
-          <div id="signup-stepper-header" style="margin-bottom: 20px;">
+          <div id="signup-stepper-header" style="margin-bottom: 22px;">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px;">
+              <div id="step-badge-1" class="stk-step-nav-item active">
+                <span class="stk-step-nav-num">01 // STEP</span>
+                <span class="stk-step-nav-label">Identity</span>
+              </div>
+              <div id="step-badge-2" class="stk-step-nav-item">
+                <span class="stk-step-nav-num">02 // STEP</span>
+                <span class="stk-step-nav-label">Operations</span>
+              </div>
+              <div id="step-badge-3" class="stk-step-nav-item">
+                <span class="stk-step-nav-num">03 // STEP</span>
+                <span class="stk-step-nav-label">Owner</span>
+              </div>
+              <div id="step-badge-4" class="stk-step-nav-item">
+                <span class="stk-step-nav-num">04 // STEP</span>
+                <span class="stk-step-nav-label">Scale & Plan</span>
+              </div>
+            </div>
+
             <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; margin-bottom: 8px;">
-              <span style="font-weight: 700; color: ${tokens.primary}; font-family: var(--stokrova-font-mono);">
+              <span style="font-weight: 700; color: ${tokens.primary}; font-family: var(--stokrova-font-mono); letter-spacing: 0.04em;">
                 Step <span id="signup-current-step-num">1</span> of 4
               </span>
-              <span id="signup-step-percent" style="font-family: var(--stokrova-font-mono); color: ${tokens.textMuted}; font-weight: 600;">25%</span>
+              <span id="signup-step-percent" style="font-family: var(--stokrova-font-mono); color: ${tokens.primary}; font-weight: 700; letter-spacing: 0.05em;">25%</span>
             </div>
 
             <!-- Glowing Gold Progress Track -->
-            <div style="height: 5px; background: #161B1E; border-radius: 3px; overflow: hidden; border: 1px solid ${tokens.border};">
-              <div id="signup-progress-fill" style="width: 25%; height: 100%; background: linear-gradient(90deg, #BD9652, #E0CB9F); box-shadow: 0 0 10px rgba(189,150,82,0.6); transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);"></div>
+            <div style="height: 6px; background: #121619; border-radius: 3px; overflow: hidden; border: 1px solid ${tokens.border};">
+              <div id="signup-progress-fill" style="width: 25%; height: 100%; background: linear-gradient(90deg, #BD9652, #E0CB9F); box-shadow: 0 0 12px rgba(189,150,82,0.7); transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);"></div>
             </div>
           </div>
 
           <!-- Inter-Step Micro-Loader (Displayed during smooth transitions between dedicated pages) -->
           <div id="signup-step-loader" style="display: none; text-align: center; padding: 48px 20px;">
-            <div style="position: relative; width: 64px; height: 64px; margin: 0 auto 16px auto; display: flex; align-items: center; justify-content: center;">
-              <div class="command-center-glow" style="position: absolute; inset: -4px; border-radius: 50%; background: radial-gradient(circle, rgba(189,150,82,0.35), transparent 70%);"></div>
-              <div style="width: 52px; height: 52px; border-radius: 50%; background: #161B1E; border: 2px solid ${tokens.primary}; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(189,150,82,0.4);">
-                <span style="font-size: 1.5rem; color: ${tokens.primary}; animation: pulseDot 1.2s infinite alternate;">◆</span>
+            <div style="position: relative; width: 68px; height: 68px; margin: 0 auto 16px auto; display: flex; align-items: center; justify-content: center;">
+              <div class="command-center-glow" style="position: absolute; inset: -4px; border-radius: 50%; background: radial-gradient(circle, rgba(189,150,82,0.4), transparent 70%);"></div>
+              <div style="width: 56px; height: 56px; border-radius: 50%; background: #121619; border: 2px solid ${tokens.primary}; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 24px rgba(189,150,82,0.5);">
+                <span style="font-size: 1.6rem; color: ${tokens.primary}; animation: pulseDot 1.2s infinite alternate;">◆</span>
               </div>
             </div>
-            <h3 id="signup-loader-title" style="margin: 0 0 6px 0; font-size: 1.15rem; font-weight: 800; color: ${tokens.textPrimary};">
+            <h3 id="signup-loader-title" style="margin: 0 0 6px 0; font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-size: 1.2rem; font-weight: 800; color: ${tokens.textPrimary}; letter-spacing: -0.01em;">
               Loading Next Step...
             </h3>
-            <p id="signup-loader-sub" style="margin: 0; font-size: 0.8125rem; color: ${tokens.textSecondary};">
+            <p id="signup-loader-sub" style="margin: 0; font-size: 0.8125rem; color: ${tokens.textSecondary}; font-family: var(--font-sans);">
               Calibrating your business parameters and security settings...
             </p>
           </div>
@@ -1435,32 +1456,32 @@ export class LandingViewModel {
             
             <!-- STEP 1: Business Identity & Legal Entity -->
             <div id="reg-step-1" class="signup-step-pane" style="display: block;">
-              <div style="background: rgba(189,150,82,0.06); border: 1px solid rgba(189,150,82,0.25); border-radius: 8px; padding: 10px 12px; margin-bottom: 16px; font-size: 0.8125rem; color: ${tokens.textSecondary}; display: flex; align-items: center; gap: 8px;">
-                <span>🔒</span>
-                <span>Enterprise Security: Your business environment is completely dedicated and securely protected.</span>
+              <div style="background: rgba(189,150,82,0.08); border: 1px solid rgba(189,150,82,0.3); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 0.8125rem; color: ${tokens.textSecondary}; display: flex; align-items: center; gap: 10px;">
+                <span style="color: ${tokens.primary}; font-size: 1rem;">🔒</span>
+                <span><strong>Enterprise Security:</strong> Your business environment is completely dedicated and securely protected.</span>
               </div>
 
               <div style="margin-bottom: 14px;">
-                <label for="reg-company-name" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">BUSINESS / COMPANY LEGAL NAME *</label>
-                <input id="reg-company-name" class="form-input" type="text" required placeholder="e.g. Acme Enterprises Ltd" oninput="window.stokrovaCustomerApp.autoSuggestSlug(this.value)" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+                <label for="reg-company-name" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">BUSINESS / COMPANY LEGAL NAME *</label>
+                <input id="reg-company-name" class="form-input" type="text" required placeholder="e.g. Acme Enterprises Ltd" oninput="window.stokrovaCustomerApp.autoSuggestSlug(this.value)" style="width: 100%; min-height: 44px; padding: 10px 14px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
               </div>
 
               <div style="margin-bottom: 14px;">
-                <label for="reg-slug" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">WORKSPACE SLUG (SUBDOMAIN) *</label>
+                <label for="reg-slug" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">WORKSPACE SLUG (SUBDOMAIN) *</label>
                 <div style="display: flex; align-items: center; background: ${tokens.background}; border: 1px solid ${tokens.border}; border-radius: 6px; overflow: hidden; min-height: 44px;">
-                  <input id="reg-slug" class="form-input" type="text" required placeholder="acme" style="flex: 1; min-height: 44px; padding: 10px 12px; background: transparent; border: none; color: ${tokens.textPrimary}; font-size: 16px;" />
-                  <span style="padding: 0 12px; font-size: 0.75rem; color: ${tokens.textMuted}; font-family: var(--stokrova-font-mono);">.stokrova.com</span>
+                  <input id="reg-slug" class="form-input" type="text" required placeholder="acme" style="flex: 1; min-height: 44px; padding: 10px 14px; background: transparent; border: none; color: ${tokens.textPrimary}; font-size: 16px; font-family: var(--stokrova-font-mono);" />
+                  <span style="padding: 0 14px; font-size: 0.75rem; color: ${tokens.primary}; font-family: var(--stokrova-font-mono); font-weight: 700;">.stokrova.com</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 0.7rem;">
-                  <span style="color: ${tokens.textMuted};">Only lowercase letters, numbers, and hyphens.</span>
-                  <span id="reg-slug-badge" style="color: #4ADE80; font-weight: 600;">✓ Subdomain available</span>
+                <div style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 0.7rem;">
+                  <span style="color: ${tokens.textMuted}; font-family: var(--stokrova-font-mono);">Only lowercase letters, numbers, and hyphens.</span>
+                  <span id="reg-slug-badge" style="color: #4ADE80; font-weight: 600; font-family: var(--stokrova-font-mono);">✓ Subdomain available</span>
                 </div>
               </div>
 
-              <div class="modal-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+              <div class="modal-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 22px;">
                 <div>
-                  <label for="reg-currency" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">BASE CURRENCY *</label>
-                  <select id="reg-currency" class="form-input" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;">
+                  <label for="reg-currency" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">BASE CURRENCY *</label>
+                  <select id="reg-currency" class="form-input stk-currency-select" onchange="window.stokrovaCustomerApp?.onBaseCurrencyChange ? window.stokrovaCustomerApp.onBaseCurrencyChange(this.value) : null" style="width: 100%; min-height: 40px; height: 40px; padding: 8px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.8125rem; font-weight: 600; font-family: var(--stokrova-font-mono);">
                     <option value="USD">USD ($) — US Dollar</option>
                     <option value="GBP">GBP (£) — British Pound</option>
                     <option value="EUR">EUR (€) — Euro</option>
@@ -1470,8 +1491,8 @@ export class LandingViewModel {
                   </select>
                 </div>
                 <div>
-                  <label for="reg-country" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">PRIMARY JURISDICTION *</label>
-                  <select id="reg-country" class="form-input" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;">
+                  <label for="reg-country" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">PRIMARY JURISDICTION *</label>
+                  <select id="reg-country" class="form-input stk-currency-select" style="width: 100%; min-height: 40px; height: 40px; padding: 8px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.8125rem; font-weight: 600; font-family: var(--stokrova-font-mono);">
                     <option value="GB">United Kingdom (HMRC Compliant)</option>
                     <option value="US">United States (State Sales Tax)</option>
                     <option value="NG">Nigeria (FIRS Fiscal Invoicing)</option>
@@ -1486,7 +1507,7 @@ export class LandingViewModel {
                 <button type="button" onclick="window.stokrovaCustomerApp.closeRegisterModal()" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
                   Cancel
                 </button>
-                <button id="btn-signup-step1" type="button" onclick="window.stokrovaCustomerApp.nextSignupStep(1)" style="min-height: 44px; padding: 10px 22px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer; box-shadow: 0 2px 10px rgba(189,150,82,0.35);">
+                <button id="btn-signup-step1" class="stk-industrial-btn-primary" type="button" onclick="window.stokrovaCustomerApp.nextSignupStep(1)" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.875rem; cursor: pointer; box-shadow: 0 4px 14px rgba(189,150,82,0.35); font-family: var(--font-heading-industrial, 'Syne', sans-serif); letter-spacing: 0.02em;">
                   Continue to Operations →
                 </button>
               </div>
@@ -1495,33 +1516,33 @@ export class LandingViewModel {
             <!-- STEP 2: Store / Branch & Operational Configuration -->
             <div id="reg-step-2" class="signup-step-pane" style="display: none;">
               <div style="margin-bottom: 14px;">
-                <label class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 8px;">OPERATIONAL INDUSTRY MODEL *</label>
+                <label class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 8px; letter-spacing: 0.08em; text-transform: uppercase;">OPERATIONAL INDUSTRY MODEL *</label>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                  <label class="industry-choice-label" style="background: #161B1E; border: 1px solid ${tokens.primary}; border-radius: 8px; padding: 10px 12px; cursor: pointer; display: flex; align-items: flex-start; gap: 8px;">
+                  <label class="industry-choice-label" style="background: #14181B; border: 1px solid ${tokens.primary}; border-radius: 8px; padding: 10px 12px; cursor: pointer; display: flex; align-items: flex-start; gap: 8px; transition: all 0.2s ease;">
                     <input type="radio" name="reg-industry" value="retail" checked style="accent-color: ${tokens.primary}; margin-top: 2px;" />
                     <div>
-                      <div style="font-weight: 700; font-size: 0.8125rem; color: ${tokens.textPrimary};">High-Street Retail & Store</div>
+                      <div style="font-weight: 700; font-size: 0.8125rem; color: ${tokens.textPrimary}; font-family: var(--font-heading-industrial, 'Syne', sans-serif);">High-Street Retail & Store</div>
                       <div style="font-size: 0.7rem; color: ${tokens.textMuted};">Offline POS, split tenders & receipt engine</div>
                     </div>
                   </label>
-                  <label class="industry-choice-label" style="background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 10px 12px; cursor: pointer; display: flex; align-items: flex-start; gap: 8px;">
+                  <label class="industry-choice-label" style="background: #14181B; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 10px 12px; cursor: pointer; display: flex; align-items: flex-start; gap: 8px; transition: all 0.2s ease;">
                     <input type="radio" name="reg-industry" value="supermarket" style="accent-color: ${tokens.primary}; margin-top: 2px;" />
                     <div>
-                      <div style="font-weight: 700; font-size: 0.8125rem; color: ${tokens.textPrimary};">Supermarket & FMCG</div>
+                      <div style="font-weight: 700; font-size: 0.8125rem; color: ${tokens.textPrimary}; font-family: var(--font-heading-industrial, 'Syne', sans-serif);">Supermarket & FMCG</div>
                       <div style="font-size: 0.7rem; color: ${tokens.textMuted};">Laser scanner buffer, multi-till cashiers</div>
                     </div>
                   </label>
-                  <label class="industry-choice-label" style="background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 10px 12px; cursor: pointer; display: flex; align-items: flex-start; gap: 8px;">
+                  <label class="industry-choice-label" style="background: #14181B; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 10px 12px; cursor: pointer; display: flex; align-items: flex-start; gap: 8px; transition: all 0.2s ease;">
                     <input type="radio" name="reg-industry" value="warehouse" style="accent-color: ${tokens.primary}; margin-top: 2px;" />
                     <div>
-                      <div style="font-weight: 700; font-size: 0.8125rem; color: ${tokens.textPrimary};">Distribution & Warehouse</div>
+                      <div style="font-weight: 700; font-size: 0.8125rem; color: ${tokens.textPrimary}; font-family: var(--font-heading-industrial, 'Syne', sans-serif);">Distribution & Warehouse</div>
                       <div style="font-size: 0.7rem; color: ${tokens.textMuted};">In-transit transfers, bin waves & FEFO</div>
                     </div>
                   </label>
-                  <label class="industry-choice-label" style="background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 10px 12px; cursor: pointer; display: flex; align-items: flex-start; gap: 8px;">
+                  <label class="industry-choice-label" style="background: #14181B; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 10px 12px; cursor: pointer; display: flex; align-items: flex-start; gap: 8px; transition: all 0.2s ease;">
                     <input type="radio" name="reg-industry" value="electronics" style="accent-color: ${tokens.primary}; margin-top: 2px;" />
                     <div>
-                      <div style="font-weight: 700; font-size: 0.8125rem; color: ${tokens.textPrimary};">Serialized Electronics</div>
+                      <div style="font-weight: 700; font-size: 0.8125rem; color: ${tokens.textPrimary}; font-family: var(--font-heading-industrial, 'Syne', sans-serif);">Serialized Electronics</div>
                       <div style="font-size: 0.7rem; color: ${tokens.textMuted};">Serial warranty tracking & lot history</div>
                     </div>
                   </label>
@@ -1529,18 +1550,18 @@ export class LandingViewModel {
               </div>
 
               <div style="margin-bottom: 14px;">
-                <label for="reg-branch-name" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">INITIAL FLAGSHIP / STORE BRANCH NAME *</label>
-                <input id="reg-branch-name" class="form-input" type="text" placeholder="e.g. Central Flagship" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+                <label for="reg-branch-name" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">INITIAL FLAGSHIP / STORE BRANCH NAME *</label>
+                <input id="reg-branch-name" class="form-input" type="text" placeholder="e.g. Central Flagship" style="width: 100%; min-height: 44px; padding: 10px 14px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
               </div>
 
-              <div class="modal-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+              <div class="modal-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 22px;">
                 <div>
-                  <label for="reg-initial-float" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">INITIAL CASH TILL FLOAT</label>
-                  <input id="reg-initial-float" class="form-input" type="text" value="$200.00" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px; font-family: var(--stokrova-font-mono);" />
+                  <label for="reg-initial-float" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">INITIAL CASH TILL FLOAT</label>
+                  <input id="reg-initial-float" class="form-input" type="text" value="$200.00" style="width: 100%; min-height: 44px; padding: 10px 14px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px; font-family: var(--stokrova-font-mono);" />
                 </div>
-                <div style="display: flex; flex-direction: column; justify-content: center;">
-                  <div style="font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 6px;">HARDWARE DETECTORS</div>
-                  <label style="display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: #4ADE80; cursor: pointer;">
+                <div style="display: flex; flex-direction: column; justify-content: center; background: rgba(22,27,30,0.6); border: 1px solid ${tokens.border}; border-radius: 6px; padding: 10px 12px;">
+                  <div class="stk-industrial-label" style="font-size: 0.7rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">HARDWARE DETECTORS</div>
+                  <label style="display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: #4ADE80; font-family: var(--stokrova-font-mono); cursor: pointer;">
                     <input type="checkbox" checked disabled style="accent-color: #4ADE80;" />
                     <span>Sub-50ms Laser Scanner Buffer Active</span>
                   </label>
@@ -1551,7 +1572,7 @@ export class LandingViewModel {
                 <button type="button" onclick="window.stokrovaCustomerApp.prevSignupStep(2)" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
                   ← Back
                 </button>
-                <button id="btn-signup-step2" type="button" onclick="window.stokrovaCustomerApp.nextSignupStep(2)" style="min-height: 44px; padding: 10px 22px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer;">
+                <button id="btn-signup-step2" class="stk-industrial-btn-primary" type="button" onclick="window.stokrovaCustomerApp.nextSignupStep(2)" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.875rem; cursor: pointer; box-shadow: 0 4px 14px rgba(189,150,82,0.35); font-family: var(--font-heading-industrial, 'Syne', sans-serif); letter-spacing: 0.02em;">
                   Continue to Owner Account →
                 </button>
               </div>
@@ -1561,35 +1582,36 @@ export class LandingViewModel {
             <div id="reg-step-3" class="signup-step-pane" style="display: none;">
               <div class="modal-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
                 <div>
-                  <label for="reg-owner-name" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">OWNER FULL NAME *</label>
-                  <input id="reg-owner-name" class="form-input" type="text" required placeholder="Owner Full Name" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+                  <label for="reg-owner-name" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">OWNER FULL NAME *</label>
+                  <input id="reg-owner-name" class="form-input" type="text" required placeholder="Owner Full Name" style="width: 100%; min-height: 44px; padding: 10px 14px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
                 </div>
                 <div>
-                  <label for="reg-owner-email" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">OWNER WORK EMAIL *</label>
-                  <input id="reg-owner-email" class="form-input" type="email" required placeholder="owner@company.com" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+                  <label for="reg-owner-email" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">OWNER WORK EMAIL *</label>
+                  <input id="reg-owner-email" class="form-input" type="email" required placeholder="owner@company.com" style="width: 100%; min-height: 44px; padding: 10px 14px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
                 </div>
               </div>
 
               <div class="modal-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
                 <div>
-                  <label for="reg-password" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">PASSWORD *</label>
-                  <input id="reg-password" class="form-input" type="password" required placeholder="••••••••••••" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+                  <label for="reg-password" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">PASSWORD *</label>
+                  <input id="reg-password" class="form-input" type="password" required placeholder="••••••••••••" style="width: 100%; min-height: 44px; padding: 10px 14px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
                 </div>
                 <div>
-                  <label for="reg-owner-phone" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">EMERGENCY AUDIT PHONE (OPTIONAL)</label>
-                  <input id="reg-owner-phone" class="form-input" type="tel" placeholder="+44 20 7000 0000" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+                  <label for="reg-owner-phone" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">EMERGENCY AUDIT PHONE (OPTIONAL)</label>
+                  <input id="reg-owner-phone" class="form-input" type="tel" placeholder="+44 20 7000 0000" style="width: 100%; min-height: 44px; padding: 10px 14px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px; font-family: var(--stokrova-font-mono);" />
                 </div>
               </div>
 
-              <div style="background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 10px 12px; margin-bottom: 20px; font-size: 0.75rem; color: ${tokens.textMuted}; line-height: 1.45;">
-                🛡️ Master owner receives root tenant administrative privileges across all branches, till sessions, and general ledger accounts.
+              <div style="background: #14181B; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px 14px; margin-bottom: 22px; font-size: 0.75rem; color: ${tokens.textMuted}; line-height: 1.45; display: flex; align-items: center; gap: 10px;">
+                <span style="color: ${tokens.primary}; font-size: 1.1rem;">🛡️</span>
+                <span>Master owner receives root tenant administrative privileges across all branches, till sessions, and general ledger accounts.</span>
               </div>
 
               <div style="display: flex; justify-content: space-between; gap: 10px;">
                 <button type="button" onclick="window.stokrovaCustomerApp.prevSignupStep(3)" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
                   ← Back
                 </button>
-                <button id="btn-signup-step3" type="button" onclick="window.stokrovaCustomerApp.nextSignupStep(3)" style="min-height: 44px; padding: 10px 22px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer;">
+                <button id="btn-signup-step3" class="stk-industrial-btn-primary" type="button" onclick="window.stokrovaCustomerApp.nextSignupStep(3)" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.875rem; cursor: pointer; box-shadow: 0 4px 14px rgba(189,150,82,0.35); font-family: var(--font-heading-industrial, 'Syne', sans-serif); letter-spacing: 0.02em;">
                   Continue to Scale & Plan →
                 </button>
               </div>
@@ -1598,41 +1620,58 @@ export class LandingViewModel {
             <!-- STEP 4: Operational Scale & Subscription Plan Selection -->
             <div id="reg-step-4" class="signup-step-pane" style="display: none;">
               <div style="margin-bottom: 16px;">
-                <label for="reg-tier" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 8px;">PLAN TIER</label>
                 
-                <!-- Plan Card Options -->
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px;">
+                <!-- Plan Header with Compact Currency Dropdown (Not oversized) -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; background: rgba(22,27,30,0.85); border: 1px solid ${tokens.border}; border-radius: 8px; padding: 8px 14px;">
+                  <div>
+                    <label for="reg-tier" class="form-label stk-industrial-label" style="margin: 0; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; letter-spacing: 0.06em; text-transform: uppercase;">PLAN TIER & CAPACITY</label>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 0.7rem; color: ${tokens.textMuted}; font-family: var(--stokrova-font-mono); text-transform: uppercase;">CURRENCY:</span>
+                    <select id="reg-plan-currency" onchange="window.stokrovaCustomerApp.onPlanCurrencyChange(this.value)" class="stk-currency-select" style="min-height: 32px; height: 32px; padding: 4px 8px; font-size: 0.75rem; font-weight: 600; font-family: var(--stokrova-font-mono); background: #161B1E; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; border-radius: 6px; cursor: pointer;">
+                      <option value="USD">USD ($)</option>
+                      <option value="GBP">GBP (£)</option>
+                      <option value="EUR">EUR (€)</option>
+                      <option value="NGN">NGN (₦)</option>
+                      <option value="KES">KES (KSh)</option>
+                      <option value="ZAR">ZAR (R)</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <!-- High Industrial Plan Card Options -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px;">
                   
-                  <div class="signup-plan-card" onclick="window.stokrovaCustomerApp.selectSignupPlan('starter')" id="plan-card-starter" style="background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 14px 10px; cursor: pointer; text-align: center; transition: all 0.15s ease;">
-                    <div style="font-weight: 800; font-size: 0.95rem; color: ${tokens.textPrimary};">Starter</div>
-                    <div style="font-family: var(--stokrova-font-mono); font-size: 1.25rem; font-weight: 900; color: ${tokens.textPrimary}; margin: 4px 0;">$49</div>
-                    <div style="font-size: 0.6875rem; color: ${tokens.textMuted};">1 Store • Touch POS</div>
+                  <div class="signup-plan-card" onclick="window.stokrovaCustomerApp.selectSignupPlan('starter')" id="plan-card-starter" style="background: #14181B; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px 10px; cursor: pointer; text-align: center; transition: all 0.2s ease;">
+                    <div style="font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-weight: 800; font-size: 1rem; color: ${tokens.textPrimary}; letter-spacing: 0.02em; text-transform: uppercase;">Starter</div>
+                    <div id="plan-price-starter" style="font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-size: 1.5rem; font-weight: 900; color: ${tokens.textPrimary}; margin: 6px 0; letter-spacing: -0.02em;">$49</div>
+                    <div style="font-size: 0.6875rem; color: ${tokens.textMuted}; font-family: var(--stokrova-font-mono);">1 Store • Touch POS</div>
                   </div>
 
-                  <div class="signup-plan-card" onclick="window.stokrovaCustomerApp.selectSignupPlan('growth')" id="plan-card-growth" style="background: #161B1E; border: 2px solid ${tokens.primary}; border-radius: 8px; padding: 14px 10px; cursor: pointer; text-align: center; position: relative; transition: all 0.15s ease;">
-                    <span style="position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: ${tokens.primary}; color: #0E1116; font-size: 0.6rem; font-weight: 800; padding: 1px 8px; border-radius: 9999px;">POPULAR</span>
-                    <div style="font-weight: 800; font-size: 0.95rem; color: ${tokens.textPrimary};">Growth</div>
-                    <div style="font-family: var(--stokrova-font-mono); font-size: 1.25rem; font-weight: 900; color: ${tokens.primary}; margin: 4px 0;">$149</div>
-                    <div style="font-size: 0.6875rem; color: ${tokens.textMuted};">5 Stores • In-Transit & FEFO</div>
+                  <div class="signup-plan-card" onclick="window.stokrovaCustomerApp.selectSignupPlan('growth')" id="plan-card-growth" style="background: #14181B; border: 2px solid ${tokens.primary}; border-radius: 10px; padding: 16px 10px; cursor: pointer; text-align: center; position: relative; transition: all 0.2s ease; box-shadow: 0 0 20px rgba(189,150,82,0.25);">
+                    <span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: ${tokens.primary}; color: #0E1116; font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-size: 0.625rem; font-weight: 800; padding: 2px 10px; border-radius: 9999px; letter-spacing: 0.06em;">POPULAR</span>
+                    <div style="font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-weight: 800; font-size: 1rem; color: ${tokens.textPrimary}; letter-spacing: 0.02em; text-transform: uppercase;">Growth</div>
+                    <div id="plan-price-growth" style="font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-size: 1.5rem; font-weight: 900; color: ${tokens.primary}; margin: 6px 0; letter-spacing: -0.02em;">$149</div>
+                    <div style="font-size: 0.6875rem; color: ${tokens.textMuted}; font-family: var(--stokrova-font-mono);">5 Stores • In-Transit & FEFO</div>
                   </div>
 
-                  <div class="signup-plan-card" onclick="window.stokrovaCustomerApp.selectSignupPlan('enterprise')" id="plan-card-enterprise" style="background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 14px 10px; cursor: pointer; text-align: center; transition: all 0.15s ease;">
-                    <div style="font-weight: 800; font-size: 0.95rem; color: ${tokens.textPrimary};">Enterprise</div>
-                    <div style="font-family: var(--stokrova-font-mono); font-size: 1.25rem; font-weight: 900; color: ${tokens.textPrimary}; margin: 4px 0;">$399</div>
-                    <div style="font-size: 0.6875rem; color: ${tokens.textMuted};">Warehouses • Multi-Branch</div>
+                  <div class="signup-plan-card" onclick="window.stokrovaCustomerApp.selectSignupPlan('enterprise')" id="plan-card-enterprise" style="background: #14181B; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px 10px; cursor: pointer; text-align: center; transition: all 0.2s ease;">
+                    <div style="font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-weight: 800; font-size: 1rem; color: ${tokens.textPrimary}; letter-spacing: 0.02em; text-transform: uppercase;">Enterprise</div>
+                    <div id="plan-price-enterprise" style="font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-size: 1.5rem; font-weight: 900; color: ${tokens.textPrimary}; margin: 6px 0; letter-spacing: -0.02em;">$399</div>
+                    <div style="font-size: 0.6875rem; color: ${tokens.textMuted}; font-family: var(--stokrova-font-mono);">Warehouses • Multi-Branch</div>
                   </div>
 
                 </div>
 
                 <!-- Hidden / Synced Select for Complete Contract & Test Compatibility -->
-                <select id="reg-tier" class="form-input" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;">
+                <select id="reg-tier" class="form-input stk-currency-select" style="width: 100%; min-height: 40px; height: 40px; padding: 8px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.8125rem; font-weight: 600; font-family: var(--stokrova-font-mono);">
                   <option value="starter">Starter — $49/mo</option>
                   <option value="growth" selected>Growth — $149/mo (Recommended)</option>
                   <option value="enterprise">Enterprise — $399/mo</option>
                 </select>
               </div>
 
-              <div style="background: #14291F; border: 1px solid #1E4620; border-radius: 8px; padding: 12px 14px; margin-bottom: 20px; font-size: 0.75rem; color: #4ADE80; line-height: 1.5;">
+              <div style="background: #14291F; border: 1px solid #1E4620; border-radius: 8px; padding: 12px 14px; margin-bottom: 22px; font-size: 0.75rem; color: #4ADE80; line-height: 1.5; font-family: var(--stokrova-font-mono);">
                 ✓ 30-Day Free Trial — no credit card required • Automatic Double-Entry Ledger • Cancel or scale branches anytime.
               </div>
 
@@ -1640,7 +1679,7 @@ export class LandingViewModel {
                 <button type="button" onclick="window.stokrovaCustomerApp.prevSignupStep(4)" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
                   ← Back
                 </button>
-                <button id="btn-submit-registration" type="submit" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 16px rgba(189,150,82,0.4);">
+                <button id="btn-submit-registration" class="stk-industrial-btn-primary" type="submit" style="min-height: 46px; padding: 12px 28px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 18px rgba(189,150,82,0.45); font-family: var(--font-heading-industrial, 'Syne', sans-serif); letter-spacing: 0.03em; text-transform: uppercase;">
                   Provision Workspace & Customize →
                 </button>
               </div>
@@ -1651,22 +1690,22 @@ export class LandingViewModel {
               
               <!-- Grand Welcoming & Congratulations Banner -->
               <div style="background: linear-gradient(135deg, rgba(189,150,82,0.18), rgba(22,27,30,0.92)); border: 1px solid ${tokens.primary}; border-radius: 12px; padding: 22px 20px; margin-bottom: 18px; text-align: center; box-shadow: 0 0 25px rgba(189,150,82,0.2);">
-                <div style="display: inline-flex; align-items: center; gap: 6px; background: ${tokens.primary}; color: #0E1116; font-size: 0.7rem; font-weight: 800; padding: 3px 12px; border-radius: 9999px; letter-spacing: 0.08em; margin-bottom: 10px;">
+                <div style="display: inline-flex; align-items: center; gap: 6px; background: ${tokens.primary}; color: #0E1116; font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-size: 0.7rem; font-weight: 800; padding: 3px 12px; border-radius: 9999px; letter-spacing: 0.08em; margin-bottom: 10px;">
                   ✦ CONGRATULATIONS • WORKSPACE DEPLOYED ✦
                 </div>
-                <h2 id="prov-headline" style="margin: 0 0 6px 0; font-size: 1.4rem; font-weight: 800; color: ${tokens.textPrimary};">
+                <h2 id="prov-headline" style="margin: 0 0 6px 0; font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-size: 1.45rem; font-weight: 900; color: ${tokens.textPrimary}; letter-spacing: -0.01em;">
                   Welcome to STOKROVA, <span id="prov-dyn-welcome">Owner</span>!
                 </h2>
                 <p style="margin: 0; font-size: 0.8125rem; color: ${tokens.textSecondary}; line-height: 1.5;">
-                  Your sovereign business workspace for <strong id="prov-dyn-company" style="color: ${tokens.textPrimary};">Your Organization</strong> is live and securely activated at <span id="prov-dyn-slug" style="color: ${tokens.primary}; font-family: var(--stokrova-font-mono); font-weight: 700;">workspace.stokrova.com</span>.
+                  Your sovereign business workspace for <strong id="prov-dyn-company" style="color: ${tokens.textPrimary}; font-family: var(--font-heading-industrial, 'Syne', sans-serif);">Your Organization</strong> is live and securely activated at <span id="prov-dyn-slug" style="color: ${tokens.primary}; font-family: var(--stokrova-font-mono); font-weight: 700;">workspace.stokrova.com</span>.
                 </p>
               </div>
 
               <!-- The STOKROVA Operational Promise Banner (Simulated detailed promise when trusting the platform) -->
-              <div id="stokrova-promise-banner" style="background: #161B1E; border: 1px solid ${tokens.borderStrong}; border-radius: 10px; padding: 18px 20px; margin-bottom: 18px; text-align: left;">
+              <div id="stokrova-promise-banner" style="background: #14181B; border: 1px solid ${tokens.borderStrong}; border-radius: 10px; padding: 18px 20px; margin-bottom: 18px; text-align: left;">
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; border-bottom: 1px solid ${tokens.border}; padding-bottom: 8px;">
                   <span style="font-size: 1.1rem; color: ${tokens.primary};">⚖️</span>
-                  <span style="font-weight: 800; font-size: 0.875rem; color: ${tokens.textPrimary}; text-transform: uppercase; letter-spacing: 0.06em;">The STOKROVA Operational Promise</span>
+                  <span style="font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-weight: 800; font-size: 0.875rem; color: ${tokens.textPrimary}; text-transform: uppercase; letter-spacing: 0.06em;">The STOKROVA Operational Promise</span>
                 </div>
                 <p style="margin: 0 0 12px 0; font-size: 0.75rem; color: ${tokens.textSecondary}; line-height: 1.45;">
                   When you entrust your physical stores, warehouses, and books to STOKROVA, our core architecture provides these unwavering guarantees:
@@ -1721,27 +1760,27 @@ export class LandingViewModel {
                   <span id="prov-stage-label" style="color: ${tokens.textSecondary};">Configuring dedicated organization environment...</span>
                   <span id="prov-percent" style="font-weight: 900; color: ${tokens.primary};">0%</span>
                 </div>
-                <div style="height: 6px; background: #161B1E; border-radius: 3px; overflow: hidden; border: 1px solid ${tokens.border};">
+                <div style="height: 6px; background: #121619; border-radius: 3px; overflow: hidden; border: 1px solid ${tokens.border};">
                   <div id="prov-progress-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #BD9652, #4ADE80); box-shadow: 0 0 12px rgba(189,150,82,0.8); transition: width 0.25s ease-out;"></div>
                 </div>
               </div>
 
               <!-- Dynamic Real-Time Milestone Checklist -->
-              <div id="prov-milestones" style="max-width: 480px; margin: 0 auto 20px auto; background: #161B1E; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px 16px; text-align: left; font-size: 0.75rem; font-family: var(--stokrova-font-mono); display: flex; flex-direction: column; gap: 7px;">
+              <div id="prov-milestones" style="max-width: 480px; margin: 0 auto 20px auto; background: #14181B; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 12px 16px; text-align: left; font-size: 0.75rem; font-family: var(--stokrova-font-mono); display: flex; flex-direction: column; gap: 7px;">
                 <div id="m-step-1" style="color: ${tokens.textMuted}; transition: all 0.2s ease;">
                   <span class="m-icon">⬡</span> <span>Enterprise Privacy Protection Active</span>
                 </div>
                 <div id="m-step-2" style="color: ${tokens.textMuted}; transition: all 0.2s ease;">
-                  <span class="m-icon">⬡</span> <span>Configuring legal entity '<strong id="prov-dyn-company" style="color: ${tokens.textPrimary};">...</strong>'</span>
+                  <span class="m-icon">⬡</span> <span>Configuring legal entity '<strong id="prov-dyn-company" style="color: ${tokens.textPrimary}; font-family: var(--font-heading-industrial, 'Syne', sans-serif);">...</strong>'</span>
                 </div>
                 <div id="m-step-3" style="color: ${tokens.textMuted}; transition: all 0.2s ease;">
-                  <span class="m-icon">⬡</span> <span>Setting up flagship branch '<strong id="prov-dyn-branch" style="color: ${tokens.textPrimary};">...</strong>'</span>
+                  <span class="m-icon">⬡</span> <span>Setting up flagship branch '<strong id="prov-dyn-branch" style="color: ${tokens.textPrimary}; font-family: var(--font-heading-industrial, 'Syne', sans-serif);">...</strong>'</span>
                 </div>
                 <div id="m-step-4" style="color: ${tokens.textMuted}; transition: all 0.2s ease;">
                   <span class="m-icon">⬡</span> <span>Generating automated double-entry ledger & chart of accounts</span>
                 </div>
                 <div id="m-step-5" style="color: ${tokens.textMuted}; transition: all 0.2s ease;">
-                  <span class="m-icon">⬡</span> <span>Provisioning root credentials for <strong id="prov-dyn-owner" style="color: ${tokens.textPrimary};">...</strong></span>
+                  <span class="m-icon">⬡</span> <span>Provisioning root credentials for <strong id="prov-dyn-owner" style="color: ${tokens.textPrimary}; font-family: var(--font-heading-industrial, 'Syne', sans-serif);">...</strong></span>
                 </div>
                 <div id="m-step-6" style="color: ${tokens.textMuted}; transition: all 0.2s ease;">
                   <span class="m-icon">⬡</span> <span>Deploying workspace to <strong id="prov-dyn-slug" style="color: ${tokens.primary};">...</strong>.stokrova.com</span>
@@ -1750,7 +1789,7 @@ export class LandingViewModel {
 
               <!-- Celebratory Completion Actions (Shown at 100%) -->
               <div id="prov-completion-actions" style="display: none; animation: fadeIn 0.3s ease-out; margin-top: 24px; text-align: center;">
-                <div style="background: rgba(74, 222, 128, 0.1); border: 1px solid #1E4620; border-radius: 8px; padding: 12px 18px; max-width: 480px; margin: 0 auto 16px auto; color: #4ADE80; font-size: 0.875rem; font-weight: 700;">
+                <div style="background: rgba(74, 222, 128, 0.1); border: 1px solid #1E4620; border-radius: 8px; padding: 12px 18px; max-width: 480px; margin: 0 auto 16px auto; color: #4ADE80; font-size: 0.875rem; font-weight: 700; font-family: var(--font-heading-industrial, 'Syne', sans-serif);">
                   ✦ Workspace Live: Setup Complete
                 </div>
                 <div id="prov-countdown-banner" style="font-size: 0.9375rem; font-weight: 600; color: ${tokens.textSecondary}; display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -1766,13 +1805,13 @@ export class LandingViewModel {
               <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(189,150,82,0.12); border: 1px solid ${tokens.primary}; margin: 0 auto 16px auto; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; color: ${tokens.primary};">
                 ✉️
               </div>
-              <h3 style="margin: 0 0 8px 0; font-size: 1.25rem; font-weight: 800; color: ${tokens.textPrimary};">
+              <h3 style="margin: 0 0 8px 0; font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-size: 1.25rem; font-weight: 800; color: ${tokens.textPrimary}; letter-spacing: -0.01em;">
                 Confirm Your Email Address
               </h3>
               <p style="margin: 0 0 16px 0; font-size: 0.875rem; color: ${tokens.textSecondary}; line-height: 1.5; max-width: 480px; margin-left: auto; margin-right: auto;">
                 A secure verification link has been sent to <strong id="confirm-email-target" style="color: ${tokens.textPrimary}; font-family: var(--stokrova-font-mono);">...</strong>.
               </p>
-              <div style="background: #161B1E; border: 1px solid ${tokens.borderStrong}; border-radius: 10px; padding: 14px 16px; margin: 0 auto 20px auto; max-width: 480px; text-align: left; font-size: 0.775rem; color: ${tokens.textSecondary}; line-height: 1.5;">
+              <div style="background: #14181B; border: 1px solid ${tokens.borderStrong}; border-radius: 10px; padding: 14px 16px; margin: 0 auto 20px auto; max-width: 480px; text-align: left; font-size: 0.775rem; color: ${tokens.textSecondary}; line-height: 1.5;">
                 <div style="color: #4ADE80; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
                   <span>✓</span> <span>Enterprise Account Security</span>
                 </div>
@@ -1780,10 +1819,10 @@ export class LandingViewModel {
               </div>
 
               <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
-                <button id="btn-resend-confirm-email" type="button" onclick="window.stokrovaCustomerApp.resendConfirmationEmail()" style="min-height: 44px; padding: 10px 20px; border-radius: 6px; border: 1px solid ${tokens.primary}; background: transparent; color: ${tokens.primary}; font-weight: 700; font-size: 0.875rem; cursor: pointer;">
+                <button id="btn-resend-confirm-email" type="button" onclick="window.stokrovaCustomerApp.resendConfirmationEmail()" style="min-height: 44px; padding: 10px 20px; border-radius: 6px; border: 1px solid ${tokens.primary}; background: transparent; color: ${tokens.primary}; font-weight: 700; font-size: 0.875rem; cursor: pointer; font-family: var(--font-heading-industrial, 'Syne', sans-serif); letter-spacing: 0.02em;">
                   Resend Confirmation Email
                 </button>
-                <button id="btn-check-confirmed" type="button" onclick="window.stokrovaCustomerApp.checkSessionAfterEmailConfirmation()" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.875rem; cursor: pointer; box-shadow: 0 2px 10px rgba(189,150,82,0.35);">
+                <button id="btn-check-confirmed" class="stk-industrial-btn-primary" type="button" onclick="window.stokrovaCustomerApp.checkSessionAfterEmailConfirmation()" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.875rem; cursor: pointer; box-shadow: 0 2px 10px rgba(189,150,82,0.35); font-family: var(--font-heading-industrial, 'Syne', sans-serif); letter-spacing: 0.02em;">
                   I Have Confirmed My Email →
                 </button>
               </div>
