@@ -1128,6 +1128,7 @@ const completeWebsiteHtml = `
             owner_full_name: pending.ownerName,
             default_currency: pending.currency,
             initial_branch_name: pending.branchName,
+            country: pending.country || 'GB',
             plan_tier: pending.tier,
           }),
         });
@@ -1346,6 +1347,77 @@ const completeWebsiteHtml = `
         this.onPlanCurrencyChange(currency);
       },
 
+      toggleCountryDropdown() {
+        const menu = document.getElementById('reg-country-menu');
+        const trigger = document.getElementById('reg-country-trigger');
+        const chevron = document.getElementById('reg-country-chevron');
+        const search = document.getElementById('reg-country-search');
+        if (!menu) return;
+        const isOpen = menu.style.display === 'block';
+        if (isOpen) {
+          this.closeCountryDropdown();
+        } else {
+          menu.style.display = 'block';
+          if (trigger) trigger.setAttribute('aria-expanded', 'true');
+          if (chevron) chevron.style.transform = 'rotate(180deg)';
+          if (search) {
+            search.value = '';
+            this.filterCountries('');
+            setTimeout(() => search.focus(), 50);
+          }
+        }
+      },
+
+      closeCountryDropdown() {
+        const menu = document.getElementById('reg-country-menu');
+        const trigger = document.getElementById('reg-country-trigger');
+        const chevron = document.getElementById('reg-country-chevron');
+        if (menu) menu.style.display = 'none';
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        if (chevron) chevron.style.transform = '';
+      },
+
+      filterCountries(query) {
+        const q = (query || '').toLowerCase().trim();
+        const list = document.getElementById('reg-country-list');
+        const noResults = document.getElementById('reg-country-no-results');
+        if (!list) return;
+        const items = list.querySelectorAll('.stk-country-opt');
+        let matched = 0;
+        items.forEach((item) => {
+          const name = (item.getAttribute('data-name') || '').toLowerCase();
+          const code = (item.getAttribute('data-code') || '').toLowerCase();
+          if (!q || name.includes(q) || code.includes(q)) {
+            item.style.display = 'flex';
+            matched++;
+          } else {
+            item.style.display = 'none';
+          }
+        });
+        if (noResults) {
+          noResults.style.display = matched === 0 ? 'block' : 'none';
+        }
+      },
+
+      selectCountry(code, name) {
+        const flag = document.getElementById('reg-country-selected-flag');
+        const label = document.getElementById('reg-country-selected-label');
+        const select = document.getElementById('reg-country');
+        if (flag) {
+          flag.src = 'https://flagcdn.com/w40/' + code.toLowerCase() + '.png';
+          flag.srcset = 'https://flagcdn.com/w80/' + code.toLowerCase() + '.png 2x';
+          flag.alt = code;
+        }
+        if (label) {
+          label.textContent = name;
+        }
+        if (select) {
+          select.value = code;
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        this.closeCountryDropdown();
+      },
+
       autoSuggestSlug(val) {
         const slugInput = document.getElementById('reg-slug');
         if (slugInput && !slugInput.dataset.manuallyEdited) {
@@ -1452,6 +1524,7 @@ const completeWebsiteHtml = `
         const slug = document.getElementById('reg-slug')?.value.trim().toLowerCase() || '';
         const currency = document.getElementById('reg-currency')?.value || 'USD';
         const branchName = document.getElementById('reg-branch-name')?.value.trim() || 'Main Branch';
+        const country = document.getElementById('reg-country')?.value || 'GB';
         const ownerName = document.getElementById('reg-owner-name')?.value.trim() || '';
         const ownerEmail = document.getElementById('reg-owner-email')?.value.trim().toLowerCase() || '';
         const password = document.getElementById('reg-password')?.value || '';
@@ -1473,6 +1546,7 @@ const completeWebsiteHtml = `
           slug,
           currency,
           branchName,
+          country,
           ownerName,
           ownerEmail,
           tier,
@@ -1522,6 +1596,7 @@ const completeWebsiteHtml = `
                   workspace_slug: slug,
                   plan_tier: tier,
                   branch_name: branchName,
+                  country: country,
                   default_currency: currency,
                   phone: phone || undefined,
                 },
@@ -3070,9 +3145,18 @@ const completeWebsiteHtml = `
       }
     }, { passive: true });
 
+    // Close country dropdown on click outside
+    document.addEventListener('click', (e) => {
+      const wrap = document.getElementById('reg-country-dropdown-wrap');
+      if (wrap && !wrap.contains(e.target)) {
+        window.stokrovaCustomerApp?.closeCountryDropdown();
+      }
+    });
+
     // Keyboard Escape Key listener for accessibility
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
+        window.stokrovaCustomerApp?.closeCountryDropdown();
         window.stokrovaCustomerApp.endTour();
         window.stokrovaCustomerApp.closeRegisterModal();
         window.stokrovaCustomerApp.closeLoginModal();

@@ -28,6 +28,205 @@ export interface PricingPlanItem {
   recommended?: boolean;
 }
 
+export const WORLD_COUNTRIES: Array<{ code: string; name: string }> = [
+  { code: 'AF', name: 'Afghanistan' },
+  { code: 'AL', name: 'Albania' },
+  { code: 'DZ', name: 'Algeria' },
+  { code: 'AD', name: 'Andorra' },
+  { code: 'AO', name: 'Angola' },
+  { code: 'AG', name: 'Antigua and Barbuda' },
+  { code: 'AR', name: 'Argentina' },
+  { code: 'AM', name: 'Armenia' },
+  { code: 'AU', name: 'Australia' },
+  { code: 'AT', name: 'Austria' },
+  { code: 'AZ', name: 'Azerbaijan' },
+  { code: 'BS', name: 'Bahamas' },
+  { code: 'BH', name: 'Bahrain' },
+  { code: 'BD', name: 'Bangladesh' },
+  { code: 'BB', name: 'Barbados' },
+  { code: 'BY', name: 'Belarus' },
+  { code: 'BE', name: 'Belgium' },
+  { code: 'BZ', name: 'Belize' },
+  { code: 'BJ', name: 'Benin' },
+  { code: 'BT', name: 'Bhutan' },
+  { code: 'BO', name: 'Bolivia' },
+  { code: 'BA', name: 'Bosnia and Herzegovina' },
+  { code: 'BW', name: 'Botswana' },
+  { code: 'BR', name: 'Brazil' },
+  { code: 'BN', name: 'Brunei' },
+  { code: 'BG', name: 'Bulgaria' },
+  { code: 'BF', name: 'Burkina Faso' },
+  { code: 'BI', name: 'Burundi' },
+  { code: 'CV', name: 'Cabo Verde' },
+  { code: 'KH', name: 'Cambodia' },
+  { code: 'CM', name: 'Cameroon' },
+  { code: 'CA', name: 'Canada' },
+  { code: 'CF', name: 'Central African Republic' },
+  { code: 'TD', name: 'Chad' },
+  { code: 'CL', name: 'Chile' },
+  { code: 'CN', name: 'China' },
+  { code: 'CO', name: 'Colombia' },
+  { code: 'KM', name: 'Comoros' },
+  { code: 'CG', name: 'Congo' },
+  { code: 'CD', name: 'Congo (DRC)' },
+  { code: 'CR', name: 'Costa Rica' },
+  { code: 'CI', name: "Cote d'Ivoire" },
+  { code: 'HR', name: 'Croatia' },
+  { code: 'CU', name: 'Cuba' },
+  { code: 'CY', name: 'Cyprus' },
+  { code: 'CZ', name: 'Czech Republic' },
+  { code: 'DK', name: 'Denmark' },
+  { code: 'DJ', name: 'Djibouti' },
+  { code: 'DM', name: 'Dominica' },
+  { code: 'DO', name: 'Dominican Republic' },
+  { code: 'EC', name: 'Ecuador' },
+  { code: 'EG', name: 'Egypt' },
+  { code: 'SV', name: 'El Salvador' },
+  { code: 'GQ', name: 'Equatorial Guinea' },
+  { code: 'ER', name: 'Eritrea' },
+  { code: 'EE', name: 'Estonia' },
+  { code: 'SZ', name: 'Eswatini' },
+  { code: 'ET', name: 'Ethiopia' },
+  { code: 'FJ', name: 'Fiji' },
+  { code: 'FI', name: 'Finland' },
+  { code: 'FR', name: 'France' },
+  { code: 'GA', name: 'Gabon' },
+  { code: 'GM', name: 'Gambia' },
+  { code: 'GE', name: 'Georgia' },
+  { code: 'DE', name: 'Germany' },
+  { code: 'GH', name: 'Ghana' },
+  { code: 'GR', name: 'Greece' },
+  { code: 'GD', name: 'Grenada' },
+  { code: 'GT', name: 'Guatemala' },
+  { code: 'GN', name: 'Guinea' },
+  { code: 'GW', name: 'Guinea-Bissau' },
+  { code: 'GY', name: 'Guyana' },
+  { code: 'HT', name: 'Haiti' },
+  { code: 'HN', name: 'Honduras' },
+  { code: 'HU', name: 'Hungary' },
+  { code: 'IS', name: 'Iceland' },
+  { code: 'IN', name: 'India' },
+  { code: 'ID', name: 'Indonesia' },
+  { code: 'IR', name: 'Iran' },
+  { code: 'IQ', name: 'Iraq' },
+  { code: 'IE', name: 'Ireland' },
+  { code: 'IL', name: 'Israel' },
+  { code: 'IT', name: 'Italy' },
+  { code: 'JM', name: 'Jamaica' },
+  { code: 'JP', name: 'Japan' },
+  { code: 'JO', name: 'Jordan' },
+  { code: 'KZ', name: 'Kazakhstan' },
+  { code: 'KE', name: 'Kenya' },
+  { code: 'KI', name: 'Kiribati' },
+  { code: 'KW', name: 'Kuwait' },
+  { code: 'KG', name: 'Kyrgyzstan' },
+  { code: 'LA', name: 'Laos' },
+  { code: 'LV', name: 'Latvia' },
+  { code: 'LB', name: 'Lebanon' },
+  { code: 'LS', name: 'Lesotho' },
+  { code: 'LR', name: 'Liberia' },
+  { code: 'LY', name: 'Libya' },
+  { code: 'LI', name: 'Liechtenstein' },
+  { code: 'LT', name: 'Lithuania' },
+  { code: 'LU', name: 'Luxembourg' },
+  { code: 'MG', name: 'Madagascar' },
+  { code: 'MW', name: 'Malawi' },
+  { code: 'MY', name: 'Malaysia' },
+  { code: 'MV', name: 'Maldives' },
+  { code: 'ML', name: 'Mali' },
+  { code: 'MT', name: 'Malta' },
+  { code: 'MH', name: 'Marshall Islands' },
+  { code: 'MR', name: 'Mauritania' },
+  { code: 'MU', name: 'Mauritius' },
+  { code: 'MX', name: 'Mexico' },
+  { code: 'FM', name: 'Micronesia' },
+  { code: 'MD', name: 'Moldova' },
+  { code: 'MC', name: 'Monaco' },
+  { code: 'MN', name: 'Mongolia' },
+  { code: 'ME', name: 'Montenegro' },
+  { code: 'MA', name: 'Morocco' },
+  { code: 'MZ', name: 'Mozambique' },
+  { code: 'MM', name: 'Myanmar' },
+  { code: 'NA', name: 'Namibia' },
+  { code: 'NR', name: 'Nauru' },
+  { code: 'NP', name: 'Nepal' },
+  { code: 'NL', name: 'Netherlands' },
+  { code: 'NZ', name: 'New Zealand' },
+  { code: 'NI', name: 'Nicaragua' },
+  { code: 'NE', name: 'Niger' },
+  { code: 'NG', name: 'Nigeria' },
+  { code: 'KP', name: 'North Korea' },
+  { code: 'MK', name: 'North Macedonia' },
+  { code: 'NO', name: 'Norway' },
+  { code: 'OM', name: 'Oman' },
+  { code: 'PK', name: 'Pakistan' },
+  { code: 'PW', name: 'Palau' },
+  { code: 'PS', name: 'Palestine' },
+  { code: 'PA', name: 'Panama' },
+  { code: 'PG', name: 'Papua New Guinea' },
+  { code: 'PY', name: 'Paraguay' },
+  { code: 'PE', name: 'Peru' },
+  { code: 'PH', name: 'Philippines' },
+  { code: 'PL', name: 'Poland' },
+  { code: 'PT', name: 'Portugal' },
+  { code: 'QA', name: 'Qatar' },
+  { code: 'RO', name: 'Romania' },
+  { code: 'RU', name: 'Russia' },
+  { code: 'RW', name: 'Rwanda' },
+  { code: 'KN', name: 'Saint Kitts and Nevis' },
+  { code: 'LC', name: 'Saint Lucia' },
+  { code: 'VC', name: 'Saint Vincent and the Grenadines' },
+  { code: 'WS', name: 'Samoa' },
+  { code: 'SM', name: 'San Marino' },
+  { code: 'ST', name: 'Sao Tome and Principe' },
+  { code: 'SA', name: 'Saudi Arabia' },
+  { code: 'SN', name: 'Senegal' },
+  { code: 'RS', name: 'Serbia' },
+  { code: 'SC', name: 'Seychelles' },
+  { code: 'SL', name: 'Sierra Leone' },
+  { code: 'SG', name: 'Singapore' },
+  { code: 'SK', name: 'Slovakia' },
+  { code: 'SI', name: 'Slovenia' },
+  { code: 'SB', name: 'Solomon Islands' },
+  { code: 'SO', name: 'Somalia' },
+  { code: 'ZA', name: 'South Africa' },
+  { code: 'KR', name: 'South Korea' },
+  { code: 'SS', name: 'South Sudan' },
+  { code: 'ES', name: 'Spain' },
+  { code: 'LK', name: 'Sri Lanka' },
+  { code: 'SD', name: 'Sudan' },
+  { code: 'SR', name: 'Suriname' },
+  { code: 'SE', name: 'Sweden' },
+  { code: 'CH', name: 'Switzerland' },
+  { code: 'SY', name: 'Syria' },
+  { code: 'TW', name: 'Taiwan' },
+  { code: 'TJ', name: 'Tajikistan' },
+  { code: 'TZ', name: 'Tanzania' },
+  { code: 'TH', name: 'Thailand' },
+  { code: 'TL', name: 'Timor-Leste' },
+  { code: 'TG', name: 'Togo' },
+  { code: 'TO', name: 'Tonga' },
+  { code: 'TT', name: 'Trinidad and Tobago' },
+  { code: 'TN', name: 'Tunisia' },
+  { code: 'TR', name: 'Turkey' },
+  { code: 'TM', name: 'Turkmenistan' },
+  { code: 'TV', name: 'Tuvalu' },
+  { code: 'UG', name: 'Uganda' },
+  { code: 'UA', name: 'Ukraine' },
+  { code: 'AE', name: 'United Arab Emirates' },
+  { code: 'GB', name: 'United Kingdom' },
+  { code: 'US', name: 'United States' },
+  { code: 'UY', name: 'Uruguay' },
+  { code: 'UZ', name: 'Uzbekistan' },
+  { code: 'VU', name: 'Vanuatu' },
+  { code: 'VA', name: 'Vatican City' },
+  { code: 'VE', name: 'Venezuela' },
+  { code: 'VN', name: 'Vietnam' },
+  { code: 'YE', name: 'Yemen' },
+  { code: 'ZM', name: 'Zambia' },
+  { code: 'ZW', name: 'Zimbabwe' },
+];
+
 export class LandingViewModel {
   private theme: 'light' | 'dark';
 
@@ -1386,6 +1585,26 @@ export class LandingViewModel {
 
         <div class="modal-dialog-inner signup-stepper-card" style="position: relative; z-index: 1; background: radial-gradient(circle at 50% 0%, #1c2328 0%, #13171a 100%); border: 1px solid ${tokens.borderStrong}; border-radius: 16px; width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto; box-shadow: 0 35px 85px rgba(0,0,0,0.85), 0 0 30px rgba(189,150,82,0.18), inset 0 1px 0 rgba(255,255,255,0.06); padding: 26px;">
           
+          <style>
+            .stk-country-opt:hover {
+              background: rgba(189, 150, 82, 0.16) !important;
+              color: #FFFFFF !important;
+            }
+            #reg-country-list::-webkit-scrollbar {
+              width: 5px;
+            }
+            #reg-country-list::-webkit-scrollbar-track {
+              background: #0E1114;
+            }
+            #reg-country-list::-webkit-scrollbar-thumb {
+              background: #2A3238;
+              border-radius: 3px;
+            }
+            #reg-country-list::-webkit-scrollbar-thumb:hover {
+              background: #BD9652;
+            }
+          </style>
+          
           <!-- Centered Brand & Single-Line Header with Step Counter -->
           <div style="position: relative; text-align: center; margin-bottom: 18px; border-bottom: 1px solid rgba(65, 79, 90, 0.35); padding-bottom: 14px;">
             <!-- Top-Left Edge: Small Branded Step Counter Pill -->
@@ -1519,205 +1738,46 @@ export class LandingViewModel {
               </div>
 
               <div style="margin-bottom: 22px;">
-                <label for="reg-country" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">COUNTRY *</label>
-                <select id="reg-country" class="form-input stk-currency-select" style="width: 100%; min-height: 42px; height: 42px; padding: 8px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.8125rem; font-weight: 600; font-family: var(--stokrova-font-mono);">
-                  <option value="AF">🇦🇫 Afghanistan</option>
-                  <option value="AL">🇦🇱 Albania</option>
-                  <option value="DZ">🇩🇿 Algeria</option>
-                  <option value="AD">🇦🇩 Andorra</option>
-                  <option value="AO">🇦🇴 Angola</option>
-                  <option value="AG">🇦🇬 Antigua and Barbuda</option>
-                  <option value="AR">🇦🇷 Argentina</option>
-                  <option value="AM">🇦🇲 Armenia</option>
-                  <option value="AU">🇦🇺 Australia</option>
-                  <option value="AT">🇦🇹 Austria</option>
-                  <option value="AZ">🇦🇿 Azerbaijan</option>
-                  <option value="BS">🇧🇸 Bahamas</option>
-                  <option value="BH">🇧🇭 Bahrain</option>
-                  <option value="BD">🇧🇩 Bangladesh</option>
-                  <option value="BB">🇧🇧 Barbados</option>
-                  <option value="BY">🇧🇾 Belarus</option>
-                  <option value="BE">🇧🇪 Belgium</option>
-                  <option value="BZ">🇧🇿 Belize</option>
-                  <option value="BJ">🇧🇯 Benin</option>
-                  <option value="BT">🇧🇹 Bhutan</option>
-                  <option value="BO">🇧🇴 Bolivia</option>
-                  <option value="BA">🇧🇦 Bosnia and Herzegovina</option>
-                  <option value="BW">🇧🇼 Botswana</option>
-                  <option value="BR">🇧🇷 Brazil</option>
-                  <option value="BN">🇧🇳 Brunei</option>
-                  <option value="BG">🇧🇬 Bulgaria</option>
-                  <option value="BF">🇧🇫 Burkina Faso</option>
-                  <option value="BI">🇧🇮 Burundi</option>
-                  <option value="CV">🇨🇻 Cabo Verde</option>
-                  <option value="KH">🇰🇭 Cambodia</option>
-                  <option value="CM">🇨🇲 Cameroon</option>
-                  <option value="CA">🇨🇦 Canada</option>
-                  <option value="CF">🇨🇫 Central African Republic</option>
-                  <option value="TD">🇹🇩 Chad</option>
-                  <option value="CL">🇨🇱 Chile</option>
-                  <option value="CN">🇨🇳 China</option>
-                  <option value="CO">🇨🇴 Colombia</option>
-                  <option value="KM">🇰🇲 Comoros</option>
-                  <option value="CG">🇨🇬 Congo</option>
-                  <option value="CD">🇨🇩 Congo (DRC)</option>
-                  <option value="CR">🇨🇷 Costa Rica</option>
-                  <option value="CI">🇨🇮 Côte d'Ivoire</option>
-                  <option value="HR">🇭🇷 Croatia</option>
-                  <option value="CU">🇨🇺 Cuba</option>
-                  <option value="CY">🇨🇾 Cyprus</option>
-                  <option value="CZ">🇨🇿 Czech Republic</option>
-                  <option value="DK">🇩🇰 Denmark</option>
-                  <option value="DJ">🇩🇯 Djibouti</option>
-                  <option value="DM">🇩🇲 Dominica</option>
-                  <option value="DO">🇩🇴 Dominican Republic</option>
-                  <option value="EC">🇪🇨 Ecuador</option>
-                  <option value="EG">🇪🇬 Egypt</option>
-                  <option value="SV">🇸🇻 El Salvador</option>
-                  <option value="GQ">🇬🇶 Equatorial Guinea</option>
-                  <option value="ER">🇪🇷 Eritrea</option>
-                  <option value="EE">🇪🇪 Estonia</option>
-                  <option value="SZ">🇸🇿 Eswatini</option>
-                  <option value="ET">🇪🇹 Ethiopia</option>
-                  <option value="FJ">🇫🇯 Fiji</option>
-                  <option value="FI">🇫🇮 Finland</option>
-                  <option value="FR">🇫🇷 France</option>
-                  <option value="GA">🇬🇦 Gabon</option>
-                  <option value="GM">🇬🇲 Gambia</option>
-                  <option value="GE">🇬🇪 Georgia</option>
-                  <option value="DE">🇩🇪 Germany</option>
-                  <option value="GH">🇬🇭 Ghana</option>
-                  <option value="GR">🇬🇷 Greece</option>
-                  <option value="GD">🇬🇩 Grenada</option>
-                  <option value="GT">🇬🇹 Guatemala</option>
-                  <option value="GN">🇬🇳 Guinea</option>
-                  <option value="GW">🇬🇼 Guinea-Bissau</option>
-                  <option value="GY">🇬🇾 Guyana</option>
-                  <option value="HT">🇭🇹 Haiti</option>
-                  <option value="HN">🇭🇳 Honduras</option>
-                  <option value="HU">🇭🇺 Hungary</option>
-                  <option value="IS">🇮🇸 Iceland</option>
-                  <option value="IN">🇮🇳 India</option>
-                  <option value="ID">🇮🇩 Indonesia</option>
-                  <option value="IR">🇮🇷 Iran</option>
-                  <option value="IQ">🇮🇶 Iraq</option>
-                  <option value="IE">🇮🇪 Ireland</option>
-                  <option value="IL">🇮🇱 Israel</option>
-                  <option value="IT">🇮🇹 Italy</option>
-                  <option value="JM">🇯🇲 Jamaica</option>
-                  <option value="JP">🇯🇵 Japan</option>
-                  <option value="JO">🇯🇴 Jordan</option>
-                  <option value="KZ">🇰🇿 Kazakhstan</option>
-                  <option value="KE">🇰🇪 Kenya</option>
-                  <option value="KI">🇰🇮 Kiribati</option>
-                  <option value="KW">🇰🇼 Kuwait</option>
-                  <option value="KG">🇰🇬 Kyrgyzstan</option>
-                  <option value="LA">🇱🇦 Laos</option>
-                  <option value="LV">🇱🇻 Latvia</option>
-                  <option value="LB">🇱🇧 Lebanon</option>
-                  <option value="LS">🇱🇸 Lesotho</option>
-                  <option value="LR">🇱🇷 Liberia</option>
-                  <option value="LY">🇱🇾 Libya</option>
-                  <option value="LI">🇱🇮 Liechtenstein</option>
-                  <option value="LT">🇱🇹 Lithuania</option>
-                  <option value="LU">🇱🇺 Luxembourg</option>
-                  <option value="MG">🇲🇬 Madagascar</option>
-                  <option value="MW">🇲🇼 Malawi</option>
-                  <option value="MY">🇲🇾 Malaysia</option>
-                  <option value="MV">🇲🇻 Maldives</option>
-                  <option value="ML">🇲🇱 Mali</option>
-                  <option value="MT">🇲🇹 Malta</option>
-                  <option value="MH">🇲🇭 Marshall Islands</option>
-                  <option value="MR">🇲🇷 Mauritania</option>
-                  <option value="MU">🇲🇺 Mauritius</option>
-                  <option value="MX">🇲🇽 Mexico</option>
-                  <option value="FM">🇫🇲 Micronesia</option>
-                  <option value="MD">🇲🇩 Moldova</option>
-                  <option value="MC">🇲🇨 Monaco</option>
-                  <option value="MN">🇲🇳 Mongolia</option>
-                  <option value="ME">🇲🇪 Montenegro</option>
-                  <option value="MA">🇲🇦 Morocco</option>
-                  <option value="MZ">🇲🇿 Mozambique</option>
-                  <option value="MM">🇲🇲 Myanmar</option>
-                  <option value="NA">🇳🇦 Namibia</option>
-                  <option value="NR">🇳🇷 Nauru</option>
-                  <option value="NP">🇳🇵 Nepal</option>
-                  <option value="NL">🇳🇱 Netherlands</option>
-                  <option value="NZ">🇳🇿 New Zealand</option>
-                  <option value="NI">🇳🇮 Nicaragua</option>
-                  <option value="NE">🇳🇪 Niger</option>
-                  <option value="NG">🇳🇬 Nigeria</option>
-                  <option value="KP">🇰🇵 North Korea</option>
-                  <option value="MK">🇲🇰 North Macedonia</option>
-                  <option value="NO">🇳🇴 Norway</option>
-                  <option value="OM">🇴🇲 Oman</option>
-                  <option value="PK">🇵🇰 Pakistan</option>
-                  <option value="PW">🇵🇼 Palau</option>
-                  <option value="PS">🇵🇸 Palestine</option>
-                  <option value="PA">🇵🇦 Panama</option>
-                  <option value="PG">🇵🇬 Papua New Guinea</option>
-                  <option value="PY">🇵🇾 Paraguay</option>
-                  <option value="PE">🇵🇪 Peru</option>
-                  <option value="PH">🇵🇭 Philippines</option>
-                  <option value="PL">🇵🇱 Poland</option>
-                  <option value="PT">🇵🇹 Portugal</option>
-                  <option value="QA">🇶🇦 Qatar</option>
-                  <option value="RO">🇷🇴 Romania</option>
-                  <option value="RU">🇷🇺 Russia</option>
-                  <option value="RW">🇷🇼 Rwanda</option>
-                  <option value="KN">🇰🇳 Saint Kitts and Nevis</option>
-                  <option value="LC">🇱🇨 Saint Lucia</option>
-                  <option value="VC">🇻🇨 Saint Vincent and the Grenadines</option>
-                  <option value="WS">🇼🇸 Samoa</option>
-                  <option value="SM">🇸🇲 San Marino</option>
-                  <option value="ST">🇸🇹 Sao Tome and Principe</option>
-                  <option value="SA">🇸🇦 Saudi Arabia</option>
-                  <option value="SN">🇸🇳 Senegal</option>
-                  <option value="RS">🇷🇸 Serbia</option>
-                  <option value="SC">🇸🇨 Seychelles</option>
-                  <option value="SL">🇸🇱 Sierra Leone</option>
-                  <option value="SG">🇸🇬 Singapore</option>
-                  <option value="SK">🇸🇰 Slovakia</option>
-                  <option value="SI">🇸🇮 Slovenia</option>
-                  <option value="SB">🇸🇧 Solomon Islands</option>
-                  <option value="SO">🇸🇴 Somalia</option>
-                  <option value="ZA">🇿🇦 South Africa</option>
-                  <option value="KR">🇰🇷 South Korea</option>
-                  <option value="SS">🇸🇸 South Sudan</option>
-                  <option value="ES">🇪🇸 Spain</option>
-                  <option value="LK">🇱🇰 Sri Lanka</option>
-                  <option value="SD">🇸🇩 Sudan</option>
-                  <option value="SR">🇸🇷 Suriname</option>
-                  <option value="SE">🇸🇪 Sweden</option>
-                  <option value="CH">🇨🇭 Switzerland</option>
-                  <option value="SY">🇸🇾 Syria</option>
-                  <option value="TW">🇹🇼 Taiwan</option>
-                  <option value="TJ">🇹🇯 Tajikistan</option>
-                  <option value="TZ">🇹🇿 Tanzania</option>
-                  <option value="TH">🇹🇭 Thailand</option>
-                  <option value="TL">🇹🇱 Timor-Leste</option>
-                  <option value="TG">🇹🇬 Togo</option>
-                  <option value="TO">🇹🇴 Tonga</option>
-                  <option value="TT">🇹🇹 Trinidad and Tobago</option>
-                  <option value="TN">🇹🇳 Tunisia</option>
-                  <option value="TR">🇹🇷 Turkey</option>
-                  <option value="TM">🇹🇲 Turkmenistan</option>
-                  <option value="TV">🇹🇻 Tuvalu</option>
-                  <option value="UG">🇺🇬 Uganda</option>
-                  <option value="UA">🇺🇦 Ukraine</option>
-                  <option value="AE">🇦🇪 United Arab Emirates</option>
-                  <option value="GB" selected>🇬🇧 United Kingdom</option>
-                  <option value="US">🇺🇸 United States</option>
-                  <option value="UY">🇺🇾 Uruguay</option>
-                  <option value="UZ">🇺🇿 Uzbekistan</option>
-                  <option value="VU">🇻🇺 Vanuatu</option>
-                  <option value="VA">🇻🇦 Vatican City</option>
-                  <option value="VE">🇻🇪 Venezuela</option>
-                  <option value="VN">🇻🇳 Vietnam</option>
-                  <option value="YE">🇾🇪 Yemen</option>
-                  <option value="ZM">🇿🇲 Zambia</option>
-                  <option value="ZW">🇿🇼 Zimbabwe</option>
-                </select>
+                <label for="reg-country-trigger" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">COUNTRY *</label>
+                
+                <div id="reg-country-dropdown-wrap" style="position: relative; width: 100%;">
+                  <!-- Trigger Field displaying selected full-color flag and country name -->
+                  <button id="reg-country-trigger" type="button" onclick="window.stokrovaCustomerApp?.toggleCountryDropdown()" aria-haspopup="listbox" aria-expanded="false" style="width: 100%; min-height: 44px; padding: 10px 14px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; display: flex; align-items: center; justify-content: space-between; cursor: pointer; text-align: left; transition: border-color 0.2s ease, box-shadow 0.2s ease;">
+                    <div style="display: flex; align-items: center; gap: 10px; overflow: hidden;">
+                      <img id="reg-country-selected-flag" src="https://flagcdn.com/w40/gb.png" srcset="https://flagcdn.com/w80/gb.png 2x" width="22" height="15" alt="GB" style="border-radius: 2px; object-fit: cover; box-shadow: 0 0 2px rgba(0,0,0,0.6); flex-shrink: 0;" />
+                      <span id="reg-country-selected-label" style="font-weight: 600; font-size: 0.875rem; color: ${tokens.textPrimary}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">United Kingdom</span>
+                    </div>
+                    <span id="reg-country-chevron" style="color: ${tokens.textMuted}; font-size: 0.7rem; transition: transform 0.2s ease; margin-left: 8px;">▼</span>
+                  </button>
+
+                  <!-- Downward Dropdown Menu Panel (Renders Strictly Downwards) -->
+                  <div id="reg-country-menu" role="listbox" style="display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #14181B; border: 1px solid ${tokens.border}; border-radius: 6px; box-shadow: 0 16px 36px rgba(0,0,0,0.75); z-index: 1000; overflow: hidden;">
+                    <!-- Country Search Bar -->
+                    <div style="padding: 8px 10px; border-bottom: 1px solid ${tokens.border}; background: #0E1114;">
+                      <div style="display: flex; align-items: center; gap: 8px; background: ${tokens.background}; border: 1px solid ${tokens.border}; border-radius: 4px; padding: 6px 10px;">
+                        <span style="color: ${tokens.textMuted}; font-size: 0.75rem;">🔍</span>
+                        <input type="text" id="reg-country-search" placeholder="Search country..." autocomplete="off" oninput="window.stokrovaCustomerApp?.filterCountries(this.value)" style="width: 100%; background: transparent; border: none; outline: none; color: ${tokens.textPrimary}; font-size: 0.8125rem; font-family: inherit;" />
+                      </div>
+                    </div>
+
+                    <!-- Scrollable Country List with Reduced Height -->
+                    <div id="reg-country-list" style="max-height: 180px; overflow-y: auto; padding: 4px 0;">
+                      ${WORLD_COUNTRIES.map(c => `
+                        <div class="stk-country-opt" data-code="${c.code}" data-name="${c.name.toLowerCase()}" onclick="window.stokrovaCustomerApp?.selectCountry('${c.code}', '${c.name.replace(/'/g, "\\'")}')" style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; cursor: pointer; font-size: 0.8125rem; color: ${tokens.textPrimary}; transition: background 0.15s ease;">
+                          <img src="https://flagcdn.com/w40/${c.code.toLowerCase()}.png" srcset="https://flagcdn.com/w80/${c.code.toLowerCase()}.png 2x" width="20" height="14" alt="${c.code}" loading="lazy" style="border-radius: 2px; object-fit: cover; box-shadow: 0 0 1px rgba(0,0,0,0.5); flex-shrink: 0;" />
+                          <span style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.name}</span>
+                          <span style="font-size: 0.7rem; color: ${tokens.textMuted}; font-family: var(--stokrova-font-mono);">${c.code}</span>
+                        </div>
+                      `).join('')}
+                      <div id="reg-country-no-results" style="display: none; padding: 16px; text-align: center; color: ${tokens.textMuted}; font-size: 0.8rem;">No matching countries found</div>
+                    </div>
+                  </div>
+
+                  <!-- Hidden native select for form serialization and test contracts -->
+                  <select id="reg-country" name="country" style="display: none;" aria-hidden="true">
+                    ${WORLD_COUNTRIES.map(c => `<option value="${c.code}" ${c.code === 'GB' ? 'selected' : ''}>${c.name}</option>`).join('')}
+                  </select>
+                </div>
               </div>
 
               <div style="display: flex; justify-content: space-between; gap: 10px;">
