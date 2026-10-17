@@ -1386,49 +1386,41 @@ export class LandingViewModel {
 
         <div class="modal-dialog-inner signup-stepper-card" style="position: relative; z-index: 1; background: radial-gradient(circle at 50% 0%, #1c2328 0%, #13171a 100%); border: 1px solid ${tokens.borderStrong}; border-radius: 16px; width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto; box-shadow: 0 35px 85px rgba(0,0,0,0.85), 0 0 30px rgba(189,150,82,0.18), inset 0 1px 0 rgba(255,255,255,0.06); padding: 26px;">
           
-          <!-- Industrial Stepper Header -->
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; border-bottom: 1px solid rgba(65, 79, 90, 0.45); padding-bottom: 14px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(189,150,82,0.12); border: 1px solid ${tokens.primary}; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 16px rgba(189,150,82,0.25);">
-                <span style="color: ${tokens.primary}; font-size: 1.15rem; font-weight: 900;">◆</span>
-              </div>
-              <div>
-                <h2 id="reg-modal-title" class="stk-industrial-title" style="margin: 0; font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-size: 1.375rem; font-weight: 900; color: ${tokens.textPrimary}; letter-spacing: -0.01em; text-transform: uppercase;">Register Your Business</h2>
-                <div style="margin: 3px 0 0 0; font-size: 0.72rem; color: ${tokens.textSecondary}; font-family: var(--stokrova-font-mono); letter-spacing: 0.06em; text-transform: uppercase;">
-                  SOVEREIGN INDUSTRIAL ONBOARDING // ENTERPRISE MULTI-BRANCH
-                </div>
-              </div>
+          <!-- Centered Brand & Single-Line Header -->
+          <div style="position: relative; text-align: center; margin-bottom: 18px; border-bottom: 1px solid rgba(65, 79, 90, 0.35); padding-bottom: 14px;">
+            <!-- Top Center: Small Crystal Icon + STOKROVA -->
+            <div style="display: inline-flex; align-items: center; justify-content: center; gap: 7px; margin-bottom: 6px;">
+              <span style="color: ${tokens.primary}; font-size: 1rem; line-height: 1;">◆</span>
+              <span style="font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); font-weight: 800; font-size: 0.95rem; letter-spacing: 0.12em; color: ${tokens.textPrimary};">STOKROVA</span>
             </div>
-            <button onclick="window.stokrovaCustomerApp.closeRegisterModal()" aria-label="Close dialog" style="background: rgba(255,255,255,0.04); border: 1px solid ${tokens.border}; width: 38px; height: 38px; min-width: 38px; min-height: 38px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; color: ${tokens.textMuted}; cursor: pointer; transition: all 0.15s ease;">&times;</button>
+            <!-- Underneath: REGISTER YOUR BUSINESS in clean beautiful normal font on full one line -->
+            <h2 id="reg-modal-title" style="margin: 0; font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); font-size: 1.15rem; font-weight: 700; color: ${tokens.textPrimary}; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap;">Register Your Business</h2>
+
+            <!-- Minimalist Top-Right Close Button -->
+            <button onclick="window.stokrovaCustomerApp.closeRegisterModal()" aria-label="Close dialog" style="position: absolute; top: -2px; right: 0; background: rgba(255,255,255,0.04); border: 1px solid ${tokens.border}; width: 34px; height: 34px; min-width: 34px; min-height: 34px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.25rem; color: ${tokens.textMuted}; cursor: pointer; transition: all 0.15s ease;">&times;</button>
           </div>
 
-          <!-- Progress Stepper Track (Focused single-step view without leaking future steps) -->
-          <div id="signup-stepper-header" style="margin-bottom: 22px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; margin-bottom: 8px;">
-              <span style="font-weight: 800; color: ${tokens.primary}; font-family: var(--stokrova-font-mono); letter-spacing: 0.06em; text-transform: uppercase;">
-                Onboarding Step <span id="signup-current-step-num">1</span>
-              </span>
-              <span id="signup-step-percent" style="font-family: var(--stokrova-font-mono); color: ${tokens.textSecondary}; font-weight: 600; font-size: 0.7rem; letter-spacing: 0.05em;">Site Registration</span>
-            </div>
-
-            <!-- Glowing Gold Progress Track -->
-            <div style="height: 5px; background: #121619; border-radius: 3px; overflow: hidden; border: 1px solid ${tokens.border};">
-              <div id="signup-progress-fill" style="width: 25%; height: 100%; background: linear-gradient(90deg, #BD9652, #E0CB9F); box-shadow: 0 0 10px rgba(189,150,82,0.6); transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);"></div>
+          <!-- Progress Stepper Track (Clean hairline progress bar without subtitles) -->
+          <div id="signup-stepper-header" style="margin-bottom: 20px;">
+            <span id="signup-current-step-num" style="display: none;">1</span>
+            <span id="signup-step-percent" style="display: none;">25%</span>
+            <div style="height: 3px; background: #121619; border-radius: 2px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06);">
+              <div id="signup-progress-fill" style="width: 25%; height: 100%; background: linear-gradient(90deg, #BD9652, #E0CB9F); box-shadow: 0 0 8px rgba(189,150,82,0.6); transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);"></div>
             </div>
           </div>
 
-          <!-- Inter-Step Micro-Loader (Displayed during smooth transitions between dedicated pages) -->
+          <!-- Inter-Step Micro-Loader (Clean, normal beautiful font) -->
           <div id="signup-step-loader" style="display: none; text-align: center; padding: 48px 20px;">
-            <div style="position: relative; width: 68px; height: 68px; margin: 0 auto 16px auto; display: flex; align-items: center; justify-content: center;">
+            <div style="position: relative; width: 56px; height: 56px; margin: 0 auto 16px auto; display: flex; align-items: center; justify-content: center;">
               <div class="command-center-glow" style="position: absolute; inset: -4px; border-radius: 50%; background: radial-gradient(circle, rgba(189,150,82,0.4), transparent 70%);"></div>
-              <div style="width: 56px; height: 56px; border-radius: 50%; background: #121619; border: 2px solid ${tokens.primary}; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 24px rgba(189,150,82,0.5);">
-                <span style="font-size: 1.6rem; color: ${tokens.primary}; animation: pulseDot 1.2s infinite alternate;">◆</span>
+              <div style="width: 48px; height: 48px; border-radius: 50%; background: #121619; border: 2px solid ${tokens.primary}; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(189,150,82,0.45);">
+                <span style="font-size: 1.3rem; color: ${tokens.primary}; animation: pulseDot 1.2s infinite alternate;">◆</span>
               </div>
             </div>
-            <h3 id="signup-loader-title" style="margin: 0 0 6px 0; font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-size: 1.2rem; font-weight: 800; color: ${tokens.textPrimary}; letter-spacing: -0.01em;">
+            <h3 id="signup-loader-title" style="margin: 0 0 6px 0; font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); font-size: 1.1rem; font-weight: 700; color: ${tokens.textPrimary}; letter-spacing: -0.01em;">
               Loading Next Step...
             </h3>
-            <p id="signup-loader-sub" style="margin: 0; font-size: 0.8125rem; color: ${tokens.textSecondary}; font-family: var(--font-sans);">
+            <p id="signup-loader-sub" style="margin: 0; font-size: 0.8125rem; color: ${tokens.textSecondary}; font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);">
               Calibrating your business parameters and security settings...
             </p>
           </div>
@@ -1437,10 +1429,6 @@ export class LandingViewModel {
             
             <!-- STEP 1: Business Identity & Legal Entity -->
             <div id="reg-step-1" class="signup-step-pane" style="display: block;">
-              <div style="background: rgba(189,150,82,0.08); border: 1px solid rgba(189,150,82,0.3); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 0.8125rem; color: ${tokens.textSecondary}; display: flex; align-items: center; gap: 10px;">
-                <span style="color: ${tokens.primary}; font-size: 1rem;">🔒</span>
-                <span><strong>Site Registration:</strong> Sign up is completed exclusively on our web site. Once registered, all staff and business roles log in directly to the workspace app.</span>
-              </div>
 
               <div style="margin-bottom: 14px;">
                 <label for="reg-company-name" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">BUSINESS / COMPANY LEGAL NAME *</label>
@@ -1488,7 +1476,7 @@ export class LandingViewModel {
                 <button type="button" onclick="window.stokrovaCustomerApp.closeRegisterModal()" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
                   Cancel
                 </button>
-                <button id="btn-signup-step1" class="stk-industrial-btn-primary" type="button" onclick="window.stokrovaCustomerApp.nextSignupStep(1)" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.875rem; cursor: pointer; box-shadow: 0 4px 14px rgba(189,150,82,0.35); font-family: var(--font-heading-industrial, 'Syne', sans-serif); letter-spacing: 0.02em;">
+                <button id="btn-signup-step1" class="stk-industrial-btn-primary" type="button" onclick="window.stokrovaCustomerApp.nextSignupStep(1)" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer; box-shadow: 0 4px 14px rgba(189,150,82,0.35); font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); letter-spacing: 0.02em;">
                   Confirm & Continue →
                 </button>
               </div>
@@ -1502,28 +1490,28 @@ export class LandingViewModel {
                   <label class="industry-choice-label" style="background: #14181B; border: 1px solid ${tokens.primary}; border-radius: 8px; padding: 10px 12px; cursor: pointer; display: flex; align-items: flex-start; gap: 8px; transition: all 0.2s ease;">
                     <input type="radio" name="reg-industry" value="retail" checked style="accent-color: ${tokens.primary}; margin-top: 2px;" />
                     <div>
-                      <div style="font-weight: 700; font-size: 0.8125rem; color: ${tokens.textPrimary}; font-family: var(--font-heading-industrial, 'Syne', sans-serif);">High-Street Retail & Store</div>
+                      <div style="font-weight: 700; font-size: 0.8125rem; color: ${tokens.textPrimary}; font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);">High-Street Retail & Store</div>
                       <div style="font-size: 0.7rem; color: ${tokens.textMuted};">Offline POS, split tenders & receipt engine</div>
                     </div>
                   </label>
                   <label class="industry-choice-label" style="background: #14181B; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 10px 12px; cursor: pointer; display: flex; align-items: flex-start; gap: 8px; transition: all 0.2s ease;">
                     <input type="radio" name="reg-industry" value="supermarket" style="accent-color: ${tokens.primary}; margin-top: 2px;" />
                     <div>
-                      <div style="font-weight: 700; font-size: 0.8125rem; color: ${tokens.textPrimary}; font-family: var(--font-heading-industrial, 'Syne', sans-serif);">Supermarket & FMCG</div>
+                      <div style="font-weight: 700; font-size: 0.8125rem; color: ${tokens.textPrimary}; font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);">Supermarket & FMCG</div>
                       <div style="font-size: 0.7rem; color: ${tokens.textMuted};">Laser scanner buffer, multi-till cashiers</div>
                     </div>
                   </label>
                   <label class="industry-choice-label" style="background: #14181B; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 10px 12px; cursor: pointer; display: flex; align-items: flex-start; gap: 8px; transition: all 0.2s ease;">
                     <input type="radio" name="reg-industry" value="warehouse" style="accent-color: ${tokens.primary}; margin-top: 2px;" />
                     <div>
-                      <div style="font-weight: 700; font-size: 0.8125rem; color: ${tokens.textPrimary}; font-family: var(--font-heading-industrial, 'Syne', sans-serif);">Distribution & Warehouse</div>
+                      <div style="font-weight: 700; font-size: 0.8125rem; color: ${tokens.textPrimary}; font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);">Distribution & Warehouse</div>
                       <div style="font-size: 0.7rem; color: ${tokens.textMuted};">In-transit transfers, bin waves & FEFO</div>
                     </div>
                   </label>
                   <label class="industry-choice-label" style="background: #14181B; border: 1px solid ${tokens.border}; border-radius: 8px; padding: 10px 12px; cursor: pointer; display: flex; align-items: flex-start; gap: 8px; transition: all 0.2s ease;">
                     <input type="radio" name="reg-industry" value="electronics" style="accent-color: ${tokens.primary}; margin-top: 2px;" />
                     <div>
-                      <div style="font-weight: 700; font-size: 0.8125rem; color: ${tokens.textPrimary}; font-family: var(--font-heading-industrial, 'Syne', sans-serif);">Serialized Electronics</div>
+                      <div style="font-weight: 700; font-size: 0.8125rem; color: ${tokens.textPrimary}; font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);">Serialized Electronics</div>
                       <div style="font-size: 0.7rem; color: ${tokens.textMuted};">Serial warranty tracking & lot history</div>
                     </div>
                   </label>
@@ -1553,7 +1541,7 @@ export class LandingViewModel {
                 <button type="button" onclick="window.stokrovaCustomerApp.prevSignupStep(2)" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
                   ← Back
                 </button>
-                <button id="btn-signup-step2" class="stk-industrial-btn-primary" type="button" onclick="window.stokrovaCustomerApp.nextSignupStep(2)" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.875rem; cursor: pointer; box-shadow: 0 4px 14px rgba(189,150,82,0.35); font-family: var(--font-heading-industrial, 'Syne', sans-serif); letter-spacing: 0.02em;">
+                <button id="btn-signup-step2" class="stk-industrial-btn-primary" type="button" onclick="window.stokrovaCustomerApp.nextSignupStep(2)" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer; box-shadow: 0 4px 14px rgba(189,150,82,0.35); font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); letter-spacing: 0.02em;">
                   Confirm & Continue →
                 </button>
               </div>
@@ -1592,7 +1580,7 @@ export class LandingViewModel {
                 <button type="button" onclick="window.stokrovaCustomerApp.prevSignupStep(3)" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
                   ← Back
                 </button>
-                <button id="btn-signup-step3" class="stk-industrial-btn-primary" type="button" onclick="window.stokrovaCustomerApp.nextSignupStep(3)" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.875rem; cursor: pointer; box-shadow: 0 4px 14px rgba(189,150,82,0.35); font-family: var(--font-heading-industrial, 'Syne', sans-serif); letter-spacing: 0.02em;">
+                <button id="btn-signup-step3" class="stk-industrial-btn-primary" type="button" onclick="window.stokrovaCustomerApp.nextSignupStep(3)" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer; box-shadow: 0 4px 14px rgba(189,150,82,0.35); font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); letter-spacing: 0.02em;">
                   Confirm & Continue →
                 </button>
               </div>
@@ -1624,21 +1612,21 @@ export class LandingViewModel {
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px;">
                   
                   <div class="signup-plan-card" onclick="window.stokrovaCustomerApp.selectSignupPlan('starter')" id="plan-card-starter" style="background: #14181B; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px 10px; cursor: pointer; text-align: center; transition: all 0.2s ease;">
-                    <div style="font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-weight: 800; font-size: 1rem; color: ${tokens.textPrimary}; letter-spacing: 0.02em; text-transform: uppercase;">Starter</div>
-                    <div id="plan-price-starter" style="font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-size: 1.5rem; font-weight: 900; color: ${tokens.textPrimary}; margin: 6px 0; letter-spacing: -0.02em;">$49</div>
+                    <div style="font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); font-weight: 700; font-size: 0.95rem; color: ${tokens.textPrimary}; letter-spacing: 0.02em; text-transform: uppercase;">Starter</div>
+                    <div id="plan-price-starter" style="font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); font-size: 1.35rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0; letter-spacing: -0.01em;">$49</div>
                     <div style="font-size: 0.6875rem; color: ${tokens.textMuted}; font-family: var(--stokrova-font-mono);">1 Store • Touch POS</div>
                   </div>
 
                   <div class="signup-plan-card" onclick="window.stokrovaCustomerApp.selectSignupPlan('growth')" id="plan-card-growth" style="background: #14181B; border: 2px solid ${tokens.primary}; border-radius: 10px; padding: 16px 10px; cursor: pointer; text-align: center; position: relative; transition: all 0.2s ease; box-shadow: 0 0 20px rgba(189,150,82,0.25);">
-                    <span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: ${tokens.primary}; color: #0E1116; font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-size: 0.625rem; font-weight: 800; padding: 2px 10px; border-radius: 9999px; letter-spacing: 0.06em;">POPULAR</span>
-                    <div style="font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-weight: 800; font-size: 1rem; color: ${tokens.textPrimary}; letter-spacing: 0.02em; text-transform: uppercase;">Growth</div>
-                    <div id="plan-price-growth" style="font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-size: 1.5rem; font-weight: 900; color: ${tokens.primary}; margin: 6px 0; letter-spacing: -0.02em;">$149</div>
+                    <span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: ${tokens.primary}; color: #0E1116; font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); font-size: 0.625rem; font-weight: 800; padding: 2px 10px; border-radius: 9999px; letter-spacing: 0.06em;">POPULAR</span>
+                    <div style="font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); font-weight: 700; font-size: 0.95rem; color: ${tokens.textPrimary}; letter-spacing: 0.02em; text-transform: uppercase;">Growth</div>
+                    <div id="plan-price-growth" style="font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); font-size: 1.35rem; font-weight: 800; color: ${tokens.primary}; margin: 6px 0; letter-spacing: -0.01em;">$149</div>
                     <div style="font-size: 0.6875rem; color: ${tokens.textMuted}; font-family: var(--stokrova-font-mono);">5 Stores • In-Transit & FEFO</div>
                   </div>
 
                   <div class="signup-plan-card" onclick="window.stokrovaCustomerApp.selectSignupPlan('enterprise')" id="plan-card-enterprise" style="background: #14181B; border: 1px solid ${tokens.border}; border-radius: 10px; padding: 16px 10px; cursor: pointer; text-align: center; transition: all 0.2s ease;">
-                    <div style="font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-weight: 800; font-size: 1rem; color: ${tokens.textPrimary}; letter-spacing: 0.02em; text-transform: uppercase;">Enterprise</div>
-                    <div id="plan-price-enterprise" style="font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-size: 1.5rem; font-weight: 900; color: ${tokens.textPrimary}; margin: 6px 0; letter-spacing: -0.02em;">$399</div>
+                    <div style="font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); font-weight: 700; font-size: 0.95rem; color: ${tokens.textPrimary}; letter-spacing: 0.02em; text-transform: uppercase;">Enterprise</div>
+                    <div id="plan-price-enterprise" style="font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); font-size: 1.35rem; font-weight: 800; color: ${tokens.textPrimary}; margin: 6px 0; letter-spacing: -0.01em;">$399</div>
                     <div style="font-size: 0.6875rem; color: ${tokens.textMuted}; font-family: var(--stokrova-font-mono);">Warehouses • Multi-Branch</div>
                   </div>
 
@@ -1660,7 +1648,7 @@ export class LandingViewModel {
                 <button type="button" onclick="window.stokrovaCustomerApp.prevSignupStep(4)" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
                   ← Back
                 </button>
-                <button id="btn-submit-registration" class="stk-industrial-btn-primary" type="submit" style="min-height: 46px; padding: 12px 28px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 18px rgba(189,150,82,0.45); font-family: var(--font-heading-industrial, 'Syne', sans-serif); letter-spacing: 0.03em; text-transform: uppercase;">
+                <button id="btn-submit-registration" class="stk-industrial-btn-primary" type="submit" style="min-height: 46px; padding: 12px 28px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 18px rgba(189,150,82,0.45); font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); letter-spacing: 0.03em; text-transform: uppercase;">
                   Confirm & Register Business →
                 </button>
               </div>
@@ -1671,14 +1659,14 @@ export class LandingViewModel {
               
               <!-- Grand Welcoming & Congratulations Banner -->
               <div style="background: linear-gradient(135deg, rgba(189,150,82,0.18), rgba(22,27,30,0.92)); border: 1px solid ${tokens.primary}; border-radius: 12px; padding: 22px 20px; margin-bottom: 18px; text-align: center; box-shadow: 0 0 25px rgba(189,150,82,0.2);">
-                <div style="display: inline-flex; align-items: center; gap: 6px; background: ${tokens.primary}; color: #0E1116; font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-size: 0.7rem; font-weight: 800; padding: 3px 12px; border-radius: 9999px; letter-spacing: 0.08em; margin-bottom: 10px;">
+                <div style="display: inline-flex; align-items: center; gap: 6px; background: ${tokens.primary}; color: #0E1116; font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); font-size: 0.7rem; font-weight: 700; padding: 3px 12px; border-radius: 9999px; letter-spacing: 0.08em; margin-bottom: 10px;">
                   ✦ CONGRATULATIONS • WORKSPACE DEPLOYED ✦
                 </div>
-                <h2 id="prov-headline" style="margin: 0 0 6px 0; font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-size: 1.45rem; font-weight: 900; color: ${tokens.textPrimary}; letter-spacing: -0.01em;">
+                <h2 id="prov-headline" style="margin: 0 0 6px 0; font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); font-size: 1.25rem; font-weight: 700; color: ${tokens.textPrimary}; letter-spacing: -0.01em;">
                   Welcome to STOKROVA, <span id="prov-dyn-welcome">Owner</span>!
                 </h2>
                 <p style="margin: 0; font-size: 0.8125rem; color: ${tokens.textSecondary}; line-height: 1.5;">
-                  Your sovereign business workspace for <strong id="prov-dyn-company" style="color: ${tokens.textPrimary}; font-family: var(--font-heading-industrial, 'Syne', sans-serif);">Your Organization</strong> is live and securely activated at <span id="prov-dyn-slug" style="color: ${tokens.primary}; font-family: var(--stokrova-font-mono); font-weight: 700;">workspace.stokrova.com</span>.
+                  Your sovereign business workspace for <strong id="prov-dyn-company" style="color: ${tokens.textPrimary}; font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);">Your Organization</strong> is live and securely activated at <span id="prov-dyn-slug" style="color: ${tokens.primary}; font-family: var(--stokrova-font-mono); font-weight: 700;">workspace.stokrova.com</span>.
                 </p>
               </div>
 
@@ -1686,7 +1674,7 @@ export class LandingViewModel {
               <div id="stokrova-promise-banner" style="background: #14181B; border: 1px solid ${tokens.borderStrong}; border-radius: 10px; padding: 18px 20px; margin-bottom: 18px; text-align: left;">
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; border-bottom: 1px solid ${tokens.border}; padding-bottom: 8px;">
                   <span style="font-size: 1.1rem; color: ${tokens.primary};">⚖️</span>
-                  <span style="font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-weight: 800; font-size: 0.875rem; color: ${tokens.textPrimary}; text-transform: uppercase; letter-spacing: 0.06em;">The STOKROVA Operational Promise</span>
+                  <span style="font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); font-weight: 700; font-size: 0.875rem; color: ${tokens.textPrimary}; text-transform: uppercase; letter-spacing: 0.06em;">The STOKROVA Operational Promise</span>
                 </div>
                 <p style="margin: 0 0 12px 0; font-size: 0.75rem; color: ${tokens.textSecondary}; line-height: 1.45;">
                   When you entrust your physical stores, warehouses, and books to STOKROVA, our core architecture provides these unwavering guarantees:
@@ -1752,16 +1740,16 @@ export class LandingViewModel {
                   <span class="m-icon">⬡</span> <span>Enterprise Privacy Protection Active</span>
                 </div>
                 <div id="m-step-2" style="color: ${tokens.textMuted}; transition: all 0.2s ease;">
-                  <span class="m-icon">⬡</span> <span>Configuring legal entity '<strong id="prov-dyn-company" style="color: ${tokens.textPrimary}; font-family: var(--font-heading-industrial, 'Syne', sans-serif);">...</strong>'</span>
+                  <span class="m-icon">⬡</span> <span>Configuring legal entity '<strong id="prov-dyn-company" style="color: ${tokens.textPrimary}; font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);">...</strong>'</span>
                 </div>
                 <div id="m-step-3" style="color: ${tokens.textMuted}; transition: all 0.2s ease;">
-                  <span class="m-icon">⬡</span> <span>Setting up flagship branch '<strong id="prov-dyn-branch" style="color: ${tokens.textPrimary}; font-family: var(--font-heading-industrial, 'Syne', sans-serif);">...</strong>'</span>
+                  <span class="m-icon">⬡</span> <span>Setting up flagship branch '<strong id="prov-dyn-branch" style="color: ${tokens.textPrimary}; font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);">...</strong>'</span>
                 </div>
                 <div id="m-step-4" style="color: ${tokens.textMuted}; transition: all 0.2s ease;">
                   <span class="m-icon">⬡</span> <span>Generating automated double-entry ledger & chart of accounts</span>
                 </div>
                 <div id="m-step-5" style="color: ${tokens.textMuted}; transition: all 0.2s ease;">
-                  <span class="m-icon">⬡</span> <span>Provisioning root credentials for <strong id="prov-dyn-owner" style="color: ${tokens.textPrimary}; font-family: var(--font-heading-industrial, 'Syne', sans-serif);">...</strong></span>
+                  <span class="m-icon">⬡</span> <span>Provisioning root credentials for <strong id="prov-dyn-owner" style="color: ${tokens.textPrimary}; font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);">...</strong></span>
                 </div>
                 <div id="m-step-6" style="color: ${tokens.textMuted}; transition: all 0.2s ease;">
                   <span class="m-icon">⬡</span> <span>Deploying workspace to <strong id="prov-dyn-slug" style="color: ${tokens.primary};">...</strong>.stokrova.com</span>
@@ -1770,7 +1758,7 @@ export class LandingViewModel {
 
               <!-- Celebratory Completion Actions (Shown at 100%) -->
               <div id="prov-completion-actions" style="display: none; animation: fadeIn 0.3s ease-out; margin-top: 24px; text-align: center;">
-                <div style="background: rgba(74, 222, 128, 0.1); border: 1px solid #1E4620; border-radius: 8px; padding: 12px 18px; max-width: 480px; margin: 0 auto 16px auto; color: #4ADE80; font-size: 0.875rem; font-weight: 700; font-family: var(--font-heading-industrial, 'Syne', sans-serif);">
+                <div style="background: rgba(74, 222, 128, 0.1); border: 1px solid #1E4620; border-radius: 8px; padding: 12px 18px; max-width: 480px; margin: 0 auto 16px auto; color: #4ADE80; font-size: 0.875rem; font-weight: 700; font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);">
                   ✦ Workspace Live: Setup Complete
                 </div>
                 <div id="prov-countdown-banner" style="font-size: 0.9375rem; font-weight: 600; color: ${tokens.textSecondary}; display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -1786,7 +1774,7 @@ export class LandingViewModel {
               <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(189,150,82,0.12); border: 1px solid ${tokens.primary}; margin: 0 auto 16px auto; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; color: ${tokens.primary};">
                 ✉️
               </div>
-              <h3 style="margin: 0 0 8px 0; font-family: var(--font-heading-industrial, 'Syne', sans-serif); font-size: 1.25rem; font-weight: 800; color: ${tokens.textPrimary}; letter-spacing: -0.01em;">
+              <h3 style="margin: 0 0 8px 0; font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); font-size: 1.15rem; font-weight: 700; color: ${tokens.textPrimary}; letter-spacing: -0.01em;">
                 Confirm Your Email Address
               </h3>
               <p style="margin: 0 0 16px 0; font-size: 0.875rem; color: ${tokens.textSecondary}; line-height: 1.5; max-width: 480px; margin-left: auto; margin-right: auto;">
@@ -1800,10 +1788,10 @@ export class LandingViewModel {
               </div>
 
               <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
-                <button id="btn-resend-confirm-email" type="button" onclick="window.stokrovaCustomerApp.resendConfirmationEmail()" style="min-height: 44px; padding: 10px 20px; border-radius: 6px; border: 1px solid ${tokens.primary}; background: transparent; color: ${tokens.primary}; font-weight: 700; font-size: 0.875rem; cursor: pointer; font-family: var(--font-heading-industrial, 'Syne', sans-serif); letter-spacing: 0.02em;">
+                <button id="btn-resend-confirm-email" type="button" onclick="window.stokrovaCustomerApp.resendConfirmationEmail()" style="min-height: 44px; padding: 10px 20px; border-radius: 6px; border: 1px solid ${tokens.primary}; background: transparent; color: ${tokens.primary}; font-weight: 700; font-size: 0.875rem; cursor: pointer; font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); letter-spacing: 0.02em;">
                   Resend Confirmation Email
                 </button>
-                <button id="btn-check-confirmed" class="stk-industrial-btn-primary" type="button" onclick="window.stokrovaCustomerApp.checkSessionAfterEmailConfirmation()" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.875rem; cursor: pointer; box-shadow: 0 2px 10px rgba(189,150,82,0.35); font-family: var(--font-heading-industrial, 'Syne', sans-serif); letter-spacing: 0.02em;">
+                <button id="btn-check-confirmed" class="stk-industrial-btn-primary" type="button" onclick="window.stokrovaCustomerApp.checkSessionAfterEmailConfirmation()" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer; box-shadow: 0 2px 10px rgba(189,150,82,0.35); font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); letter-spacing: 0.02em;">
                   I Have Confirmed My Email →
                 </button>
               </div>

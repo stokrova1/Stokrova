@@ -583,9 +583,9 @@ const completeWebsiteHtml = `
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .stk-industrial-title {
-      font-family: var(--font-heading-industrial, 'Syne', sans-serif) !important;
-      font-weight: 800 !important;
-      letter-spacing: -0.02em !important;
+      font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif) !important;
+      font-weight: 700 !important;
+      letter-spacing: -0.01em !important;
       text-transform: uppercase !important;
     }
     .stk-step-nav-item {
@@ -611,11 +611,11 @@ const completeWebsiteHtml = `
       letter-spacing: 0.05em;
     }
     .stk-step-nav-label {
-      font-family: var(--font-heading-industrial, 'Syne', sans-serif);
+      font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);
       font-size: 0.72rem;
       font-weight: 700;
       color: var(--text);
-      letter-spacing: 0.03em;
+      letter-spacing: 0.02em;
       text-transform: uppercase;
     }
     .stk-industrial-label {
@@ -641,9 +641,9 @@ const completeWebsiteHtml = `
       border-radius: 6px !important;
     }
     .stk-industrial-btn-primary {
-      font-family: var(--font-heading-industrial, 'Syne', sans-serif) !important;
-      font-weight: 800 !important;
-      letter-spacing: 0.03em !important;
+      font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif) !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.02em !important;
       text-transform: uppercase !important;
     }
     .industry-choice-label:hover {
