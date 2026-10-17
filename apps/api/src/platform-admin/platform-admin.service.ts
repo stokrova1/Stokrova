@@ -7,6 +7,7 @@ import {
   Optional,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
+import { isBusinessDirectoryUser } from './directory-users.js';
 import type { SubscriptionTier } from '@stokrova/contracts';
 import { canTransitionTenantStatus } from '@stokrova/domain';
 import type { TenantStatus } from '@stokrova/domain';
@@ -916,7 +917,7 @@ export class PlatformAdminService {
                 t.id as tenant_id, t.name as tenant_name
               FROM public.users u
               LEFT JOIN public.tenants t ON t.id = u.tenant_id
-              WHERE 1=1
+              WHERE COALESCE(u.role, '') NOT IN ('PLATFORM_SUPER_ADMIN', 'PLATFORM_FOUNDER')
             `;
             const params: any[] = [];
             let pIdx = 1;
@@ -959,7 +960,7 @@ export class PlatformAdminService {
       }
     }
 
-    let list = Array.from(this.usersStore.values());
+    let list = Array.from(this.usersStore.values()).filter(isBusinessDirectoryUser);
 
     if (search) {
       list = list.filter(

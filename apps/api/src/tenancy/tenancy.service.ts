@@ -362,7 +362,7 @@ export class TenancyService {
 
   /** Staff names for one business (manager's live board). */
   listStaff(tenantId: string): StoredStaffMember[] {
-    return [...this.staffStore.values()].filter((s) => s.tenant_id === tenantId);
+    return [...this.staffStore.values()].filter((s) => s.tenant_id === tenantId && s.role !== 'PLATFORM_SUPER_ADMIN' && s.role !== 'PLATFORM_FOUNDER');
   }
 
   async getBranchesByTenant(tenantId: string): Promise<StoredBranch[]> {

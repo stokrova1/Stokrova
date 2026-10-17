@@ -242,40 +242,14 @@ ${generateCssVariableString('dark')}
   <div id="admin-login-screen" style="display: flex; min-height: 100vh; width: 100%; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 25%, rgba(189,150,82,0.12) 0%, rgba(22,27,30,0.98) 55%, #0E1116 100%); padding: 24px; box-sizing: border-box; position: relative; z-index: 9999;">
     <div style="width: 100%; max-width: 460px; background: #1E2428; border: 1px solid rgba(189,150,82,0.35); border-radius: 12px; padding: 36px 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 40px rgba(189,150,82,0.1); backdrop-filter: blur(12px); box-sizing: border-box;">
       
-      <!-- Sovereign Founder Emblem & Brand -->
-      <div style="text-align: center; margin-bottom: 28px;">
-        <div style="display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, rgba(189,150,82,0.25) 0%, rgba(189,150,82,0.05) 100%); border: 1.5px solid #BD9652; font-size: 1.85rem; margin-bottom: 14px; box-shadow: 0 0 24px rgba(189,150,82,0.25);">
-          👑
-        </div>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 900; font-size: 1.35rem; letter-spacing: 0.12em; color: #BD9652;">
-          <span>◆</span>
-          <span>STOKROVA</span>
-        </div>
-        <div style="font-size: 0.8125rem; font-weight: 700; color: #ACB8C3; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px;">
-          Platform Founder Console
-        </div>
-        <p style="margin: 6px 0 0 0; font-size: 0.75rem; color: #7E919F;">
-          Sovereign Root Access & Multi-Tenant Infrastructure Governance
-        </p>
-      </div>
-
-      <!-- High-Security Restriction Notice -->
-      <div style="background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.3); border-radius: 8px; padding: 12px 14px; margin-bottom: 22px; font-size: 0.75rem; color: #F87171; line-height: 1.5;">
-        <div style="font-weight: 700; display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
-          <span>🛡️</span>
-          <span>RESTRICTED PLATFORM INFRASTRUCTURE</span>
-        </div>
-        <div>
-          Reserved strictly for Platform Super-Administrators (<strong style="color: #F8FAFC;">stokrova1@gmail.com</strong>). Business owners and staff must authenticate via the customer portal.
-        </div>
-      </div>
+      <div style="text-align:center;margin-bottom:28px;color:var(--primary);font-weight:900;font-size:1.35rem;">◆ STOKROVA</div>
 
       <!-- Login Form -->
       <form id="admin-login-form" method="post" action="javascript:void(0)" onsubmit="window.stokrovaFounder.handleAdminLogin(event)" style="display: flex; flex-direction: column; gap: 16px;">
         <!-- Email Input -->
         <div>
           <label for="founder-login-email" style="display: block; font-size: 0.6875rem; font-weight: 700; color: #ACB8C3; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;">
-            Founder Master Email
+            Email
           </label>
           <div style="position: relative;">
             <input
@@ -283,8 +257,8 @@ ${generateCssVariableString('dark')}
               id="founder-login-email"
               name="email"
               required
-              value="stokrova1@gmail.com"
-              placeholder="stokrova1@gmail.com"
+              value=""
+              placeholder="you@example.com"
               style="width: 100%; box-sizing: border-box; background: #161B1E; border: 1px solid #333D46; border-radius: 6px; padding: 10px 14px 10px 36px; color: #F8FAFC; font-size: 0.875rem; outline: none; transition: border-color 0.2s ease;"
               onfocus="this.style.borderColor='#BD9652'"
               onblur="this.style.borderColor='#333D46'"
@@ -297,7 +271,7 @@ ${generateCssVariableString('dark')}
         <div>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
             <label for="founder-login-password" style="font-size: 0.6875rem; font-weight: 700; color: #ACB8C3; text-transform: uppercase; letter-spacing: 0.08em;">
-              Master Root Password
+              Password
             </label>
             <button
               type="button"
@@ -353,7 +327,7 @@ ${generateCssVariableString('dark')}
       <div class="brand-logo">
         <span>◆</span>
         <span>STOKROVA</span>
-        <span class="brand-pill">Platform Founder Console</span>
+
       </div>
 
       <div class="header-actions">
@@ -362,18 +336,9 @@ ${generateCssVariableString('dark')}
           <span>Platform Live & Healthy</span>
         </span>
 
-        <button onclick="window.stokrovaFounder.toggleTheme()" style="background: var(--card-hover); border: 1px solid var(--border); color: var(--text-secondary); padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer;">
-          🌓 Toggle Theme
-        </button>
-
-        <div class="founder-profile-badge">
-          <span>👑</span>
-          <span id="founder-user-badge-email">Platform Super-Admin</span>
-        </div>
-
         <button onclick="window.stokrovaFounder.openSignOutModal()" id="btn-open-signout" style="background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.3); color: #F87171; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s ease;">
           <span>🔒</span>
-          <span>Lock & Sign Out</span>
+          <span>Sign out</span>
         </button>
       </div>
     </header>
@@ -420,31 +385,7 @@ ${generateCssVariableString('dark')}
   <!-- Sign Out Governance Warning Modal -->
   <div id="admin-signout-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); align-items: center; justify-content: center; z-index: 10001; padding: 20px; box-sizing: border-box;">
     <div style="width: 100%; max-width: 480px; background: #1E2428; border: 1px solid rgba(248,113,113,0.4); border-radius: 12px; padding: 28px; box-shadow: 0 24px 60px rgba(0,0,0,0.7), 0 0 30px rgba(248,113,113,0.15); box-sizing: border-box; animation: slideIn 0.2s ease-out;">
-      <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 18px;">
-        <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">
-          ⚠️
-        </div>
-        <div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <h3 style="margin: 0; font-size: 1.15rem; color: #F8FAFC; font-weight: 700;">Platform Governance Warning</h3>
-            <span style="font-size: 0.6875rem; font-weight: 700; background: rgba(248,113,113,0.2); color: #F87171; border: 1px solid rgba(248,113,113,0.4); padding: 1px 6px; border-radius: 4px; text-transform: uppercase;">CRITICAL</span>
-          </div>
-          <div style="font-size: 0.8125rem; color: #ACB8C3; margin-top: 4px;">
-            Termination of Sovereign Root Session
-          </div>
-        </div>
-      </div>
-
-      <div style="background: #161B1E; border: 1px solid #333D46; border-radius: 8px; padding: 14px; margin-bottom: 22px; font-size: 0.8125rem; color: #CBD5E1; line-height: 1.55;">
-        <p style="margin: 0 0 8px 0;">
-          You are about to terminate the active <strong>Platform Founder / Super-Admin session</strong> for this terminal.
-        </p>
-        <p style="margin: 0; color: #94A3B8; font-size: 0.75rem; line-height: 1.5;">
-          • All root administrative capabilities will be locked immediately.<br>
-          • Multi-tenant governance controls and tenant suspension killswitches will become inaccessible.<br>
-          • Re-authentication with master founder credentials will be required to regain access.
-        </p>
-      </div>
+      <h3 style="margin:0 0 22px;font-size:1.15rem;color:var(--text-primary);">Sign out?</h3>
 
       <div style="display: flex; gap: 12px; justify-content: flex-end;">
         <button
@@ -453,7 +394,7 @@ ${generateCssVariableString('dark')}
           onclick="window.stokrovaFounder.closeSignOutModal()"
           style="background: #293136; border: 1px solid #414F5A; color: #F8FAFC; padding: 10px 18px; border-radius: 6px; font-size: 0.8125rem; font-weight: 600; cursor: pointer; transition: background 0.15s ease;"
         >
-          Cancel / Stay Signed In
+          Cancel
         </button>
         <button
           type="button"
@@ -462,7 +403,7 @@ ${generateCssVariableString('dark')}
           style="background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%); border: 1px solid #EF4444; color: #FFFFFF; padding: 10px 18px; border-radius: 6px; font-size: 0.8125rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(220,38,38,0.3);"
         >
           <span>🔒</span>
-          <span>Terminate Session & Lock Console</span>
+          <span>Sign out</span>
         </button>
       </div>
     </div>
@@ -573,29 +514,8 @@ ${generateCssVariableString('dark')}
           }
         },
 
-        toggleTheme() {
-          const html = document.documentElement;
-          const current = html.getAttribute('data-theme') || 'dark';
-          const next = current === 'dark' ? 'light' : 'dark';
-          html.setAttribute('data-theme', next);
-          this.showToast('Theme switched to ' + next + ' mode.');
-        },
-
         scrollToSection(sectionId) {
-          let targetEl = null;
-          if (sectionId === 'overview') targetEl = document.querySelector('.platform-kpi-grid');
-          else if (sectionId === 'tenants') targetEl = document.querySelector('.tenant-directory-container');
-          else if (sectionId === 'users') targetEl = document.querySelector('.platform-users-container');
-          else if (sectionId === 'plans') targetEl = document.querySelector('.saas-plans-container');
-          else if (sectionId === 'telemetry') targetEl = document.querySelector('.telemetry-container');
-
-          if (targetEl) {
-            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-
-          const navItems = document.querySelectorAll('.founder-nav-item');
-          navItems.forEach(item => item.classList.remove('active'));
-          event.currentTarget?.classList.add('active');
+          window.stokrovaFounderPages?.open(sectionId);
         },
 
         openEnrollModal() {
@@ -859,7 +779,7 @@ ${generateCssVariableString('dark')}
 
           if (!email || !password) {
             if (errorEl) {
-              errorEl.innerText = 'Please provide both your Founder Identity email and Master Root Password.';
+              errorEl.innerText = 'Please provide both your Founder Identity email and Password.';
               errorEl.style.display = 'block';
             }
             return;
@@ -956,7 +876,7 @@ ${generateCssVariableString('dark')}
             if (authLayout) authLayout.style.display = 'flex';
             if (emailBadge) emailBadge.innerText = userEmail;
 
-            this.showToast('✓ Sovereign Root Clearance Verified. Welcome, Platform Founder.');
+            this.showToast('Signed in.');
             this.hydrateLivePlatformData();
           }
 
@@ -1013,7 +933,7 @@ ${generateCssVariableString('dark')}
           if (loginScreen) loginScreen.style.display = 'flex';
           if (passInput) passInput.value = '';
 
-          this.showToast('Platform Founder session locked. Root console secured.');
+          this.showToast('Signed out.');
         },
 
         async checkExistingSession() {

@@ -54,6 +54,19 @@
     .stk-executive-legend i { width:10px; height:10px; background:var(--primary); }
     .stk-executive-legend span:last-child i { background:var(--border-strong); }
     .stk-executive-comparison { margin-top:16px; }
+    .stk-page-intro { background:var(--primary); color:var(--bg); padding:22px 24px; margin-bottom:24px; border-block:1px solid var(--primary-hover); display:flex; align-items:center; justify-content:space-between; gap:20px; }
+    .stk-page-intro h1,.stk-page-intro h3 { color:inherit!important; margin:0 0 6px!important; letter-spacing:0; }
+    .stk-page-intro p { color:inherit!important; margin:0!important; line-height:1.6; max-width:760px; }
+    .stk-page-intro > div { min-width:0; }
+    .stk-page-intro button { border:1px solid currentColor!important; }
+    @media(max-width:640px){
+      .stk-page-intro{padding:20px 18px;flex-wrap:wrap}
+      .workspace-body{flex-direction:column}
+      .workspace-sidebar{width:100%!important;min-width:0!important;max-height:160px;overflow:auto;border-right:0;flex-shrink:0}
+      .workspace-sidebar > :last-child{display:none}
+      .workspace-viewport{width:100%;padding:18px!important}
+      .stk-page-intro h1,.stk-page-intro h3{overflow-wrap:anywhere}
+    }
   `;
   document.head.append(style);
   const icon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m9 12 2 2 4-4"/><path d="M12 3 3 7v5c0 5 9 9 9 9s9-4 9-9V7l-9-4Z"/></svg>';
@@ -146,5 +159,45 @@
     footer.innerHTML = '<span>STOKROVA · Demo workspace</span><span>End of section</span>';
     panel.append(footer);
   });
+  const extraDescriptions = {
+    dashboard:'Your business at a glance. Follow sales, margin, stock movements and the items that need attention today.',
+    accountant:'Keep the books in balance. Review invoices, recorded receipts and outstanding customer balances.',
+    'cashier-desk':'A clear view of your shift. Follow recorded sales, cash and transfers from the first sale to closing.',
+    'my-day':'Your work, today. Review completed tasks, sales and the progress you have made this shift.',
+    tickets:'From order to collection. Follow reserved items, picking progress and cashier handovers.',
+    billing:'Your plan, clearly explained. Review subscription access, current prices and outstanding plan invoices.',
+    prices:'Every product, priced with clarity. Compare cost, selling price and unit margin, and review price changes.',
+    'product-profit':'See what each product contributes. Compare units sold, revenue and known profit across periods.',
+    'live-board':'Your team in action. Follow sales, stock movements and completed work across the business.',
+  };
+  function polishPageIntro(panel) {
+    if (panel.querySelector('.stk-page-intro')) return;
+    const heading = panel.querySelector('h1,h3,h2');
+    if (!heading) return;
+    const id = panel.id.replace('ws-view-','');
+    const intro = document.createElement('header'); intro.className = 'stk-page-intro';
+    const copy = document.createElement('div');
+    const parent = heading.parentElement;
+    const paragraph = parent?.querySelector(':scope > p');
+    const actionRow = parent?.parentElement;
+    const actions = actionRow?.querySelector(':scope > button');
+    copy.append(heading);
+    if (id === 'dashboard') heading.textContent = 'Executive Command Center';
+    if (paragraph) copy.append(paragraph);
+    else {
+      const p = document.createElement('p');
+      p.className = 'stk-demo-description';
+      p.textContent = descriptions[id] || extraDescriptions[id] || `Review ${heading.textContent.trim().toLowerCase()} records and the latest activity for your business.`;
+      copy.append(p);
+    }
+    intro.append(copy);
+    if (id === 'dashboard' && paragraph) paragraph.textContent = extraDescriptions.dashboard;
+    if (actions && actionRow?.children.length === 2) intro.append(actions);
+    panel.prepend(intro);
+    if (parent && !parent.children.length) parent.remove();
+    if (actionRow && actionRow !== panel && !actionRow.children.length) actionRow.remove();
+  }
+  document.querySelectorAll('.ws-view-content').forEach(polishPageIntro);
+  new MutationObserver(() => document.querySelectorAll('.ws-view-content').forEach(polishPageIntro)).observe(viewport, { childList:true, subtree:true });
   import('./workspace-live.js').then(({ mountWorkspaceLive }) => mountWorkspaceLive()).catch(() => {});
 })();

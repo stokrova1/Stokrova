@@ -42,24 +42,7 @@
     const card = screen.firstElementChild;
     if (!card) return;
     screen.dataset.polished = '1';
-    const wrap = document.createElement('div');
-    wrap.className = 'fl-login-wrap';
-    const side = document.createElement('aside');
-    side.className = 'fl-login-side';
-    side.innerHTML = `
-      <div class="fl-brand"><span>◆</span><span>STOKROVA</span></div>
-      <h2>Every business on Stokrova, in one quiet room.</h2>
-      <p>The founder console is where the platform is governed — businesses, the people inside them, their plans and the health of the system that serves them all.</p>
-      <ul>
-        <li><span>🏛️</span><div><strong>Businesses</strong>Enrol, review, suspend or reactivate any company.</div></li>
-        <li><span>👥</span><div><strong>Staff accounts</strong>Every account across every business, one switch away.</div></li>
-        <li><span>💳</span><div><strong>Plans & prices</strong>Set what each plan costs and move any business between plans.</div></li>
-        <li><span>⚡</span><div><strong>Health & audit</strong>Live system checks and a permanent record of every founder action.</div></li>
-      </ul>
-      <div class="fl-side-foot">🔐 Access is granted by your account settings, checked again by the server on every request.</div>`;
-    screen.insertBefore(wrap, card);
-    wrap.appendChild(side);
-    wrap.appendChild(card);
+    card.classList.add('fl-login-card');
   }
 
   // ---------- Live panels ----------
@@ -69,6 +52,52 @@
     { id: 'live-health', icon: '⚡', title: 'System health', desc: 'A live check of the database, sign-in service and sync queue, refreshed every time you open this panel.' },
     { id: 'live-audit', icon: '📜', title: 'Audit trail', desc: 'A permanent record of founder actions — who did what, to which business, and when.' },
   ];
+
+  const PAGES = [
+    ['overview', 'Admin dashboard', 'The platform at a glance. Review business growth, subscription revenue and overall activity.', '.platform-kpi-grid'],
+    ['tenants', 'Businesses', 'Every business, clearly organized. Review accounts, inspect their details and manage access.', '.tenant-directory-container'],
+    ['users', 'Staff accounts', 'The people behind each business. Review their roles, account status and recent activity.', '#live-accounts'],
+    ['plans', 'Plans & prices', 'Keep subscriptions in focus. Set plan prices and manage each business’s billing and access.', '#live-plans'],
+    ['telemetry', 'System health', 'Stay close to platform reliability. Check the database, sign-in service and sync queue.', '#live-health'],
+    ['audit', 'Audit trail', 'A clear history of platform changes. Review actions, business records and the reasons behind them.', '#live-audit'],
+  ];
+
+  function mountPages(host) {
+    const oldHeader = host.querySelector('.founder-header');
+    const enroll = oldHeader?.querySelector('button');
+    oldHeader?.remove();
+    host.querySelectorAll('.platform-users-container,.saas-plans-container,.telemetry-container').forEach(el => el.remove());
+    PAGES.forEach(([id, title, desc, selector]) => {
+      const page = document.createElement('section');
+      page.className = 'fl-page'; page.dataset.page = id; page.hidden = true;
+      const intro = document.createElement('header'); intro.className = 'fl-page-intro';
+      intro.innerHTML = `<div><h1>${esc(title)}</h1><p>${esc(desc)}</p></div>`;
+      if (id === 'tenants' && enroll) intro.append(enroll);
+      page.append(intro);
+      const content = host.querySelector(selector);
+      if (content) page.append(content);
+      host.append(page);
+    });
+    const sidebar = document.querySelector('.founder-sidebar');
+    if (sidebar) {
+      sidebar.innerHTML = '<div class="nav-header-label">STOKROVA</div>' + PAGES.map(([id, title]) => `<button type="button" class="founder-nav-item" data-page-link="${id}">${esc(title)}</button>`).join('');
+      sidebar.addEventListener('click', e => { const id = e.target.closest('[data-page-link]')?.dataset.pageLink; if (id) openPage(id); });
+    }
+    window.stokrovaFounderPages = { open: openPage };
+    openPage('overview');
+  }
+
+  function openPage(id) {
+    if (!PAGES.some(p => p[0] === id)) return;
+    document.querySelectorAll('.fl-page').forEach(page => { page.hidden = page.dataset.page !== id; });
+    document.querySelectorAll('[data-page-link]').forEach(link => {
+      const active = link.dataset.pageLink === id;
+      link.classList.toggle('active', active); link.setAttribute('aria-current', active ? 'page' : 'false');
+    });
+    const viewport = document.querySelector('.content-viewport'); if (viewport) viewport.scrollTop = 0;
+    const loaderId = { users: 'live-accounts', plans: 'live-plans', telemetry: 'live-health', audit: 'live-audit' }[id];
+    if (loaderId) LOADERS[loaderId]();
+  }
 
   function mountPanels() {
     const host = document.getElementById('founder-portal-container');
@@ -85,20 +114,7 @@
     root.addEventListener('click', onClick);
     root.addEventListener('change', onChange);
 
-    const sidebar = document.querySelector('.founder-sidebar');
-    const anchor = sidebar?.querySelector('[style*="margin-top: auto"]');
-    if (sidebar && !sidebar.querySelector('.fl-nav')) {
-      const nav = document.createElement('div');
-      nav.className = 'fl-nav';
-      nav.innerHTML = '<div class="nav-header-label" style="margin-top: 16px;">Live Governance</div>' +
-        SECTIONS.map((s) => `<div class="founder-nav-item" data-jump="${s.id}"><span>${s.icon} ${s.title}</span></div>`).join('');
-      sidebar.insertBefore(nav, anchor || null);
-      nav.addEventListener('click', (e) => {
-        const id = e.target.closest('[data-jump]')?.dataset.jump;
-        if (id) document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-    }
-    loadAll();
+    mountPages(host);
   }
 
   const body = (id) => document.querySelector(`[data-body="${id}"]`);
@@ -112,7 +128,7 @@
   async function loadAccounts() {
     const r = await api('/users?limit=100');
     if (!guard('live-accounts', r)) return;
-    const items = r.data?.items || [];
+    const items = (r.data?.items || []).filter(u => u.role !== 'PLATFORM_SUPER_ADMIN' && u.role !== 'PLATFORM_FOUNDER' && !u.is_platform_admin);
     if (!items.length) return note('live-accounts', 'No accounts yet.');
     body('live-accounts').innerHTML = `<div class="fl-scroll"><table class="fl-table"><thead><tr><th>Name</th><th>Email</th><th>Business</th><th>Role</th><th>Last active</th><th>Status</th><th></th></tr></thead><tbody>${items.map((u) => `
       <tr><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>${esc(u.tenantName || '—')}</td><td>${esc(u.role)}</td><td>${esc(when(u.lastActiveIso))}</td>
@@ -162,7 +178,7 @@
     const items = r.data?.items || [];
     if (!items.length) return note('live-audit', 'No founder actions recorded yet.');
     body('live-audit').innerHTML = `<div class="fl-scroll"><table class="fl-table"><thead><tr><th>When</th><th>Action</th><th>Business</th><th>By</th><th>Details</th></tr></thead><tbody>${items.map((a) => `
-      <tr><td>${esc(when(a.createdAt))}</td><td>${esc(String(a.eventType || '').replace(/_/g, ' ').toLowerCase())}</td><td>${esc(a.tenantId || '—')}</td><td>${esc(a.actorId || '—')}</td>
+      <tr><td>${esc(when(a.createdAt))}</td><td>${esc(String(a.eventType || '').replace(/_/g, ' ').toLowerCase())}</td><td>${esc(a.tenantId || '—')}</td><td>Administrator</td>
       <td class="fl-muted">${esc(a.payload?.reason || a.payload?.newTier || (a.payload?.monthly ? money(a.payload.monthly) + ' / month' : '') || (a.payload ? JSON.stringify(a.payload).slice(0, 80) : ''))}</td></tr>`).join('')}</tbody></table></div>`;
   }
 
@@ -249,7 +265,6 @@
   }
 
   const LOADERS = { 'live-accounts': loadAccounts, 'live-plans': loadPlans, 'live-health': loadHealth, 'live-audit': loadAudit };
-  const loadAll = () => Object.values(LOADERS).forEach((f) => f());
 
   async function onClick(e) {
     const refresh = e.target.closest('[data-refresh]')?.dataset.refresh;
@@ -302,6 +317,20 @@
     const s = document.createElement('style');
     s.id = 'fl-style';
     s.textContent = `
+      .fl-page[hidden]{display:none!important}
+      .fl-page-intro{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px 26px;margin-bottom:24px;border-block:1px solid var(--primary);background:var(--primary);color:var(--primary-fg)}
+      .fl-page-intro h1{font-size:1.75rem;line-height:1.3;margin:0 0 8px;font-weight:800;letter-spacing:0}
+      .fl-page-intro p{font-size:.875rem;line-height:1.6;margin:0;max-width:760px}
+      .fl-page-intro button{border:1px solid currentColor!important}
+      .founder-sidebar button.founder-nav-item{background:transparent;border:0;text-align:left;font-family:inherit;flex-shrink:0}
+      .founder-sidebar button.founder-nav-item.active{background:color-mix(in srgb,var(--primary) 15%,transparent);border-left:3px solid var(--primary)}
+      .fl-page .fl-panel{border:0;background:transparent;padding:0}
+      .fl-page .fl-panel header h3,.fl-page .fl-panel header p{display:none}
+      .fl-page .fl-panel header{justify-content:flex-end}
+      #fl-live-root{display:none!important}
+      .content-viewport{min-width:0}
+      @media(max-width:760px){.founder-sidebar{width:170px;min-width:170px}.content-viewport{padding:18px 14px}.fl-page-intro{padding:20px 18px;flex-wrap:wrap}.founder-top-bar{padding:10px 14px}}
+      @media(max-width:520px){.app-layout{flex-direction:column}.founder-sidebar{width:100%;min-width:0;flex-direction:row;overflow-x:auto;padding:8px;border-right:0}.founder-sidebar .nav-header-label{display:none}.founder-sidebar button.founder-nav-item{white-space:nowrap}.fl-page-intro h1{overflow-wrap:anywhere}}
       .fl-login-wrap{display:flex;width:100%;max-width:980px;align-items:stretch;gap:0;border-radius:12px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.55);animation:flIn .35s ease-out}
       .fl-login-wrap>div{border-radius:0 12px 12px 0!important;box-shadow:none!important;max-width:460px!important;flex:1 1 460px}
       .fl-login-side{flex:1 1 420px;padding:40px 36px;background:linear-gradient(160deg,rgba(189,150,82,.16),rgba(22,27,30,.96) 60%);border:1px solid rgba(189,150,82,.25);border-right:none;border-radius:12px 0 0 12px;color:#ACB8C3;display:flex;flex-direction:column;gap:14px}

@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Preview and source delivery
+- Founder navigation shows one isolated page at a time through founder-live.js; shared workspace introductions reuse existing heading nodes through workspace-enhancements.js. Why: tab content stays independent without duplicating controls or changing business logic.
 - Keep presentation-only workspace enhancements in the shared preview script and mirror it under repository-changes/apps/customer-web for the approved original-repository delivery; this avoids altering business logic or requiring a backend.
 - Company sales live in the user's repository database (executive_sales_entries + sales_orders/lines/payments via the NestJS /v1/analytics/executive API), not Lovable Cloud; the Cloud executive tables are deprecated. The user owns and connects that database live.
 - Executive math lives in packages/domain/src/executive-sales.ts and is shared by snapshot, dashboard and AI; never accept browser-calculated figures.
