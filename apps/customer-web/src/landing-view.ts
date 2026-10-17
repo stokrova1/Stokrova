@@ -1806,7 +1806,15 @@ export class LandingViewModel {
               <div class="modal-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
                 <div>
                   <label for="reg-password" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">PASSWORD *</label>
-                  <input id="reg-password" class="form-input" type="password" required placeholder="••••••••••••" style="width: 100%; min-height: 44px; padding: 10px 14px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+                  <div style="position: relative; width: 100%;">
+                    <input id="reg-password" class="form-input" type="password" required placeholder="••••••••••••" style="width: 100%; min-height: 44px; padding: 10px 44px 10px 14px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+                    <button type="button" id="btn-toggle-reg-password" onclick="window.stokrovaCustomerApp?.togglePasswordVisibility('reg-password', this)" aria-label="Toggle password visibility" style="position: absolute; right: 0; top: 0; bottom: 0; width: 44px; display: inline-flex; align-items: center; justify-content: center; background: transparent; border: none; color: ${tokens.textMuted}; cursor: pointer; padding: 0; transition: color 0.15s ease;">
+                      <svg class="stk-eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label for="reg-owner-phone" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">EMERGENCY AUDIT PHONE (OPTIONAL)</label>
@@ -2128,35 +2136,43 @@ export class LandingViewModel {
       <div id="modal-login" role="dialog" aria-modal="true" aria-labelledby="login-modal-title" style="display: none; position: fixed; inset: 0; background: rgba(14, 17, 22, 0.88); backdrop-filter: blur(8px); z-index: 20000; align-items: center; justify-content: center; padding: 16px;">
         <div class="modal-dialog-inner login-stepper-card" style="position: relative; z-index: 1; background: ${tokens.surface}; border: 1px solid ${tokens.borderStrong}; border-radius: 14px; width: 100%; max-width: 490px; box-shadow: 0 25px 60px rgba(0,0,0,0.75), 0 0 25px rgba(189,150,82,0.12); padding: 26px 24px;">
           
-          <!-- Modal Header -->
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span style="color: ${tokens.primary}; font-size: 1.25rem; font-weight: 800;">◆</span>
-              <div>
-                <h2 id="login-modal-title" style="margin: 0; font-size: 1.25rem; font-weight: 800; color: ${tokens.textPrimary};">Staff Sign In</h2>
-                <div style="margin: 2px 0 0 0; font-size: 0.75rem; color: ${tokens.textSecondary};">
-                  Smart Workspace Auto-Discovery • Enterprise Single Sign-On
-                </div>
-              </div>
+          <!-- Centered Modal Header -->
+          <div style="position: relative; text-align: center; margin-bottom: 20px; border-bottom: 1px solid rgba(65, 79, 90, 0.35); padding-bottom: 14px;">
+            <!-- Top Center: Small Crystal Icon + STOKROVA -->
+            <div style="display: inline-flex; align-items: center; justify-content: center; gap: 7px; margin-bottom: 6px;">
+              <span style="color: ${tokens.primary}; font-size: 1rem; line-height: 1;">◆</span>
+              <span style="font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); font-weight: 800; font-size: 0.95rem; letter-spacing: 0.12em; color: ${tokens.textPrimary};">STOKROVA</span>
             </div>
-            <button onclick="window.stokrovaCustomerApp.closeLoginModal()" aria-label="Close dialog" style="background: none; border: none; width: 44px; height: 44px; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; color: ${tokens.textMuted}; cursor: pointer;">&times;</button>
+            <!-- Centered Header in clean normal font on full one line -->
+            <h2 id="login-modal-title" style="margin: 0; font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif); font-size: 1.15rem; font-weight: 700; color: ${tokens.textPrimary}; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap;">Staff Sign In</h2>
+            <div style="margin: 4px 0 0 0; font-size: 0.72rem; color: ${tokens.textSecondary}; letter-spacing: 0.04em;">
+              Smart Workspace Auto-Discovery • Enterprise Single Sign-On
+            </div>
+
+            <!-- Top-Right Close Button -->
+            <button onclick="window.stokrovaCustomerApp.closeLoginModal()" aria-label="Close dialog" style="position: absolute; top: -2px; right: 0; background: rgba(255,255,255,0.04); border: 1px solid ${tokens.border}; width: 34px; height: 34px; min-width: 34px; min-height: 34px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.25rem; color: ${tokens.textMuted}; cursor: pointer; transition: all 0.15s ease;">&times;</button>
           </div>
 
           <!-- STEP 1: Enter Staff Email & Password -->
           <div id="login-step-credentials" style="display: block;">
             <form id="form-login-customer" novalidate onsubmit="window.stokrovaCustomerApp.handleLoginSubmit(event)">
               
-              <div style="margin-bottom: 14px;">
-                <label for="login-email" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">STAFF WORK EMAIL *</label>
-                <input id="login-email" class="form-input" type="email" required placeholder="name@company.com" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
-                <div style="font-size: 0.725rem; color: ${tokens.textMuted}; margin-top: 4px;">
-                  Enter your work email — STOKROVA will automatically verify your business workspace.
-                </div>
+              <div style="margin-bottom: 16px;">
+                <label for="login-email" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">STAFF WORK EMAIL *</label>
+                <input id="login-email" class="form-input" type="email" required placeholder="name@company.com" style="width: 100%; min-height: 44px; padding: 10px 14px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
               </div>
 
-              <div style="margin-bottom: 20px;">
-                <label for="login-password" class="form-label" style="display: block; font-size: 0.75rem; font-weight: 600; color: ${tokens.textSecondary}; margin-bottom: 5px;">PASSWORD / PIN *</label>
-                <input id="login-password" class="form-input" type="password" required placeholder="••••••••••••" style="width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+              <div style="margin-bottom: 22px;">
+                <label for="login-password" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">PASSWORD / PIN *</label>
+                <div style="position: relative; width: 100%;">
+                  <input id="login-password" class="form-input" type="password" required placeholder="••••••••••••" style="width: 100%; min-height: 44px; padding: 10px 44px 10px 14px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px;" />
+                  <button type="button" id="btn-toggle-login-password" onclick="window.stokrovaCustomerApp?.togglePasswordVisibility('login-password', this)" aria-label="Toggle password visibility" style="position: absolute; right: 0; top: 0; bottom: 0; width: 44px; display: inline-flex; align-items: center; justify-content: center; background: transparent; border: none; color: ${tokens.textMuted}; cursor: pointer; padding: 0; transition: color 0.15s ease;">
+                    <svg class="stk-eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </button>
+                </div>
               </div>
 
               <div style="display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
