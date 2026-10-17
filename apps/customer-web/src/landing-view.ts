@@ -1386,8 +1386,17 @@ export class LandingViewModel {
 
         <div class="modal-dialog-inner signup-stepper-card" style="position: relative; z-index: 1; background: radial-gradient(circle at 50% 0%, #1c2328 0%, #13171a 100%); border: 1px solid ${tokens.borderStrong}; border-radius: 16px; width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto; box-shadow: 0 35px 85px rgba(0,0,0,0.85), 0 0 30px rgba(189,150,82,0.18), inset 0 1px 0 rgba(255,255,255,0.06); padding: 26px;">
           
-          <!-- Centered Brand & Single-Line Header -->
+          <!-- Centered Brand & Single-Line Header with Step Counter -->
           <div style="position: relative; text-align: center; margin-bottom: 18px; border-bottom: 1px solid rgba(65, 79, 90, 0.35); padding-bottom: 14px;">
+            <!-- Top-Left Edge: Small Branded Step Counter Pill -->
+            <div id="signup-step-badge" style="position: absolute; top: 0; left: 0; display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 4px; background: rgba(189,150,82,0.08); border: 1px solid rgba(189,150,82,0.3); font-family: var(--stokrova-font-mono); font-size: 0.6875rem; font-weight: 700; color: ${tokens.primary}; letter-spacing: 0.08em; text-transform: uppercase;">
+              <span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: ${tokens.primary};"></span>
+              <span>STEP</span>
+              <span id="signup-current-step-num">1</span>
+              <span style="opacity: 0.4;">/</span>
+              <span style="opacity: 0.7;">4</span>
+            </div>
+
             <!-- Top Center: Small Crystal Icon + STOKROVA -->
             <div style="display: inline-flex; align-items: center; justify-content: center; gap: 7px; margin-bottom: 6px;">
               <span style="color: ${tokens.primary}; font-size: 1rem; line-height: 1;">◆</span>
@@ -1402,7 +1411,6 @@ export class LandingViewModel {
 
           <!-- Progress Stepper Track (Clean hairline progress bar without subtitles) -->
           <div id="signup-stepper-header" style="margin-bottom: 20px;">
-            <span id="signup-current-step-num" style="display: none;">1</span>
             <span id="signup-step-percent" style="display: none;">25%</span>
             <div style="height: 3px; background: #121619; border-radius: 2px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06);">
               <div id="signup-progress-fill" style="width: 25%; height: 100%; background: linear-gradient(90deg, #BD9652, #E0CB9F); box-shadow: 0 0 8px rgba(189,150,82,0.6); transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);"></div>
@@ -1447,29 +1455,16 @@ export class LandingViewModel {
                 </div>
               </div>
 
-              <div class="modal-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 22px;">
-                <div>
-                  <label for="reg-currency" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">BASE CURRENCY *</label>
-                  <select id="reg-currency" class="form-input stk-currency-select" onchange="window.stokrovaCustomerApp?.onBaseCurrencyChange ? window.stokrovaCustomerApp.onBaseCurrencyChange(this.value) : null" style="width: 100%; min-height: 40px; height: 40px; padding: 8px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.8125rem; font-weight: 600; font-family: var(--stokrova-font-mono);">
-                    <option value="USD">USD ($) — US Dollar</option>
-                    <option value="GBP">GBP (£) — British Pound</option>
-                    <option value="EUR">EUR (€) — Euro</option>
-                    <option value="NGN">NGN (₦) — Nigerian Naira</option>
-                    <option value="KES">KES (KSh) — Kenyan Shilling</option>
-                    <option value="ZAR">ZAR (R) — South African Rand</option>
-                  </select>
-                </div>
-                <div>
-                  <label for="reg-country" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">PRIMARY JURISDICTION *</label>
-                  <select id="reg-country" class="form-input stk-currency-select" style="width: 100%; min-height: 40px; height: 40px; padding: 8px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.8125rem; font-weight: 600; font-family: var(--stokrova-font-mono);">
-                    <option value="GB">United Kingdom (HMRC Compliant)</option>
-                    <option value="US">United States (State Sales Tax)</option>
-                    <option value="NG">Nigeria (FIRS Fiscal Invoicing)</option>
-                    <option value="KE">Kenya (KRA TIMS / eTIMS)</option>
-                    <option value="ZA">South Africa (SARS Compliant)</option>
-                    <option value="EU">European Union (EU VAT MOSS)</option>
-                  </select>
-                </div>
+              <div style="margin-bottom: 22px;">
+                <label for="reg-currency" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">BASE CURRENCY *</label>
+                <select id="reg-currency" class="form-input stk-currency-select" onchange="window.stokrovaCustomerApp?.onBaseCurrencyChange ? window.stokrovaCustomerApp.onBaseCurrencyChange(this.value) : null" style="width: 100%; min-height: 42px; height: 42px; padding: 8px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.8125rem; font-weight: 600; font-family: var(--stokrova-font-mono);">
+                  <option value="USD">USD ($) — US Dollar</option>
+                  <option value="GBP">GBP (£) — British Pound</option>
+                  <option value="EUR">EUR (€) — Euro</option>
+                  <option value="NGN">NGN (₦) — Nigerian Naira</option>
+                  <option value="KES">KES (KSh) — Kenyan Shilling</option>
+                  <option value="ZAR">ZAR (R) — South African Rand</option>
+                </select>
               </div>
 
               <div style="display: flex; justify-content: flex-end; gap: 10px;">
@@ -1525,15 +1520,29 @@ export class LandingViewModel {
 
               <div class="modal-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 22px;">
                 <div>
-                  <label for="reg-initial-float" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">INITIAL CASH TILL FLOAT</label>
-                  <input id="reg-initial-float" class="form-input" type="text" value="$200.00" style="width: 100%; min-height: 44px; padding: 10px 14px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 16px; font-family: var(--stokrova-font-mono);" />
+                  <label for="reg-country" class="form-label stk-industrial-label" style="display: block; font-size: 0.72rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">STORE / BRANCH COUNTRY *</label>
+                  <select id="reg-country" class="form-input stk-currency-select" style="width: 100%; min-height: 42px; height: 42px; padding: 8px 12px; border-radius: 6px; background: ${tokens.background}; border: 1px solid ${tokens.border}; color: ${tokens.textPrimary}; font-size: 0.8125rem; font-weight: 600; font-family: var(--stokrova-font-mono);">
+                    <option value="GB">🇬🇧 United Kingdom (HMRC Compliant)</option>
+                    <option value="US">🇺🇸 United States (State Sales Tax)</option>
+                    <option value="NG">🇳🇬 Nigeria (FIRS Fiscal Invoicing)</option>
+                    <option value="KE">🇰🇪 Kenya (KRA TIMS / eTIMS)</option>
+                    <option value="ZA">🇿🇦 South Africa (SARS Compliant)</option>
+                    <option value="CA">🇨🇦 Canada (CRA GST / HST)</option>
+                    <option value="AU">🇦🇺 Australia (ATO BAS / GST)</option>
+                    <option value="DE">🇩🇪 Germany (GoBD & TSE)</option>
+                    <option value="FR">🇫🇷 France (NF525 Certified)</option>
+                    <option value="AE">🇦🇪 United Arab Emirates (FTA Zakat / VAT)</option>
+                    <option value="SA">🇸🇦 Saudi Arabia (ZATCA Phase 2)</option>
+                    <option value="GH">🇬🇭 Ghana (GRA E-VAT Certified)</option>
+                    <option value="EU">🇪🇺 European Union (EU VAT MOSS)</option>
+                  </select>
                 </div>
-                <div style="display: flex; flex-direction: column; justify-content: center; background: rgba(22,27,30,0.6); border: 1px solid ${tokens.border}; border-radius: 6px; padding: 10px 12px;">
-                  <div class="stk-industrial-label" style="font-size: 0.7rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">HARDWARE DETECTORS</div>
-                  <label style="display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: #4ADE80; font-family: var(--stokrova-font-mono); cursor: pointer;">
-                    <input type="checkbox" checked disabled style="accent-color: #4ADE80;" />
-                    <span>Sub-50ms Laser Scanner Buffer Active</span>
-                  </label>
+                <div style="display: flex; flex-direction: column; justify-content: center; background: rgba(20,24,27,0.85); border: 1px solid ${tokens.border}; border-radius: 6px; padding: 10px 14px;">
+                  <div class="stk-industrial-label" style="font-size: 0.6875rem; font-weight: 700; color: ${tokens.textSecondary}; margin-bottom: 5px; letter-spacing: 0.08em; text-transform: uppercase;">TAX & FISCAL ADAPTER</div>
+                  <div style="display: flex; align-items: center; gap: 7px; font-size: 0.75rem; color: #4ADE80; font-family: var(--stokrova-font-mono); font-weight: 600;">
+                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #4ADE80; box-shadow: 0 0 8px #4ADE80;"></span>
+                    <span>Automated Fiscal Invoicing Active</span>
+                  </div>
                 </div>
               </div>
 

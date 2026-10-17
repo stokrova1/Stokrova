@@ -1218,10 +1218,12 @@ const completeWebsiteHtml = `
         const numEl = document.getElementById('signup-current-step-num');
         const pctEl = document.getElementById('signup-step-percent');
         const fillEl = document.getElementById('signup-progress-fill');
+        const stepBadge = document.getElementById('signup-step-badge');
 
         if (numEl) numEl.textContent = String(Math.min(step, 4));
         if (pctEl && widths[step - 1]) pctEl.textContent = 'Site Registration';
         if (fillEl && widths[step - 1]) fillEl.style.width = widths[step - 1];
+        if (stepBadge) stepBadge.style.display = (step >= 5) ? 'none' : 'inline-flex';
       },
 
       nextSignupStep(current) {
