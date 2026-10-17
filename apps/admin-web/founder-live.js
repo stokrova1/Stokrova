@@ -318,7 +318,9 @@
     s.id = 'fl-style';
     s.textContent = `
       .fl-page[hidden]{display:none!important}
-      .fl-page-intro{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px 26px;margin-bottom:24px;border-block:1px solid var(--primary);background:var(--primary);color:var(--primary-fg)}
+      .fl-page-intro{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px 26px;margin-bottom:24px;border-block:1px solid var(--primary);background:linear-gradient(115deg,color-mix(in srgb,var(--primary) 80%,var(--bg)) 0%,var(--primary) 46%,var(--primary-hover) 58%,var(--primary) 70%,color-mix(in srgb,var(--primary) 86%,var(--bg)) 100%);color:var(--primary-fg)}
+      .fl-page-intro::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,0) 42%);pointer-events:none}
+      .fl-page-intro>*{position:relative;z-index:1}
       .fl-page-intro h1{font-size:1.75rem;line-height:1.3;margin:0 0 8px;font-weight:800;letter-spacing:0}
       .fl-page-intro p{font-size:.875rem;line-height:1.6;margin:0;max-width:760px}
       .fl-page-intro button{border:1px solid currentColor!important}

@@ -54,7 +54,9 @@
     .stk-executive-legend i { width:10px; height:10px; background:var(--primary); }
     .stk-executive-legend span:last-child i { background:var(--border-strong); }
     .stk-executive-comparison { margin-top:16px; }
-    .stk-page-intro { background:var(--primary); color:var(--bg); padding:22px 24px; margin-bottom:24px; border-block:1px solid var(--primary-hover); display:flex; align-items:center; justify-content:space-between; gap:20px; }
+    .stk-page-intro { position:relative; overflow:hidden; background:linear-gradient(115deg, color-mix(in srgb,var(--primary) 80%,var(--bg)) 0%, var(--primary) 46%, var(--primary-hover) 58%, var(--primary) 70%, color-mix(in srgb,var(--primary) 86%,var(--bg)) 100%); color:var(--bg); padding:22px 24px; margin-bottom:24px; border-block:1px solid var(--primary-hover); display:flex; align-items:center; justify-content:space-between; gap:20px; }
+    .stk-page-intro::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,0) 42%); pointer-events:none; }
+    .stk-page-intro > * { position:relative; z-index:1; }
     .stk-page-intro h1,.stk-page-intro h3 { color:inherit!important; margin:0 0 6px!important; letter-spacing:0; }
     .stk-page-intro p { color:inherit!important; margin:0!important; line-height:1.6; max-width:760px; }
     .stk-page-intro > div { min-width:0; }
