@@ -1402,37 +1402,18 @@ export class LandingViewModel {
             <button onclick="window.stokrovaCustomerApp.closeRegisterModal()" aria-label="Close dialog" style="background: rgba(255,255,255,0.04); border: 1px solid ${tokens.border}; width: 38px; height: 38px; min-width: 38px; min-height: 38px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; color: ${tokens.textMuted}; cursor: pointer; transition: all 0.15s ease;">&times;</button>
           </div>
 
-          <!-- Progress Stepper Bar & Badges (Visible on Steps 1 to 4) -->
+          <!-- Progress Stepper Track (Focused single-step view without leaking future steps) -->
           <div id="signup-stepper-header" style="margin-bottom: 22px;">
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px;">
-              <div id="step-badge-1" class="stk-step-nav-item active">
-                <span class="stk-step-nav-num">01 // STEP</span>
-                <span class="stk-step-nav-label">Identity</span>
-              </div>
-              <div id="step-badge-2" class="stk-step-nav-item">
-                <span class="stk-step-nav-num">02 // STEP</span>
-                <span class="stk-step-nav-label">Operations</span>
-              </div>
-              <div id="step-badge-3" class="stk-step-nav-item">
-                <span class="stk-step-nav-num">03 // STEP</span>
-                <span class="stk-step-nav-label">Owner</span>
-              </div>
-              <div id="step-badge-4" class="stk-step-nav-item">
-                <span class="stk-step-nav-num">04 // STEP</span>
-                <span class="stk-step-nav-label">Scale & Plan</span>
-              </div>
-            </div>
-
             <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; margin-bottom: 8px;">
-              <span style="font-weight: 700; color: ${tokens.primary}; font-family: var(--stokrova-font-mono); letter-spacing: 0.04em;">
-                Step <span id="signup-current-step-num">1</span> of 4
+              <span style="font-weight: 800; color: ${tokens.primary}; font-family: var(--stokrova-font-mono); letter-spacing: 0.06em; text-transform: uppercase;">
+                Onboarding Step <span id="signup-current-step-num">1</span>
               </span>
-              <span id="signup-step-percent" style="font-family: var(--stokrova-font-mono); color: ${tokens.primary}; font-weight: 700; letter-spacing: 0.05em;">25%</span>
+              <span id="signup-step-percent" style="font-family: var(--stokrova-font-mono); color: ${tokens.textSecondary}; font-weight: 600; font-size: 0.7rem; letter-spacing: 0.05em;">Site Registration</span>
             </div>
 
             <!-- Glowing Gold Progress Track -->
-            <div style="height: 6px; background: #121619; border-radius: 3px; overflow: hidden; border: 1px solid ${tokens.border};">
-              <div id="signup-progress-fill" style="width: 25%; height: 100%; background: linear-gradient(90deg, #BD9652, #E0CB9F); box-shadow: 0 0 12px rgba(189,150,82,0.7); transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);"></div>
+            <div style="height: 5px; background: #121619; border-radius: 3px; overflow: hidden; border: 1px solid ${tokens.border};">
+              <div id="signup-progress-fill" style="width: 25%; height: 100%; background: linear-gradient(90deg, #BD9652, #E0CB9F); box-shadow: 0 0 10px rgba(189,150,82,0.6); transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);"></div>
             </div>
           </div>
 
@@ -1458,7 +1439,7 @@ export class LandingViewModel {
             <div id="reg-step-1" class="signup-step-pane" style="display: block;">
               <div style="background: rgba(189,150,82,0.08); border: 1px solid rgba(189,150,82,0.3); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 0.8125rem; color: ${tokens.textSecondary}; display: flex; align-items: center; gap: 10px;">
                 <span style="color: ${tokens.primary}; font-size: 1rem;">🔒</span>
-                <span><strong>Enterprise Security:</strong> Your business environment is completely dedicated and securely protected.</span>
+                <span><strong>Site Registration:</strong> Sign up is completed exclusively on our web site. Once registered, all staff and business roles log in directly to the workspace app.</span>
               </div>
 
               <div style="margin-bottom: 14px;">
@@ -1508,7 +1489,7 @@ export class LandingViewModel {
                   Cancel
                 </button>
                 <button id="btn-signup-step1" class="stk-industrial-btn-primary" type="button" onclick="window.stokrovaCustomerApp.nextSignupStep(1)" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.875rem; cursor: pointer; box-shadow: 0 4px 14px rgba(189,150,82,0.35); font-family: var(--font-heading-industrial, 'Syne', sans-serif); letter-spacing: 0.02em;">
-                  Continue to Operations →
+                  Confirm & Continue →
                 </button>
               </div>
             </div>
@@ -1573,7 +1554,7 @@ export class LandingViewModel {
                   ← Back
                 </button>
                 <button id="btn-signup-step2" class="stk-industrial-btn-primary" type="button" onclick="window.stokrovaCustomerApp.nextSignupStep(2)" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.875rem; cursor: pointer; box-shadow: 0 4px 14px rgba(189,150,82,0.35); font-family: var(--font-heading-industrial, 'Syne', sans-serif); letter-spacing: 0.02em;">
-                  Continue to Owner Account →
+                  Confirm & Continue →
                 </button>
               </div>
             </div>
@@ -1612,7 +1593,7 @@ export class LandingViewModel {
                   ← Back
                 </button>
                 <button id="btn-signup-step3" class="stk-industrial-btn-primary" type="button" onclick="window.stokrovaCustomerApp.nextSignupStep(3)" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.875rem; cursor: pointer; box-shadow: 0 4px 14px rgba(189,150,82,0.35); font-family: var(--font-heading-industrial, 'Syne', sans-serif); letter-spacing: 0.02em;">
-                  Continue to Scale & Plan →
+                  Confirm & Continue →
                 </button>
               </div>
             </div>
@@ -1680,7 +1661,7 @@ export class LandingViewModel {
                   ← Back
                 </button>
                 <button id="btn-submit-registration" class="stk-industrial-btn-primary" type="submit" style="min-height: 46px; padding: 12px 28px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 18px rgba(189,150,82,0.45); font-family: var(--font-heading-industrial, 'Syne', sans-serif); letter-spacing: 0.03em; text-transform: uppercase;">
-                  Provision Workspace & Customize →
+                  Confirm & Register Business →
                 </button>
               </div>
             </div>
@@ -1951,8 +1932,8 @@ export class LandingViewModel {
                 <button type="button" onclick="window.stokrovaCustomerApp.closeLoginModal()" style="min-height: 44px; padding: 10px 18px; border-radius: 6px; border: 1px solid ${tokens.border}; background: transparent; color: ${tokens.textPrimary}; font-size: 0.875rem; cursor: pointer;">
                   Cancel
                 </button>
-                <button id="btn-submit-login" type="submit" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 700; font-size: 0.875rem; cursor: pointer; box-shadow: 0 2px 10px rgba(189,150,82,0.35);">
-                  Sign In →
+                <button id="btn-submit-login" type="submit" style="min-height: 44px; padding: 10px 24px; border-radius: 6px; border: none; background: ${tokens.primary}; color: #0E1116; font-weight: 800; font-size: 0.875rem; cursor: pointer; box-shadow: 0 2px 10px rgba(189,150,82,0.35); font-family: var(--font-heading-industrial, 'Syne', sans-serif); letter-spacing: 0.02em;">
+                  Confirm & Sign In →
                 </button>
               </div>
             </form>

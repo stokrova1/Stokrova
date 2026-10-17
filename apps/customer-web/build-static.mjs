@@ -1220,7 +1220,7 @@ const completeWebsiteHtml = `
         const fillEl = document.getElementById('signup-progress-fill');
 
         if (numEl) numEl.textContent = String(Math.min(step, 4));
-        if (pctEl && widths[step - 1]) pctEl.textContent = widths[step - 1];
+        if (pctEl && widths[step - 1]) pctEl.textContent = 'Site Registration';
         if (fillEl && widths[step - 1]) fillEl.style.width = widths[step - 1];
       },
 
@@ -1258,40 +1258,42 @@ const completeWebsiteHtml = `
           btn = document.getElementById('btn-signup-step3');
         }
 
-        // Geometry-locked responsive loading on step button
+        // Geometry-locked responsive loading placed directly in the center of the button
         let stopStepLoading = () => {};
         if (btn) {
-          if (window.stokrovaStartLoading) {
-            stopStepLoading = window.stokrovaStartLoading(btn, current === 3 ? 'Verifying…' : 'Calibrating…') || (() => {});
-          } else {
-            const rect = btn.getBoundingClientRect();
-            btn.style.width = Math.max(rect.width, 180) + 'px';
-            btn.style.minWidth = Math.max(rect.width, 180) + 'px';
-            const orig = btn.innerHTML;
-            btn.disabled = true;
-            btn.style.pointerEvents = 'none';
-            btn.innerHTML = '<span class="stk-btn-spinner" style="display:inline-block;width:12px;height:12px;border:2px solid rgba(0,0,0,0.25);border-top-color:currentColor;border-radius:50%;animation:stkSpin 0.6s linear infinite;margin-right:6px;vertical-align:middle;"></span><span>Calibrating…</span>';
-            stopStepLoading = () => {
-              btn.innerHTML = orig;
-              btn.style.width = '';
-              btn.style.minWidth = '';
-              btn.style.pointerEvents = '';
-              btn.disabled = false;
-            };
-          }
+          const rect = btn.getBoundingClientRect();
+          const origWidth = rect.width;
+          const origHeight = rect.height;
+          btn.style.width = Math.max(origWidth, 180) + 'px';
+          btn.style.minWidth = Math.max(origWidth, 180) + 'px';
+          btn.style.height = Math.max(origHeight, 44) + 'px';
+          const orig = btn.innerHTML;
+          btn.disabled = true;
+          btn.style.pointerEvents = 'none';
+          btn.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;gap:8px;"><span class="stk-btn-spinner" style="display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,0.25);border-top-color:currentColor;border-radius:50%;animation:stkSpin 0.6s linear infinite;vertical-align:middle;"></span><span style="font-weight:800;letter-spacing:0.02em;">Confirming\u2026</span></div>';
+          stopStepLoading = () => {
+            btn.innerHTML = orig;
+            btn.style.width = '';
+            btn.style.minWidth = '';
+            btn.style.height = '';
+            btn.style.pointerEvents = '';
+            btn.disabled = false;
+          };
         }
 
-        // Dedicated Page Loading State: hide current step & show loader
+        // Dedicated Page Loading State: hide current step & show inter-step transition
         const currentPane = document.getElementById('reg-step-' + current);
         const loader = document.getElementById('signup-step-loader');
         const header = document.getElementById('signup-stepper-header');
         const loaderTitle = document.getElementById('signup-loader-title');
+        const loaderSub = document.getElementById('signup-loader-sub');
 
         setTimeout(() => {
           if (currentPane) currentPane.style.display = 'none';
           if (header) header.style.display = 'none';
           if (loader) loader.style.display = 'block';
-          if (loaderTitle) loaderTitle.textContent = 'Calibrating Step ' + (current + 1) + '...';
+          if (loaderTitle) loaderTitle.textContent = 'Confirming & Loading Next Page...';
+          if (loaderSub) loaderSub.textContent = 'Calibrating your business parameters and security settings...';
 
           setTimeout(() => {
             stopStepLoading();
@@ -1489,17 +1491,19 @@ const completeWebsiteHtml = `
           let stopRegLoading = () => {};
           if (submitBtn) {
             const rect = submitBtn.getBoundingClientRect();
-            submitBtn.style.width = Math.max(rect.width, 180) + 'px';
-            submitBtn.style.minWidth = Math.max(rect.width, 180) + 'px';
+            submitBtn.style.width = Math.max(rect.width, 240) + 'px';
+            submitBtn.style.minWidth = Math.max(rect.width, 240) + 'px';
+            submitBtn.style.height = Math.max(rect.height, 46) + 'px';
             const orig = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.style.pointerEvents = 'none';
-            submitBtn.style.opacity = '0.85';
-            submitBtn.innerHTML = '<span class="stk-btn-spinner" style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,0.25);border-top-color:currentColor;border-radius:50%;animation:stkSpin 0.6s linear infinite;margin-right:6px;vertical-align:middle;"></span><span>Creating account\u2026</span>';
+            submitBtn.style.opacity = '0.9';
+            submitBtn.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;gap:8px;"><span class="stk-btn-spinner" style="display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,0.25);border-top-color:currentColor;border-radius:50%;animation:stkSpin 0.6s linear infinite;vertical-align:middle;"></span><span style="font-weight:800;letter-spacing:0.02em;">Registering Business\u2026</span></div>';
             stopRegLoading = () => {
               submitBtn.innerHTML = orig;
               submitBtn.style.width = '';
               submitBtn.style.minWidth = '';
+              submitBtn.style.height = '';
               submitBtn.style.pointerEvents = '';
               submitBtn.style.opacity = '';
               submitBtn.disabled = false;
@@ -2400,17 +2404,19 @@ const completeWebsiteHtml = `
         let stopLoginLoading = () => {};
         if (loginSubmitBtn) {
           const rect = loginSubmitBtn.getBoundingClientRect();
-          loginSubmitBtn.style.width = Math.max(rect.width, 100) + 'px';
-          loginSubmitBtn.style.minWidth = Math.max(rect.width, 100) + 'px';
+          loginSubmitBtn.style.width = Math.max(rect.width, 160) + 'px';
+          loginSubmitBtn.style.minWidth = Math.max(rect.width, 160) + 'px';
+          loginSubmitBtn.style.height = Math.max(rect.height, 44) + 'px';
           const orig = loginSubmitBtn.innerHTML;
           loginSubmitBtn.disabled = true;
           loginSubmitBtn.style.pointerEvents = 'none';
-          loginSubmitBtn.style.opacity = '0.85';
-          loginSubmitBtn.innerHTML = '<span class="stk-btn-spinner" style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,0.25);border-top-color:currentColor;border-radius:50%;animation:stkSpin 0.6s linear infinite;margin-right:6px;vertical-align:middle;"></span><span>Signing in\u2026</span>';
+          loginSubmitBtn.style.opacity = '0.9';
+          loginSubmitBtn.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;gap:8px;"><span class="stk-btn-spinner" style="display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,0.25);border-top-color:currentColor;border-radius:50%;animation:stkSpin 0.6s linear infinite;vertical-align:middle;"></span><span style="font-weight:800;letter-spacing:0.02em;">Signing in\u2026</span></div>';
           stopLoginLoading = () => {
             loginSubmitBtn.innerHTML = orig;
             loginSubmitBtn.style.width = '';
             loginSubmitBtn.style.minWidth = '';
+            loginSubmitBtn.style.height = '';
             loginSubmitBtn.style.pointerEvents = '';
             loginSubmitBtn.style.opacity = '';
             loginSubmitBtn.disabled = false;
@@ -2537,30 +2543,41 @@ const completeWebsiteHtml = `
       },
 
       confirmLoginLaunch() {
-        this.closeLoginModal();
-        const data = this.verifiedStaffData || {
-          tenantName: 'My Organization',
-          branchName: 'Primary Branch',
-          userName: 'Staff Member',
-          userRole: 'Business Member',
-        };
-        this.showToast('✓ Access granted: Welcome back, ' + data.userName + '!');
-        this.launchWorkspace(data);
-
-        // Check if first-login tour should start automatically (once-off per staff member & role)
-        const role = data.userRole || 'Store Operations Staff';
-        const userName = data.userName || 'Staff';
-        let tourAlreadyDone = false;
-        try {
-          tourAlreadyDone = !!localStorage.getItem('stokrova_tour_completed_' + encodeURIComponent(userName + '_' + role));
-        } catch (e) {
-          tourAlreadyDone = false;
+        const confirmBtn = document.getElementById('btn-confirm-login');
+        if (confirmBtn) {
+          const rect = confirmBtn.getBoundingClientRect();
+          confirmBtn.style.width = Math.max(rect.width, 220) + 'px';
+          confirmBtn.style.minWidth = Math.max(rect.width, 220) + 'px';
+          confirmBtn.style.height = Math.max(rect.height, 44) + 'px';
+          confirmBtn.disabled = true;
+          confirmBtn.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;gap:8px;"><span class="stk-btn-spinner" style="display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,0.25);border-top-color:currentColor;border-radius:50%;animation:stkSpin 0.6s linear infinite;vertical-align:middle;"></span><span style="font-weight:800;letter-spacing:0.02em;">Entering Dashboard\u2026</span></div>';
         }
+        setTimeout(() => {
+          this.closeLoginModal();
+          const data = this.verifiedStaffData || {
+            tenantName: 'My Organization',
+            branchName: 'Primary Branch',
+            userName: 'Staff Member',
+            userRole: 'Business Member',
+          };
+          this.showToast('✓ Access granted: Welcome back, ' + data.userName + '!');
+          this.launchWorkspace(data);
 
-        if (!tourAlreadyDone) {
-          // Automatic and immediate on first login
-          this.scheduleAutoTour(350, role);
-        }
+          // Check if first-login tour should start automatically (once-off per staff member & role)
+          const role = data.userRole || 'Store Operations Staff';
+          const userName = data.userName || 'Staff';
+          let tourAlreadyDone = false;
+          try {
+            tourAlreadyDone = !!localStorage.getItem('stokrova_tour_completed_' + encodeURIComponent(userName + '_' + role));
+          } catch (e) {
+            tourAlreadyDone = false;
+          }
+
+          if (!tourAlreadyDone) {
+            // Automatic and immediate on first login
+            this.scheduleAutoTour(350, role);
+          }
+        }, 180);
       },
 
       addItemToCart(sku, name, price) {
